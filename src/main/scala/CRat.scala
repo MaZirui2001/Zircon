@@ -1,6 +1,6 @@
 import chisel3._
 import chisel3.util._
-// LUT: 4723 FF: 378
+// LUT: 3255 FF: 378
 object RAT{
     class rat_t extends Bundle{
         val valid = Bool()

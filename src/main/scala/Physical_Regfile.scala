@@ -1,6 +1,6 @@
 import chisel3._
 import chisel3.util._
-// LUT: 10245 FF: 2048
+// LUT: 8059 FF: 2048
 class Physical_Regfile_IO extends Bundle{
     // 8 read ports
     val prj_1       = Input(UInt(6.W))
@@ -39,7 +39,12 @@ class Physical_Regfile_IO extends Bundle{
 class Physical_Regfile extends Module{
     val io = IO(new Physical_Regfile_IO)
 
-    val rf = Mem(64, UInt(32.W))
+    val rf = Reg(Vec(64, UInt(32.W)))
+    when(reset.asBool){
+        for(i <- 0 until 64){
+            rf(i) := 0.U
+        }
+    }
 
     // read, write first regfile
     // for arithmetic instructions
@@ -85,6 +90,6 @@ class Physical_Regfile extends Module{
     }
 }
 
-// object Physical_Regfile extends App {
-//     emitVerilog(new Physical_Regfile, Array("-td", "build/"))
-// }
+object Physical_Regfile extends App {
+    emitVerilog(new Physical_Regfile, Array("-td", "build/"))
+}
