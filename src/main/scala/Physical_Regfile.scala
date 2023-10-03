@@ -1,6 +1,18 @@
 import chisel3._
 import chisel3.util._
-// LUT: 8059 FF: 2048
+// LUT: 8199 FF: 2048
+object RF_Func{
+    def Write_First_Read(rf_we: Vec[Bool], wdata: Vec[UInt], prd: Vec[UInt], pr: UInt, rf: Vec[UInt]) : UInt = {
+        val wf = Cat(
+                    pr === prd(3) && rf_we(3), 
+                    pr === prd(2) && rf_we(2),
+                    pr === prd(1) && rf_we(1),
+                    pr === prd(0) && rf_we(0)
+                    )
+        val wf_data = wdata(OHToUInt(wf))
+        Mux(wf.orR, wf_data, rf(pr))
+    }
+}
 class Physical_Regfile_IO extends Bundle{
     // 8 read ports
     val prj_1       = Input(UInt(6.W))
@@ -47,32 +59,20 @@ class Physical_Regfile extends Module{
     }
 
     // read, write first regfile
-    // for arithmetic instructions
-    val rj_data_1 = Mux(io.prj_1 === io.prd_1 && io.rf_we1, io.wdata1, 
-                    Mux(io.prj_1 === io.prd_2 && io.rf_we2, io.wdata2, rf(io.prj_1)))
-    val rk_data_1 = Mux(io.prk_1 === io.prd_1 && io.rf_we1, io.wdata1,
-                    Mux(io.prk_1 === io.prd_2 && io.rf_we2, io.wdata2, rf(io.prk_1)))
-    val rj_data_2 = Mux(io.prj_2 === io.prd_1 && io.rf_we1, io.wdata1, 
-                    Mux(io.prj_2 === io.prd_2 && io.rf_we2, io.wdata2, rf(io.prj_2)))
-    val rk_data_2 = Mux(io.prk_2 === io.prd_1 && io.rf_we1, io.wdata1,
-                    Mux(io.prk_2 === io.prd_2 && io.rf_we2, io.wdata2, rf(io.prk_2)))
-    // for load instructions
-    val rj_data_3 = Mux(io.prj_3 === io.prd_3 && io.rf_we3, io.wdata3, rf(io.prj_3))
-    val rk_data_3 = Mux(io.prk_3 === io.prd_3 && io.rf_we3, io.wdata3, rf(io.prk_3))
+    import RF_Func._
 
-    // for mul and div instructions
-    val rj_data_4 = Mux(io.prj_4 === io.prd_4 && io.rf_we4, io.wdata4, rf(io.prj_4))
-    val rk_data_4 = Mux(io.prk_4 === io.prd_4 && io.rf_we4, io.wdata4, rf(io.prk_4)) 
+    val rf_we = VecInit(io.rf_we1, io.rf_we2, io.rf_we3, io.rf_we4)
+    val wdata = VecInit(io.wdata1, io.wdata2, io.wdata3, io.wdata4)
+    val prd = VecInit(io.prd_1, io.prd_2, io.prd_3, io.prd_4)
 
-
-    io.rj_data_1 := rj_data_1
-    io.rk_data_1 := rk_data_1
-    io.rj_data_2 := rj_data_2
-    io.rk_data_2 := rk_data_2
-    io.rj_data_3 := rj_data_3
-    io.rk_data_3 := rk_data_3
-    io.rj_data_4 := rj_data_4
-    io.rk_data_4 := rk_data_4
+    io.rj_data_1 := Write_First_Read(rf_we, wdata, prd, io.prj_1, rf)
+    io.rk_data_1 := Write_First_Read(rf_we, wdata, prd, io.prk_1, rf)
+    io.rj_data_2 := Write_First_Read(rf_we, wdata, prd, io.prj_2, rf)
+    io.rk_data_2 := Write_First_Read(rf_we, wdata, prd, io.prk_2, rf)
+    io.rj_data_3 := Write_First_Read(rf_we, wdata, prd, io.prj_3, rf)
+    io.rk_data_3 := Write_First_Read(rf_we, wdata, prd, io.prk_3, rf)
+    io.rj_data_4 := Write_First_Read(rf_we, wdata, prd, io.prj_4, rf)
+    io.rk_data_4 := Write_First_Read(rf_we, wdata, prd, io.prk_4, rf)
     
 
     // write first memory, if raddr == waddr, give wdata

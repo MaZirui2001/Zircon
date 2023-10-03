@@ -9,6 +9,7 @@ RESOURCES_DIR := $(WORK_DIR)/src/main/resources
 
 # Verilog
 verilog: $(SCALA_SRCS) $(VERILOG_SRCS)
+	@mkdir -p $(VERILOG_DIR)
 	@rm -rf $(BUILD_DIR)
 	@mkdir -p $(BUILD_DIR)
 	@sbt run

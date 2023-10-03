@@ -1,6 +1,28 @@
 import chisel3._
 import chisel3.util._
 // LUT: 112
+object Inst_Pack{
+    class inst_pack_t extends Bundle{
+        val rj              = UInt(5.W)
+        val rj_valid        = Bool()
+        val prj             = UInt(6.W)
+        val rk              = UInt(5.W)
+        val rk_valid        = Bool()
+        val prk             = UInt(6.W)
+        val rd              = UInt(5.W)
+        val rd_valid        = Bool()
+        val pprd            = UInt(6.W)
+        val imm             = UInt(32.W)
+        val alu_op          = UInt(5.W)
+        val alu_rs1_sel     = UInt(2.W)
+        val alu_rs2_sel     = UInt(2.W)
+        val br_type         = UInt(4.W)
+        val mem_type        = UInt(5.W)
+        val fu_id           = UInt(2.W)
+        val inst_valid      = Bool()
+        
+    }   
+}
 object Control_Signal{
     val Y = true.B
     val N = false.B
@@ -58,10 +80,11 @@ object Control_Signal{
     val MEM_LDBU     = 20.U(5.W)
     val MEM_LDHU     = 21.U(5.W)
 
-    // issue_queue_id
+    // fu_id
     val ARITH    = 0.U(2.W)
-    val LS       = 1.U(2.W)
-    val MD       = 2.U(2.W)
+    val BR       = 1.U(2.W)
+    val LS       = 2.U(2.W)
+    val MD       = 3.U(2.W)
 
     // rj_sel
     val RK       = 0.U(1.W)
@@ -130,15 +153,15 @@ object Control_Signal{
         LDBU        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_LDBU, LS,    RK, RD, IMM_12S, Y),
         LDHU        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_LDHU, LS,    RK, RD, IMM_12S, Y),
  
-        JIRL        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, BR_JIRL, NO_MEM,   ARITH, RK, RD, IMM_16S, Y),
-        B           -> List(N, N, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_B,    NO_MEM,   ARITH, RK, RD, IMM_26S, Y),
-        BL          -> List(N, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BL,   NO_MEM,   ARITH, RK, R1, IMM_26S, Y),
-        BEQ         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BEQ,  NO_MEM,   ARITH, RD, RD, IMM_16S, Y),
-        BNE         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BNE,  NO_MEM,   ARITH, RD, RD, IMM_16S, Y),
-        BLT         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BLT,  NO_MEM,   ARITH, RD, RD, IMM_16S, Y),
-        BGE         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BGE,  NO_MEM,   ARITH, RD, RD, IMM_16S, Y),
-        BLTU        -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BLTU, NO_MEM,   ARITH, RD, RD, IMM_16S, Y),
-        BGEU        -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BGEU, NO_MEM,   ARITH, RD, RD, IMM_16S, Y),
+        JIRL        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, BR_JIRL, NO_MEM,   BR,    RK, RD, IMM_16S, Y),
+        B           -> List(N, N, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_B,    NO_MEM,   BR,    RK, RD, IMM_26S, Y),
+        BL          -> List(N, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BL,   NO_MEM,   BR,    RK, R1, IMM_26S, Y),
+        BEQ         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BEQ,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BNE         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BNE,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BLT         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BLT,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BGE         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BGE,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BLTU        -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BLTU, NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BGEU        -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BGEU, NO_MEM,   BR,    RD, RD, IMM_16S, Y),
 
     )
 }
@@ -169,11 +192,11 @@ class Imm_Gen extends RawModule{
 
 class DecodeIO extends Bundle{
     val inst            = Input(UInt(32.W))
-    val rj              = Output(UInt(32.W))
+    val rj              = Output(UInt(5.W))
     val rj_valid        = Output(Bool())
-    val rk              = Output(UInt(32.W))
+    val rk              = Output(UInt(5.W))
     val rk_valid        = Output(Bool())
-    val rd              = Output(UInt(32.W))
+    val rd              = Output(UInt(5.W))
     val rd_valid        = Output(Bool())
 
     val imm             = Output(UInt(32.W))
@@ -183,8 +206,9 @@ class DecodeIO extends Bundle{
     val br_type         = Output(UInt(4.W))
     val mem_type        = Output(UInt(5.W))
 
-    val issue_queue_id  = Output(UInt(2.W))
+    val fu_id  = Output(UInt(2.W))
     val inst_valid      = Output(Bool())
+    //val inst_pack          = Output(Inst_Pack.inst_pack_t)
 }
 class Decode extends RawModule{
     val io = IO(new DecodeIO)
@@ -207,7 +231,7 @@ class Decode extends RawModule{
     io.br_type          := ctrl(6)
     io.mem_type         := ctrl(7)
 
-    io.issue_queue_id   := ctrl(8)
+    io.fu_id   := ctrl(8)
     io.inst_valid       := ctrl(12)
 
     imm_gen.io.inst     := io.inst
