@@ -3,7 +3,7 @@ import chisel3.util._
 import Inst_Pack._
 
 // LUT: 944, FF: 732
-object Unorder_Issue_Queue_Pack{
+object Issue_Queue_Pack{
     class issue_queue_t extends Bundle{
         val inst = new inst_pack_t
         val prj_waked = Bool()
@@ -20,8 +20,8 @@ object Unorder_Issue_Queue_Pack{
     }
 }
 
-import Unorder_Issue_Queue_Pack._
-class Unorder_Issue_Queue_IO(n: Int) extends Bundle{
+import Issue_Queue_Pack._
+class Issue_Queue_IO(n: Int) extends Bundle{
     // input from dispatch
     val insts_dispatch  = Input(Vec(4, new inst_pack_t))
     val insts_valid     = Input(Vec(4, Bool()))
@@ -39,7 +39,7 @@ class Unorder_Issue_Queue_IO(n: Int) extends Bundle{
 }
 
 class Unorder_Issue_Queue(n: Int) extends Module{
-    val io = IO(new Unorder_Issue_Queue_IO(n))
+    val io = IO(new Issue_Queue_IO(n))
     val queue = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new issue_queue_t))))
     val tail = RegInit(0.U((log2Ceil(n)+1).W))
 
