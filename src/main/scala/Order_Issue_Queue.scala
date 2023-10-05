@@ -3,11 +3,13 @@ import chisel3.util._
 import Issue_Queue_Pack._
 import Inst_Pack._
 
-// LUT: 932 FF: 732
-class Order_Issue_Queue_IO extends Bundle{
+// LUT: 1017 FF: 780
+class Order_Issue_Queue_IO(n: Int) extends Bundle{
     // input from dispatch
     val insts_dispatch  = Input(Vec(4, new inst_pack_t))
-    val insts_valid     = Input(Vec(4, Bool()))
+    val insert_num      = Input(UInt(3.W))
+    val rj_ready        = Input(Vec(4, Bool()))
+    val rk_ready        = Input(Vec(4, Bool()))
     val queue_ready     = Output(Bool())
 
     // input from wakeup
@@ -19,13 +21,16 @@ class Order_Issue_Queue_IO extends Bundle{
     // output for issue
     val insts_issue     = Output(new issue_queue_t)
     val issue_req       = Output(Bool())
+
+    // output for dispatch
+    val prd_queue       = Output(Vec(n, UInt(6.W)))
 }
 class Order_Issue_Queue(n: Int) extends Module {
-    val io = IO(new Order_Issue_Queue_IO)
+    val io = IO(new Order_Issue_Queue_IO(n))
     val queue = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new issue_queue_t))))
     val tail = RegInit(0.U((log2Ceil(n)+1).W))
 
-    val insert_num = PopCount(io.insts_valid)
+    val insert_num = io.insert_num
     val tail_pop = Wire(UInt((log2Ceil(n)+1).W))
     val full = tail_pop >= n.U - insert_num
 
@@ -33,7 +38,12 @@ class Order_Issue_Queue(n: Int) extends Module {
     val insts_dispatch = io.insts_dispatch
 
     val queue_temp = Wire(Vec(n+1, new issue_queue_t))
+    val queue_next = Wire(Vec(n, new issue_queue_t))
     
+    for(i <- 0 until n){
+        queue_next(i) := Mux(i.asUInt < tail_pop, Mux(io.issue_ack, queue_temp(i+1), queue_temp(i)), 0.U.asTypeOf(new issue_queue_t))
+        io.prd_queue(i) := queue_next(i).inst.prd
+    }
     // wake up 
     for(i <- 0 until n){
         queue_temp(i).inst := queue(i).inst
@@ -46,11 +56,9 @@ class Order_Issue_Queue(n: Int) extends Module {
     tail_pop := tail - io.issue_ack
 
     for(i <- 0 until n){
-        queue(i).inst := Mux(i.asUInt < tail_pop, Mux(io.issue_ack, queue_temp(i+1).inst, queue_temp(i).inst), insts_dispatch(i.asUInt - tail_pop))
-        queue(i).prj_waked := Mux(i.asUInt < tail_pop, Mux(io.issue_ack, queue_temp(i+1).prj_waked, queue_temp(i).prj_waked), 
-                                                       ~insts_dispatch(i.asUInt - tail_pop).rj_valid | insts_dispatch(i.asUInt - tail_pop).rj === 0.U)
-        queue(i).prk_waked := Mux(i.asUInt < tail_pop, Mux(io.issue_ack, queue_temp(i+1).prk_waked, queue_temp(i).prk_waked), 
-                                                       ~insts_dispatch(i.asUInt - tail_pop).rk_valid | insts_dispatch(i.asUInt - tail_pop).rk === 0.U)
+        queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, insts_dispatch(i.asUInt - tail_pop))
+        queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.rj_ready(i.asUInt - tail_pop))
+        queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.rk_ready(i.asUInt - tail_pop))
     }
     tail := tail_pop + Mux(io.queue_ready, insert_num, 0.U)
 

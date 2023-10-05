@@ -12,6 +12,8 @@ class Reg_rename_IO extends Bundle{
     val prj                 = Output(Vec(4, UInt(6.W)))
     val prk                 = Output(Vec(4, UInt(6.W)))
     val pprd                = Output(Vec(4, UInt(6.W)))
+    val prj_raw             = Output(Vec(4, Bool()))
+    val prk_raw             = Output(Vec(4, Bool()))
 
     val commit_en           = Input(Vec(4, Bool()))
     val commit_pprd_valid   = Input(Vec(4, Bool()))
@@ -43,43 +45,57 @@ class Reg_Rename extends Module{
 
     // RAW
     io.prj := prj_temp
+    io.prj_raw := Vec(4, false.B)
     when (io.rd_valid(0) & (io.rd(0) === io.rj(1))){
         io.prj(1) := alloc_preg(0)
+        io.prj_raw(1) := true.B
     }
     when (io.rd_valid(1) & (io.rd(1) === io.rj(2))){
         io.prj(2) := alloc_preg(1)
+        io.prj_raw(2) := true.B
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rj(2))){
         io.prj(2) := alloc_preg(0)
+        io.prj_raw(2) := true.B
     }
     when (io.rd_valid(2) & (io.rd(2) === io.rj(3))){
         io.prj(3) := alloc_preg(2)
+        io.prj_raw(3) := true.B
     }
     .elsewhen(io.rd_valid(1) & (io.rd(1) === io.rj(3))){
         io.prj(3) := alloc_preg(1)
+        io.prj_raw(3) := true.B
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rj(3))){
         io.prj(3) := alloc_preg(0)
+        io.prj_raw(3) := true.B
     }
 
     io.prk := prk_temp
+    io.prk_raw := Vec(4, false.B)
     when (io.rd_valid(0) & (io.rd(0) === io.rk(1))){
         io.prk(1) := alloc_preg(0)
+        io.prk_raw(1) := true.B
     }
     when (io.rd_valid(1) & (io.rd(1) === io.rk(2))){
         io.prk(2) := alloc_preg(1)
+        io.prk_raw(2) := true.B
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rk(2))){
         io.prk(2) := alloc_preg(0)
+        io.prk_raw(2) := true.B
     }
     when (io.rd_valid(2) & (io.rd(2) === io.rk(3))){
         io.prk(3) := alloc_preg(2)
+        io.prk_raw(3) := true.B
     }
     .elsewhen(io.rd_valid(1) & (io.rd(1) === io.rk(3))){
         io.prk(3) := alloc_preg(1)
+        io.prk_raw(3) := true.B
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rk(3))){
         io.prk(3) := alloc_preg(0)
+        io.prk_raw(3) := true.B
     }
 
     // WAW
