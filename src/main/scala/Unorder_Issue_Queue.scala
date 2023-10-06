@@ -69,7 +69,7 @@ class Unorder_Issue_Queue(n: Int) extends Module{
     }
     queue_temp(n) := 0.U.asTypeOf(new issue_queue_t)
     // issue
-    val next_mask = Mux(io.issue_ack.asUInt.orR, ~(io.issue_ack.asUInt - 1.U), 0.U)
+    val next_mask = ~(io.issue_ack.asUInt - 1.U)
     tail_pop := tail - io.issue_ack.asUInt.orR
 
     for(i <- 0 until n){

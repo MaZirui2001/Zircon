@@ -20,10 +20,10 @@ object Inst_Pack{
         val br_type         = UInt(4.W)
         val mem_type        = UInt(5.W)
         val fu_id           = UInt(2.W)
-        val inst_valid      = Bool()
+        val inst_exist      = Bool()
         
         // 构造函数
-        def apply(rj: UInt, rj_valid: Bool, prj: UInt, rk: UInt, rk_valid: Bool, prk: UInt, rd: UInt, rd_valid: Bool, prd: UInt, pprd: UInt, imm: UInt, alu_op: UInt, alu_rs1_sel: UInt, alu_rs2_sel: UInt, br_type: UInt, mem_type: UInt, fu_id: UInt, inst_valid: Bool) : inst_pack_t = {
+        def apply(rj: UInt, rj_valid: Bool, prj: UInt, rk: UInt, rk_valid: Bool, prk: UInt, rd: UInt, rd_valid: Bool, prd: UInt, pprd: UInt, imm: UInt, alu_op: UInt, alu_rs1_sel: UInt, alu_rs2_sel: UInt, br_type: UInt, mem_type: UInt, fu_id: UInt, inst_exist: Bool) : inst_pack_t = {
             val inst_pack = Wire(new inst_pack_t)
             inst_pack.rj := rj
             inst_pack.rj_valid := rj_valid
@@ -42,7 +42,7 @@ object Inst_Pack{
             inst_pack.br_type := br_type
             inst_pack.mem_type := mem_type
             inst_pack.fu_id := fu_id
-            inst_pack.inst_valid := inst_valid
+            inst_pack.inst_exist := inst_exist
 
             inst_pack
         }
@@ -131,7 +131,7 @@ object Control_Signal{
 
 
     val default = List(
-    // rs1_valid rs2_valid rf_we, alu_op   alu_rs1_sel alu_rs2_sel br_type mem_type issue_queue_id, rk_sel, rd_sel, imm_type, inst_valid
+    // rs1_valid rs2_valid rf_we, alu_op   alu_rs1_sel alu_rs2_sel br_type mem_type issue_queue_id, rk_sel, rd_sel, imm_type, inst_exist
         N,       N,        N,      ALU_ADD, RS1_ZERO,   RS2_FOUR,   NO_BR,  NO_MEM,  ARITH,         RK,     RD,     IMM_00U,  N
     )
 
@@ -231,8 +231,8 @@ class DecodeIO extends Bundle{
     val br_type         = Output(UInt(4.W))
     val mem_type        = Output(UInt(5.W))
 
-    val fu_id  = Output(UInt(2.W))
-    val inst_valid      = Output(Bool())
+    val fu_id           = Output(UInt(2.W))
+    val inst_exist      = Output(Bool())
     //val inst_pack          = Output(Inst_Pack.inst_pack_t)
 }
 class Decode extends RawModule{
@@ -257,13 +257,13 @@ class Decode extends RawModule{
     io.mem_type         := ctrl(7)
 
     io.fu_id   := ctrl(8)
-    io.inst_valid       := ctrl(12)
+    io.inst_exist       := ctrl(12)
 
     imm_gen.io.inst     := io.inst
     imm_gen.io.imm_type := ctrl(11)
     io.imm              := imm_gen.io.imm
 }
 
-// object Decode extends App {
-//     emitVerilog(new Decode, Array("-td", "build/"))
-// }
+object Decode extends App {
+    emitVerilog(new Decode, Array("-td", "build/"))
+}
