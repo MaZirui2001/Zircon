@@ -6,7 +6,7 @@ import chisel3.util._
 class ID_RN_Reg extends Module {
     val io = IO(new Bundle {
         val flush           = Input(Bool())
-        val stall           = Input(UInt(32.W))
+        val stall           = Input(Bool())
         val insts_valid_ID  = Input(Vec(4, Bool()))
         val rj_ID           = Input(Vec(4, UInt(5.W)))
         val rj_valid_ID     = Input(Vec(4, Bool()))
@@ -23,6 +23,7 @@ class ID_RN_Reg extends Module {
         val br_type_ID      = Input(Vec(4, UInt(4.W)))
         val mem_type_ID     = Input(Vec(4, UInt(5.W)))
         val fu_id_ID        = Input(Vec(4, UInt(2.W)))
+        val insts_exist_ID = Input(Vec(4, Bool()))
 
         val insts_valid_RN  = Output(Vec(4, Bool()))
         val rj_RN           = Output(Vec(4, UInt(5.W)))
@@ -40,6 +41,7 @@ class ID_RN_Reg extends Module {
         val mem_type_RN     = Output(Vec(4, UInt(5.W)))
         val fu_id_RN        = Output(Vec(4, UInt(2.W)))
         val pcs_RN          = Output(Vec(4, UInt(32.W)))
+        val insts_exist_RN = Output(Vec(4, Bool()))
     })
 
     val insts_valid_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
@@ -58,6 +60,7 @@ class ID_RN_Reg extends Module {
     val mem_type_reg = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
     val fu_id_reg = RegInit(VecInit(Seq.fill(4)(0.U(2.W))))
     val pcs_reg = RegInit(VecInit(Seq.fill(4)(0x1c000000.U(32.W))))
+    val insts_exist_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
 
     when(io.flush) {
         insts_valid_reg := VecInit(Seq.fill(4)(false.B))
@@ -76,6 +79,7 @@ class ID_RN_Reg extends Module {
         mem_type_reg := VecInit(Seq.fill(4)(0.U(5.W)))
         fu_id_reg := VecInit(Seq.fill(4)(0.U(2.W)))
         pcs_reg := VecInit(Seq.fill(4)(0x1c000000.U(32.W)))
+        insts_exist_reg := VecInit(Seq.fill(4)(false.B))
     }
     .elsewhen(!io.stall){
         insts_valid_reg := io.insts_valid_ID
@@ -94,6 +98,7 @@ class ID_RN_Reg extends Module {
         mem_type_reg := io.mem_type_ID
         fu_id_reg := io.fu_id_ID
         pcs_reg := io.pcs_ID
+        insts_exist_reg := io.insts_exist_ID
     }
 
     io.insts_valid_RN := insts_valid_reg
@@ -112,6 +117,7 @@ class ID_RN_Reg extends Module {
     io.mem_type_RN := mem_type_reg
     io.fu_id_RN := fu_id_reg
     io.pcs_RN := pcs_reg
+    io.insts_exist_RN := insts_exist_reg
 
 
 }

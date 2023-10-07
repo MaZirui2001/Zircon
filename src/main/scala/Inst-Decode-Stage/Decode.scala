@@ -20,31 +20,32 @@ object Inst_Pack{
         val br_type         = UInt(4.W)
         val mem_type        = UInt(5.W)
         val fu_id           = UInt(2.W)
+        val pc              = UInt(32.W)
+        val rob_index       = UInt(4.W)
         val inst_exist      = Bool()
         
         // 构造函数
-        def apply(rj: UInt, rj_valid: Bool, prj: UInt, rk: UInt, rk_valid: Bool, prk: UInt, rd: UInt, rd_valid: Bool, prd: UInt, pprd: UInt, imm: UInt, alu_op: UInt, alu_rs1_sel: UInt, alu_rs2_sel: UInt, br_type: UInt, mem_type: UInt, fu_id: UInt, inst_exist: Bool) : inst_pack_t = {
-            val inst_pack = Wire(new inst_pack_t)
-            inst_pack.rj := rj
-            inst_pack.rj_valid := rj_valid
-            inst_pack.prj := prj
-            inst_pack.rk := rk
-            inst_pack.rk_valid := rk_valid
-            inst_pack.prk := prk
-            inst_pack.rd := rd
-            inst_pack.rd_valid := rd_valid
-            inst_pack.prd := prd
-            inst_pack.pprd := pprd
-            inst_pack.imm := imm
-            inst_pack.alu_op := alu_op
-            inst_pack.alu_rs1_sel := alu_rs1_sel
-            inst_pack.alu_rs2_sel := alu_rs2_sel
-            inst_pack.br_type := br_type
-            inst_pack.mem_type := mem_type
-            inst_pack.fu_id := fu_id
-            inst_pack.inst_exist := inst_exist
-
-            inst_pack
+        def this(rj: UInt, rj_valid: Bool, prj: UInt, rk: UInt, rk_valid: Bool, prk: UInt, rd: UInt, rd_valid: Bool, prd: UInt, pprd: UInt, imm: UInt, alu_op: UInt, alu_rs1_sel: UInt, alu_rs2_sel: UInt, br_type: UInt, mem_type: UInt, fu_id: UInt, pc: UInt, inst_exist: Bool) = {
+            this()
+            this.rj             := rj
+            this.rj_valid       := rj_valid
+            this.prj            := prj
+            this.rk             := rk
+            this.rk_valid       := rk_valid
+            this.prk            := prk
+            this.rd             := rd
+            this.rd_valid       := rd_valid
+            this.prd            := prd
+            this.pprd           := pprd
+            this.imm            := imm
+            this.alu_op         := alu_op
+            this.alu_rs1_sel    := alu_rs1_sel
+            this.alu_rs2_sel    := alu_rs2_sel
+            this.br_type        := br_type
+            this.mem_type       := mem_type
+            this.fu_id          := fu_id
+            this.pc             := pc
+            this.inst_exist     := inst_exist
         }
     }   
 }

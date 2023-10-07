@@ -21,12 +21,12 @@ object Issue_Queue_Pack{
 }
 
 import Issue_Queue_Pack._
-class Issue_Queue_IO(n: Int) extends Bundle{
+class Unorder_Issue_Queue_IO(n: Int) extends Bundle{
     // input from dispatch
     val insts_dispatch  = Input(Vec(4, new inst_pack_t))
     val insert_num      = Input(UInt(3.W))
-    val rj_ready        = Input(Vec(4, Bool()))
-    val rk_ready        = Input(Vec(4, Bool()))
+    val prj_ready       = Input(Vec(4, Bool()))
+    val prk_ready       = Input(Vec(4, Bool()))
     val queue_ready     = Output(Bool())
 
     // input from wakeup
@@ -45,7 +45,7 @@ class Issue_Queue_IO(n: Int) extends Bundle{
 }
 
 class Unorder_Issue_Queue(n: Int) extends Module{
-    val io = IO(new Issue_Queue_IO(n))
+    val io = IO(new Unorder_Issue_Queue_IO(n))
     val queue = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new issue_queue_t))))
     val tail = RegInit(0.U((log2Ceil(n)+1).W))
 
@@ -79,8 +79,8 @@ class Unorder_Issue_Queue(n: Int) extends Module{
 
     for(i <- 0 until n){
         queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, insts_dispatch(i.asUInt - tail_pop))
-        queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.rj_ready(i.asUInt - tail_pop))
-        queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.rk_ready(i.asUInt - tail_pop))
+        queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(i.asUInt - tail_pop))
+        queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(i.asUInt - tail_pop))
     }
     tail := tail_pop + Mux(io.queue_ready, insert_num, 0.U)
 

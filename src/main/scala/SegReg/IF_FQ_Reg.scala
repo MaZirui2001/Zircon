@@ -4,7 +4,7 @@ import chisel3.util._
 class IF_FQ_Reg extends Module {
     val io = IO(new Bundle {
         val flush           = Input(Bool())
-        val stall           = Input(UInt(32.W))
+        val stall           = Input(Bool())
         val pcs_IF          = Input(Vec(4, UInt(32.W)))
         val insts_valid_IF  = Input(Vec(4, Bool()))
         val insts_IF        = Input(Vec(4, UInt(32.W)))

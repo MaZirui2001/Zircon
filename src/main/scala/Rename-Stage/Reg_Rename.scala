@@ -1,6 +1,6 @@
 import chisel3._
 import chisel3.util._
-// LUT: 3755 FF: 794
+// LUT: 3759 FF: 794
 class Reg_rename_IO extends Bundle{
     val rj                  = Input(Vec(4, UInt(5.W)))
     val rk                  = Input(Vec(4, UInt(5.W)))
@@ -11,6 +11,7 @@ class Reg_rename_IO extends Bundle{
 
     val prj                 = Output(Vec(4, UInt(6.W)))
     val prk                 = Output(Vec(4, UInt(6.W)))
+    val prd                 = Output(Vec(4, UInt(6.W)))
     val pprd                = Output(Vec(4, UInt(6.W)))
     val prj_raw             = Output(Vec(4, Bool()))
     val prk_raw             = Output(Vec(4, Bool()))
@@ -42,10 +43,11 @@ class Reg_Rename extends Module{
 
     val alloc_preg = Wire(Vec(4, UInt(6.W)))
     alloc_preg := free_list.io.alloc_preg
+    io.prd := alloc_preg
 
     // RAW
     io.prj := prj_temp
-    io.prj_raw := Vec(4, false.B)
+    io.prj_raw := VecInit(Seq.fill(4)(false.B))
     when (io.rd_valid(0) & (io.rd(0) === io.rj(1))){
         io.prj(1) := alloc_preg(0)
         io.prj_raw(1) := true.B
@@ -72,7 +74,7 @@ class Reg_Rename extends Module{
     }
 
     io.prk := prk_temp
-    io.prk_raw := Vec(4, false.B)
+    io.prk_raw := VecInit(Seq.fill(4)(false.B))
     when (io.rd_valid(0) & (io.rd(0) === io.rk(1))){
         io.prk(1) := alloc_preg(0)
         io.prk_raw(1) := true.B
