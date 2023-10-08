@@ -192,31 +192,76 @@ class CPU extends Module {
     iq4.io.wake_preg := VecInit(RegNext(sel1.io.wake_preg), RegNext(sel2.io.wake_preg), RegNext(sel3.io.wake_preg), sel4.io.wake_preg)
 
     // IS-EX SegReg
-    val is_ex_reg1 = Module(new IS_EX_Reg)
+    val is_ex_reg1 = Module(new IS_RF_Reg)
     // is_ex_reg1.io.flush := false.B
     // is_ex_reg1.io.stall := false.B
     is_ex_reg1.io.inst_pack_IS := sel1.io.inst_issue
     is_ex_reg1.io.inst_valid_IS := sel1.io.inst_issue_valid
 
-    val is_ex_reg2 = Module(new IS_EX_Reg)
+    val is_ex_reg2 = Module(new IS_RF_Reg)
     // is_ex_reg2.io.flush := false.B
     // is_ex_reg2.io.stall := false.B
     is_ex_reg2.io.inst_pack_IS := sel2.io.inst_issue
     is_ex_reg2.io.inst_valid_IS := sel2.io.inst_issue_valid
 
-    val is_ex_reg3 = Module(new IS_EX_Reg)
+    val is_ex_reg3 = Module(new IS_RF_Reg)
     // is_ex_reg3.io.flush := false.B
     // is_ex_reg3.io.stall := false.B
     is_ex_reg3.io.inst_pack_IS := sel3.io.inst_issue
     is_ex_reg3.io.inst_valid_IS := sel3.io.inst_issue_valid
 
-    val is_ex_reg4 = Module(new IS_EX_Reg)
+    val is_ex_reg4 = Module(new IS_RF_Reg)
     // is_ex_reg4.io.flush := false.B
     // is_ex_reg4.io.stall := false.B
     is_ex_reg4.io.inst_pack_IS := sel4.io.inst_issue
     is_ex_reg4.io.inst_valid_IS := sel4.io.inst_issue_valid
 
-    // EX stage
-    // 1. arith1, common calculate
-    
+    // RF stage
+    val rf = Module(new Physical_Regfile)
+    rf.io.prj := VecInit(is_ex_reg1.io.inst_pack_RF.prj, is_ex_reg2.io.inst_pack_RF.prj, is_ex_reg3.io.inst_pack_RF.prj, is_ex_reg4.io.inst_pack_RF.prj)
+    rf.io.prk := VecInit(is_ex_reg1.io.inst_pack_RF.prk, is_ex_reg2.io.inst_pack_RF.prk, is_ex_reg3.io.inst_pack_RF.prk, is_ex_reg4.io.inst_pack_RF.prk)
+
+
+    // rf.io.wdata1 := 0.U
+    // rf.io.wdata2 := 0.U
+    // rf.io.wdata3 := 0.U
+    // rf.io.wdata4 := 0.U
+    // rf.io.rf_we1 := false.B
+    // rf.io.rf_we2 := false.B
+    // rf.io.rf_we3 := false.B
+    // rf.io.rf_we4 := false.B
+
+    // RF-EX SegReg
+    val rf_ex_reg1 = Module(new RF_EX_Reg)
+    // rf_ex_reg1.io.flush := false.B
+    // rf_ex_reg1.io.stall := false.B
+    rf_ex_reg1.io.inst_pack_RF := is_ex_reg1.io.inst_pack_RF
+    rf_ex_reg1.io.inst_valid_RF := is_ex_reg1.io.inst_valid_RF
+    rf_ex_reg1.io.src1_RF := rf.io.prj_data(0)
+    rf_ex_reg1.io.src2_RF := rf.io.prk_data(0)
+
+    val rf_ex_reg2 = Module(new RF_EX_Reg)
+    // rf_ex_reg2.io.flush := false.B
+    // rf_ex_reg2.io.stall := false.B
+    rf_ex_reg2.io.inst_pack_RF := is_ex_reg2.io.inst_pack_RF
+    rf_ex_reg2.io.inst_valid_RF := is_ex_reg2.io.inst_valid_RF
+    rf_ex_reg2.io.src1_RF := rf.io.prj_data(1)
+    rf_ex_reg2.io.src2_RF := rf.io.prk_data(1)
+
+    val rf_ex_reg3 = Module(new RF_EX_Reg)
+    // rf_ex_reg3.io.flush := false.B
+    // rf_ex_reg3.io.stall := false.B
+    rf_ex_reg3.io.inst_pack_RF := is_ex_reg3.io.inst_pack_RF
+    rf_ex_reg3.io.inst_valid_RF := is_ex_reg3.io.inst_valid_RF
+    rf_ex_reg3.io.src1_RF := rf.io.prj_data(2)
+    rf_ex_reg3.io.src2_RF := rf.io.prk_data(2)
+
+    val rf_ex_reg4 = Module(new RF_EX_Reg)
+    // rf_ex_reg4.io.flush := false.B
+    // rf_ex_reg4.io.stall := false.B
+    rf_ex_reg4.io.inst_pack_RF := is_ex_reg4.io.inst_pack_RF
+    rf_ex_reg4.io.inst_valid_RF := is_ex_reg4.io.inst_valid_RF
+    rf_ex_reg4.io.src1_RF := rf.io.prj_data(3)
+    rf_ex_reg4.io.src2_RF := rf.io.prk_data(3)
+
 }
