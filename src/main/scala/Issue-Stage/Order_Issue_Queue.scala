@@ -24,6 +24,9 @@ class Order_Issue_Queue_IO(n: Int) extends Bundle{
 
     // output for dispatch
     val prd_queue       = Output(Vec(n, UInt(6.W)))
+    val full            = Output(Bool())
+
+    val flush          = Input(Bool())
 }
 class Order_Issue_Queue(n: Int) extends Module {
     val io = IO(new Order_Issue_Queue_IO(n))
@@ -60,7 +63,7 @@ class Order_Issue_Queue(n: Int) extends Module {
         queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(i.asUInt - tail_pop))
         queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(i.asUInt - tail_pop))
     }
-    tail := tail_pop + Mux(io.queue_ready, insert_num, 0.U)
+    tail := Mux(io.flush, 0.U, tail_pop + Mux(io.queue_ready, insert_num, 0.U))
 
     // output
     io.insts_issue := queue(0)

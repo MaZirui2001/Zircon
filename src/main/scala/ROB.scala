@@ -10,6 +10,7 @@ object ROB_Pack{
         val prd = UInt(6.W)
         val pprd = UInt(6.W)
         val predict_fail = Bool()
+        val branch_target = UInt(32.W)
         val complete = Bool()
         val pc = UInt(32.W)
     }
@@ -30,6 +31,7 @@ class ROB_IO(n: Int) extends Bundle{
     val inst_valid_wb = Input(Vec(4, Bool()))
     val rob_index_wb = Input(Vec(4, UInt(log2Ceil(n).W)))
     val predict_fail_wb = Input(Vec(4, Bool()))
+    val branch_target_wb = Input(Vec(4, UInt(32.W)))
 
     // for cpu state: arch rat
     val cmt_en = Output(Vec(4, Bool()))
@@ -40,6 +42,7 @@ class ROB_IO(n: Int) extends Bundle{
     val pc_cmt = Output(Vec(4, UInt(32.W)))
 
     val predict_fail_cmt = Output(Bool())
+    val branch_target_cmt = Output(UInt(32.W))
 }
 
 class ROB(n: Int) extends Module{
@@ -63,8 +66,10 @@ class ROB(n: Int) extends Module{
                 rob(tail+i.U).prd := io.prd_rn(i)
                 rob(tail+i.U).pprd := io.pprd_rn(i)
                 rob(tail+i.U).predict_fail := false.B
+                rob(tail+i.U).branch_target := 0.U
                 rob(tail+i.U).complete := false.B
                 rob(tail+i.U).pc := io.pc_rn(i)
+
             }
         }
         tail := tail + insert_num
@@ -78,6 +83,7 @@ class ROB(n: Int) extends Module{
         when(io.inst_valid_wb(i)){
             rob(io.rob_index_wb(i)).complete := true.B
             rob(io.rob_index_wb(i)).predict_fail := io.predict_fail_wb(i)
+            rob(io.rob_index_wb(i)).branch_target := io.branch_target_wb(i)
         }
     }
     
@@ -92,6 +98,7 @@ class ROB(n: Int) extends Module{
         predict_fail_bit(i) := rob(head+i.U).predict_fail && io.cmt_en(i)
     }
     io.predict_fail_cmt := predict_fail_bit.asUInt.orR
+    io.branch_target_cmt := rob(head+PriorityEncoder(predict_fail_bit)).branch_target
 
     head := head + PopCount(io.cmt_en)
 

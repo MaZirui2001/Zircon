@@ -42,6 +42,9 @@ class Unorder_Issue_Queue_IO(n: Int) extends Bundle{
     // output for dispatch
     val prd_queue       = Output(Vec(n, UInt(6.W)))
     val elem_num        = Output(UInt((log2Ceil(n)+1).W))
+    val full            = Output(Bool())
+
+    val flush           = Input(Bool())
 }
 
 class Unorder_Issue_Queue(n: Int) extends Module{
@@ -53,6 +56,7 @@ class Unorder_Issue_Queue(n: Int) extends Module{
     val insert_num = io.insert_num
     val tail_pop = Wire(UInt((log2Ceil(n)+1).W))
     val full = tail_pop >= n.U - insert_num
+    io.full := full
 
     io.queue_ready := !full
     io.elem_num := tail_pop
@@ -82,7 +86,7 @@ class Unorder_Issue_Queue(n: Int) extends Module{
         queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(i.asUInt - tail_pop))
         queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(i.asUInt - tail_pop))
     }
-    tail := tail_pop + Mux(io.queue_ready, insert_num, 0.U)
+    tail := Mux(io.flush, 0.U, tail_pop + Mux(io.queue_ready, insert_num, 0.U))
 
     // output
     io.insts_issue := queue
