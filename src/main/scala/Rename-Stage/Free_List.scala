@@ -13,7 +13,7 @@ class Free_List extends Module{
         val commit_pprd         = Input(Vec(4, UInt(6.W)))
 
         val predict_fail        = Input(Bool())
-        val head_arch           = Input(Vec(4, UInt(6.W)))
+        val head_arch           = Input(Vec(4, UInt(4.W)))
     })
 
     val free_list = Reg(Vec(4, Vec(16, UInt(6.W))))

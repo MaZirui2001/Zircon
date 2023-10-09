@@ -36,12 +36,13 @@ class FU2_EX_WB_Reg extends Module {
         alu_out_reg := io.alu_out_EX
         predict_fail_reg := io.predict_fail_EX
         branch_target_reg := io.branch_target_EX
-        inst_pack_reg := io.inst_valid_EX
+        inst_valid_reg := io.inst_valid_EX
     }
 
     io.inst_pack_WB := inst_pack_reg
     io.alu_out_WB := alu_out_reg
     io.predict_fail_WB := predict_fail_reg
     io.branch_target_WB := branch_target_reg
+    io.inst_valid_WB := inst_valid_reg
 
 }

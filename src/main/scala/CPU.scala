@@ -25,6 +25,7 @@ class CPU extends Module {
     val iq2 = Module(new Unorder_Issue_Queue(8))
     val iq3 = Module(new Order_Issue_Queue(8))
     val iq4 = Module(new Order_Issue_Queue(8))
+    val arat = Module(new Arch_Rat)
 
     val stall_by_iq = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
     // IF stage
@@ -94,8 +95,8 @@ class CPU extends Module {
     reg_rename.io.commit_pprd_valid := rob.io.rd_valid_cmt
     reg_rename.io.commit_pprd := rob.io.pprd_cmt
     reg_rename.io.predict_fail := rob.io.predict_fail_cmt
-    // reg_rename.io.arch_rat := VecInit(Seq.fill(64)(0.U))
-    // reg_rename.io.head_arch := VecInit(Seq.fill(4)(0.U))
+    reg_rename.io.arch_rat := arat.io.arch_rat
+    reg_rename.io.head_arch := arat.io.head_arch
     
     val insts_pack_rn = Wire(Vec(4, new inst_pack_t))
     for (i <- 0 until 4){
@@ -108,6 +109,7 @@ class CPU extends Module {
         insts_pack_rn(i).rd             := id_rn_reg.io.rd_RN(i)
         insts_pack_rn(i).rd_valid       := id_rn_reg.io.rd_valid_RN(i)
         insts_pack_rn(i).prd            := reg_rename.io.prd(i)
+        insts_pack_rn(i).pprd           := reg_rename.io.pprd(i)
         insts_pack_rn(i).imm            := id_rn_reg.io.imm_RN(i)
         insts_pack_rn(i).alu_op         := id_rn_reg.io.alu_op_RN(i)
         insts_pack_rn(i).alu_rs1_sel    := id_rn_reg.io.alu_rs1_sel_RN(i)
@@ -202,25 +204,25 @@ class CPU extends Module {
     val is_rf_reg1 = Module(new IS_RF_Reg)
     is_rf_reg1.io.flush := rob.io.predict_fail_cmt
     is_rf_reg1.io.stall := false.B
-    is_rf_reg1.io.inst_pack_IS := sel1.io.inst_issue
+    is_rf_reg1.io.inst_pack_IS := sel1.io.inst_issue.inst
     is_rf_reg1.io.inst_valid_IS := sel1.io.inst_issue_valid
 
     val is_rf_reg2 = Module(new IS_RF_Reg)
     is_rf_reg2.io.flush := rob.io.predict_fail_cmt
     is_rf_reg2.io.stall := false.B
-    is_rf_reg2.io.inst_pack_IS := sel2.io.inst_issue
+    is_rf_reg2.io.inst_pack_IS := sel2.io.inst_issue.inst
     is_rf_reg2.io.inst_valid_IS := sel2.io.inst_issue_valid
 
     val is_rf_reg3 = Module(new IS_RF_Reg)
     is_rf_reg3.io.flush := rob.io.predict_fail_cmt
     is_rf_reg3.io.stall := false.B
-    is_rf_reg3.io.inst_pack_IS := sel3.io.inst_issue
+    is_rf_reg3.io.inst_pack_IS := sel3.io.inst_issue.inst
     is_rf_reg3.io.inst_valid_IS := sel3.io.inst_issue_valid
 
     val is_rf_reg4 = Module(new IS_RF_Reg)
     is_rf_reg4.io.flush := rob.io.predict_fail_cmt
     is_rf_reg4.io.stall := false.B
-    is_rf_reg4.io.inst_pack_IS := sel4.io.inst_issue
+    is_rf_reg4.io.inst_pack_IS := sel4.io.inst_issue.inst
     is_rf_reg4.io.inst_valid_IS := sel4.io.inst_issue_valid
 
     // RF stage
@@ -300,6 +302,8 @@ class CPU extends Module {
     br.io.br_type := rf_ex_reg2.io.inst_pack_EX.br_type
     br.io.src1 := Mux(fu2_bypass.io.forward_prj_en, fu2_bypass.io.forward_prj_data, rf_ex_reg2.io.src1_EX)
     br.io.src2 := Mux(fu2_bypass.io.forward_prk_en, fu2_bypass.io.forward_prk_data, rf_ex_reg2.io.src2_EX)
+    br.io.pc_ex := rf_ex_reg2.io.inst_pack_EX.pc
+    br.io.imm_ex := rf_ex_reg2.io.inst_pack_EX.imm
 
     fu2_bypass.io.prd_wb := fu2_ex_wb_reg.io.inst_pack_WB.prd
     fu2_bypass.io.prj_ex := rf_ex_reg2.io.inst_pack_EX.prj
@@ -366,6 +370,7 @@ class CPU extends Module {
     rob.io.inst_valid_rn := id_rn_reg.io.insts_valid_RN
     rob.io.rd_rn := id_rn_reg.io.rd_RN
     rob.io.rd_valid_rn := id_rn_reg.io.rd_valid_RN
+    rob.io.prd_rn := reg_rename.io.prd
     rob.io.pprd_rn := reg_rename.io.pprd
     rob.io.pc_rn := id_rn_reg.io.pcs_RN
 
@@ -373,5 +378,16 @@ class CPU extends Module {
     rob.io.rob_index_wb := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.rob_index, fu2_ex_wb_reg.io.inst_pack_WB.rob_index, fu3_ex_wb_reg.io.inst_pack_WB.rob_index, fu4_ex_wb_reg.io.inst_pack_WB.rob_index)
     rob.io.predict_fail_wb := VecInit(false.B, fu2_ex_wb_reg.io.predict_fail_WB, false.B, false.B)
     rob.io.branch_target_wb := VecInit(0.U, fu2_ex_wb_reg.io.branch_target_WB, 0.U, 0.U)
+
+    // Commit stage
+    arat.io.cmt_en := rob.io.cmt_en
+    arat.io.rd_cmt := rob.io.rd_cmt
+    arat.io.prd_cmt := rob.io.pprd_cmt
+    arat.io.pprd_cmt := rob.io.pprd_cmt
+    arat.io.rd_valid_cmt := rob.io.rd_valid_cmt
     
+}
+
+object CPU extends App {
+    emitVerilog(new CPU, Array("-td", "build/"))
 }

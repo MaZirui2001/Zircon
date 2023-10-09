@@ -27,12 +27,7 @@ class CRat extends Module{
     val io = IO(new CRat_IO)
     import RAT._
     // val crat = Mem(64, new rat_t)
-    val crat = Reg(Vec(64, new rat_t))
-    when(reset.asBool) {
-        for(i <- 0 until 64){
-            crat(i).valid := false.B
-        }
-    }
+    val crat = RegInit(VecInit(Seq.fill(64)(0.U.asTypeOf(new rat_t))))
 
     // write
     when(io.predict_fail){

@@ -22,7 +22,7 @@ class Reg_rename_IO extends Bundle{
 
     val predict_fail        = Input(Bool())
     val arch_rat            = Input(Vec(64, UInt(1.W)))
-    val head_arch           = Input(Vec(4, UInt(6.W)))
+    val head_arch           = Input(Vec(4, UInt(4.W)))
 
     val free_list_empty     = Output(Bool())
 }

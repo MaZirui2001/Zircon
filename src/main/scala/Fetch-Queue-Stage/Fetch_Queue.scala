@@ -15,7 +15,7 @@ class Fetch_Queue_IO extends Bundle{
     val pcs_FQ              = Input(Vec(4, UInt(32.W)))
     // val for_commit          = Input(Vec(4, Bool()))
 
-    val next_ready          = Input(Vec(4, Bool()))
+    val next_ready          = Input(Bool())
     val insts_decode        = Output(Vec(4, UInt(32.W)))
     val pcs_ID              = Output(Vec(4, UInt(32.W)))
     val insts_valid_decode  = Output(Vec(4, Bool()))
@@ -53,7 +53,7 @@ class Fetch_Queue extends Module{
         }
         when(io.flush){
             head(i) := 0.U
-        }.elsewhen(io.next_ready(i) && !empty){
+        }.elsewhen(io.next_ready && !empty){
             head(i) := head(i) + 1.U
         }
     }

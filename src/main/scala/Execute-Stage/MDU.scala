@@ -28,13 +28,13 @@ class MDU extends RawModule {
             md_out := (src1 * src2)(63, 32)
         }
         is(ALU_DIV) {
-            md_out := src1.asSInt / src2.asSInt
+            md_out := (src1.asSInt / src2.asSInt).asUInt
         }
         is(ALU_DIVU) {
             md_out := src1 / src2
         }
         is(ALU_MOD) {
-            md_out := src1.asSInt % src2.asSInt
+            md_out := (src1.asSInt % src2.asSInt).asUInt
         }
         is(ALU_MODU) {
             md_out := src1 % src2

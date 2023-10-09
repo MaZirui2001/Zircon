@@ -23,4 +23,6 @@ class PC(reset_val: Int) extends Module {
         pc := pc
     }
 
+    io.pc_IF := pc
+
 }

@@ -38,6 +38,7 @@ class Order_Issue_Queue(n: Int) extends Module {
     val full = tail_pop >= n.U - insert_num
 
     io.queue_ready := !full
+    io.full := full
     val insts_dispatch = io.insts_dispatch
 
     val queue_temp = Wire(Vec(n+1, new issue_queue_t))

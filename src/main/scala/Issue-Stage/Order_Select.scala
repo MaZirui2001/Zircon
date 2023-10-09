@@ -6,7 +6,7 @@ import Issue_Queue_Pack._
 // LUT: 88
 
 class Order_Select_IO(n: Int) extends Bundle {
-    val insts_issue = Input(Vec(n, new issue_queue_t))
+    val insts_issue = Input(new issue_queue_t)
     val issue_req = Input(Bool())
     val stall     = Input(Bool())
 
@@ -21,10 +21,10 @@ class Order_Select(n: Int) extends Module {
     val io = IO(new Order_Select_IO(n))
     
     io.issue_ack := !io.stall && io.issue_req
-    io.wake_preg := Mux(io.insts_issue(0).inst.rd_valid && !io.stall, io.insts_issue(0).inst.rd, 0.U)
+    io.wake_preg := Mux(io.insts_issue.inst.rd_valid && !io.stall, io.insts_issue.inst.rd, 0.U)
 
     val bubble_inst_issue = 0.U.asTypeOf(new issue_queue_t)
-    io.inst_issue := Mux(io.issue_ack, io.insts_issue(0), bubble_inst_issue)
+    io.inst_issue := Mux(io.issue_ack, io.insts_issue, bubble_inst_issue)
     io.inst_issue_valid := io.issue_ack
 }
 
