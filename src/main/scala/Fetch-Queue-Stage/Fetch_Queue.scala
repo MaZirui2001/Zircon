@@ -66,6 +66,6 @@ class Fetch_Queue extends Module{
     }
 
 }
-object Fetch_Queue extends App{
-    emitVerilog(new Fetch_Queue, Array("-td", "build/"))
-}
+// object Fetch_Queue extends App{
+//     emitVerilog(new Fetch_Queue, Array("-td", "build/"))
+// }

@@ -38,6 +38,6 @@ class Unorder_Select(n: Int) extends Module {
 
 }
 
-object Unorder_Select extends App {
-    emitVerilog(new Unorder_Select(8), Array("-td", "build/"))
-}
+// object Unorder_Select extends App {
+//     emitVerilog(new Unorder_Select(8), Array("-td", "build/"))
+// }

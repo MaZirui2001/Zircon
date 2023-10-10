@@ -28,6 +28,6 @@ class Order_Select(n: Int) extends Module {
     io.inst_issue_valid := io.issue_ack
 }
 
-object Order_Select extends App {
-    emitVerilog(new Order_Select(8), Array("-td", "build/"))
-}
+// object Order_Select extends App {
+//     emitVerilog(new Order_Select(8), Array("-td", "build/"))
+// }

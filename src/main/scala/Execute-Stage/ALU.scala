@@ -59,6 +59,6 @@ class ALU extends RawModule {
     }
     io.alu_out := alu_out
 }
-object ALU extends App {
-    emitVerilog(new ALU, Array("-td", "build/"))
-}
+// object ALU extends App {
+//     emitVerilog(new ALU, Array("-td", "build/"))
+// }

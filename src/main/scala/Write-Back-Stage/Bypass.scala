@@ -23,9 +23,9 @@ class Bypass extends Module {
     io.forward_prk_data := io.prf_wdata_wb
 }
 
-object Bypass extends App {
-    emitVerilog(new Bypass, Array("-td", "build/"))
-}
+// object Bypass extends App {
+//     emitVerilog(new Bypass, Array("-td", "build/"))
+// }
 
 
 

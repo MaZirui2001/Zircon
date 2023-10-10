@@ -46,6 +46,6 @@ class RN_DP_Reg extends Module {
 
 }
 
-object RN_DP_Reg extends App {
-    emitVerilog(new RN_DP_Reg, Array("-td", "build/"))
-}
+// object RN_DP_Reg extends App {
+//     emitVerilog(new RN_DP_Reg, Array("-td", "build/"))
+// }

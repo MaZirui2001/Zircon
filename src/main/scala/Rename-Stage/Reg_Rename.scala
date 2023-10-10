@@ -146,8 +146,8 @@ class Reg_Rename extends Module{
     io.free_list_empty := free_list.io.empty
 }
 
-object Reg_Rename extends App{
-    emitVerilog(new Reg_Rename, Array("-td", "build/"))
-    // emitVerilog(new Reg_Rename, Array("--help"))
+// object Reg_Rename extends App{
+//     emitVerilog(new Reg_Rename, Array("-td", "build/"))
+//     // emitVerilog(new Reg_Rename, Array("--help"))
 
-}
+// }

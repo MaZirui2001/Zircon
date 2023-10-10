@@ -34,6 +34,6 @@ class IF_FQ_Reg extends Module {
     io.insts_FQ := insts_reg
 }
 
-object IF_FQ_Reg extends App {
-    emitVerilog(new IF_FQ_Reg, Array("-td", "build/"))
-}
+// object IF_FQ_Reg extends App {
+//     emitVerilog(new IF_FQ_Reg, Array("-td", "build/"))
+// }

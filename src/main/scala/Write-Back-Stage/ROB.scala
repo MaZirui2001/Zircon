@@ -111,6 +111,6 @@ class ROB(n: Int) extends Module{
     }
 } 
 
-object ROB extends App {
-    emitVerilog(new ROB(8), Array("-td", "build/"))
-}
+// object ROB extends App {
+//     emitVerilog(new ROB(8), Array("-td", "build/"))
+// }

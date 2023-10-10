@@ -121,6 +121,6 @@ class ID_RN_Reg extends Module {
 
 
 }
-object ID_RN_Reg extends App {
-    emitVerilog(new ID_RN_Reg, Array("-td", "build/"))
-}
+// object ID_RN_Reg extends App {
+//     emitVerilog(new ID_RN_Reg, Array("-td", "build/"))
+// }

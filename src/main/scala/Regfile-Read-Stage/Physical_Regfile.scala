@@ -55,6 +55,6 @@ class Physical_Regfile extends Module{
     }
 }
 
-object Physical_Regfile extends App {
-    emitVerilog(new Physical_Regfile, Array("-td", "build/"))
-}
+// object Physical_Regfile extends App {
+//     emitVerilog(new Physical_Regfile, Array("-td", "build/"))
+// }

@@ -57,6 +57,6 @@ class Branch extends RawModule {
     }
 }
 
-object Branch extends App {
-    emitVerilog(new Branch, Array("-td", "build/"))
-}
+// object Branch extends App {
+//     emitVerilog(new Branch, Array("-td", "build/"))
+// }

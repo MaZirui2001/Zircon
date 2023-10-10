@@ -96,6 +96,6 @@ class Unorder_Issue_Queue(n: Int) extends Module{
 
 }
 
-object Unorder_Issue_Queue extends App {
-    emitVerilog(new Unorder_Issue_Queue(8), Array("-td", "build/"))
-}
+// object Unorder_Issue_Queue extends App {
+//     emitVerilog(new Unorder_Issue_Queue(8), Array("-td", "build/"))
+// }

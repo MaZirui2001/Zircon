@@ -265,6 +265,6 @@ class Decode extends RawModule{
     io.imm              := imm_gen.io.imm
 }
 
-object Decode extends App {
-    emitVerilog(new Decode, Array("-td", "build/"))
-}
+// object Decode extends App {
+//     emitVerilog(new Decode, Array("-td", "build/"))
+// }

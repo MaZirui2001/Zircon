@@ -76,6 +76,6 @@ class Dispatch extends RawModule{
         }
     }
 }
-object Dispatch extends App{
-    emitVerilog(new Dispatch, Array("-td", "build/"))
-}
+// object Dispatch extends App{
+//     emitVerilog(new Dispatch, Array("-td", "build/"))
+// }
