@@ -24,7 +24,7 @@ class Free_List extends Module{
             }
         }
     }
-    val head = RegInit(VecInit(1.U, 0.U, 0.U, 0.U))
+    val head = RegInit(VecInit(1.U(4.W), 0.U(4.W), 0.U(4.W), 0.U(4.W)))
     val tail = RegInit(VecInit(Seq.fill(4)(15.U(4.W))))
 
     io.empty := (head(0) === tail(0)) | (head(1) === tail(1)) | (head(2) === tail(2)) | (head(3) === tail(3))
