@@ -296,11 +296,21 @@ class CPU extends Module {
 
     // EX stage
     // 1. arith common fu
+    import Control_Signal._
     val alu1 = Module(new ALU)
     val fu1_bypass = Module(new Bypass)
     alu1.io.alu_op := rf_ex_reg1.io.inst_pack_EX.alu_op
-    alu1.io.src1 := Mux(fu1_bypass.io.forward_prj_en, fu1_bypass.io.forward_prj_data, rf_ex_reg1.io.src1_EX)
-    alu1.io.src2 := Mux(fu1_bypass.io.forward_prk_en, fu1_bypass.io.forward_prk_data, rf_ex_reg1.io.src2_EX)
+    alu1.io.src1 := MuxLookup(rf_ex_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
+        RS1_REG -> Mux(fu1_bypass.io.forward_prj_en, fu1_bypass.io.forward_prj_data, rf_ex_reg1.io.src1_EX),
+        RS1_PC -> rf_ex_reg1.io.inst_pack_EX.pc,
+        RS1_ZERO -> 0.U)
+    )
+    
+    alu1.io.src2 := MuxLookup(rf_ex_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
+        RS2_REG -> Mux(fu1_bypass.io.forward_prk_en, fu1_bypass.io.forward_prk_data, rf_ex_reg1.io.src2_EX),
+        RS2_IMM -> rf_ex_reg1.io.inst_pack_EX.imm,
+        RS2_FOUR -> 4.U)
+    )
 
     fu1_bypass.io.prd_wb := fu1_ex_wb_reg.io.inst_pack_WB.prd
     fu1_bypass.io.prj_ex := rf_ex_reg1.io.inst_pack_EX.prj
@@ -319,8 +329,18 @@ class CPU extends Module {
     val br = Module(new Branch)
     val fu2_bypass = Module(new Bypass)
     alu2.io.alu_op := rf_ex_reg2.io.inst_pack_EX.alu_op
-    alu2.io.src1 := Mux(fu2_bypass.io.forward_prj_en, fu2_bypass.io.forward_prj_data, rf_ex_reg2.io.src1_EX)
-    alu2.io.src2 := Mux(fu2_bypass.io.forward_prk_en, fu2_bypass.io.forward_prk_data, rf_ex_reg2.io.src2_EX)
+
+    alu2.io.src1 := MuxLookup(rf_ex_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
+        RS1_REG -> Mux(fu2_bypass.io.forward_prj_en, fu2_bypass.io.forward_prj_data, rf_ex_reg2.io.src1_EX),
+        RS1_PC -> rf_ex_reg2.io.inst_pack_EX.pc,
+        RS1_ZERO -> 0.U)
+    )
+
+    alu2.io.src2 := MuxLookup(rf_ex_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
+        RS2_REG -> Mux(fu2_bypass.io.forward_prk_en, fu2_bypass.io.forward_prk_data, rf_ex_reg2.io.src2_EX),
+        RS2_IMM -> rf_ex_reg2.io.inst_pack_EX.imm,
+        RS2_FOUR -> 4.U)
+    )
 
     br.io.br_type := rf_ex_reg2.io.inst_pack_EX.br_type
     br.io.src1 := Mux(fu2_bypass.io.forward_prj_en, fu2_bypass.io.forward_prj_data, rf_ex_reg2.io.src1_EX)
