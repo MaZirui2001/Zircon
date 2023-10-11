@@ -28,6 +28,8 @@ class Arch_Rat_IO extends Bundle {
     val pprd_cmt        = Input(Vec(4, UInt(6.W)))
     val rd_valid_cmt    = Input(Vec(4, Bool()))
 
+    val arch_rat_lr     = Output(UInt((64*5).W))
+
     // for reg rename
     val arch_rat        = Output(Vec(64, UInt(1.W)))
     val head_arch       = Output(Vec(4, UInt(4.W)))
@@ -68,5 +70,13 @@ class Arch_Rat extends Module {
     for(i <- 0 until 4){
         io.head_arch(i) := head_next(i.U+head_sel)
     }
-    
+    io.arch_rat_lr := Cat(arat(63).lr, arat(62).lr, arat(61).lr, arat(60).lr, arat(59).lr, arat(58).lr, arat(57).lr, arat(56).lr, 
+                        arat(55).lr, arat(54).lr, arat(53).lr, arat(52).lr, arat(51).lr, arat(50).lr, arat(49).lr, arat(48).lr, 
+                        arat(47).lr, arat(46).lr, arat(45).lr, arat(44).lr, arat(43).lr, arat(42).lr, arat(41).lr, arat(40).lr, 
+                        arat(39).lr, arat(38).lr, arat(37).lr, arat(36).lr, arat(35).lr, arat(34).lr, arat(33).lr, arat(32).lr, 
+                        arat(31).lr, arat(30).lr, arat(29).lr, arat(28).lr, arat(27).lr, arat(26).lr, arat(25).lr, arat(24).lr,
+                        arat(23).lr, arat(22).lr, arat(21).lr, arat(20).lr, arat(19).lr, arat(18).lr, arat(17).lr, arat(16).lr, 
+                        arat(15).lr, arat(14).lr, arat(13).lr, arat(12).lr, arat(11).lr, arat(10).lr, arat(9).lr, arat(8).lr, 
+                        arat(7).lr, arat(6).lr, arat(5).lr, arat(4).lr, arat(3).lr, arat(2).lr, arat(1).lr, arat(0).lr)
+
 }

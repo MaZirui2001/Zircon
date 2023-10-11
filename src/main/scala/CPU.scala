@@ -12,8 +12,31 @@ class CPU_IO extends Bundle{
 
     val mem_addr_ex = Output(UInt(32.W))
     val mem_rdata_ex = Input(UInt(32.W))
-    val mem_type_ex = Output(Bool())
+    val mem_type_ex = Output(UInt(5.W))
     val mem_wdata_ex = Output(UInt(32.W))
+
+    val commit_en1 = Output(Bool())
+    val commit_rd1 = Output(UInt(5.W))
+    val commit_rd_valid1 = Output(Bool())
+    val commit_rf_wdata1 = Output(UInt(32.W))
+    val commit_pc_1 = Output(UInt(32.W))
+    val commit_en2 = Output(Bool())
+    val commit_rd2 = Output(UInt(5.W))
+    val commit_rd_valid2 = Output(Bool())
+    val commit_rf_wdata2 = Output(UInt(32.W))
+    val commit_pc_2 = Output(UInt(32.W))
+    val commit_en3 = Output(Bool())
+    val commit_rd3 = Output(UInt(5.W))
+    val commit_rd_valid3 = Output(Bool())
+    val commit_rf_wdata3 = Output(UInt(32.W))
+    val commit_pc_3 = Output(UInt(32.W))
+    val commit_en4 = Output(Bool())
+    val commit_rd4 = Output(UInt(5.W))
+    val commit_rd_valid4 = Output(Bool())
+    val commit_rf_wdata4 = Output(UInt(32.W))
+    val commit_pc_4 = Output(UInt(32.W))
+
+    val arat_lr = Output(UInt(320.W))
 }
 class CPU extends Module {
     val io = IO(new CPU_IO)
@@ -195,10 +218,10 @@ class CPU extends Module {
     sel4.io.stall := !(iq4.io.issue_req)
 
     // mutual wakeup
-    iq1.io.wake_preg := VecInit(sel1.io.wake_preg, ShiftRegister(sel2.io.wake_preg, 1, 0.U, false.B), ShiftRegister(sel3.io.wake_preg, 2, 0.U, false.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, false.B))
-    iq2.io.wake_preg := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, false.B), sel2.io.wake_preg, ShiftRegister(sel3.io.wake_preg, 2, 0.U, false.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, false.B))
-    iq3.io.wake_preg := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, false.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, false.B), ShiftRegister(sel3.io.wake_preg, 1, 0.U, false.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, false.B))
-    iq4.io.wake_preg := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, false.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, false.B), ShiftRegister(sel3.io.wake_preg, 2, 0.U, false.B), sel4.io.wake_preg)
+    iq1.io.wake_preg := VecInit(sel1.io.wake_preg, ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
+    iq2.io.wake_preg := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), sel2.io.wake_preg, ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
+    iq3.io.wake_preg := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
+    iq4.io.wake_preg := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), sel4.io.wake_preg)
 
     // IS-EX SegReg
     val is_rf_reg1 = Module(new IS_RF_Reg)
@@ -378,6 +401,7 @@ class CPU extends Module {
     rob.io.rob_index_wb := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.rob_index, fu2_ex_wb_reg.io.inst_pack_WB.rob_index, fu3_ex_wb_reg.io.inst_pack_WB.rob_index, fu4_ex_wb_reg.io.inst_pack_WB.rob_index)
     rob.io.predict_fail_wb := VecInit(false.B, fu2_ex_wb_reg.io.predict_fail_WB, false.B, false.B)
     rob.io.branch_target_wb := VecInit(0.U, fu2_ex_wb_reg.io.branch_target_WB, 0.U, 0.U)
+    rob.io.rf_wdata_wb := VecInit(fu1_ex_wb_reg.io.alu_out_WB, fu2_ex_wb_reg.io.alu_out_WB, fu3_ex_wb_reg.io.mem_rdata_WB, fu4_ex_wb_reg.io.md_out_WB)
 
     // Commit stage
     arat.io.cmt_en := rob.io.cmt_en
@@ -385,6 +409,33 @@ class CPU extends Module {
     arat.io.prd_cmt := rob.io.pprd_cmt
     arat.io.pprd_cmt := rob.io.pprd_cmt
     arat.io.rd_valid_cmt := rob.io.rd_valid_cmt
+
+
+    io.commit_en1 := rob.io.cmt_en(0)
+    io.commit_rd1 := rob.io.rd_cmt(0)
+    io.commit_rd_valid1 := rob.io.rd_valid_cmt(0)
+    io.commit_rf_wdata1 := rob.io.rf_wdata_cmt(0)
+    io.commit_pc_1 := rob.io.pc_cmt(0)
+
+    io.commit_en2 := rob.io.cmt_en(1)
+    io.commit_rd2 := rob.io.rd_cmt(1)
+    io.commit_rd_valid2 := rob.io.rd_valid_cmt(1)
+    io.commit_rf_wdata2 := rob.io.rf_wdata_cmt(1)
+    io.commit_pc_2 := rob.io.pc_cmt(1)
+
+    io.commit_en3 := rob.io.cmt_en(2)
+    io.commit_rd3 := rob.io.rd_cmt(2)
+    io.commit_rd_valid3 := rob.io.rd_valid_cmt(2)
+    io.commit_rf_wdata3 := rob.io.rf_wdata_cmt(2)
+    io.commit_pc_3 := rob.io.pc_cmt(2)
+
+    io.commit_en4 := rob.io.cmt_en(3)
+    io.commit_rd4 := rob.io.rd_cmt(3)
+    io.commit_rd_valid4 := rob.io.rd_valid_cmt(3)
+    io.commit_rf_wdata4 := rob.io.rf_wdata_cmt(3)
+    io.commit_pc_4 := rob.io.pc_cmt(3)
+
+    io.arat_lr := arat.io.arch_rat_lr
     
 }
 

@@ -29,7 +29,7 @@ class Unorder_Select(n: Int) extends Module {
 
     val select_index = OHToUInt(issue_ack)
     io.wake_preg := Mux(io.issue_ack.asUInt.orR && !io.stall, 
-                    Mux(io.insts_issue(select_index).inst.rd_valid, io.insts_issue(select_index).inst.rd, 0.U), 0.U)
+                    Mux(io.insts_issue(select_index).inst.rd_valid, io.insts_issue(select_index).inst.prd, 0.U), 0.U)
     
     val inst_issue = io.insts_issue(select_index)
     val bubble_inst_issue = 0.U.asTypeOf(new issue_queue_t)

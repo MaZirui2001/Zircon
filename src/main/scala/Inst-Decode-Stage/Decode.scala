@@ -247,7 +247,7 @@ class Decode extends RawModule{
     io.rk               := Mux(ctrl(9).asBool, io.inst(4, 0), io.inst(14, 10))
     io.rk_valid         := ctrl(1)
 
-    io.rd               := Mux(ctrl(10).asBool, 1.U(5.W), io.inst(4, 0))
+    io.rd               := Mux(ctrl(10).asBool, io.inst(4, 0), 1.U(5.W))
     io.rd_valid         := ctrl(2)
 
     io.alu_op           := ctrl(3)

@@ -4,7 +4,6 @@ import Inst_Pack._
 import Control_Signal._
 
 // LUT: 2377
-
 object Dispatch_Func{
     def Dispatch_Ready_Generate(pr_raw: Bool, pr: UInt, prd_queue: Vec[Vec[UInt]]): Bool = {
         val prd_queue_temp = Wire(Vec(4, Vec(8, Bool())))
@@ -44,19 +43,22 @@ class Dispatch extends RawModule{
 
     val queue_sel = Wire(Vec(4, UInt(2.W)))
     val queue_id_hit = Wire(Vec(4, Vec(4, Bool())))
+    val queue_id_hit_trav = Wire(Vec(4, Vec(4, Bool())))
     for(i <- 0 until 4){
         queue_sel(i) := Mux(io.inst_packs(i).fu_id === ARITH, 
                      Mux(io.elem_num(0) < io.elem_num(1), 0.U, 1.U), io.inst_packs(i).fu_id)
         for(j <- 0 until 4){
-            queue_id_hit(i)(j) := queue_sel(i) === j.U
+            queue_id_hit(i)(j) := queue_sel(i) === j.U && io.insts_valid(i)
+            queue_id_hit_trav(i)(j) := queue_id_hit(j)(i)
         }
-        io.insert_num(i) := PopCount(queue_id_hit(i))
+        io.insert_num(i) := Mux(queue_id_hit_trav(i).asUInt.orR, PopCount(queue_id_hit_trav(i)), 0.U)
     }
     val prj_ready = Wire(Vec(4, Bool()))
     val prk_ready = Wire(Vec(4, Bool()))
+    import Dispatch_Func._
     for(i <- 0 until 4){
-        prj_ready(i) := Dispatch_Func.Dispatch_Ready_Generate(io.prj_raw(i), io.inst_packs(i).prj, io.prd_queue)
-        prk_ready(i) := Dispatch_Func.Dispatch_Ready_Generate(io.prk_raw(i), io.inst_packs(i).prk, io.prd_queue)
+        prj_ready(i) := !io.inst_packs(i).rj_valid || Dispatch_Ready_Generate(io.prj_raw(i), io.inst_packs(i).prj, io.prd_queue)
+        prk_ready(i) := !io.inst_packs(i).rk_valid || Dispatch_Ready_Generate(io.prk_raw(i), io.inst_packs(i).prk, io.prd_queue)
     }
     // alloc insts to issue queue, pressed
     val index_now = Wire(Vec(5, Vec(4, UInt(2.W))))
@@ -71,8 +73,9 @@ class Dispatch extends RawModule{
                 io.insts_dispatch(j)(index_now(i)(j)) := io.inst_packs(i)
                 io.prj_ready(j)(index_now(i)(j)) := prj_ready(i)
                 io.prk_ready(j)(index_now(i)(j)) := prk_ready(i)
-                index_now(i+1)(j) := index_now(i)(j) + 1.U
+                
             }
+            index_now(i+1)(j) := index_now(i)(j) + queue_id_hit(i)(j)
         }
     }
 }

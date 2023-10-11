@@ -13,6 +13,7 @@ object ROB_Pack{
         val branch_target = UInt(32.W)
         val complete = Bool()
         val pc = UInt(32.W)
+        val rf_wdata = UInt(32.W)
     }
     
 }
@@ -32,6 +33,7 @@ class ROB_IO(n: Int) extends Bundle{
     val rob_index_wb = Input(Vec(4, UInt(log2Ceil(n).W)))
     val predict_fail_wb = Input(Vec(4, Bool()))
     val branch_target_wb = Input(Vec(4, UInt(32.W)))
+    val rf_wdata_wb = Input(Vec(4, UInt(32.W)))
 
     // for cpu state: arch rat
     val cmt_en = Output(Vec(4, Bool()))
@@ -43,6 +45,7 @@ class ROB_IO(n: Int) extends Bundle{
 
     val predict_fail_cmt = Output(Bool())
     val branch_target_cmt = Output(UInt(32.W))
+    val rf_wdata_cmt = Output(Vec(4, UInt(32.W)))
 }
 
 class ROB(n: Int) extends Module{
@@ -54,7 +57,7 @@ class ROB(n: Int) extends Module{
     val tail = RegInit(0.U(log2Ceil(n).W))
     val elem_num = RegInit(0.U((log2Ceil(n)+1).W))
 
-    val empty = head === tail
+    val empty = elem_num === 0.U
     val insert_num = PopCount(io.inst_valid_rn)
     val full = elem_num + insert_num > n.asUInt
 
@@ -69,10 +72,11 @@ class ROB(n: Int) extends Module{
                 rob(tail+i.U).branch_target := 0.U
                 rob(tail+i.U).complete := false.B
                 rob(tail+i.U).pc := io.pc_rn(i)
-
+                rob(tail+i.U).rf_wdata := 0.U
             }
         }
         tail := tail + insert_num
+        elem_num := elem_num + insert_num
     }
     for(i <- 0 until 4){
         io.rob_index_rn(i) := tail + i.U
@@ -84,6 +88,7 @@ class ROB(n: Int) extends Module{
             rob(io.rob_index_wb(i)).complete := true.B
             rob(io.rob_index_wb(i)).predict_fail := io.predict_fail_wb(i)
             rob(io.rob_index_wb(i)).branch_target := io.branch_target_wb(i)
+            rob(io.rob_index_wb(i)).rf_wdata := io.rf_wdata_wb(i)
         }
     }
     
@@ -108,6 +113,7 @@ class ROB(n: Int) extends Module{
         io.prd_cmt(i) := rob(head+i.U).prd
         io.pprd_cmt(i) := rob(head+i.U).pprd
         io.pc_cmt(i) := rob(head+i.U).pc
+        io.rf_wdata_cmt(i) := rob(head+i.U).rf_wdata
     }
 } 
 
