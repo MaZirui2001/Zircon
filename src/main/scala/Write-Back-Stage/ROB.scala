@@ -80,7 +80,7 @@ class ROB(n: Int) extends Module{
     }
 
     tail := Mux(io.predict_fail_cmt, head + PopCount(io.cmt_en), Mux(!full, tail + insert_num, tail))
-    elem_num := Mux(io.predict_fail_cmt, 0.U, Mux(!full, elem_num + insert_num - PopCount(io.cmt_en), elem_num))
+    elem_num := Mux(io.predict_fail_cmt, 0.U, Mux(!full, elem_num + insert_num - PopCount(io.cmt_en), elem_num - PopCount(io.cmt_en)))
     for(i <- 0 until 4){
         io.rob_index_rn(i) := tail + i.U
     }

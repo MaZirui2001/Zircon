@@ -36,12 +36,12 @@ class CPU_IO extends Bundle{
     val commit_rf_wdata4 = Output(UInt(32.W))
     val commit_pc_4 = Output(UInt(32.W))
 
-    val arat_lr = Output(UInt(320.W))
+    // val arat_lr = Output(UInt(320.W))
 }
 class CPU extends Module {
     val io = IO(new CPU_IO)
 
-    val rob = Module(new ROB(8))
+    val rob = Module(new ROB(16))
     val reg_rename = Module(new Reg_Rename)
     val inst_queue = Module(new Fetch_Queue)
     val iq1 = Module(new Unorder_Issue_Queue(8))
@@ -429,6 +429,7 @@ class CPU extends Module {
     arat.io.prd_cmt := rob.io.prd_cmt
     arat.io.pprd_cmt := rob.io.pprd_cmt
     arat.io.rd_valid_cmt := rob.io.rd_valid_cmt
+    arat.io.predict_fail := rob.io.predict_fail_cmt
 
 
     io.commit_en1 := rob.io.cmt_en(0)
@@ -455,7 +456,8 @@ class CPU extends Module {
     io.commit_rf_wdata4 := rob.io.rf_wdata_cmt(3)
     io.commit_pc_4 := rob.io.pc_cmt(3)
 
-    io.arat_lr := arat.io.arch_rat_lr
+
+    // io.arat_lr := arat.io.arch_rat_lr
     
 }
 

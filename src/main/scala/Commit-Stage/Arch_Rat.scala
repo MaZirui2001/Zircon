@@ -27,8 +27,9 @@ class Arch_Rat_IO extends Bundle {
     val prd_cmt         = Input(Vec(4, UInt(6.W)))
     val pprd_cmt        = Input(Vec(4, UInt(6.W)))
     val rd_valid_cmt    = Input(Vec(4, Bool()))
+    val predict_fail    = Input(Bool())
 
-    val arch_rat_lr     = Output(UInt((64*5).W))
+    // val arch_rat_lr     = Output(UInt((64*5).W))
 
     // for reg rename
     val arch_rat        = Output(Vec(64, UInt(1.W)))
@@ -42,13 +43,13 @@ class Arch_Rat extends Module {
     val arat_next = Wire(Vec(64, new rat_t))
 
 
-    val head = RegInit(VecInit(1.U(4.W), 0.U(4.W), 0.U(4.W), 0.U(4.W)))
+    val head = RegInit(VecInit(1.U(4.W), 1.U(4.W), 1.U(4.W), 1.U(4.W)))
     val head_next = Wire(Vec(4, UInt(4.W)))
     val head_sel = RegInit(0.U(2.W))
 
     arat_next := arat
     for(i <- 0 until 4){
-        when(io.rd_valid_cmt(i)){
+        when(io.rd_valid_cmt(i) && io.cmt_en(i)){
             arat_next(io.pprd_cmt(i)).valid := false.B
             arat_next(io.prd_cmt(i)).lr := io.rd_cmt(i)
             arat_next(io.prd_cmt(i)).valid := true.B
@@ -62,7 +63,7 @@ class Arch_Rat extends Module {
         head_next(head_sel+i.U) := head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i))
     }
     head := head_next
-    head_sel := head_sel + PopCount(io.cmt_en)
+    head_sel := Mux(io.predict_fail, 0.U, head_sel + PopCount(io.cmt_en))
 
     for(i <- 0 until 64){
         io.arch_rat(i) := arat_next(i).valid
@@ -70,13 +71,13 @@ class Arch_Rat extends Module {
     for(i <- 0 until 4){
         io.head_arch(i) := head_next(i)
     }
-    io.arch_rat_lr := Cat(arat(63).lr, arat(62).lr, arat(61).lr, arat(60).lr, arat(59).lr, arat(58).lr, arat(57).lr, arat(56).lr, 
-                        arat(55).lr, arat(54).lr, arat(53).lr, arat(52).lr, arat(51).lr, arat(50).lr, arat(49).lr, arat(48).lr, 
-                        arat(47).lr, arat(46).lr, arat(45).lr, arat(44).lr, arat(43).lr, arat(42).lr, arat(41).lr, arat(40).lr, 
-                        arat(39).lr, arat(38).lr, arat(37).lr, arat(36).lr, arat(35).lr, arat(34).lr, arat(33).lr, arat(32).lr, 
-                        arat(31).lr, arat(30).lr, arat(29).lr, arat(28).lr, arat(27).lr, arat(26).lr, arat(25).lr, arat(24).lr,
-                        arat(23).lr, arat(22).lr, arat(21).lr, arat(20).lr, arat(19).lr, arat(18).lr, arat(17).lr, arat(16).lr, 
-                        arat(15).lr, arat(14).lr, arat(13).lr, arat(12).lr, arat(11).lr, arat(10).lr, arat(9).lr, arat(8).lr, 
-                        arat(7).lr, arat(6).lr, arat(5).lr, arat(4).lr, arat(3).lr, arat(2).lr, arat(1).lr, arat(0).lr)
+    // io.arch_rat_lr := Cat(arat(63).lr, arat(62).lr, arat(61).lr, arat(60).lr, arat(59).lr, arat(58).lr, arat(57).lr, arat(56).lr, 
+    //                     arat(55).lr, arat(54).lr, arat(53).lr, arat(52).lr, arat(51).lr, arat(50).lr, arat(49).lr, arat(48).lr, 
+    //                     arat(47).lr, arat(46).lr, arat(45).lr, arat(44).lr, arat(43).lr, arat(42).lr, arat(41).lr, arat(40).lr, 
+    //                     arat(39).lr, arat(38).lr, arat(37).lr, arat(36).lr, arat(35).lr, arat(34).lr, arat(33).lr, arat(32).lr, 
+    //                     arat(31).lr, arat(30).lr, arat(29).lr, arat(28).lr, arat(27).lr, arat(26).lr, arat(25).lr, arat(24).lr,
+    //                     arat(23).lr, arat(22).lr, arat(21).lr, arat(20).lr, arat(19).lr, arat(18).lr, arat(17).lr, arat(16).lr, 
+    //                     arat(15).lr, arat(14).lr, arat(13).lr, arat(12).lr, arat(11).lr, arat(10).lr, arat(9).lr, arat(8).lr, 
+    //                     arat(7).lr, arat(6).lr, arat(5).lr, arat(4).lr, arat(3).lr, arat(2).lr, arat(1).lr, arat(0).lr)
 
 }

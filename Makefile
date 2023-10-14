@@ -13,6 +13,7 @@ verilog: $(SCALA_SRCS)
 	@rm -rf $(BUILD_DIR)
 	@mkdir -p $(BUILD_DIR)
 	@sbt run
+	@echo "Verilog files are generated in $(VERILOG_DIR)"
 	@python3 $(WORK_DIR)/scripts/split-module.py $(BUILD_DIR) $(VERILOG_DIR)
 # @cp $(RESOURCES_DIR)/*.sv $(VERILOG_DIR)
 

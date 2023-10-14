@@ -136,10 +136,15 @@ class Reg_Rename extends Module{
     crat.io.arch_rat := io.arch_rat
     crat.io.predict_fail := io.predict_fail
 
+    val commit_pprd_nez = Wire(Vec(4, Bool()))
+    for(i <- 0 until 4){
+        commit_pprd_nez(i) := (io.commit_pprd(i) =/= 0.U)
+    }
+
     free_list.io.rd_valid := io.rd_valid
     free_list.io.rename_en := io.rename_en
     free_list.io.commit_en := io.commit_en
-    free_list.io.commit_pprd_valid := io.commit_pprd_valid
+    free_list.io.commit_pprd_valid := (io.commit_pprd_valid.asUInt & commit_pprd_nez.asUInt).asBools
     free_list.io.commit_pprd := io.commit_pprd
     free_list.io.head_arch := io.head_arch
     free_list.io.predict_fail := io.predict_fail

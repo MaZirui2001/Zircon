@@ -46,7 +46,7 @@ class Dispatch extends RawModule{
     val queue_id_hit_trav = Wire(Vec(4, Vec(4, Bool())))
     for(i <- 0 until 4){
         queue_sel(i) := Mux(io.inst_packs(i).fu_id === ARITH, 
-                     Mux(io.elem_num(0) < io.elem_num(1), 0.U, 1.U), io.inst_packs(i).fu_id)
+                     Mux(io.elem_num(0) <= io.elem_num(1), 0.U, 1.U), io.inst_packs(i).fu_id)
         for(j <- 0 until 4){
             queue_id_hit(i)(j) := queue_sel(i) === j.U && io.insts_valid(i)
             queue_id_hit_trav(i)(j) := queue_id_hit(j)(i)
