@@ -26,20 +26,22 @@ class Free_List extends Module{
     }
     val head = RegInit(VecInit(1.U(4.W), 0.U(4.W), 0.U(4.W), 0.U(4.W)))
     val tail = RegInit(VecInit(Seq.fill(4)(15.U(4.W))))
+    val tail_sel = RegInit(0.U(2.W))
 
     io.empty := (head(0) === tail(0)) | (head(1) === tail(1)) | (head(2) === tail(2)) | (head(3) === tail(3))
 
     for(i <- 0 until 4){
         when(io.predict_fail){
             head(i) := io.head_arch(i)
-        }.elsewhen(!io.empty){
+        }.elsewhen(!io.empty && io.rename_en(i)){
             head(i) := head(i) + Mux(i.U =/= 0.U, io.rd_valid(i), Mux(head(i) === 15.U, Mux(io.rd_valid(i), 2.U, 0.U), io.rd_valid(i)))
         }
         when(io.commit_en(i)){
-            tail(i) := tail(i) + io.commit_pprd_valid(i)
+            tail(tail_sel+i.U) := tail(tail_sel+i.U) + io.commit_pprd_valid(i)
             when(io.commit_pprd_valid(i)){
-                free_list(i)(tail(i)) := io.commit_pprd(i)
+                free_list(tail_sel+i.U)(tail(tail_sel+i.U)) := io.commit_pprd(i)
             }
+            tail_sel := tail_sel + PopCount(io.commit_en)
         }
     }
     for(i <- 0 until 4){

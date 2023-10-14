@@ -131,7 +131,7 @@ class Reg_Rename extends Module{
     crat.io.rj := io.rj
     crat.io.rk := io.rk
     crat.io.rd := io.rd
-    crat.io.rd_valid := rd_valid_temp
+    crat.io.rd_valid := (rd_valid_temp.asUInt & io.rename_en.asUInt).asBools
     crat.io.alloc_preg := free_list.io.alloc_preg
     crat.io.arch_rat := io.arch_rat
     crat.io.predict_fail := io.predict_fail

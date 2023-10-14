@@ -13,7 +13,7 @@ object Dispatch_Func{
             }
         }
         val prd_hit = prd_queue_temp(0).asUInt.orR | prd_queue_temp(1).asUInt.orR | prd_queue_temp(2).asUInt.orR | prd_queue_temp(3).asUInt.orR
-        val ready = !prd_hit & !pr_raw & pr =/= 0.U
+        val ready = (!prd_hit && !pr_raw) || pr === 0.U
         ready
     }
 }

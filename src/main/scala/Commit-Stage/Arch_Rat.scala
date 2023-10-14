@@ -42,7 +42,7 @@ class Arch_Rat extends Module {
     val arat_next = Wire(Vec(64, new rat_t))
 
 
-    val head = RegInit(VecInit(Seq.fill(4)(0.U(4.W))))
+    val head = RegInit(VecInit(1.U(4.W), 0.U(4.W), 0.U(4.W), 0.U(4.W)))
     val head_next = Wire(Vec(4, UInt(4.W)))
     val head_sel = RegInit(0.U(2.W))
 
@@ -50,8 +50,8 @@ class Arch_Rat extends Module {
     for(i <- 0 until 4){
         when(io.rd_valid_cmt(i)){
             arat_next(io.pprd_cmt(i)).valid := false.B
-            arat_next(io.pprd_cmt(i)).lr := io.rd_cmt(i)
-            arat_next(io.pprd_cmt(i)).valid := true.B
+            arat_next(io.prd_cmt(i)).lr := io.rd_cmt(i)
+            arat_next(io.prd_cmt(i)).valid := true.B
         }
     }
     arat := arat_next
@@ -59,16 +59,16 @@ class Arch_Rat extends Module {
     val cmt_en = io.cmt_en.asUInt.orR
     head_next := head
     for(i <- 0 until 4){
-        head_next(head_sel+i.U) := head(head_sel+i.U) + io.cmt_en(i)
+        head_next(head_sel+i.U) := head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i))
     }
     head := head_next
-    head_sel := head_sel + OHToUInt(io.cmt_en)
+    head_sel := head_sel + PopCount(io.cmt_en)
 
     for(i <- 0 until 64){
         io.arch_rat(i) := arat_next(i).valid
     }
     for(i <- 0 until 4){
-        io.head_arch(i) := head_next(i.U+head_sel)
+        io.head_arch(i) := head_next(i)
     }
     io.arch_rat_lr := Cat(arat(63).lr, arat(62).lr, arat(61).lr, arat(60).lr, arat(59).lr, arat(58).lr, arat(57).lr, arat(56).lr, 
                         arat(55).lr, arat(54).lr, arat(53).lr, arat(52).lr, arat(51).lr, arat(50).lr, arat(49).lr, arat(48).lr, 

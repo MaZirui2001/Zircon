@@ -37,7 +37,7 @@ class Fetch_Queue extends Module{
     val full = Wire(Bool())
     full := (head(0) === tail(0)+1.U) | (head(1) === tail(1)+1.U) | (head(2) === tail(2)+1.U) | (head(3) === tail(3)+1.U)
     val empty = Wire(Bool())
-    empty := (head(0) === tail(0)) & (head(1) === tail(1)) & (head(2) === tail(2)) & (head(3) === tail(3))
+    empty := ((head(0) === tail(0)) | (head(1) === tail(1)) | (head(2) === tail(2)) | (head(3) === tail(3))) || io.flush
 
     io.inst_queue_ready := !full
 

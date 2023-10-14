@@ -19,27 +19,27 @@ class Branch extends RawModule {
     io.branch_target := io.pc_ex + io.imm_ex
     switch(io.br_type) {
         is(BR_BEQ){
-            io.predict_fail := ~(io.src1 === io.src2)
+            io.predict_fail := (io.src1 === io.src2)
             io.branch_target := io.pc_ex + io.imm_ex
         }
         is(BR_BNE){
-            io.predict_fail := ~(io.src1 =/= io.src2)
+            io.predict_fail := (io.src1 =/= io.src2)
             io.branch_target := io.pc_ex + io.imm_ex
         }
         is(BR_BLT){
-            io.predict_fail := ~(io.src1.asSInt < io.src2.asSInt)
+            io.predict_fail := (io.src1.asSInt < io.src2.asSInt)
             io.branch_target := io.pc_ex + io.imm_ex
         }
         is(BR_BGE){
-            io.predict_fail := ~(io.src1.asSInt >= io.src2.asSInt)
+            io.predict_fail := (io.src1.asSInt >= io.src2.asSInt)
             io.branch_target := io.pc_ex + io.imm_ex
         }
         is(BR_BLTU){
-            io.predict_fail := ~(io.src1 < io.src2)
+            io.predict_fail := (io.src1 < io.src2)
             io.branch_target := io.pc_ex + io.imm_ex
         }
         is(BR_BGEU){
-            io.predict_fail := ~(io.src1 >= io.src2)
+            io.predict_fail := (io.src1 >= io.src2)
             io.branch_target := io.pc_ex + io.imm_ex
         }
         is(BR_JIRL){

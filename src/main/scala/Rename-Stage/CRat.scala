@@ -59,26 +59,3 @@ class CRat extends Module{
     }
 }
 
-// class CRat extends BlackBox with HasBlackBoxResource{
-//     val io = IO(new Bundle{
-//         val clock = Input(Clock())
-//         val reset = Input(Reset())
-//         val rj           = Input(Vec(4, UInt(5.W)))
-//         val rk           = Input(Vec(4, UInt(5.W)))
-
-//         val rd           = Input(Vec(4, UInt(5.W)))
-//         val rd_valid     = Input(Vec(4, Bool()))
-//         val alloc_preg   = Input(Vec(4, UInt(6.W)))
-
-//         val prj          = Output(Vec(4, UInt(6.W)))
-//         val prk          = Output(Vec(4, UInt(6.W)))
-//         val pprd         = Output(Vec(4, UInt(6.W)))
-
-//         val arch_rat     = Input(UInt(64.W))
-//         val predict_fail = Input(Bool())
-//     })
-//     addResource("/CRat.sv")
-// }
-// object CRat extends App{
-//     emitVerilog(new CRat, Array("-td", "build/"))
-// }

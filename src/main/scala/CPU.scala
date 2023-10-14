@@ -426,7 +426,7 @@ class CPU extends Module {
     // Commit stage
     arat.io.cmt_en := rob.io.cmt_en
     arat.io.rd_cmt := rob.io.rd_cmt
-    arat.io.prd_cmt := rob.io.pprd_cmt
+    arat.io.prd_cmt := rob.io.prd_cmt
     arat.io.pprd_cmt := rob.io.pprd_cmt
     arat.io.rd_valid_cmt := rob.io.rd_valid_cmt
 
