@@ -89,7 +89,7 @@ class CPU extends Module {
     // ID-RN SegReg
     val id_rn_reg = Module(new ID_RN_Reg)
     id_rn_reg.io.flush := rob.io.predict_fail_cmt
-    id_rn_reg.io.stall := rob.io.full || reg_rename.io.free_list_empty
+    id_rn_reg.io.stall := rob.io.full || reg_rename.io.free_list_empty || stall_by_iq
     id_rn_reg.io.insts_valid_ID := inst_queue.io.insts_valid_decode
     id_rn_reg.io.rj_ID := VecInit(inst_decode1.io.rj, inst_decode2.io.rj, inst_decode3.io.rj, inst_decode4.io.rj)
     id_rn_reg.io.rj_valid_ID := VecInit(inst_decode1.io.rj_valid, inst_decode2.io.rj_valid, inst_decode3.io.rj_valid, inst_decode4.io.rj_valid)
@@ -108,12 +108,11 @@ class CPU extends Module {
     id_rn_reg.io.insts_exist_ID := VecInit(inst_decode1.io.inst_exist, inst_decode2.io.inst_exist, inst_decode3.io.inst_exist, inst_decode4.io.inst_exist)
 
     // Reg Rename
-    
     reg_rename.io.rj := id_rn_reg.io.rj_RN
     reg_rename.io.rk := id_rn_reg.io.rk_RN
     reg_rename.io.rd := id_rn_reg.io.rd_RN
     reg_rename.io.rd_valid := id_rn_reg.io.rd_valid_RN
-    reg_rename.io.rename_en := id_rn_reg.io.insts_valid_RN
+    reg_rename.io.rename_en := (id_rn_reg.io.insts_valid_RN.asUInt & VecInit(Seq.fill(4)(!id_rn_reg.io.stall)).asUInt).asBools
     reg_rename.io.commit_en := rob.io.cmt_en
     reg_rename.io.commit_pprd_valid := rob.io.rd_valid_cmt
     reg_rename.io.commit_pprd := rob.io.pprd_cmt
@@ -416,6 +415,7 @@ class CPU extends Module {
     rob.io.prd_rn := reg_rename.io.prd
     rob.io.pprd_rn := reg_rename.io.pprd
     rob.io.pc_rn := id_rn_reg.io.pcs_RN
+    rob.io.stall := id_rn_reg.io.stall
 
     rob.io.inst_valid_wb := VecInit(fu1_ex_wb_reg.io.inst_valid_WB, fu2_ex_wb_reg.io.inst_valid_WB, fu3_ex_wb_reg.io.inst_valid_WB, fu4_ex_wb_reg.io.inst_valid_WB)
     rob.io.rob_index_wb := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.rob_index, fu2_ex_wb_reg.io.inst_pack_WB.rob_index, fu3_ex_wb_reg.io.inst_pack_WB.rob_index, fu4_ex_wb_reg.io.inst_pack_WB.rob_index)

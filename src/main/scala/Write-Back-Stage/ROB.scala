@@ -27,6 +27,7 @@ class ROB_IO(n: Int) extends Bundle{
     val rob_index_rn = Output(Vec(4, UInt(log2Ceil(n).W)))
     val pc_rn = Input(Vec(4, UInt(32.W)))
     val full = Output(Bool())
+    val stall = Input(Bool())
     
     // for wb stage
     val inst_valid_wb = Input(Vec(4, Bool()))
@@ -79,8 +80,8 @@ class ROB(n: Int) extends Module{
         // elem_num := Mux(!io.predict_fail_cmt, elem_num + insert_num - PopCount(io.cmt_en), 0.U)
     }
 
-    tail := Mux(io.predict_fail_cmt, head + PopCount(io.cmt_en), Mux(!full, tail + insert_num, tail))
-    elem_num := Mux(io.predict_fail_cmt, 0.U, Mux(!full, elem_num + insert_num - PopCount(io.cmt_en), elem_num - PopCount(io.cmt_en)))
+    tail := Mux(io.predict_fail_cmt, head + PopCount(io.cmt_en), Mux(!full && !io.stall, tail + insert_num, tail))
+    elem_num := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num + insert_num - PopCount(io.cmt_en), elem_num - PopCount(io.cmt_en)))
     for(i <- 0 until 4){
         io.rob_index_rn(i) := tail + i.U
     }
