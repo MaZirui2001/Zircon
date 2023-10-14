@@ -14,12 +14,12 @@ class IF_FQ_Reg extends Module {
         val insts_FQ        = Output(Vec(4, UInt(32.W)))
     })
 
-    val pcs_reg = RegInit(VecInit(Seq.fill(4)(0x1c000000.U(32.W))))
+    val pcs_reg = RegInit(VecInit(Seq.fill(4)(0x0.U(32.W))))
     val insts_valid_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
     val insts_reg = RegInit(VecInit(Seq.fill(4)(0.U(32.W))))
 
     when(io.flush) {
-        pcs_reg := VecInit(Seq.fill(4)(0x1c000000.U(32.W)))
+        pcs_reg := VecInit(Seq.fill(4)(0x0.U(32.W)))
         insts_valid_reg := VecInit(Seq.fill(4)(false.B))
         insts_reg := VecInit(Seq.fill(4)(0.U(32.W)))
     }
