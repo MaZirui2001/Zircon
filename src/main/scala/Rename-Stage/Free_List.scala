@@ -41,7 +41,7 @@ class Free_List extends Module{
             when(io.commit_pprd_valid(i)){
                 free_list(tail_sel+i.U)(tail(tail_sel+i.U)) := io.commit_pprd(i)
             }
-            tail_sel := tail_sel + PopCount(io.commit_en)
+            tail_sel := Mux(io.predict_fail, 0.U, tail_sel + PopCount(io.commit_en))
         }
     }
     for(i <- 0 until 4){

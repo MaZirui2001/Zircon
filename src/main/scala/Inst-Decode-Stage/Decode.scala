@@ -21,7 +21,7 @@ object Inst_Pack{
         val mem_type        = UInt(5.W)
         val fu_id           = UInt(2.W)
         val pc              = UInt(32.W)
-        val rob_index       = UInt(4.W)
+        val rob_index       = UInt(5.W)
         val inst_exist      = Bool()
         
         // 构造函数
