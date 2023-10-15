@@ -112,9 +112,9 @@ object Control_Signal{
     val LS       = 2.U(2.W)
     val MD       = 3.U(2.W)
 
-    // rj_sel
-    val RK       = 0.U(1.W)
-    val RD       = 1.U(1.W)
+    // rk_sel
+    val RD       = 0.U(1.W)
+    val RK       = 1.U(1.W)
 
     // rd_sel
     val R1       = 1.U(1.W)
@@ -138,56 +138,56 @@ object Control_Signal{
 
     val map = Array(
         //                  0| 1| 2| 3|         4|        5|       6|       7|        8|     9|  10| 11|      12
-        ADDW        -> List(Y, Y, Y, ALU_ADD,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        SUBW        -> List(Y, Y, Y, ALU_SUB,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        SLT         -> List(Y, Y, Y, ALU_SLT,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        SLTU        -> List(Y, Y, Y, ALU_SLTU,  RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        NOR         -> List(Y, Y, Y, ALU_NOR,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        AND         -> List(Y, Y, Y, ALU_AND,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        OR          -> List(Y, Y, Y, ALU_OR,    RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        XOR         -> List(Y, Y, Y, ALU_XOR,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        SLLW        -> List(Y, Y, Y, ALU_SLL,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        SRLW        -> List(Y, Y, Y, ALU_SRL,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        SRAW        -> List(Y, Y, Y, ALU_SRA,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        MULW        -> List(Y, Y, Y, ALU_MUL,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        MULHW       -> List(Y, Y, Y, ALU_MULH,  RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        MULHWU      -> List(Y, Y, Y, ALU_MULHU, RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        DIVW        -> List(Y, Y, Y, ALU_DIV,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        MODW        -> List(Y, Y, Y, ALU_MOD,   RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        DIVWU       -> List(Y, Y, Y, ALU_DIVU,  RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-        MODWU       -> List(Y, Y, Y, ALU_MODU,  RS1_REG,  RS2_REG, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
-     
-        SLLIW       -> List(Y, N, Y, ALU_SLL,   RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_05U, Y),
-        SRLIW       -> List(Y, N, Y, ALU_SRL,   RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_05U, Y),
-        SRAIW       -> List(Y, N, Y, ALU_SRA,   RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_05U, Y),
-        SLTI        -> List(Y, N, Y, ALU_SLT,   RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12S, Y),
-        SLTUI       -> List(Y, N, Y, ALU_SLTU,  RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12S, Y),
-        ADDIW       -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12S, Y),
-        ANDI        -> List(Y, N, Y, ALU_AND,   RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, Y),
-        ORI         -> List(Y, N, Y, ALU_OR,    RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, Y),
-        XORI        -> List(Y, N, Y, ALU_XOR,   RS1_REG,  RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, Y),
-     
-        LU12IW      -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, Y),
-        PCADDU12I   -> List(N, N, Y, ALU_ADD,   RS1_PC,   RS2_IMM, NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, Y),
-   
-        LDB         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_LDB,  LS,    RK, RD, IMM_12S, Y),
-        LDH         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_LDH,  LS,    RK, RD, IMM_12S, Y),
-        LDW         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_LDW,  LS,    RK, RD, IMM_12S, Y),
-        STB         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_STB,  LS,    RK, RD, IMM_12S, Y),
-        STH         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_STH,  LS,    RK, RD, IMM_12S, Y),
-        STW         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_STW,  LS,    RK, RD, IMM_12S, Y),
-        LDBU        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_LDBU, LS,    RK, RD, IMM_12S, Y),
-        LDHU        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, NO_BR,   MEM_LDHU, LS,    RK, RD, IMM_12S, Y),
+        ADDW        -> List(Y, Y, Y, ALU_ADD,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        SUBW        -> List(Y, Y, Y, ALU_SUB,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        SLT         -> List(Y, Y, Y, ALU_SLT,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        SLTU        -> List(Y, Y, Y, ALU_SLTU,  RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        NOR         -> List(Y, Y, Y, ALU_NOR,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        AND         -> List(Y, Y, Y, ALU_AND,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        OR          -> List(Y, Y, Y, ALU_OR,    RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        XOR         -> List(Y, Y, Y, ALU_XOR,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        SLLW        -> List(Y, Y, Y, ALU_SLL,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        SRLW        -> List(Y, Y, Y, ALU_SRL,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        SRAW        -> List(Y, Y, Y, ALU_SRA,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        MULW        -> List(Y, Y, Y, ALU_MUL,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        MULHW       -> List(Y, Y, Y, ALU_MULH,  RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        MULHWU      -> List(Y, Y, Y, ALU_MULHU, RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        DIVW        -> List(Y, Y, Y, ALU_DIV,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        MODW        -> List(Y, Y, Y, ALU_MOD,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        DIVWU       -> List(Y, Y, Y, ALU_DIVU,  RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+        MODWU       -> List(Y, Y, Y, ALU_MODU,  RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_00U, Y),
+      
+        SLLIW       -> List(Y, N, Y, ALU_SLL,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_05U, Y),
+        SRLIW       -> List(Y, N, Y, ALU_SRL,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_05U, Y),
+        SRAIW       -> List(Y, N, Y, ALU_SRA,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_05U, Y),
+        SLTI        -> List(Y, N, Y, ALU_SLT,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12S, Y),
+        SLTUI       -> List(Y, N, Y, ALU_SLTU,  RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12S, Y),
+        ADDIW       -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12S, Y),
+        ANDI        -> List(Y, N, Y, ALU_AND,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, Y),
+        ORI         -> List(Y, N, Y, ALU_OR,    RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, Y),
+        XORI        -> List(Y, N, Y, ALU_XOR,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, Y),
+      
+        LU12IW      -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, Y),
+        PCADDU12I   -> List(N, N, Y, ALU_ADD,   RS1_PC,   RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, Y),
+    
+        LDB         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDB,  LS,    RK, RD, IMM_12S, Y),
+        LDH         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDH,  LS,    RK, RD, IMM_12S, Y),
+        LDW         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDW,  LS,    RK, RD, IMM_12S, Y),
+        STB         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STB,  LS,    RK, RD, IMM_12S, Y),
+        STH         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STH,  LS,    RK, RD, IMM_12S, Y),
+        STW         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STW,  LS,    RK, RD, IMM_12S, Y),
+        LDBU        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDBU, LS,    RK, RD, IMM_12S, Y),
+        LDHU        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDHU, LS,    RK, RD, IMM_12S, Y),
  
-        JIRL        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, BR_JIRL, NO_MEM,   BR,    RK, RD, IMM_16S, Y),
-        B           -> List(N, N, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_B,    NO_MEM,   BR,    RK, RD, IMM_26S, Y),
-        BL          -> List(N, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BL,   NO_MEM,   BR,    RK, R1, IMM_26S, Y),
-        BEQ         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BEQ,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
-        BNE         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BNE,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
-        BLT         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BLT,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
-        BGE         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BGE,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
-        BLTU        -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BLTU, NO_MEM,   BR,    RD, RD, IMM_16S, Y),
-        BGEU        -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM, BR_BGEU, NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        JIRL        -> List(Y, N, Y, ALU_ADD,   RS1_PC,   RS2_FOUR, BR_JIRL, NO_MEM,   BR,    RK, RD, IMM_16S, Y),
+        B           -> List(N, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  BR_B,    NO_MEM,   BR,    RK, RD, IMM_26S, Y),
+        BL          -> List(N, N, Y, ALU_ADD,   RS1_PC,   RS2_FOUR, BR_BL,   NO_MEM,   BR,    RK, R1, IMM_26S, Y),
+        BEQ         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  BR_BEQ,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BNE         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  BR_BNE,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BLT         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  BR_BLT,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BGE         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  BR_BGE,  NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BLTU        -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  BR_BLTU, NO_MEM,   BR,    RD, RD, IMM_16S, Y),
+        BGEU        -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  BR_BGEU, NO_MEM,   BR,    RD, RD, IMM_16S, Y),
 
     )
 }
@@ -244,10 +244,10 @@ class Decode extends RawModule{
     io.rj               := io.inst(9, 5)
     io.rj_valid         := ctrl(0)
 
-    io.rk               := Mux(ctrl(9).asBool, io.inst(4, 0), io.inst(14, 10))
+    io.rk               := Mux(ctrl(9).asBool, io.inst(14, 10), io.inst(4, 0))
     io.rk_valid         := ctrl(1)
 
-    io.rd               := Mux(ctrl(10).asBool, io.inst(4, 0), 1.U(5.W))
+    io.rd               := Mux(ctrl(10).asBool, 1.U(5.W), io.inst(4, 0))
     io.rd_valid         := ctrl(2)
 
     io.alu_op           := ctrl(3)

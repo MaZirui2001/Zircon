@@ -116,7 +116,7 @@ class ROB(n: Int) extends Module{
         io.rd_valid_cmt(i) := rob(head+i.U).rd_valid
         io.prd_cmt(i) := rob(head+i.U).prd
         io.pprd_cmt(i) := rob(head+i.U).pprd
-        io.pc_cmt(i) := rob(head+i.U).pc
+        io.pc_cmt(i) := Mux(rob(head+i.U).predict_fail, rob(head+i.U).branch_target, rob(head+i.U).pc+4.U)
         io.rf_wdata_cmt(i) := rob(head+i.U).rf_wdata
     }
 } 
