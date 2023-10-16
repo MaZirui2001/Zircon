@@ -210,7 +210,7 @@ class Imm_Gen extends RawModule{
         is(IMM_12U)     { imm := Cat(0.U(20.W), inst(21, 10)) }
         is(IMM_12S)     { imm := Cat(Fill(20, inst(21)), inst(21, 10)) }
         is(IMM_16S)     { imm := Cat(Fill(14, inst(25)), inst(25, 10), 0.U(2.W)) }
-        is(IMM_20S)     { imm := Cat(Fill(10, inst(24)), inst(24, 5), 0.U(2.W)) }
+        is(IMM_20S)     { imm := Cat(inst(24, 5), 0.U(12.W)) }
         is(IMM_26S)     { imm := Cat(Fill(4, inst(9)), inst(9, 0), inst(25, 10), 0.U(2.W)) }
     }
     io.imm := imm

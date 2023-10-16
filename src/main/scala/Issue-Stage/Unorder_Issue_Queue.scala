@@ -8,6 +8,7 @@ object Issue_Queue_Pack{
         val inst = new inst_pack_t
         val prj_waked = Bool()
         val prk_waked = Bool()
+        val issued = Bool()
     }
     def Wake_Up(wake_preg: Vec[UInt], pr: UInt) : Bool = {
         val wf = Cat(
@@ -40,10 +41,11 @@ class Unorder_Issue_Queue_IO(n: Int) extends Bundle{
     val issue_req       = Output(Vec(n, Bool()))
 
     // output for dispatch
-    val prd_queue       = Output(Vec(n, UInt(6.W)))
+    val prd_queue       = Output(Vec(n+1, UInt(6.W)))
     val elem_num        = Output(UInt((log2Ceil(n)+1).W))
     val full            = Output(Bool())
 
+    val stall           = Input(Bool())
     val flush           = Input(Bool())
 }
 
@@ -66,27 +68,29 @@ class Unorder_Issue_Queue(n: Int) extends Module{
     val queue_next = Wire(Vec(n, new issue_queue_t))
     
     // wake up 
+    queue_temp := 0.U.asTypeOf(Vec(n+1, new issue_queue_t))
     for(i <- 0 until n){
         queue_temp(i).inst := queue(i).inst
         queue_temp(i).prj_waked := queue(i).prj_waked | Wake_Up(io.wake_preg, queue(i).inst.prj)
         queue_temp(i).prk_waked := queue(i).prk_waked | Wake_Up(io.wake_preg, queue(i).inst.prk)
     }
-    queue_temp(n) := 0.U.asTypeOf(new issue_queue_t)
     // issue
     val next_mask = ~(io.issue_ack.asUInt - 1.U)
-    tail_pop := tail - io.issue_ack.asUInt.orR
+    tail_pop := tail - io.issue_ack.exists(_ === true.B)
 
+    io.prd_queue := 0.U.asTypeOf(Vec(n+1, UInt(6.W)))
     for(i <- 0 until n){
         queue_next(i) := Mux(i.asUInt < tail_pop, Mux(next_mask(i), queue_temp(i+1), queue_temp(i)), 0.U.asTypeOf(new issue_queue_t))
         io.prd_queue(i) := queue_next(i).inst.prd
     }
+    io.prd_queue(n) := queue(OHToUInt(io.issue_ack)).inst.prd
 
     for(i <- 0 until n){
         queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, insts_dispatch(i.asUInt - tail_pop))
         queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(i.asUInt - tail_pop))
         queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(i.asUInt - tail_pop))
     }
-    tail := Mux(io.flush, 0.U, tail_pop + Mux(io.queue_ready, insert_num, 0.U))
+    tail := Mux(io.flush, 0.U, Mux(io.full, tail_pop, tail_pop + Mux(io.queue_ready, insert_num, 0.U)))
 
     // output
     io.insts_issue := queue

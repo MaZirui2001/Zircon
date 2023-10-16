@@ -5,18 +5,37 @@ import Control_Signal._
 
 // LUT: 2377
 object Dispatch_Func{
-    def Dispatch_Ready_Generate(pr_raw: Bool, pr: UInt, prd_queue: Vec[Vec[UInt]]): Bool = {
-        val prd_queue_temp = Wire(Vec(4, Vec(8, Bool())))
-        for(i <- 0 until 4){
-            for(j <- 0 until 8){
-                prd_queue_temp(i)(j) := pr === prd_queue(i)(j)
+    def Dispatch_Ready_Generate(pr: UInt, prd_queue: Vec[UInt], queue_sel: UInt, index: UInt): Bool = {
+        val prd_hit = Wire(Vec(10, Bool()))
+        prd_hit := 0.U.asTypeOf(Vec(10, Bool()))
+        val equal = MuxLookup(index, 0.U)(Seq(
+            0.U -> 8.U,
+            1.U -> 8.U,
+            2.U -> 9.U,
+            3.U -> 8.U
+        ))
+        val neq = MuxLookup(index, 0.U)(Seq(
+            0.U -> 9.U,
+            1.U -> 9.U,
+            2.U -> 10.U,
+            3.U -> 9.U
+        ))
+        val n = Mux(queue_sel === index, equal, neq)
+        for(i <- 0 until 10){
+            when(i.U < n) {
+                prd_hit(i) := pr === prd_queue(i)
             }
         }
-        val prd_hit = prd_queue_temp(0).asUInt.orR | prd_queue_temp(1).asUInt.orR | prd_queue_temp(2).asUInt.orR | prd_queue_temp(3).asUInt.orR
-        
-        val ready = (!prd_hit && !pr_raw) || pr === 0.U
-        ready
+        !(prd_hit.exists(_ === true.B))
     }
+    def Ready_Generate(pr: UInt, prd_queue: Vec[Vec[UInt]], queue_sel: UInt): Bool = {
+        val prd_ready = Wire(Vec(4, Bool()))
+        for(i <- 0 until 4){
+            prd_ready(i) := Dispatch_Ready_Generate(pr, prd_queue(i), queue_sel, i.U(2.W))
+        }
+        prd_ready.forall(_ === true.B)
+    }
+
 }
 class Dispatch_IO(n: Int) extends Bundle{
     val inst_packs = Input(Vec(4, new inst_pack_t))
@@ -25,7 +44,7 @@ class Dispatch_IO(n: Int) extends Bundle{
     val insts_valid = Input(Vec(4, Bool()))
 
     // index of rd in the issue queue
-    val prd_queue = Input(Vec(4, Vec(n, UInt(6.W))))
+    val prd_queue = Input(Vec(4, Vec(n+2, UInt(6.W))))
     val elem_num = Input(Vec(2, UInt((log2Ceil(n)+1).W)))
 
     // output for each issue queue
@@ -58,9 +77,10 @@ class Dispatch extends RawModule{
     val prk_ready = Wire(Vec(4, Bool()))
     import Dispatch_Func._
     for(i <- 0 until 4){
-        prj_ready(i) := !io.inst_packs(i).rj_valid || Dispatch_Ready_Generate(io.prj_raw(i), io.inst_packs(i).prj, io.prd_queue)
-        prk_ready(i) := !io.inst_packs(i).rk_valid || Dispatch_Ready_Generate(io.prk_raw(i), io.inst_packs(i).prk, io.prd_queue)
+        prj_ready(i) := !io.inst_packs(i).rj_valid || io.inst_packs(i).prj === 0.U || (!io.prj_raw(i) && Ready_Generate(io.inst_packs(i).prj, io.prd_queue, queue_sel(i)))
+        prk_ready(i) := !io.inst_packs(i).rk_valid || io.inst_packs(i).prk === 0.U || (!io.prk_raw(i) && Ready_Generate(io.inst_packs(i).prk, io.prd_queue, queue_sel(i)))
     }
+    
     // alloc insts to issue queue, pressed
     val index_now = Wire(Vec(5, Vec(4, UInt(2.W))))
     index_now := 0.U.asTypeOf(Vec(5, Vec(4, UInt(2.W))))

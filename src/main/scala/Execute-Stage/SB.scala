@@ -51,8 +51,11 @@ class SB(n: Int) extends Module {
     val st_addr_ex  = io.addr_ex
     val st_data_ex  = io.st_data_ex
     val st_addr_ex_valid = is_store_ex && !full
-
-    when(st_addr_ex_valid){
+    when(io.flush){
+        for(i <- 0 until n){
+            sb(i).valid := false.B
+        }
+    }.elsewhen(st_addr_ex_valid && !io.flush){
         sb(tail).addr := st_addr_ex
         sb(tail).data := st_data_ex
         sb(tail).wlen := io.st_wlen_ex
@@ -79,6 +82,6 @@ class SB(n: Int) extends Module {
     for(i <- 0 until n){
         ld_hit(i) := sb(i).valid && sb(i).addr === ld_addr_ex
     }
-    io.ld_hit := ld_hit.asUInt.orR
+    io.ld_hit := ld_hit.exists(_ === true.B)
     io.ld_data_ex := Mux1H(ld_hit, sb.map(_.data))
 }
