@@ -13,6 +13,7 @@ class CPU_IO extends Bundle{
     val mem_raddr_ex        = Output(UInt(32.W))
     val mem_rdata_ex        = Input(UInt(32.W))
     val mem_is_load_ex      = Output(Bool())
+    val mem_rlen_ex         = Output(UInt(3.W))
 
     val mem_waddr_cmt       = Output(UInt(32.W))
     val mem_wdata_cmt       = Output(UInt(32.W))
@@ -401,6 +402,7 @@ class CPU(RESET_VEC: Int) extends Module {
     sb.io.is_store_cmt  := rob.io.is_store_cmt.asUInt.orR
 
     io.mem_raddr_ex      := ls_ex1_ex2_reg.io.mem_addr_EX2
+    io.mem_rlen_ex        := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(2, 0)
     io.mem_is_load_ex    := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(4) === 1.U && ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type =/= NO_MEM
     io.mem_waddr_cmt     := sb.io.st_addr_cmt
     io.mem_wdata_cmt     := sb.io.st_data_cmt
@@ -493,7 +495,6 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rd_valid4     := rob.io.rd_valid_cmt(3)
     io.commit_rf_wdata4     := rob.io.rf_wdata_cmt(3)
     io.commit_pc_4          := rob.io.pc_cmt(3)
-    
 }
 
 object CPU extends App {

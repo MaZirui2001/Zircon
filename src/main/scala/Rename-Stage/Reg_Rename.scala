@@ -135,6 +135,7 @@ class Reg_Rename extends Module{
     crat.io.alloc_preg := free_list.io.alloc_preg
     crat.io.arch_rat := io.arch_rat
     crat.io.predict_fail := io.predict_fail
+    crat.io.stall := io.free_list_empty
 
     val commit_pprd_nez = Wire(Vec(4, Bool()))
     for(i <- 0 until 4){

@@ -21,7 +21,7 @@ class Order_Select(n: Int) extends Module {
     val io = IO(new Order_Select_IO(n))
     
     io.issue_ack := !io.stall && io.issue_req
-    io.wake_preg := Mux(io.issue_ack, io.insts_issue.inst.prd, 0.U)
+    io.wake_preg := Mux(io.issue_ack && io.insts_issue.inst.rd_valid, io.insts_issue.inst.prd, 0.U)
 
     val bubble_inst_issue = 0.U.asTypeOf(new issue_queue_t)
     io.inst_issue := Mux(io.issue_ack, io.insts_issue, bubble_inst_issue)

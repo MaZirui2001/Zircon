@@ -22,6 +22,8 @@ class CRat_IO extends Bundle{
 
     val arch_rat     = Input(Vec(64, UInt(1.W)))
     val predict_fail = Input(Bool())
+
+    val stall = Input(Bool())
 }
 class CRat extends Module{
     val io = IO(new CRat_IO)
@@ -36,11 +38,14 @@ class CRat extends Module{
         }
     }.otherwise{
         for(i <- 0 until 4){
-            crat(io.alloc_preg(i)).lr := io.rd(i)
-            when(io.rd_valid(i).asBool){
-                crat(io.alloc_preg(i)).valid := true.B
-                crat(io.pprd(i)).valid := false.B
+            when(!io.stall){
+                crat(io.alloc_preg(i)).lr := io.rd(i)
+                when(io.rd_valid(i).asBool){
+                    crat(io.alloc_preg(i)).valid := true.B
+                    crat(io.pprd(i)).valid := false.B
+                }
             }
+
         }
     }
     // read for rj, rk, rd
