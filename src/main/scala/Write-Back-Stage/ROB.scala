@@ -14,6 +14,7 @@ object ROB_Pack{
         val complete = Bool()
         val pc = UInt(32.W)
         val rf_wdata = UInt(32.W)
+        val is_store = Bool()
     }
     
 }
@@ -26,6 +27,7 @@ class ROB_IO(n: Int) extends Bundle{
     val pprd_rn = Input(Vec(4, UInt(6.W)))
     val rob_index_rn = Output(Vec(4, UInt(log2Ceil(n).W)))
     val pc_rn = Input(Vec(4, UInt(32.W)))
+    val is_store_rn = Input(Vec(4, Bool()))
     val full = Output(Bool())
     val stall = Input(Bool())
     
@@ -43,6 +45,7 @@ class ROB_IO(n: Int) extends Bundle{
     val rd_valid_cmt = Output(Vec(4, Bool()))
     val pprd_cmt = Output(Vec(4, UInt(6.W)))
     val pc_cmt = Output(Vec(4, UInt(32.W)))
+    val is_store_cmt = Output(Vec(4, Bool()))
 
     val predict_fail_cmt = Output(Bool())
     val branch_target_cmt = Output(UInt(32.W))
@@ -74,6 +77,7 @@ class ROB(n: Int) extends Module{
                 rob(tail+i.U).complete := false.B
                 rob(tail+i.U).pc := io.pc_rn(i)
                 rob(tail+i.U).rf_wdata := 0.U
+                rob(tail+i.U).is_store := io.is_store_rn(i)
             }
         }
         // tail := Mux(!io.predict_fail_cmt, tail + insert_num, head)
@@ -99,7 +103,7 @@ class ROB(n: Int) extends Module{
     // cmt stage
     io.cmt_en(0) := rob(head).complete && !empty
     for(i <- 1 until 4){
-        io.cmt_en(i) := io.cmt_en(i-1) && rob(head+i.U).complete && !rob(head+(i-1).U).predict_fail 
+        io.cmt_en(i) := io.cmt_en(i-1) && rob(head+i.U).complete && !rob(head+(i-1).U).predict_fail  && !rob(head+(i-1).U).is_store
     }
     io.full := full
     val predict_fail_bit = VecInit(Seq.fill(4)(false.B))
@@ -118,6 +122,7 @@ class ROB(n: Int) extends Module{
         io.pprd_cmt(i) := rob(head+i.U).pprd
         io.pc_cmt(i) := Mux(rob(head+i.U).predict_fail, rob(head+i.U).branch_target, rob(head+i.U).pc+4.U)
         io.rf_wdata_cmt(i) := rob(head+i.U).rf_wdata
+        io.is_store_cmt(i) := rob(head+i.U).is_store && io.cmt_en(i)
     }
 } 
 

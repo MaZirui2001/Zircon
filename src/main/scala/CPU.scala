@@ -10,10 +10,14 @@ class CPU_IO extends Bundle{
     val inst3_IF            = Input(UInt(32.W))
     val inst4_IF            = Input(UInt(32.W))
 
-    val mem_addr_ex         = Output(UInt(32.W))
+    val mem_raddr_ex        = Output(UInt(32.W))
     val mem_rdata_ex        = Input(UInt(32.W))
-    val mem_type_ex         = Output(UInt(5.W))
-    val mem_wdata_ex        = Output(UInt(32.W))
+    val mem_is_load_ex      = Output(Bool())
+
+    val mem_waddr_cmt       = Output(UInt(32.W))
+    val mem_wdata_cmt       = Output(UInt(32.W))
+    val mem_wlen_cmt        = Output(UInt(3.W))
+    val mem_is_store_cmt    = Output(Bool())
 
     val commit_en1          = Output(Bool())
     val commit_rd1          = Output(UInt(5.W))
@@ -88,6 +92,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val ls_ex1_ex2_reg  = Module(new LS_EX1_EX2_Reg)
 
     val mdu             = Module(new MDU)
+    val sb              = Module(new SB(4))
     val fu4_bypass      = Module(new Bypass)
 
     val fu1_ex_wb_reg   = Module(new FU1_EX_WB_Reg)
@@ -183,7 +188,7 @@ class CPU(RESET_VEC: Int) extends Module {
         insts_pack_rn(i).inst_exist     := id_rn_reg.io.insts_exist_RN(i)
     }
     // RN-DP SegReg
-    rn_dp_reg.io.flush          := (rob.io.full || reg_rename.io.free_list_empty) && !(stall_by_iq)
+    rn_dp_reg.io.flush          := ((rob.io.full || reg_rename.io.free_list_empty) && !(stall_by_iq)) || rob.io.predict_fail_cmt
     rn_dp_reg.io.stall          := stall_by_iq 
     rn_dp_reg.io.insts_pack_RN  := insts_pack_rn
     rn_dp_reg.io.insts_valid_RN := id_rn_reg.io.insts_valid_RN
@@ -233,7 +238,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     sel3.io.insts_issue         := iq3.io.insts_issue
     sel3.io.issue_req           := iq3.io.issue_req
-    sel3.io.stall               := !(iq3.io.issue_req)
+    sel3.io.stall               := !(iq3.io.issue_req) && sb.io.full
 
     // 4. multiply, multiply and divide
     iq4.io.insts_dispatch       := dp.io.insts_dispatch(3)
@@ -374,6 +379,7 @@ class CPU(RESET_VEC: Int) extends Module {
     ls_ex1_ex2_reg.io.stall             := false.B
     ls_ex1_ex2_reg.io.inst_pack_EX1     := rf_ex_reg3.io.inst_pack_EX
     ls_ex1_ex2_reg.io.mem_addr_EX1      := Mux(fu3_bypass.io.forward_prj_en, fu3_bypass.io.forward_prj_data, rf_ex_reg3.io.src1_EX) + rf_ex_reg3.io.inst_pack_EX.imm
+    ls_ex1_ex2_reg.io.mem_wdata_EX1     := Mux(fu3_bypass.io.forward_prk_en, fu3_bypass.io.forward_prk_data, rf_ex_reg3.io.src2_EX)
     ls_ex1_ex2_reg.io.inst_valid_EX1    := rf_ex_reg3.io.inst_valid_EX
 
     fu3_bypass.io.prd_wb        := fu3_ex_wb_reg.io.inst_pack_WB.prd
@@ -382,17 +388,26 @@ class CPU(RESET_VEC: Int) extends Module {
     fu3_bypass.io.prf_wdata_wb  := fu3_ex_wb_reg.io.mem_rdata_WB
     fu3_bypass.io.rd_valid_wb   := fu3_ex_wb_reg.io.inst_pack_WB.rd_valid
 
+    // store_buf
+    sb.io.flush         := rob.io.predict_fail_cmt
+    sb.io.is_store_ex   := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(4) === 0.U && ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type =/= NO_MEM
+    sb.io.addr_ex       := ls_ex1_ex2_reg.io.mem_addr_EX2
+    sb.io.st_data_ex    := ls_ex1_ex2_reg.io.mem_wdata_EX2
+    sb.io.st_wlen_ex    := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(2, 0)
+    sb.io.is_store_cmt  := rob.io.is_store_cmt.asUInt.orR
+    // sb.io.cmt_en        := rob.io.cmt_en.asUInt.orR
 
-
-    // DCache
-    io.mem_addr_ex      := ls_ex1_ex2_reg.io.mem_addr_EX2
-    io.mem_type_ex      := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type
-    io.mem_wdata_ex     := rf_ex_reg4.io.src2_EX
+    io.mem_raddr_ex      := ls_ex1_ex2_reg.io.mem_addr_EX2
+    io.mem_is_load_ex    := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(4) === 1.U && ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type =/= NO_MEM
+    io.mem_waddr_cmt     := sb.io.st_addr_cmt
+    io.mem_wdata_cmt     := sb.io.st_data_cmt
+    io.mem_wlen_cmt      := sb.io.st_wlen_cmt
+    io.mem_is_store_cmt  := sb.io.is_store_cmt
 
     fu3_ex_wb_reg.io.flush          := rob.io.predict_fail_cmt
     fu3_ex_wb_reg.io.stall          := false.B
     fu3_ex_wb_reg.io.inst_pack_EX2  := ls_ex1_ex2_reg.io.inst_pack_EX2
-    fu3_ex_wb_reg.io.mem_rdata_EX2  := io.mem_rdata_ex
+    fu3_ex_wb_reg.io.mem_rdata_EX2  := Mux(sb.io.ld_hit, sb.io.ld_data_ex, io.mem_rdata_ex)
     fu3_ex_wb_reg.io.inst_valid_EX2 := ls_ex1_ex2_reg.io.inst_valid_EX2
 
     // 4. multiply-divide fu
@@ -413,12 +428,18 @@ class CPU(RESET_VEC: Int) extends Module {
     fu4_bypass.io.rd_valid_wb   := fu4_ex_wb_reg.io.inst_pack_WB.rd_valid
 
     // WB stage
+
+    val is_store_rn = Wire(Vec(4, Bool()))
+    for (i <- 0 until 4){
+        is_store_rn(i) := id_rn_reg.io.mem_type_RN(i) =/= NO_MEM && id_rn_reg.io.mem_type_RN(i)(4) === 0.U
+    }
     rob.io.inst_valid_rn        := id_rn_reg.io.insts_valid_RN
     rob.io.rd_rn                := id_rn_reg.io.rd_RN
     rob.io.rd_valid_rn          := id_rn_reg.io.rd_valid_RN
     rob.io.prd_rn               := reg_rename.io.prd
     rob.io.pprd_rn              := reg_rename.io.pprd
     rob.io.pc_rn                := id_rn_reg.io.pcs_RN
+    rob.io.is_store_rn          := is_store_rn
     rob.io.stall                := id_rn_reg.io.stall
 
     rob.io.inst_valid_wb        := VecInit(fu1_ex_wb_reg.io.inst_valid_WB, fu2_ex_wb_reg.io.inst_valid_WB, fu3_ex_wb_reg.io.inst_valid_WB, fu4_ex_wb_reg.io.inst_valid_WB)

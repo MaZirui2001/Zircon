@@ -173,9 +173,9 @@ object Control_Signal{
         LDB         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDB,  LS,    RK, RD, IMM_12S, Y),
         LDH         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDH,  LS,    RK, RD, IMM_12S, Y),
         LDW         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDW,  LS,    RK, RD, IMM_12S, Y),
-        STB         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STB,  LS,    RK, RD, IMM_12S, Y),
-        STH         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STH,  LS,    RK, RD, IMM_12S, Y),
-        STW         -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STW,  LS,    RK, RD, IMM_12S, Y),
+        STB         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STB,  LS,    RD, RD, IMM_12S, Y),
+        STH         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STH,  LS,    RD, RD, IMM_12S, Y),
+        STW         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STW,  LS,    RD, RD, IMM_12S, Y),
         LDBU        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDBU, LS,    RK, RD, IMM_12S, Y),
         LDHU        -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDHU, LS,    RK, RD, IMM_12S, Y),
  
@@ -248,7 +248,7 @@ class Decode extends RawModule{
     io.rk_valid         := ctrl(1)
 
     io.rd               := Mux(ctrl(10).asBool, 1.U(5.W), io.inst(4, 0))
-    io.rd_valid         := ctrl(2)
+    io.rd_valid         := ctrl(2) & io.rd =/= 0.U(5.W)
 
     io.alu_op           := ctrl(3)
     io.alu_rs1_sel      := ctrl(4)
@@ -257,7 +257,7 @@ class Decode extends RawModule{
     io.br_type          := ctrl(6)
     io.mem_type         := ctrl(7)
 
-    io.fu_id   := ctrl(8)
+    io.fu_id            := ctrl(8)
     io.inst_exist       := ctrl(12)
 
     imm_gen.io.inst     := io.inst
