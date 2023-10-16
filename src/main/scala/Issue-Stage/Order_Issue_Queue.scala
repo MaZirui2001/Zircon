@@ -30,7 +30,7 @@ class Order_Issue_Queue_IO(n: Int) extends Bundle{
     val flush           = Input(Bool())
 }
 class Order_Issue_Queue(n: Int) extends Module {
-    val io = IO(new Order_Issue_Queue_IO(n))
+    val io  = IO(new Order_Issue_Queue_IO(n))
     val queue = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new issue_queue_t))))
     val tail = RegInit(0.U((log2Ceil(n)+1).W))
 

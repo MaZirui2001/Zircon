@@ -6,15 +6,15 @@ import Issue_Queue_Pack._
 // LUT: 88
 
 class Order_Select_IO(n: Int) extends Bundle {
-    val insts_issue = Input(new issue_queue_t)
-    val issue_req = Input(Bool())
-    val stall     = Input(Bool())
+    val insts_issue         = Input(new issue_queue_t)
+    val issue_req           = Input(Bool())
+    val stall               = Input(Bool())
 
-    val issue_ack = Output(Bool())
-    val wake_preg = Output(UInt(6.W))
+    val issue_ack           = Output(Bool())
+    val wake_preg           = Output(UInt(6.W))
 
-    val inst_issue  = Output(new issue_queue_t)
-    val inst_issue_valid = Output(Bool())
+    val inst_issue          = Output(new issue_queue_t)
+    val inst_issue_valid    = Output(Bool())
 }
 
 class Order_Select(n: Int) extends Module {

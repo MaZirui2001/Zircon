@@ -20,36 +20,36 @@ object ROB_Pack{
 }
 class ROB_IO(n: Int) extends Bundle{
     // for reg rename
-    val inst_valid_rn = Input(Vec(4, Bool()))
-    val rd_rn = Input(Vec(4, UInt(5.W)))
-    val rd_valid_rn = Input(Vec(4, Bool()))
-    val prd_rn = Input(Vec(4, UInt(6.W)))
-    val pprd_rn = Input(Vec(4, UInt(6.W)))
-    val rob_index_rn = Output(Vec(4, UInt(log2Ceil(n).W)))
-    val pc_rn = Input(Vec(4, UInt(32.W)))
-    val is_store_rn = Input(Vec(4, Bool()))
-    val full = Output(Bool())
-    val stall = Input(Bool())
+    val inst_valid_rn       = Input(Vec(4, Bool()))
+    val rd_rn               = Input(Vec(4, UInt(5.W)))
+    val rd_valid_rn         = Input(Vec(4, Bool()))
+    val prd_rn              = Input(Vec(4, UInt(6.W)))
+    val pprd_rn             = Input(Vec(4, UInt(6.W)))
+    val rob_index_rn        = Output(Vec(4, UInt(log2Ceil(n).W)))
+    val pc_rn               = Input(Vec(4, UInt(32.W)))
+    val is_store_rn         = Input(Vec(4, Bool()))
+    val full                = Output(Bool())
+    val stall               = Input(Bool())
     
     // for wb stage
-    val inst_valid_wb = Input(Vec(4, Bool()))
-    val rob_index_wb = Input(Vec(4, UInt(log2Ceil(n).W)))
-    val predict_fail_wb = Input(Vec(4, Bool()))
-    val branch_target_wb = Input(Vec(4, UInt(32.W)))
-    val rf_wdata_wb = Input(Vec(4, UInt(32.W)))
+    val inst_valid_wb       = Input(Vec(4, Bool()))
+    val rob_index_wb        = Input(Vec(4, UInt(log2Ceil(n).W)))
+    val predict_fail_wb     = Input(Vec(4, Bool()))
+    val branch_target_wb    = Input(Vec(4, UInt(32.W)))
+    val rf_wdata_wb         = Input(Vec(4, UInt(32.W)))
 
     // for cpu state: arch rat
-    val cmt_en = Output(Vec(4, Bool()))
-    val rd_cmt = Output(Vec(4, UInt(5.W)))
-    val prd_cmt = Output(Vec(4, UInt(6.W)))
-    val rd_valid_cmt = Output(Vec(4, Bool()))
-    val pprd_cmt = Output(Vec(4, UInt(6.W)))
-    val pc_cmt = Output(Vec(4, UInt(32.W)))
-    val is_store_cmt = Output(Vec(4, Bool()))
+    val cmt_en              = Output(Vec(4, Bool()))
+    val rd_cmt              = Output(Vec(4, UInt(5.W)))
+    val prd_cmt             = Output(Vec(4, UInt(6.W)))
+    val rd_valid_cmt        = Output(Vec(4, Bool()))
+    val pprd_cmt            = Output(Vec(4, UInt(6.W)))
+    val pc_cmt              = Output(Vec(4, UInt(32.W)))
+    val is_store_cmt        = Output(Vec(4, Bool()))
 
-    val predict_fail_cmt = Output(Bool())
-    val branch_target_cmt = Output(UInt(32.W))
-    val rf_wdata_cmt = Output(Vec(4, UInt(32.W)))
+    val predict_fail_cmt    = Output(Bool())
+    val branch_target_cmt   = Output(UInt(32.W))
+    val rf_wdata_cmt        = Output(Vec(4, UInt(32.W)))
 }
 
 class ROB(n: Int) extends Module{

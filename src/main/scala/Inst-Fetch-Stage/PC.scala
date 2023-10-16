@@ -2,10 +2,10 @@ import chisel3._
 import chisel3.util._
 
 class PC_IO extends Bundle {
-    val pc_IF = Output(UInt(32.W))
-    val pc_stall = Input(Bool())
-    val predict_fail = Input(Bool())
-    val branch_target = Input(UInt(32.W))
+    val pc_IF           = Output(UInt(32.W))
+    val pc_stall        = Input(Bool())
+    val predict_fail    = Input(Bool())
+    val branch_target   = Input(UInt(32.W))
 }
 
 class PC(reset_val: Int) extends Module {

@@ -12,24 +12,23 @@ object SB_Pack {
 
 class SB_IO extends Bundle {
     // for write in ex stage
-    val is_store_ex = Input(Bool())
-    val addr_ex  = Input(UInt(32.W))
-    val st_data_ex  = Input(UInt(32.W))
-    val st_wlen_ex  = Input(UInt(3.W))
-    val full        = Output(Bool())
+    val is_store_ex     = Input(Bool())
+    val addr_ex         = Input(UInt(32.W))
+    val st_data_ex      = Input(UInt(32.W))
+    val st_wlen_ex      = Input(UInt(3.W))
+    val full            = Output(Bool())
 
     // for commit in wb stage
-    val is_store_cmt = Input(Bool())
-    val st_addr_cmt  = Output(UInt(32.W))
-    val st_data_cmt  = Output(UInt(32.W))
-    val st_wlen_cmt  = Output(UInt(3.W))
-    // val cmt_en       = Input(Bool())
-    val flush        = Input(Bool())
+    val is_store_cmt    = Input(Bool())
+    val st_addr_cmt     = Output(UInt(32.W))
+    val st_data_cmt     = Output(UInt(32.W))
+    val st_wlen_cmt     = Output(UInt(3.W))
+    val flush           = Input(Bool())
 
     // for read in ex stage
     // val ld_addr_ex = Input(UInt(32.W))
-    val ld_data_ex  = Output(UInt(32.W))
-    val ld_hit      = Output(Bool())
+    val ld_data_ex      = Output(UInt(32.W))
+    val ld_hit          = Output(Bool())
 }
 
 class SB(n: Int) extends Module {

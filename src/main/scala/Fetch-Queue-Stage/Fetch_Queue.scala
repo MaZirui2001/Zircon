@@ -13,13 +13,11 @@ class Fetch_Queue_IO extends Bundle{
     val insts               = Input(Vec(4, UInt(32.W)))
     val insts_valid         = Input(Vec(4, Bool()))
     val pcs_FQ              = Input(Vec(4, UInt(32.W)))
-    // val for_commit          = Input(Vec(4, Bool()))
 
     val next_ready          = Input(Bool())
     val insts_decode        = Output(Vec(4, UInt(32.W)))
     val pcs_ID              = Output(Vec(4, UInt(32.W)))
     val insts_valid_decode  = Output(Vec(4, Bool()))
-    // val insts_for_commit    = Output(Vec(4, Bool()))
 
     val inst_queue_ready    = Output(Bool())
     val flush               = Input(Bool())
@@ -47,7 +45,6 @@ class Fetch_Queue extends Module{
         }.elsewhen(io.insts_valid(i) && !full){
             queue(i.U+tail_sel)(tail(i)).inst := io.insts(i)
             queue(i.U+tail_sel)(tail(i)).pc := io.pcs_FQ(i)
-            // queue(i)(tail(i)).is_commit := io.for_commit(i)
             tail(i) := tail(i) + 1.U
             tail_sel := tail_sel + PopCount(io.insts_valid)
         }
@@ -62,7 +59,6 @@ class Fetch_Queue extends Module{
         io.insts_decode(i) := queue(i)(head(i)).inst
         io.insts_valid_decode(i) := !empty
         io.pcs_ID(i) := queue(i)(head(i)).pc
-        // io.insts_for_commit(i) := queue(i)(head(i)).is_commit
     }
 
 }

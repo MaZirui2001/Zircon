@@ -6,15 +6,15 @@ import Issue_Queue_Pack._
 // LUT: 402
 
 class Unorder_Select_IO(n: Int) extends Bundle {
-    val insts_issue = Input(Vec(n, new issue_queue_t))
-    val issue_req = Input(Vec(n, Bool()))
-    val stall     = Input(Bool())
+    val insts_issue         = Input(Vec(n, new issue_queue_t))
+    val issue_req           = Input(Vec(n, Bool()))
+    val stall               = Input(Bool())
 
-    val issue_ack = Output(Vec(n, Bool()))
-    val wake_preg = Output(UInt(6.W))
+    val issue_ack           = Output(Vec(n, Bool()))
+    val wake_preg           = Output(UInt(6.W))
 
-    val inst_issue  = Output(new issue_queue_t)
-    val inst_issue_valid = Output(Bool())
+    val inst_issue          = Output(new issue_queue_t)
+    val inst_issue_valid    = Output(Bool())
 }
 
 class Unorder_Select(n: Int) extends Module {

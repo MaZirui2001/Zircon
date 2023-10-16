@@ -59,7 +59,7 @@ class ID_RN_Reg extends Module {
     val br_type_reg = RegInit(VecInit(Seq.fill(4)(0.U(4.W))))
     val mem_type_reg = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
     val fu_id_reg = RegInit(VecInit(Seq.fill(4)(0.U(2.W))))
-    val pcs_reg = RegInit(VecInit(Seq.fill(4)(0x1c000000.U(32.W))))
+    val pcs_reg = RegInit(VecInit(Seq.fill(4)(0x00000.U(32.W))))
     val insts_exist_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
 
     when(io.flush) {

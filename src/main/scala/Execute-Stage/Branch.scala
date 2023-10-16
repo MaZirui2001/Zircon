@@ -5,13 +5,13 @@ import Control_Signal._
 // LUt: 136
 
 class Branch_IO extends Bundle {
-    val br_type = Input(UInt(4.W))
-    val src1 = Input(UInt(32.W))
-    val src2 = Input(UInt(32.W))
-    val pc_ex = Input(UInt(32.W))
-    val imm_ex = Input(UInt(32.W))
-    val predict_fail = Output(Bool())
-    val branch_target = Output(UInt(32.W))
+    val br_type         = Input(UInt(4.W))
+    val src1            = Input(UInt(32.W))
+    val src2            = Input(UInt(32.W))
+    val pc_ex           = Input(UInt(32.W))
+    val imm_ex          = Input(UInt(32.W))
+    val predict_fail    = Output(Bool())
+    val branch_target   = Output(UInt(32.W))
 }
 class Branch extends RawModule {
     val io = IO(new Branch_IO)
