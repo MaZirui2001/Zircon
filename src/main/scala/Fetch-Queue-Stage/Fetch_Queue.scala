@@ -43,17 +43,18 @@ class Fetch_Queue extends Module{
         when(io.flush){
             tail(i) := 0.U
         }.elsewhen(io.insts_valid(i) && !full){
-            queue(i.U+tail_sel)(tail(i)).inst := io.insts(i)
-            queue(i.U+tail_sel)(tail(i)).pc := io.pcs_FQ(i)
-            tail(i) := tail(i) + 1.U
-            tail_sel := tail_sel + PopCount(io.insts_valid)
+            queue(i.U+tail_sel)(tail(i.U+tail_sel)).inst := io.insts(i)
+            queue(i.U+tail_sel)(tail(i.U+tail_sel)).pc := io.pcs_FQ(i)
+            tail(i.U+tail_sel) := tail(i.U+tail_sel) + 1.U
         }
+        
         when(io.flush){
             head(i) := 0.U
         }.elsewhen(io.next_ready && !empty){
             head(i) := head(i) + 1.U
         }
     }
+    tail_sel := Mux(io.flush, 0.U, tail_sel + PopCount(io.insts_valid))
 
     for(i <- 0 until 4){
         io.insts_decode(i) := queue(i)(head(i)).inst

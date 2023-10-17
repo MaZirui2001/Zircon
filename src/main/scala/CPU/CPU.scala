@@ -2,6 +2,7 @@ import chisel3._
 import chisel3.util._
 import Inst_Pack._
 import Control_Signal._
+import scala.collection.immutable.VectorInline
 
 class CPU_IO extends Bundle{
     val pc_IF               = Output(UInt(32.W))
@@ -115,11 +116,14 @@ class CPU(RESET_VEC: Int) extends Module {
     pc.io.branch_target := rob.io.branch_target_cmt
 
     // IF-FQ SegReg
+    val inst_IF                 = VecInit(io.inst1_IF, io.inst2_IF, io.inst3_IF, io.inst4_IF).asUInt >> (Cat(0.U(6.W), pc.io.pc_offset) << 5.U)
+    val inst_valid_IF           = 15.U(4.W) >> pc.io.pc_offset
+    val pcs_IF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U).asUInt >> (Cat(0.U(6.W), pc.io.pc_offset) << 5.U)
     if_fq_reg.io.flush          := rob.io.predict_fail_cmt
     if_fq_reg.io.stall          := !inst_queue.io.inst_queue_ready 
-    if_fq_reg.io.pcs_IF         := VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
-    if_fq_reg.io.insts_valid_IF := VecInit(true.B, true.B, true.B, true.B)
-    if_fq_reg.io.insts_IF       := VecInit(io.inst1_IF, io.inst2_IF, io.inst3_IF, io.inst4_IF)
+    if_fq_reg.io.pcs_IF         := VecInit(pcs_IF(31, 0), pcs_IF(63, 32), pcs_IF(95, 64), pcs_IF(127, 96))
+    if_fq_reg.io.insts_valid_IF := inst_valid_IF.asBools
+    if_fq_reg.io.insts_IF       := VecInit(inst_IF(31, 0), inst_IF(63, 32), inst_IF(95, 64), inst_IF(127, 96))
 
     // Fetch_Queue stage && FQ-ID SegReg
     inst_queue.io.insts         := if_fq_reg.io.insts_FQ
