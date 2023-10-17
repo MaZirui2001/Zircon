@@ -45,6 +45,8 @@ class CPU_IO extends Bundle{
     val commit_rf_wdata4    = Output(UInt(32.W))
     val commit_pc_4         = Output(UInt(32.W))
 
+    val commit_predict_fail = Output(Bool())
+
 }
 class CPU(RESET_VEC: Int) extends Module {
     val io = IO(new CPU_IO)
@@ -498,5 +500,7 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rd_valid4     := rob.io.rd_valid_cmt(3)
     io.commit_rf_wdata4     := rob.io.rf_wdata_cmt(3)
     io.commit_pc_4          := rob.io.pc_cmt(3)
+
+    io.commit_predict_fail := rob.io.predict_fail_cmt
 }
 
