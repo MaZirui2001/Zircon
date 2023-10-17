@@ -35,30 +35,30 @@ class Predict extends Module{
     val btb_rdata = Wire(Vec(4, new btb_t))
     btb_rdata := btb.read(btb_rindex)
     
-    val bht_rindex = VecInit(pc(7, 2), pc(7, 2)+1.U, pc(7, 2)+2.U, pc(7, 2)+3.U)
+    val bht_rindex = VecInit(pc(7, 4) ## 0.U(2.W), pc(7, 4) ## 1.U(2.W), pc(7, 4) ## 2.U(2.W), pc(7, 4) ## 3.U(2.W))
     val bht_rdata = Wire(Vec(4, UInt(4.W)))
     for (i <- 0 until 4){
         bht_rdata(i) := bht(bht_rindex(i))
     }
 
     val pht_line_index = bht_rdata
-    val pht_colm_index = pc(7, 2)
+    val pht_colm_index = bht_rindex
     val pht_rdata = Wire(Vec(4, UInt(2.W)))
     for (i <- 0 until 4){
-        pht_rdata(i) := pht(pht_colm_index)(pht_line_index(i))
+        pht_rdata(i) := pht(pht_colm_index(i))(pht_line_index(i))
     }
 
     val predict_jump = Wire(Vec(4, Bool()))
     for (i <- 0 until 4){
-        predict_jump(i) := pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 8)) && pc(3, 2) === 0.U
+        predict_jump(i) := pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 8))
     }
 
     val pred_valid = Wire(UInt(4.W))
-    pred_valid := ~((1.U(4.W) << pc(1, 0)) - 1.U)
+    pred_valid := ~((1.U(4.W) << pc(3, 2)) - 1.U)
 
     val pred_hit = pred_valid & predict_jump.asUInt 
 
-    io.predict_jump := PriorityEncoderOH(pred_hit).asBools
+    io.predict_jump := (PriorityEncoderOH(pred_hit) >> pc(3, 2)).asBools
     io.pred_npc := btb_rdata(PriorityEncoder(pred_hit)).target ## 0.U(2.W)
 
     // update

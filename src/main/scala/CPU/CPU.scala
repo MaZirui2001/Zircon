@@ -261,7 +261,7 @@ class CPU(RESET_VEC: Int) extends Module {
     iq3.io.prk_ready            := dp.io.prk_ready(2)
     iq3.io.issue_ack            := sel3.io.issue_ack
     iq3.io.flush                := rob.io.predict_fail_cmt
-    iq3.io.stall                := stall_by_iq || sb.io.full
+    iq3.io.stall                := stall_by_iq
 
     sel3.io.insts_issue         := iq3.io.insts_issue
     sel3.io.issue_req           := iq3.io.issue_req

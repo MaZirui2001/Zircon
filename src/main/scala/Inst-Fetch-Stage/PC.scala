@@ -39,5 +39,4 @@ class PC(reset_val: Int) extends Module {
 
     io.inst_valid_IF := (((inst_valid_temp.asUInt << 1.U)(3, 0) - 1.U) & (15.U(4.W) >> pc(3, 2))).asBools
 
-
 }
