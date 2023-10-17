@@ -12,6 +12,9 @@ object CPU_Main extends App {
                             "--ignore-read-enable-mem",
                             "-o=verilog/",
                             "-split-verilog",
+                            "--lower-memories",
+                            "--lowering-options="
+                            // "--preserve-aggregate=none"
                             )
     )
 }

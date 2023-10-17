@@ -78,8 +78,13 @@ class SB(n: Int) extends Module {
     val ld_addr_ex = io.addr_ex
     val ld_hit = Wire(Vec(n, Bool()))
     for(i <- 0 until n){
-        ld_hit(i) := sb(i).valid && sb(i).addr === ld_addr_ex
+        ld_hit(i) := sb(tail-i.U).valid && sb(tail-i.U).addr <= ld_addr_ex && ld_addr_ex < sb(tail-i.U).addr + (1.U(32.W) << sb(tail-i.U).wlen)
     }
+
     io.ld_hit := ld_hit.exists(_ === true.B)
-    io.ld_data_ex := Mux1H(ld_hit, sb.map(_.data))
+    val ld_hit_index = PriorityEncoderOH(ld_hit)
+    io.ld_data_ex := Mux1H(
+        ld_hit_index,
+        VecInit.tabulate(n)(i => sb(tail-i.U).data)
+    )
 }

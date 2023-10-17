@@ -22,31 +22,8 @@ object Inst_Pack{
         val fu_id           = UInt(2.W)
         val pc              = UInt(32.W)
         val rob_index       = UInt(5.W)
+        val predict_jump    = Bool()
         val inst_exist      = Bool()
-        
-        // 构造函数
-        def this(rj: UInt, rj_valid: Bool, prj: UInt, rk: UInt, rk_valid: Bool, prk: UInt, rd: UInt, rd_valid: Bool, prd: UInt, pprd: UInt, imm: UInt, alu_op: UInt, alu_rs1_sel: UInt, alu_rs2_sel: UInt, br_type: UInt, mem_type: UInt, fu_id: UInt, pc: UInt, inst_exist: Bool) = {
-            this()
-            this.rj             := rj
-            this.rj_valid       := rj_valid
-            this.prj            := prj
-            this.rk             := rk
-            this.rk_valid       := rk_valid
-            this.prk            := prk
-            this.rd             := rd
-            this.rd_valid       := rd_valid
-            this.prd            := prd
-            this.pprd           := pprd
-            this.imm            := imm
-            this.alu_op         := alu_op
-            this.alu_rs1_sel    := alu_rs1_sel
-            this.alu_rs2_sel    := alu_rs2_sel
-            this.br_type        := br_type
-            this.mem_type       := mem_type
-            this.fu_id          := fu_id
-            this.pc             := pc
-            this.inst_exist     := inst_exist
-        }
     }   
 }
 object Control_Signal{

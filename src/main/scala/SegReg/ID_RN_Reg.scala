@@ -23,6 +23,7 @@ class ID_RN_Reg extends Module {
         val br_type_ID      = Input(Vec(4, UInt(4.W)))
         val mem_type_ID     = Input(Vec(4, UInt(5.W)))
         val fu_id_ID        = Input(Vec(4, UInt(2.W)))
+        val pred_jump_ID    = Input(Vec(4, Bool()))
         val insts_exist_ID = Input(Vec(4, Bool()))
 
         val insts_valid_RN  = Output(Vec(4, Bool()))
@@ -40,6 +41,7 @@ class ID_RN_Reg extends Module {
         val br_type_RN      = Output(Vec(4, UInt(4.W)))
         val mem_type_RN     = Output(Vec(4, UInt(5.W)))
         val fu_id_RN        = Output(Vec(4, UInt(2.W)))
+        val pred_jump_RN    = Output(Vec(4, Bool()))
         val pcs_RN          = Output(Vec(4, UInt(32.W)))
         val insts_exist_RN = Output(Vec(4, Bool()))
     })
@@ -59,6 +61,7 @@ class ID_RN_Reg extends Module {
     val br_type_reg = RegInit(VecInit(Seq.fill(4)(0.U(4.W))))
     val mem_type_reg = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
     val fu_id_reg = RegInit(VecInit(Seq.fill(4)(0.U(2.W))))
+    val pred_jump_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
     val pcs_reg = RegInit(VecInit(Seq.fill(4)(0x00000.U(32.W))))
     val insts_exist_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
 
@@ -78,6 +81,7 @@ class ID_RN_Reg extends Module {
         br_type_reg := VecInit(Seq.fill(4)(0.U(4.W)))
         mem_type_reg := VecInit(Seq.fill(4)(0.U(5.W)))
         fu_id_reg := VecInit(Seq.fill(4)(0.U(2.W)))
+        pred_jump_reg := VecInit(Seq.fill(4)(false.B))
         pcs_reg := VecInit(Seq.fill(4)(0x1c000000.U(32.W)))
         insts_exist_reg := VecInit(Seq.fill(4)(false.B))
     }
@@ -97,6 +101,7 @@ class ID_RN_Reg extends Module {
         br_type_reg := io.br_type_ID
         mem_type_reg := io.mem_type_ID
         fu_id_reg := io.fu_id_ID
+        pred_jump_reg := io.pred_jump_ID
         pcs_reg := io.pcs_ID
         insts_exist_reg := io.insts_exist_ID
     }
@@ -116,6 +121,7 @@ class ID_RN_Reg extends Module {
     io.br_type_RN := br_type_reg
     io.mem_type_RN := mem_type_reg
     io.fu_id_RN := fu_id_reg
+    io.pred_jump_RN := pred_jump_reg
     io.pcs_RN := pcs_reg
     io.insts_exist_RN := insts_exist_reg
 

@@ -11,6 +11,8 @@ object ROB_Pack{
         val pprd = UInt(6.W)
         val predict_fail = Bool()
         val branch_target = UInt(32.W)
+        val real_jump = Bool()
+        val pred_update_en = Bool()
         val complete = Bool()
         val pc = UInt(32.W)
         val rf_wdata = UInt(32.W)
@@ -35,6 +37,8 @@ class ROB_IO(n: Int) extends Bundle{
     val inst_valid_wb       = Input(Vec(4, Bool()))
     val rob_index_wb        = Input(Vec(4, UInt(log2Ceil(n).W)))
     val predict_fail_wb     = Input(Vec(4, Bool()))
+    val real_jump_wb        = Input(Vec(4, Bool()))
+    val pred_update_en_wb   = Input(Vec(4, Bool()))
     val branch_target_wb    = Input(Vec(4, UInt(32.W)))
     val rf_wdata_wb         = Input(Vec(4, UInt(32.W)))
 
@@ -49,6 +53,10 @@ class ROB_IO(n: Int) extends Bundle{
 
     val predict_fail_cmt    = Output(Bool())
     val branch_target_cmt   = Output(UInt(32.W))
+    val pred_update_en_cmt  = Output(Bool())
+    val pred_branch_target_cmt = Output(UInt(32.W))
+    val pred_pc_cmt        = Output(UInt(32.W))
+    val pred_real_jump_cmt     = Output(Bool())
     val rf_wdata_cmt        = Output(Vec(4, UInt(32.W)))
 }
 
@@ -77,7 +85,9 @@ class ROB(n: Int) extends Module{
                 rob(tail+i.U).complete := false.B
                 rob(tail+i.U).pc := io.pc_rn(i)
                 rob(tail+i.U).rf_wdata := 0.U
+                rob(tail+i.U).real_jump := false.B
                 rob(tail+i.U).is_store := io.is_store_rn(i)
+                rob(tail+i.U).pred_update_en := false.B
             }
         }
         // tail := Mux(!io.predict_fail_cmt, tail + insert_num, head)
@@ -97,21 +107,32 @@ class ROB(n: Int) extends Module{
             rob(io.rob_index_wb(i)).predict_fail := io.predict_fail_wb(i)
             rob(io.rob_index_wb(i)).branch_target := io.branch_target_wb(i)
             rob(io.rob_index_wb(i)).rf_wdata := io.rf_wdata_wb(i)
+            rob(io.rob_index_wb(i)).real_jump := io.real_jump_wb(i)
+            rob(io.rob_index_wb(i)).pred_update_en := io.pred_update_en_wb(i)
         }
     }
     
     // cmt stage
     io.cmt_en(0) := rob(head).complete && !empty
     for(i <- 1 until 4){
-        io.cmt_en(i) := io.cmt_en(i-1) && rob(head+i.U).complete && !rob(head+(i-1).U).predict_fail  && !rob(head+(i-1).U).is_store
+        io.cmt_en(i) := (io.cmt_en(i-1) && rob(head+i.U).complete && !rob(head+(i-1).U).predict_fail  
+                        && !rob(head+(i-1).U).is_store && !rob(head+(i-1).U).pred_update_en)
     }
     io.full := full
     val predict_fail_bit = VecInit(Seq.fill(4)(false.B))
+    val pred_update_en_bit = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
         predict_fail_bit(i) := rob(head+i.U).predict_fail && io.cmt_en(i)
+        pred_update_en_bit(i) := rob(head+i.U).pred_update_en && io.cmt_en(i)
     }
     io.predict_fail_cmt := predict_fail_bit.asUInt.orR
-    io.branch_target_cmt := rob(head+PriorityEncoder(predict_fail_bit)).branch_target
+    io.branch_target_cmt := Mux(rob(head+PriorityEncoder(predict_fail_bit)).real_jump, 
+                                rob(head+PriorityEncoder(predict_fail_bit)).branch_target,
+                                rob(head+PriorityEncoder(predict_fail_bit)).pc + 4.U)
+    io.pred_update_en_cmt := pred_update_en_bit.asUInt.orR
+    io.pred_branch_target_cmt := rob(head+PriorityEncoder(pred_update_en_bit)).branch_target
+    io.pred_pc_cmt := rob(head+PriorityEncoder(pred_update_en_bit)).pc
+    io.pred_real_jump_cmt := rob(head+PriorityEncoder(pred_update_en_bit)).real_jump
 
     head := head + PopCount(io.cmt_en)
 
@@ -120,7 +141,7 @@ class ROB(n: Int) extends Module{
         io.rd_valid_cmt(i) := rob(head+i.U).rd_valid
         io.prd_cmt(i) := rob(head+i.U).prd
         io.pprd_cmt(i) := rob(head+i.U).pprd
-        io.pc_cmt(i) := Mux(rob(head+i.U).predict_fail, rob(head+i.U).branch_target, rob(head+i.U).pc+4.U)
+        io.pc_cmt(i) := Mux(rob(head+i.U).real_jump, rob(head+i.U).branch_target, rob(head+i.U).pc+4.U)
         io.rf_wdata_cmt(i) := rob(head+i.U).rf_wdata
         io.is_store_cmt(i) := rob(head+i.U).is_store && io.cmt_en(i)
     }

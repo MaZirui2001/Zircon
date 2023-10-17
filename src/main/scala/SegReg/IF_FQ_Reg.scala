@@ -7,31 +7,37 @@ class IF_FQ_Reg extends Module {
         val stall           = Input(Bool())
         val pcs_IF          = Input(Vec(4, UInt(32.W)))
         val insts_valid_IF  = Input(Vec(4, Bool()))
+        val pred_jump_IF    = Input(Vec(4, Bool()))
         val insts_IF        = Input(Vec(4, UInt(32.W)))
 
         val pcs_FQ          = Output(Vec(4, UInt(32.W)))
         val insts_valid_FQ  = Output(Vec(4, Bool()))
+        val pred_jump_FQ    = Output(Vec(4, Bool()))
         val insts_FQ        = Output(Vec(4, UInt(32.W)))
     })
 
     val pcs_reg = RegInit(VecInit(Seq.fill(4)(0x0.U(32.W))))
     val insts_valid_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
     val insts_reg = RegInit(VecInit(Seq.fill(4)(0.U(32.W))))
+    val pred_jump_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
 
     when(io.flush) {
         pcs_reg := VecInit(Seq.fill(4)(0x0.U(32.W)))
         insts_valid_reg := VecInit(Seq.fill(4)(false.B))
         insts_reg := VecInit(Seq.fill(4)(0.U(32.W)))
+        pred_jump_reg := VecInit(Seq.fill(4)(false.B))
     }
     .elsewhen(!io.stall){
         pcs_reg := io.pcs_IF
         insts_valid_reg := io.insts_valid_IF
         insts_reg := io.insts_IF
+        pred_jump_reg := io.pred_jump_IF
     }
 
     io.pcs_FQ := pcs_reg
     io.insts_valid_FQ := insts_valid_reg
     io.insts_FQ := insts_reg
+    io.pred_jump_FQ := pred_jump_reg
 }
 
 // object IF_FQ_Reg extends App {

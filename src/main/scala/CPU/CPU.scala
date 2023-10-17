@@ -53,6 +53,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val io = IO(new CPU_IO)
 
     val pc              = Module(new PC(RESET_VEC))
+    val predict         = Module(new Predict)
     val if_fq_reg       = Module(new IF_FQ_Reg)
     val inst_decode1    = Module(new Decode)
     val inst_decode2    = Module(new Decode)
@@ -114,20 +115,31 @@ class CPU(RESET_VEC: Int) extends Module {
     pc.io.pc_stall      := !inst_queue.io.inst_queue_ready 
     pc.io.predict_fail  := rob.io.predict_fail_cmt
     pc.io.branch_target := rob.io.branch_target_cmt
+    pc.io.pred_jump     := predict.io.predict_jump
+    pc.io.pred_npc      := predict.io.pred_npc
+
+    predict.io.npc           := pc.io.npc
+    predict.io.pc            := pc.io.pc_IF
+    predict.io.pc_cmt        := rob.io.pred_pc_cmt
+    predict.io.real_jump     := rob.io.pred_real_jump_cmt
+    predict.io.branch_target := rob.io.pred_branch_target_cmt
+    predict.io.update_en     := rob.io.pred_update_en_cmt
+
 
     // IF-FQ SegReg
-    val inst_IF                 = VecInit(io.inst1_IF, io.inst2_IF, io.inst3_IF, io.inst4_IF).asUInt >> (Cat(0.U(6.W), pc.io.pc_offset) << 5.U)
-    val inst_valid_IF           = 15.U(4.W) >> pc.io.pc_offset
-    val pcs_IF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U).asUInt >> (Cat(0.U(6.W), pc.io.pc_offset) << 5.U)
+    val inst_IF                 = VecInit(io.inst1_IF, io.inst2_IF, io.inst3_IF, io.inst4_IF)
+    val pcs_IF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
     if_fq_reg.io.flush          := rob.io.predict_fail_cmt
     if_fq_reg.io.stall          := !inst_queue.io.inst_queue_ready 
-    if_fq_reg.io.pcs_IF         := VecInit(pcs_IF(31, 0), pcs_IF(63, 32), pcs_IF(95, 64), pcs_IF(127, 96))
-    if_fq_reg.io.insts_valid_IF := inst_valid_IF.asBools
-    if_fq_reg.io.insts_IF       := VecInit(inst_IF(31, 0), inst_IF(63, 32), inst_IF(95, 64), inst_IF(127, 96))
+    if_fq_reg.io.pcs_IF         := pcs_IF
+    if_fq_reg.io.insts_valid_IF := pc.io.inst_valid_IF
+    if_fq_reg.io.insts_IF       := inst_IF
+    if_fq_reg.io.pred_jump_IF   := predict.io.predict_jump
 
     // Fetch_Queue stage && FQ-ID SegReg
     inst_queue.io.insts         := if_fq_reg.io.insts_FQ
     inst_queue.io.insts_valid   := if_fq_reg.io.insts_valid_FQ
+    inst_queue.io.pred_jump     := if_fq_reg.io.pred_jump_FQ
     inst_queue.io.pcs_FQ        := if_fq_reg.io.pcs_FQ
     inst_queue.io.next_ready    := !(rob.io.full || stall_by_iq || reg_rename.io.free_list_empty)
     inst_queue.io.flush         := rob.io.predict_fail_cmt
@@ -155,6 +167,7 @@ class CPU(RESET_VEC: Int) extends Module {
     id_rn_reg.io.br_type_ID     := VecInit(inst_decode1.io.br_type, inst_decode2.io.br_type, inst_decode3.io.br_type, inst_decode4.io.br_type)
     id_rn_reg.io.mem_type_ID    := VecInit(inst_decode1.io.mem_type, inst_decode2.io.mem_type, inst_decode3.io.mem_type, inst_decode4.io.mem_type)
     id_rn_reg.io.fu_id_ID       := VecInit(inst_decode1.io.fu_id, inst_decode2.io.fu_id, inst_decode3.io.fu_id, inst_decode4.io.fu_id)
+    id_rn_reg.io.pred_jump_ID   := inst_queue.io.pred_jump_decode
     id_rn_reg.io.pcs_ID         := inst_queue.io.pcs_ID
     id_rn_reg.io.insts_exist_ID := VecInit(inst_decode1.io.inst_exist, inst_decode2.io.inst_exist, inst_decode3.io.inst_exist, inst_decode4.io.inst_exist)
 
@@ -190,6 +203,7 @@ class CPU(RESET_VEC: Int) extends Module {
         insts_pack_rn(i).br_type        := id_rn_reg.io.br_type_RN(i)
         insts_pack_rn(i).mem_type       := id_rn_reg.io.mem_type_RN(i)
         insts_pack_rn(i).fu_id          := id_rn_reg.io.fu_id_RN(i)
+        insts_pack_rn(i).predict_jump   := id_rn_reg.io.pred_jump_RN(i)
         insts_pack_rn(i).pc             := id_rn_reg.io.pcs_RN(i)
         insts_pack_rn(i).rob_index      := rob.io.rob_index_rn(i)
         insts_pack_rn(i).inst_exist     := id_rn_reg.io.insts_exist_RN(i)
@@ -373,6 +387,7 @@ class CPU(RESET_VEC: Int) extends Module {
     br.io.src2          := Mux(fu2_bypass.io.forward_prk_en, fu2_bypass.io.forward_prk_data, rf_ex_reg2.io.src2_EX)
     br.io.pc_ex         := rf_ex_reg2.io.inst_pack_EX.pc
     br.io.imm_ex        := rf_ex_reg2.io.inst_pack_EX.imm
+    br.io.predict_jump  := rf_ex_reg2.io.inst_pack_EX.predict_jump
 
     fu2_bypass.io.prd_wb        := fu2_ex_wb_reg.io.inst_pack_WB.prd
     fu2_bypass.io.prj_ex        := rf_ex_reg2.io.inst_pack_EX.prj
@@ -386,7 +401,9 @@ class CPU(RESET_VEC: Int) extends Module {
     fu2_ex_wb_reg.io.alu_out_EX         := alu2.io.alu_out
     fu2_ex_wb_reg.io.predict_fail_EX    := br.io.predict_fail
     fu2_ex_wb_reg.io.branch_target_EX   := br.io.branch_target
+    fu2_ex_wb_reg.io.real_jump_EX       := br.io.real_jump
     fu2_ex_wb_reg.io.inst_valid_EX      := rf_ex_reg2.io.inst_valid_EX
+    fu2_ex_wb_reg.io.update_en_EX       := br.io.pred_update_en
 
     // 3. load-store fu, include agu and cache
     ls_ex1_ex2_reg.io.flush             := rob.io.predict_fail_cmt
@@ -466,9 +483,10 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.inst_valid_wb        := VecInit(fu1_ex_wb_reg.io.inst_valid_WB, fu2_ex_wb_reg.io.inst_valid_WB, fu3_ex_wb_reg.io.inst_valid_WB, fu4_ex_wb_reg.io.inst_valid_WB)
     rob.io.rob_index_wb         := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.rob_index, fu2_ex_wb_reg.io.inst_pack_WB.rob_index, fu3_ex_wb_reg.io.inst_pack_WB.rob_index, fu4_ex_wb_reg.io.inst_pack_WB.rob_index)
     rob.io.predict_fail_wb      := VecInit(false.B, fu2_ex_wb_reg.io.predict_fail_WB, false.B, false.B)
+    rob.io.real_jump_wb         := VecInit(false.B, fu2_ex_wb_reg.io.real_jump_WB, false.B, false.B)
     rob.io.branch_target_wb     := VecInit(0.U, fu2_ex_wb_reg.io.branch_target_WB, 0.U, 0.U)
     rob.io.rf_wdata_wb          := VecInit(fu1_ex_wb_reg.io.alu_out_WB, fu2_ex_wb_reg.io.alu_out_WB, fu3_ex_wb_reg.io.mem_rdata_WB, fu4_ex_wb_reg.io.md_out_WB)
-
+    rob.io.pred_update_en_wb    := VecInit(false.B, fu2_ex_wb_reg.io.update_en_WB, false.B, false.B)
     // Commit stage
     arat.io.cmt_en          := rob.io.cmt_en
     arat.io.rd_cmt          := rob.io.rd_cmt
