@@ -83,7 +83,7 @@ class Unorder_Issue_Queue(n: Int) extends Module{
         queue_next(i) := Mux(i.asUInt < tail_pop, Mux(next_mask(i), queue_temp(i+1), queue_temp(i)), 0.U.asTypeOf(new issue_queue_t))
         io.prd_queue(i) := Mux(queue_next(i).inst.rd_valid, queue_next(i).inst.prd, 0.U)
     }
-    io.prd_queue(n) := queue(OHToUInt(io.issue_ack)).inst.prd
+    io.prd_queue(n) := Mux(queue(OHToUInt(io.issue_ack)).inst.rd_valid, queue(OHToUInt(io.issue_ack)).inst.prd, 0.U)
 
     for(i <- 0 until n){
         queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, insts_dispatch(i.asUInt - tail_pop))

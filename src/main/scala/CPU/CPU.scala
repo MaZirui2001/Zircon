@@ -201,7 +201,10 @@ class CPU(RESET_VEC: Int) extends Module {
     dp.io.insts_valid           := rn_dp_reg.io.insts_valid_DP
     dp.io.prj_raw               := rn_dp_reg.io.prj_raw_DP
     dp.io.prk_raw               := rn_dp_reg.io.prk_raw_DP
-    dp.io.prd_queue             := VecInit(VecInit(iq1.io.prd_queue :+ 0.U(6.W)), VecInit(iq2.io.prd_queue :+ 0.U(6.W)), VecInit(iq3.io.prd_queue :+ rf_ex_reg3.io.inst_pack_RF.prd), VecInit(iq4.io.prd_queue :+ 0.U(6.W)))
+    dp.io.prd_queue             := VecInit( VecInit(iq1.io.prd_queue :+ 0.U(6.W)), 
+                                            VecInit(iq2.io.prd_queue :+ 0.U(6.W)), 
+                                            VecInit(iq3.io.prd_queue :+ Mux(rf_ex_reg3.io.inst_pack_RF.rd_valid, rf_ex_reg3.io.inst_pack_RF.prd, 0.U)), 
+                                            VecInit(iq4.io.prd_queue :+ 0.U(6.W)))
     dp.io.elem_num              := VecInit(iq1.io.elem_num, iq2.io.elem_num)
 
     // issue stage

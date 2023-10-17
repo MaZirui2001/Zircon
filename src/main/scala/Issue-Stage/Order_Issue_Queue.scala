@@ -50,7 +50,7 @@ class Order_Issue_Queue(n: Int) extends Module {
         queue_next(i) := Mux(i.asUInt < tail_pop, Mux(io.issue_ack, queue_temp(i+1), queue_temp(i)), 0.U.asTypeOf(new issue_queue_t))
         io.prd_queue(i) := Mux(queue_next(i).inst.rd_valid, queue_next(i).inst.prd, 0.U)
     }
-    io.prd_queue(n) := queue(0).inst.prd
+    io.prd_queue(n) := Mux(queue(0).inst.rd_valid, queue(0).inst.prd, 0.U)
     // wake up 
     queue_temp := 0.U.asTypeOf(Vec(n+1, new issue_queue_t))
     for(i <- 0 until n){
