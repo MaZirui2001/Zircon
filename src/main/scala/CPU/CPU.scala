@@ -497,6 +497,3 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_pc_4          := rob.io.pc_cmt(3)
 }
 
-object CPU extends App {
-    emitVerilog(new CPU(0x1c000000), Array("-td", "build/"))
-}

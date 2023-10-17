@@ -60,7 +60,6 @@ class Fetch_Queue extends Module{
         io.insts_valid_decode(i) := !empty
         io.pcs_ID(i) := queue(i)(head(i)).pc
     }
-
 }
 // object Fetch_Queue extends App{
 //     emitVerilog(new Fetch_Queue, Array("-td", "build/"))

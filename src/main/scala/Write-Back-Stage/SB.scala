@@ -70,7 +70,6 @@ class SB(n: Int) extends Module {
     when(is_store_and_cmt){
         sb(head).valid := false.B
     }
-
     io.st_addr_cmt := sb(head).addr
     io.st_data_cmt := sb(head).data
     io.st_wlen_cmt := sb(head).wlen
