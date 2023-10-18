@@ -118,12 +118,12 @@ class CPU(RESET_VEC: Int) extends Module {
     pc.io.pred_jump     := predict.io.predict_jump
     pc.io.pred_npc      := predict.io.pred_npc
 
-    predict.io.npc           := pc.io.npc
-    predict.io.pc            := pc.io.pc_IF
-    predict.io.pc_cmt        := rob.io.pred_pc_cmt
-    predict.io.real_jump     := rob.io.pred_real_jump_cmt
-    predict.io.branch_target := rob.io.pred_branch_target_cmt
-    predict.io.update_en     := rob.io.pred_update_en_cmt
+    predict.io.npc                  := pc.io.npc
+    predict.io.pc                   := pc.io.pc_IF
+    predict.io.pc_cmt               := rob.io.pred_pc_cmt
+    predict.io.real_jump            := rob.io.pred_real_jump_cmt
+    predict.io.branch_target        := rob.io.pred_branch_target_cmt
+    predict.io.update_en            := rob.io.pred_update_en_cmt
 
 
     // IF-FQ SegReg

@@ -1,11 +1,20 @@
 import chisel3._
 import chisel3.util._
-
-class btb_t extends Bundle{
-    val valid = Bool()
-    val target = UInt(30.W)
-    val tag = UInt(24.W)
+object PRED_Config{
+    val BTB_INDEX_WIDTH = 8
+    val BTB_TAG_WIDTH = 28 - BTB_INDEX_WIDTH
+    val BTB_DEPTH = 1 << BTB_INDEX_WIDTH
+    class btb_t extends Bundle{
+        val valid = Bool()
+        val target = UInt(30.W)
+        val tag = UInt(BTB_TAG_WIDTH.W)
+    }
+    val BHT_INDEX_WIDTH = 4
+    val BHT_DEPTH = 1 << BHT_INDEX_WIDTH
+    val PHT_INDEX_WIDTH = 6
+    val PHT_DEPTH = 1 << PHT_INDEX_WIDTH
 }
+
 class Predict_IO extends Bundle{
     // check
     val npc = Input(UInt(32.W))
@@ -20,37 +29,39 @@ class Predict_IO extends Bundle{
     val update_en = Input(Bool())
 }
 
-
+import PRED_Config._
 class Predict extends Module{
     val io = IO(new Predict_IO)
 
-    val btb = SyncReadMem(16, Vec(4, new btb_t))
-    val bht = RegInit(VecInit(Seq.fill(64)(0.U(4.W))))
-    val pht = RegInit(VecInit(Seq.fill(64)(VecInit(Seq.fill(16)(2.U(2.W))))))
+    val btb_tagv = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
+    val btb_targ = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(30, BTB_DEPTH)).io))
+    val bht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(16)(0.U(4.W))))))
+    val pht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(64)(2.U(2.W))))))
 
     // check
     val npc = io.npc
     val pc = io.pc
-    val btb_rindex = npc(7, 4)
+    val btb_rindex = npc(4-1+BTB_INDEX_WIDTH, 4)
     val btb_rdata = Wire(Vec(4, new btb_t))
-    btb_rdata := btb.read(btb_rindex)
-    
-    val bht_rindex = VecInit(pc(7, 4) ## 0.U(2.W), pc(7, 4) ## 1.U(2.W), pc(7, 4) ## 2.U(2.W), pc(7, 4) ## 3.U(2.W))
+
+    val bht_rindex = pc(7, 4) 
     val bht_rdata = Wire(Vec(4, UInt(4.W)))
     for (i <- 0 until 4){
-        bht_rdata(i) := bht(bht_rindex(i))
+        bht_rdata(i) := bht(i)(bht_rindex)
     }
 
-    val pht_line_index = bht_rdata
-    val pht_colm_index = bht_rindex
+    val pht_rindex = Wire(Vec(4, UInt(8.W)))
+    for(i <- 0 until 4){
+        pht_rindex(i) := (bht_rdata(i) ^ pc(11, 8)) ## bht_rindex
+    }
     val pht_rdata = Wire(Vec(4, UInt(2.W)))
     for (i <- 0 until 4){
-        pht_rdata(i) := pht(pht_colm_index(i))(pht_line_index(i))
+        pht_rdata(i) := pht(i)(pht_rindex(i))
     }
 
     val predict_jump = Wire(Vec(4, Bool()))
     for (i <- 0 until 4){
-        predict_jump(i) := pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 8))
+        predict_jump(i) := pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))
     }
 
     val pred_valid = Wire(UInt(4.W))
@@ -66,29 +77,48 @@ class Predict extends Module{
     // btb
     val mask = UIntToOH(io.pc_cmt(3, 2))
     val btb_wdata = Wire(Vec(4, new btb_t))
+    val btb_windex = io.pc_cmt(4-1+BTB_INDEX_WIDTH, 4)
     for (i <- 0 until 4){
         btb_wdata(i).valid := true.B
         btb_wdata(i).target := io.branch_target(31, 2)
-        btb_wdata(i).tag := io.pc_cmt(31, 8)
+        btb_wdata(i).tag := io.pc_cmt(31, 32-BTB_TAG_WIDTH)
     }
-    when(update_en){
-        btb.write(io.pc_cmt(7, 4), btb_wdata, mask.asBools)
+    for(i <- 0 until 4){
+        btb_tagv(i).addra := btb_windex
+        btb_tagv(i).addrb := btb_rindex
+        btb_tagv(i).dina := btb_wdata(i).valid ## btb_wdata(i).tag
+        btb_tagv(i).clka := clock
+        btb_tagv(i).wea := update_en && mask(i)
+        btb_tagv(i).enb := true.B
+        btb_rdata(i).valid := btb_tagv(i).doutb(BTB_TAG_WIDTH)
+        btb_rdata(i).tag := btb_tagv(i).doutb(BTB_TAG_WIDTH-1, 0)
+
     }
+    for(i <- 0 until 4){
+        btb_targ(i).addra := btb_windex
+        btb_targ(i).addrb := btb_rindex
+        btb_targ(i).dina := btb_wdata(i).target
+        btb_targ(i).clka := clock
+        btb_targ(i).wea := update_en && mask(i)
+        btb_targ(i).enb := true.B
+        btb_rdata(i).target := btb_targ(i).doutb
+    }
+
     // bht
-    val bht_windex = io.pc_cmt(7, 2)
+    val bht_windex = io.pc_cmt(7, 4)
     val bht_wdata = io.real_jump
     when(update_en){
-        bht(bht_windex) := bht_wdata ## bht(bht_windex)(3, 1)
+        bht(io.pc_cmt(3, 2))(bht_windex) := bht_wdata ## bht(io.pc_cmt(3, 2))(bht_windex)(3, 1)
     }
 
     // pht
-    val pht_colm_windex = io.pc_cmt(7, 2)
-    val pht_line_windex = bht(bht_windex)
+    val pht_windex = (bht(io.pc_cmt(3, 2))(bht_windex) ^ io.pc_cmt(11, 8)) ## io.pc_cmt(7, 4)
 
     when(update_en){
-        pht(pht_colm_windex)(pht_line_windex) := Mux(io.real_jump, 
-                                            pht(pht_colm_windex)(pht_line_windex) + (pht(pht_colm_windex)(pht_line_windex) =/= 3.U), 
-                                            pht(pht_colm_windex)(pht_line_windex) - (pht(pht_colm_windex)(pht_line_windex) =/= 0.U))
+        pht(io.pc_cmt(3, 2))(pht_windex) := Mux(io.real_jump, 
+                                            pht(io.pc_cmt(3, 2))(pht_windex) + (pht(io.pc_cmt(3, 2))(pht_windex) =/= 3.U), 
+                                            pht(io.pc_cmt(3, 2))(pht_windex) - (pht(io.pc_cmt(3, 2))(pht_windex) =/= 0.U))
     }
 
 }
+

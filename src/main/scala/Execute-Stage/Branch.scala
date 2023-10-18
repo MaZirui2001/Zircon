@@ -14,15 +14,14 @@ class Branch_IO extends Bundle {
     val branch_target   = Output(UInt(32.W))
     val predict_jump    = Input(Bool())
     val real_jump       = Output(Bool())
-    val real_npc        = Output(UInt(32.W))
     val pred_update_en  = Output(Bool())
 }
+
 class Branch extends RawModule {
     val io = IO(new Branch_IO)
     io.predict_fail := false.B
     io.branch_target := io.pc_ex + io.imm_ex
     io.real_jump := false.B
-    io.real_npc := Mux(io.real_jump, io.branch_target, io.pc_ex + 4.U)
     io.pred_update_en := false.B
     switch(io.br_type) {
         is(BR_BEQ){
