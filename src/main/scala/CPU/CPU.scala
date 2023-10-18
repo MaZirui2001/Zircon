@@ -403,7 +403,6 @@ class CPU(RESET_VEC: Int) extends Module {
     fu2_ex_wb_reg.io.branch_target_EX   := br.io.branch_target
     fu2_ex_wb_reg.io.real_jump_EX       := br.io.real_jump
     fu2_ex_wb_reg.io.inst_valid_EX      := rf_ex_reg2.io.inst_valid_EX
-    fu2_ex_wb_reg.io.update_en_EX       := br.io.pred_update_en
 
     // 3. load-store fu, include agu and cache
     ls_ex1_ex2_reg.io.flush             := rob.io.predict_fail_cmt
@@ -468,8 +467,10 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // WB stage
     val is_store_rn = Wire(Vec(4, Bool()))
+    val pred_update_en = Wire(Vec(4, Bool()))
     for (i <- 0 until 4){
         is_store_rn(i) := id_rn_reg.io.mem_type_RN(i) =/= NO_MEM && id_rn_reg.io.mem_type_RN(i)(4) === 0.U
+        pred_update_en(i) := id_rn_reg.io.br_type_RN(i) =/= NO_BR && id_rn_reg.io.br_type_RN(i) =/= BR_JIRL
     }
     rob.io.inst_valid_rn        := id_rn_reg.io.insts_valid_RN
     rob.io.rd_rn                := id_rn_reg.io.rd_RN
@@ -479,6 +480,7 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.pc_rn                := id_rn_reg.io.pcs_RN
     rob.io.is_store_rn          := is_store_rn
     rob.io.stall                := id_rn_reg.io.stall
+    rob.io.pred_update_en_rn    := pred_update_en
 
     rob.io.inst_valid_wb        := VecInit(fu1_ex_wb_reg.io.inst_valid_WB, fu2_ex_wb_reg.io.inst_valid_WB, fu3_ex_wb_reg.io.inst_valid_WB, fu4_ex_wb_reg.io.inst_valid_WB)
     rob.io.rob_index_wb         := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.rob_index, fu2_ex_wb_reg.io.inst_pack_WB.rob_index, fu3_ex_wb_reg.io.inst_pack_WB.rob_index, fu4_ex_wb_reg.io.inst_pack_WB.rob_index)
@@ -486,7 +488,6 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.real_jump_wb         := VecInit(false.B, fu2_ex_wb_reg.io.real_jump_WB, false.B, false.B)
     rob.io.branch_target_wb     := VecInit(0.U, fu2_ex_wb_reg.io.branch_target_WB, 0.U, 0.U)
     rob.io.rf_wdata_wb          := VecInit(fu1_ex_wb_reg.io.alu_out_WB, fu2_ex_wb_reg.io.alu_out_WB, fu3_ex_wb_reg.io.mem_rdata_WB, fu4_ex_wb_reg.io.md_out_WB)
-    rob.io.pred_update_en_wb    := VecInit(false.B, fu2_ex_wb_reg.io.update_en_WB, false.B, false.B)
     // Commit stage
     arat.io.cmt_en          := rob.io.cmt_en
     arat.io.rd_cmt          := rob.io.rd_cmt
