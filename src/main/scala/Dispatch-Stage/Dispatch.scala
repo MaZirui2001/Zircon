@@ -38,23 +38,24 @@ object Dispatch_Func{
 
 }
 class Dispatch_IO(n: Int) extends Bundle{
-    val inst_packs      = Input(Vec(4, new inst_pack_t))
-    val prj_raw         = Input(Vec(4, Bool()))
-    val prk_raw         = Input(Vec(4, Bool()))
-    val insts_valid     = Input(Vec(4, Bool()))
+    val inst_packs          = Input(Vec(4, new inst_pack_t))
+    val prj_raw             = Input(Vec(4, Bool()))
+    val prk_raw             = Input(Vec(4, Bool()))
+    val insts_valid         = Input(Vec(4, Bool()))
 
     // index of rd in the issue queue
-    val prd_queue       = Input(Vec(4, Vec(n+2, UInt(6.W))))
-    val elem_num        = Input(Vec(2, UInt((log2Ceil(n)+1).W)))
+    val prd_queue           = Input(Vec(4, Vec(n+2, UInt(6.W))))
+    val elem_num            = Input(Vec(2, UInt((log2Ceil(n)+1).W)))
 
     // output for each issue queue
-    val insts_dispatch  = Output(Vec(4, Vec(4, new inst_pack_t)))
+    val insts_disp_index    = Output(Vec(4, Vec(4, UInt(3.W))))
+    val insts_disp_valid    = Output(Vec(4, Vec(4, Bool())))
 
-    val insert_num      = Output(Vec(4, UInt(3.W)))
+    val insert_num          = Output(Vec(4, UInt(3.W)))
 
-    val prj_ready       = Output(Vec(4, Vec(4, Bool())))
+    val prj_ready           = Output(Vec(4, Bool()))
 
-    val prk_ready       = Output(Vec(4, Vec(4, Bool())))
+    val prk_ready           = Output(Vec(4, Bool()))
     
 }
 
@@ -86,20 +87,19 @@ class Dispatch extends RawModule{
     // alloc insts to issue queue, pressed
     val index_now = Wire(Vec(5, Vec(4, UInt(2.W))))
     index_now := 0.U.asTypeOf(Vec(5, Vec(4, UInt(2.W))))
-    io.insts_dispatch := 0.U.asTypeOf(Vec(4, Vec(4, new inst_pack_t)))
-    io.prj_ready := 0.U.asTypeOf(Vec(4, Vec(4, Bool())))
-    io.prk_ready := 0.U.asTypeOf(Vec(4, Vec(4, Bool())))
+    io.insts_disp_index := 0.U.asTypeOf(Vec(4, Vec(4, UInt(2.W))))
+    io.insts_disp_valid := 0.U.asTypeOf(Vec(4, Vec(4, Bool())))
+    io.prj_ready := prj_ready
+    io.prk_ready := prk_ready
 
     for(i <- 0 until 4){
         for(j <- 0 until 4){
             when(queue_id_hit(i)(j)){
-                io.insts_dispatch(j)(index_now(i)(j)) := io.inst_packs(i)
-                io.prj_ready(j)(index_now(i)(j)) := prj_ready(i)
-                io.prk_ready(j)(index_now(i)(j)) := prk_ready(i)
-                
+                io.insts_disp_index(j)(index_now(i)(j)) := i.U(2.W)
             }
             index_now(i+1)(j) := index_now(i)(j) + queue_id_hit(i)(j)
         }
+        io.insts_disp_valid(i) :=  ((1.U(4.W) << io.insert_num(i))(3, 0) - 1.U).asBools
     }
 }
 // object Dispatch extends App{

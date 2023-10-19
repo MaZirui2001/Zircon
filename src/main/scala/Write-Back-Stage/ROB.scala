@@ -66,7 +66,7 @@ class ROB(n: Int) extends Module{
     import ROB_Pack._
     val rob = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
     val head = RegInit(VecInit(Seq.fill(4)(0.U(log2Ceil(neach).W))))
-    val tail = RegInit(0.U(log2Ceil(neach).W))
+    val tail = RegInit(VecInit(Seq.fill(4)(0.U(log2Ceil(neach).W))))
     val elem_num = RegInit(0.U((log2Ceil(n)+1).W))
     val head_sel = RegInit(0.U(2.W))
 
@@ -79,24 +79,24 @@ class ROB(n: Int) extends Module{
     when(!full){
         for(i <- 0 until 4){
             when(io.inst_valid_rn(i)){
-                rob(i)(tail).rd := io.rd_rn(i)
-                rob(i)(tail).rd_valid := io.rd_valid_rn(i)
-                rob(i)(tail).prd := io.prd_rn(i)
-                rob(i)(tail).pprd := io.pprd_rn(i)
-                rob(i)(tail).pc := io.pc_rn(i)
-                rob(i)(tail).is_store := io.is_store_rn(i)
-                rob(i)(tail).pred_update_en := io.pred_update_en_rn(i)
-                rob(i)(tail).rf_wdata := 0.U
-                rob(i)(tail).real_jump := false.B
-                rob(i)(tail).predict_fail := false.B
-                rob(i)(tail).branch_target := 0.U
-                rob(i)(tail).complete := false.B
+                rob(i)(tail(i)).rd := io.rd_rn(i)
+                rob(i)(tail(i)).rd_valid := io.rd_valid_rn(i)
+                rob(i)(tail(i)).prd := io.prd_rn(i)
+                rob(i)(tail(i)).pprd := io.pprd_rn(i)
+                rob(i)(tail(i)).pc := io.pc_rn(i)
+                rob(i)(tail(i)).is_store := io.is_store_rn(i)
+                rob(i)(tail(i)).pred_update_en := io.pred_update_en_rn(i)
+                rob(i)(tail(i)).rf_wdata := 0.U
+                rob(i)(tail(i)).real_jump := false.B
+                rob(i)(tail(i)).predict_fail := false.B
+                rob(i)(tail(i)).branch_target := 0.U
+                rob(i)(tail(i)).complete := false.B
             }
         }
     }
 
     for(i <- 0 until 4){
-        io.rob_index_rn(i) := tail ## i.U(2.W)
+        io.rob_index_rn(i) := tail(i) ## i.U(2.W)
     }
 
     // wb stage
@@ -145,10 +145,13 @@ class ROB(n: Int) extends Module{
     }
 
     head_sel := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
+    val head_next = Wire(Vec(4, UInt(log2Ceil(neach).W)))
     for(i <- 0 until 4){
         head(head_sel+i.U) := Mux(io.predict_fail_cmt, 0.U, head(head_sel+i.U) + io.cmt_en(i))
     }
-    tail := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, tail + io.inst_valid_rn.asUInt.orR, tail))
+    for(i <- 0 until 4){
+        tail(i) := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, tail(i) + io.inst_valid_rn(i), tail(i)))
+    }
     elem_num := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num + insert_num - PopCount(io.cmt_en), elem_num - PopCount(io.cmt_en)))
 
     // import ROB_Pack._

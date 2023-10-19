@@ -24,29 +24,31 @@ object Issue_Queue_Pack{
 import Issue_Queue_Pack._
 class Unorder_Issue_Queue_IO(n: Int) extends Bundle{
     // input from dispatch
-    val insts_dispatch  = Input(Vec(4, new inst_pack_t))
-    val insert_num      = Input(UInt(3.W))
-    val prj_ready       = Input(Vec(4, Bool()))
-    val prk_ready       = Input(Vec(4, Bool()))
-    val queue_ready     = Output(Bool())
+    val insts_disp_index = Input(Vec(4, UInt(2.W)))
+    val insts_disp_valid = Input(Vec(4, Bool()))
+    val insts_dispatch   = Input(Vec(4, new inst_pack_t))
+    val insert_num       = Input(UInt(3.W))
+    val prj_ready        = Input(Vec(4, Bool()))
+    val prk_ready        = Input(Vec(4, Bool()))
+    val queue_ready      = Output(Bool())
 
     // input from wakeup
-    val wake_preg       = Input(Vec(4, UInt(6.W)))
+    val wake_preg        = Input(Vec(4, UInt(6.W)))
 
     // input for issue ack
-    val issue_ack       = Input(Vec(n, Bool()))
+    val issue_ack        = Input(Vec(n, Bool()))
 
     // output for issue
-    val insts_issue     = Output(Vec(n, new issue_queue_t))
-    val issue_req       = Output(Vec(n, Bool()))
+    val insts_issue      = Output(Vec(n, new issue_queue_t))
+    val issue_req        = Output(Vec(n, Bool()))
 
     // output for dispatch
-    val prd_queue       = Output(Vec(n+1, UInt(6.W)))
-    val elem_num        = Output(UInt((log2Ceil(n)+1).W))
-    val full            = Output(Bool())
-
-    val stall           = Input(Bool())
-    val flush           = Input(Bool())
+    val prd_queue        = Output(Vec(n+1, UInt(6.W)))
+    val elem_num         = Output(UInt((log2Ceil(n)+1).W))
+    val full             = Output(Bool())
+ 
+    val stall            = Input(Bool())
+    val flush            = Input(Bool())
 }
 
 class Unorder_Issue_Queue(n: Int) extends Module{
@@ -86,9 +88,9 @@ class Unorder_Issue_Queue(n: Int) extends Module{
     io.prd_queue(n) := Mux(queue(OHToUInt(io.issue_ack)).inst.rd_valid, queue(OHToUInt(io.issue_ack)).inst.prd, 0.U)
 
     for(i <- 0 until n){
-        queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, insts_dispatch(i.asUInt - tail_pop))
-        queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(i.asUInt - tail_pop))
-        queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(i.asUInt - tail_pop))
+        queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, Mux(io.insts_disp_valid(i.U - tail_pop), io.insts_dispatch(io.insts_disp_index(i.U - tail_pop)), 0.U.asTypeOf(new inst_pack_t)))
+        queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(io.insts_disp_index(i.U - tail_pop)))
+        queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(io.insts_disp_index(i.U - tail_pop)))
     }
     tail := Mux(io.flush, 0.U, Mux(io.stall, tail_pop, tail_pop + Mux(io.queue_ready, insert_num, 0.U)))
 

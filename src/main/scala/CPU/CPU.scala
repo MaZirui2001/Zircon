@@ -229,10 +229,12 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // issue stage
     // 1. arith1, common calculate
-    iq1.io.insts_dispatch       := dp.io.insts_dispatch(0)
+    iq1.io.insts_dispatch       := rn_dp_reg.io.insts_pack_DP
+    iq1.io.insts_disp_index     := dp.io.insts_disp_index(0)
+    iq1.io.insts_disp_valid     := dp.io.insts_disp_valid(0)
     iq1.io.insert_num           := dp.io.insert_num(0)
-    iq1.io.prj_ready            := dp.io.prj_ready(0)
-    iq1.io.prk_ready            := dp.io.prk_ready(0)
+    iq1.io.prj_ready            := dp.io.prj_ready
+    iq1.io.prk_ready            := dp.io.prk_ready
     iq1.io.issue_ack            := sel1.io.issue_ack
     iq1.io.flush                := rob.io.predict_fail_cmt
     iq1.io.stall                := stall_by_iq
@@ -242,10 +244,12 @@ class CPU(RESET_VEC: Int) extends Module {
     sel1.io.stall               := !(iq1.io.issue_req.asUInt.orR)
 
     // 2. arith2, calculate and branch 
-    iq2.io.insts_dispatch       := dp.io.insts_dispatch(1)
+    iq2.io.insts_dispatch       := rn_dp_reg.io.insts_pack_DP
+    iq2.io.insts_disp_index     := dp.io.insts_disp_index(1)
+    iq2.io.insts_disp_valid     := dp.io.insts_disp_valid(1)
     iq2.io.insert_num           := dp.io.insert_num(1)
-    iq2.io.prj_ready            := dp.io.prj_ready(1)
-    iq2.io.prk_ready            := dp.io.prk_ready(1)
+    iq2.io.prj_ready            := dp.io.prj_ready
+    iq2.io.prk_ready            := dp.io.prk_ready
     iq2.io.issue_ack            := sel2.io.issue_ack
     iq2.io.flush                := rob.io.predict_fail_cmt
     iq2.io.stall                := stall_by_iq
@@ -255,10 +259,12 @@ class CPU(RESET_VEC: Int) extends Module {
     sel2.io.stall               := !(iq2.io.issue_req.asUInt.orR)
 
     // 3. load, load and store
-    iq3.io.insts_dispatch       := dp.io.insts_dispatch(2)
+    iq3.io.insts_dispatch       := rn_dp_reg.io.insts_pack_DP
+    iq3.io.insts_disp_index     := dp.io.insts_disp_index(2)
+    iq3.io.insts_disp_valid     := dp.io.insts_disp_valid(2)
     iq3.io.insert_num           := dp.io.insert_num(2)
-    iq3.io.prj_ready            := dp.io.prj_ready(2)
-    iq3.io.prk_ready            := dp.io.prk_ready(2)
+    iq3.io.prj_ready            := dp.io.prj_ready
+    iq3.io.prk_ready            := dp.io.prk_ready
     iq3.io.issue_ack            := sel3.io.issue_ack
     iq3.io.flush                := rob.io.predict_fail_cmt
     iq3.io.stall                := stall_by_iq
@@ -268,10 +274,12 @@ class CPU(RESET_VEC: Int) extends Module {
     sel3.io.stall               := !(iq3.io.issue_req) || sb.io.full
 
     // 4. multiply, multiply and divide
-    iq4.io.insts_dispatch       := dp.io.insts_dispatch(3)
+    iq4.io.insts_dispatch       := rn_dp_reg.io.insts_pack_DP
+    iq4.io.insts_disp_index     := dp.io.insts_disp_index(3)
+    iq4.io.insts_disp_valid     := dp.io.insts_disp_valid(3)
     iq4.io.insert_num           := dp.io.insert_num(3)
-    iq4.io.prj_ready            := dp.io.prj_ready(3)
-    iq4.io.prk_ready            := dp.io.prk_ready(3)
+    iq4.io.prj_ready            := dp.io.prj_ready
+    iq4.io.prk_ready            := dp.io.prk_ready
     iq4.io.issue_ack            := sel4.io.issue_ack
     iq4.io.flush                := rob.io.predict_fail_cmt
     iq4.io.stall                := stall_by_iq
