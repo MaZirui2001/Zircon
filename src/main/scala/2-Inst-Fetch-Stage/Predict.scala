@@ -52,7 +52,7 @@ class Predict extends Module{
 
     val pht_rindex = Wire(Vec(4, UInt(8.W)))
     for(i <- 0 until 4){
-        pht_rindex(i) := (bht_rdata(i) ^ pc(11, 8)) ## bht_rindex
+        pht_rindex(i) := (bht_rdata(i) ^ pc(9, 6)) ## pc(5, 4)
     }
     val pht_rdata = Wire(Vec(4, UInt(2.W)))
     for (i <- 0 until 4){
@@ -112,7 +112,7 @@ class Predict extends Module{
     }
 
     // pht
-    val pht_windex = (bht(io.pc_cmt(3, 2))(bht_windex) ^ io.pc_cmt(11, 8)) ## io.pc_cmt(7, 4)
+    val pht_windex = (bht(io.pc_cmt(3, 2))(bht_windex) ^ io.pc_cmt(9, 6)) ## io.pc_cmt(5, 4)
 
     when(update_en){
         pht(io.pc_cmt(3, 2))(pht_windex) := Mux(io.real_jump, 

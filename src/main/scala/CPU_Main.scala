@@ -14,6 +14,7 @@ object CPU_Main extends App {
                             // "--lowering-options=noAlwaysComb, exprInEventControl, disallowPackedArrays, disallowLocalVariables, verifLabels, explicitBitcast, emitReplicatedOpsToHeader, locationInfoStyle=wrapInAtSquareBracket, disallowPortDeclSharing, printDebugInfo, disallowExpressionInliningInPorts, disallowMuxInlining, emitBindComments, omitVersionComment, caseInsensitiveKeywords",
                             "-o=verilog/",
                             "-split-verilog",
+                            "--vb-to-bv" 
                             //"--preserve-aggregate=vec"
                             )
     )
