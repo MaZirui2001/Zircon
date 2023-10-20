@@ -88,9 +88,9 @@ class Unorder_Issue_Queue(n: Int) extends Module{
     io.prd_queue(n) := Mux(queue(OHToUInt(io.issue_ack)).inst.rd_valid, queue(OHToUInt(io.issue_ack)).inst.prd, 0.U)
 
     for(i <- 0 until n){
-        queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, Mux(io.insts_disp_valid(i.U - tail_pop), io.insts_dispatch(io.insts_disp_index(i.U - tail_pop)), 0.U.asTypeOf(new inst_pack_DP_t)))
-        queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(io.insts_disp_index(i.U - tail_pop)))
-        queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(io.insts_disp_index(i.U - tail_pop)))
+        queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))), 0.U.asTypeOf(new inst_pack_DP_t)))
+        queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))))
+        queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))))
     }
     tail := Mux(io.flush, 0.U, Mux(io.stall, tail_pop, tail_pop + Mux(io.queue_ready, insert_num, 0.U)))
 

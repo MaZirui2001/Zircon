@@ -50,7 +50,7 @@ class Predict extends Module{
         bht_rdata(i) := bht(i)(bht_rindex)
     }
 
-    val pht_rindex = Wire(Vec(4, UInt(8.W)))
+    val pht_rindex = Wire(Vec(4, UInt(6.W)))
     for(i <- 0 until 4){
         pht_rindex(i) := (bht_rdata(i) ^ pc(9, 6)) ## pc(5, 4)
     }
