@@ -38,10 +38,7 @@ object Dispatch_Func{
 
 }
 class Dispatch_IO(n: Int) extends Bundle{
-    val inst_packs          = Input(Vec(4, new inst_pack_t))
-    val prj_raw             = Input(Vec(4, Bool()))
-    val prk_raw             = Input(Vec(4, Bool()))
-    val insts_valid         = Input(Vec(4, Bool()))
+    val inst_packs          = Input(Vec(4, new inst_pack_RN_t))
 
     // index of rd in the issue queue
     val prd_queue           = Input(Vec(4, Vec(n+2, UInt(6.W))))
@@ -71,7 +68,7 @@ class Dispatch extends RawModule{
     }
     for(i <- 0 until 4){
         for(j <- 0 until 4){
-            queue_id_hit(i)(j) := queue_sel(i) === j.U && io.insts_valid(i)
+            queue_id_hit(i)(j) := queue_sel(i) === j.U && io.inst_packs(i).inst_valid
             queue_id_hit_trav(i)(j) := queue_id_hit(j)(i)
         }
         io.insert_num(i) := Mux(queue_id_hit_trav(i).asUInt.orR, PopCount(queue_id_hit_trav(i)), 0.U)
@@ -80,8 +77,8 @@ class Dispatch extends RawModule{
     val prk_ready = Wire(Vec(4, Bool()))
     import Dispatch_Func._
     for(i <- 0 until 4){
-        prj_ready(i) := !io.inst_packs(i).rj_valid || io.inst_packs(i).prj === 0.U || (!io.prj_raw(i) && Ready_Generate(io.inst_packs(i).prj, io.prd_queue, queue_sel(i)))
-        prk_ready(i) := !io.inst_packs(i).rk_valid || io.inst_packs(i).prk === 0.U || (!io.prk_raw(i) && Ready_Generate(io.inst_packs(i).prk, io.prd_queue, queue_sel(i)))
+        prj_ready(i) := !io.inst_packs(i).rj_valid || io.inst_packs(i).prj === 0.U || (!io.inst_packs(i).prj_raw && Ready_Generate(io.inst_packs(i).prj, io.prd_queue, queue_sel(i)))
+        prk_ready(i) := !io.inst_packs(i).rk_valid || io.inst_packs(i).prk === 0.U || (!io.inst_packs(i).prk_raw && Ready_Generate(io.inst_packs(i).prk, io.prd_queue, queue_sel(i)))
     }
     
     // alloc insts to issue queue, pressed

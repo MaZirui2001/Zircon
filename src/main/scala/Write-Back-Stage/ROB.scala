@@ -145,7 +145,6 @@ class ROB(n: Int) extends Module{
     }
 
     head_sel := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
-    val head_next = Wire(Vec(4, UInt(log2Ceil(neach).W)))
     for(i <- 0 until 4){
         head(head_sel+i.U) := Mux(io.predict_fail_cmt, 0.U, head(head_sel+i.U) + io.cmt_en(i))
     }

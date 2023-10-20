@@ -1,5 +1,6 @@
 import chisel3._
 import chisel3.util._
+import Inst_Pack._
 // LUT: 1886 FF: 1042
 
 object Fetch{
@@ -11,16 +12,12 @@ object Fetch{
 }
 
 class Fetch_Queue_IO extends Bundle{
-    val insts               = Input(Vec(4, UInt(32.W)))
-    val insts_valid         = Input(Vec(4, Bool()))
-    val pred_jump           = Input(Vec(4, Bool()))
-    val pcs_FQ              = Input(Vec(4, UInt(32.W)))
+    val insts_pack          = Input(Vec(4, new inst_pack_IF_t))
 
     val next_ready          = Input(Bool())
-    val insts_decode        = Output(Vec(4, UInt(32.W)))
-    val pcs_ID              = Output(Vec(4, UInt(32.W)))
     val insts_valid_decode  = Output(Vec(4, Bool()))
-    val pred_jump_decode    = Output(Vec(4, Bool()))
+    val insts_pack_id       = Output(Vec(4, new inst_pack_IF_t))
+    
 
     val inst_queue_ready    = Output(Bool())
     val flush               = Input(Bool())
@@ -29,7 +26,7 @@ class Fetch_Queue_IO extends Bundle{
 class Fetch_Queue extends Module{
     val io = IO(new Fetch_Queue_IO)
     import Fetch._
-    val queue = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(4)(0.U.asTypeOf(new fetch_t))))))
+    val queue = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_IF_t))))))
 
     val head = RegInit(VecInit(Seq.fill(4)(0.U(2.W))))
     val tail = RegInit(VecInit(Seq.fill(4)(0.U(2.W))))
@@ -45,10 +42,8 @@ class Fetch_Queue extends Module{
     for(i <- 0 until 4){
         when(io.flush){
             tail(i) := 0.U
-        }.elsewhen(io.insts_valid(i) && !full){
-            queue(i.U+tail_sel)(tail(i.U+tail_sel)).inst := io.insts(i)
-            queue(i.U+tail_sel)(tail(i.U+tail_sel)).pc := io.pcs_FQ(i)
-            queue(i.U+tail_sel)(tail(i.U+tail_sel)).pred_jump := io.pred_jump(i)
+        }.elsewhen(io.insts_pack(i).inst_valid && !full){
+            queue(i.U+tail_sel)(tail(i.U+tail_sel)) := io.insts_pack(i)
             tail(i.U+tail_sel) := tail(i.U+tail_sel) + 1.U
         }
         
@@ -58,13 +53,11 @@ class Fetch_Queue extends Module{
             head(i) := head(i) + 1.U
         }
     }
-    tail_sel := Mux(io.flush, 0.U, Mux(full, tail_sel, tail_sel + PopCount(io.insts_valid)))
+    tail_sel := Mux(io.flush, 0.U, Mux(full, tail_sel, tail_sel + PopCount(io.insts_pack.map(_.inst_valid))))
 
     for(i <- 0 until 4){
-        io.insts_decode(i) := queue(i)(head(i)).inst
+        io.insts_pack_id(i) := queue(i)(head(i))
         io.insts_valid_decode(i) := !empty
-        io.pcs_ID(i) := queue(i)(head(i)).pc
-        io.pred_jump_decode(i) := queue(i)(head(i)).pred_jump
     }
 }
 // object Fetch_Queue extends App{

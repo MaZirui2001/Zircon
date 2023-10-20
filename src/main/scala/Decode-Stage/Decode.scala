@@ -1,31 +1,7 @@
 import chisel3._
 import chisel3.util._
 // LUT: 112
-object Inst_Pack{
-    class inst_pack_t extends Bundle{
-        val rj              = UInt(5.W)
-        val rj_valid        = Bool()
-        val prj             = UInt(6.W)
-        val rk              = UInt(5.W)
-        val rk_valid        = Bool()
-        val prk             = UInt(6.W)
-        val rd              = UInt(5.W)
-        val rd_valid        = Bool()
-        val prd             = UInt(6.W)
-        val pprd            = UInt(6.W)
-        val imm             = UInt(32.W)
-        val alu_op          = UInt(5.W)
-        val alu_rs1_sel     = UInt(2.W)
-        val alu_rs2_sel     = UInt(2.W)
-        val br_type         = UInt(4.W)
-        val mem_type        = UInt(5.W)
-        val fu_id           = UInt(2.W)
-        val pc              = UInt(32.W)
-        val rob_index       = UInt(5.W)
-        val predict_jump    = Bool()
-        val inst_exist      = Bool()
-    }   
-}
+
 object Control_Signal{
     val Y = true.B
     val N = false.B

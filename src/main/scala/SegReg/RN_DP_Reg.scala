@@ -8,40 +8,22 @@ class RN_DP_Reg extends Module {
     val io = IO(new Bundle {
         val flush           = Input(Bool())
         val stall           = Input(Bool())
-        val insts_pack_RN   = Input(Vec(4, new inst_pack_t))
-        val insts_valid_RN  = Input(Vec(4, Bool()))
-        val prj_raw_RN      = Input(Vec(4, Bool()))
-        val prk_raw_RN      = Input(Vec(4, Bool()))
+        val insts_pack_RN   = Input(Vec(4, new inst_pack_RN_t))
 
-        val insts_pack_DP   = Output(Vec(4, new inst_pack_t))
-        val insts_valid_DP  = Output(Vec(4, Bool()))
-        val prj_raw_DP      = Output(Vec(4, Bool()))
-        val prk_raw_DP      = Output(Vec(4, Bool()))
+        val insts_pack_DP   = Output(Vec(4, new inst_pack_RN_t))
 
     })
 
-    val insts_pack_reg = RegInit(VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_t))))
-    val insts_valid_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
-    val prj_raw_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
-    val prk_raw_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
+    val insts_pack_reg = RegInit(VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_RN_t))))
 
     when(io.flush) {
-        insts_pack_reg := VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_t)))
-        insts_valid_reg := VecInit(Seq.fill(4)(false.B))
-        prj_raw_reg := VecInit(Seq.fill(4)(false.B))
-        prk_raw_reg := VecInit(Seq.fill(4)(false.B))
+        insts_pack_reg := VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_RN_t)))
     }
     .elsewhen(!io.stall){
         insts_pack_reg := io.insts_pack_RN
-        insts_valid_reg := io.insts_valid_RN
-        prj_raw_reg := io.prj_raw_RN
-        prk_raw_reg := io.prk_raw_RN
     }
 
     io.insts_pack_DP := insts_pack_reg
-    io.insts_valid_DP := insts_valid_reg
-    io.prj_raw_DP := prj_raw_reg
-    io.prk_raw_DP := prk_raw_reg
 
 
 }

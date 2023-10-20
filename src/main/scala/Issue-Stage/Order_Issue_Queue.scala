@@ -8,7 +8,7 @@ class Order_Issue_Queue_IO(n: Int) extends Bundle{
     // input from dispatch
     val insts_disp_index = Input(Vec(4, UInt(2.W)))
     val insts_disp_valid = Input(Vec(4, Bool()))
-    val insts_dispatch   = Input(Vec(4, new inst_pack_t))
+    val insts_dispatch   = Input(Vec(4, new inst_pack_DP_t))
     val insert_num       = Input(UInt(3.W))
     val prj_ready        = Input(Vec(4, Bool()))
     val prk_ready        = Input(Vec(4, Bool()))
@@ -65,7 +65,7 @@ class Order_Issue_Queue(n: Int) extends Module {
     tail_pop := tail - io.issue_ack
 
     for(i <- 0 until n){
-        queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, Mux(io.insts_disp_valid(i.U - tail_pop), io.insts_dispatch(io.insts_disp_index(i.U - tail_pop)), 0.U.asTypeOf(new inst_pack_t)))
+        queue(i).inst := Mux(i.asUInt < tail_pop, queue_next(i).inst, Mux(io.insts_disp_valid(i.U - tail_pop), io.insts_dispatch(io.insts_disp_index(i.U - tail_pop)), 0.U.asTypeOf(new inst_pack_DP_t)))
         queue(i).prj_waked := Mux(i.asUInt < tail_pop, queue_next(i).prj_waked, io.prj_ready(io.insts_disp_index(i.U - tail_pop)))
         queue(i).prk_waked := Mux(i.asUInt < tail_pop, queue_next(i).prk_waked, io.prk_ready(io.insts_disp_index(i.U - tail_pop)))
     }

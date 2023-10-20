@@ -1,43 +1,26 @@
 import chisel3._
 import chisel3.util._
+import Inst_Pack._
 // LUT: 14 FF: 260
 class IF_FQ_Reg extends Module {
     val io = IO(new Bundle {
         val flush           = Input(Bool())
         val stall           = Input(Bool())
-        val pcs_IF          = Input(Vec(4, UInt(32.W)))
-        val insts_valid_IF  = Input(Vec(4, Bool()))
-        val pred_jump_IF    = Input(Vec(4, Bool()))
-        val insts_IF        = Input(Vec(4, UInt(32.W)))
+        val insts_pack_IF   = Input(Vec(4, new inst_pack_IF_t))
 
-        val pcs_FQ          = Output(Vec(4, UInt(32.W)))
-        val insts_valid_FQ  = Output(Vec(4, Bool()))
-        val pred_jump_FQ    = Output(Vec(4, Bool()))
-        val insts_FQ        = Output(Vec(4, UInt(32.W)))
+        val insts_pack_ID   = Output(Vec(4, new inst_pack_IF_t))
     })
 
-    val pcs_reg = RegInit(VecInit(Seq.fill(4)(0x0.U(32.W))))
-    val insts_valid_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
-    val insts_reg = RegInit(VecInit(Seq.fill(4)(0.U(32.W))))
-    val pred_jump_reg = RegInit(VecInit(Seq.fill(4)(false.B)))
+
+    val insts_pack_reg = RegInit(VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_IF_t))))
 
     when(io.flush) {
-        pcs_reg := VecInit(Seq.fill(4)(0x0.U(32.W)))
-        insts_valid_reg := VecInit(Seq.fill(4)(false.B))
-        insts_reg := VecInit(Seq.fill(4)(0.U(32.W)))
-        pred_jump_reg := VecInit(Seq.fill(4)(false.B))
+        insts_pack_reg := VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_IF_t)))
     }
     .elsewhen(!io.stall){
-        pcs_reg := io.pcs_IF
-        insts_valid_reg := io.insts_valid_IF
-        insts_reg := io.insts_IF
-        pred_jump_reg := io.pred_jump_IF
+        insts_pack_reg := io.insts_pack_IF
     }
-
-    io.pcs_FQ := pcs_reg
-    io.insts_valid_FQ := insts_valid_reg
-    io.insts_FQ := insts_reg
-    io.pred_jump_FQ := pred_jump_reg
+    io.insts_pack_ID := insts_pack_reg
 }
 
 // object IF_FQ_Reg extends App {
