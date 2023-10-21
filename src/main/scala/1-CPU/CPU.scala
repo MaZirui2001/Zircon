@@ -361,15 +361,15 @@ class CPU(RESET_VEC: Int) extends Module {
     fu3_bypass.io.rd_valid_wb   := fu3_ex_wb_reg.io.inst_pack_WB.rd_valid
 
     // store_buf
-    sb.io.flush         := rob.io.predict_fail_cmt
-    sb.io.is_store_ex   := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(4) === 0.U && ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type =/= NO_MEM
-    sb.io.addr_ex       := ls_ex1_ex2_reg.io.mem_addr_EX2
-    sb.io.st_data_ex    := ls_ex1_ex2_reg.io.mem_wdata_EX2
-    sb.io.st_wlen_ex    := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(2, 0)
-    sb.io.is_store_cmt  := rob.io.is_store_cmt.asUInt.orR
+    sb.io.flush             := rob.io.predict_fail_cmt
+    sb.io.is_store_ex       := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(4) === 0.U && ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type =/= NO_MEM
+    sb.io.addr_ex           := ls_ex1_ex2_reg.io.mem_addr_EX2
+    sb.io.st_data_ex        := ls_ex1_ex2_reg.io.mem_wdata_EX2
+    sb.io.st_wlen_ex        := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(2, 0)
+    sb.io.is_store_num_cmt  := rob.io.is_store_num_cmt
 
     io.mem_raddr_ex      := ls_ex1_ex2_reg.io.mem_addr_EX2
-    io.mem_rlen_ex        := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(2, 0)
+    io.mem_rlen_ex       := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(2, 0)
     io.mem_is_load_ex    := ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type(4) === 1.U && ls_ex1_ex2_reg.io.inst_pack_EX2.mem_type =/= NO_MEM
     io.mem_waddr_cmt     := sb.io.st_addr_cmt
     io.mem_wdata_cmt     := sb.io.st_data_cmt

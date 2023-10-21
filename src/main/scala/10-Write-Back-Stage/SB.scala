@@ -6,7 +6,6 @@ object SB_Pack {
         val addr = UInt(32.W)
         val data = UInt(32.W)
         val wlen = UInt(3.W)
-        val valid = Bool()
     }
 }
 
@@ -19,16 +18,17 @@ class SB_IO extends Bundle {
     val full            = Output(Bool())
 
     // for commit in wb stage
-    val is_store_cmt    = Input(Bool())
-    val st_addr_cmt     = Output(UInt(32.W))
-    val st_data_cmt     = Output(UInt(32.W))
-    val st_wlen_cmt     = Output(UInt(3.W))
-    val flush           = Input(Bool())
+    val is_store_num_cmt = Input(UInt(2.W))
+    val is_store_cmt     = Output(Bool())
+    val st_addr_cmt      = Output(UInt(32.W))
+    val st_data_cmt      = Output(UInt(32.W))
+    val st_wlen_cmt      = Output(UInt(3.W))
+    val flush            = Input(Bool())
 
     // for read in ex stage
     // val ld_addr_ex = Input(UInt(32.W))
-    val ld_data_ex      = Output(UInt(32.W))
-    val ld_hit          = Output(Bool())
+    val ld_data_ex       = Output(UInt(32.W))
+    val ld_hit           = Output(Bool())
 }
 
 class SB(n: Int) extends Module {
@@ -36,12 +36,23 @@ class SB(n: Int) extends Module {
     import SB_Pack._
     val sb = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new sb_t))))
 
-    val head = RegInit(0.U(log2Ceil(n).W))
-    val tail = RegInit(0.U(log2Ceil(n).W))
+    val head = RegInit(0.U((log2Ceil(n)+1).W))
+    val tail = RegInit(0.U((log2Ceil(n)+1).W))
     val elem_num = RegInit(0.U((log2Ceil(n)+1).W))
 
+    val flush_buf = RegInit(false.B)
+    val full = elem_num === n.U || flush_buf
+    val wait_to_cmt = RegInit(0.U(2.W))
 
-    val full = elem_num === n.U
+    val has_store_cmt = io.is_store_num_cmt =/= 0.U
+
+    when(has_store_cmt){
+        wait_to_cmt := wait_to_cmt + io.is_store_num_cmt - 1.U
+    }.elsewhen(io.is_store_cmt){
+        wait_to_cmt := wait_to_cmt - 1.U
+    }
+    io.is_store_cmt := wait_to_cmt.orR || has_store_cmt
+    flush_buf := Mux(io.flush && (io.is_store_num_cmt > 1.U || wait_to_cmt.orR), true.B, Mux(wait_to_cmt =/= 0.U, flush_buf, false.B))
     io.full := full
     val empty = elem_num === 0.U
 
@@ -50,41 +61,31 @@ class SB(n: Int) extends Module {
     val st_addr_ex  = io.addr_ex
     val st_data_ex  = io.st_data_ex
     val st_addr_ex_valid = is_store_ex && !full
-    when(io.flush){
-        for(i <- 0 until n){
-            sb(i).valid := false.B
-        }
-    }.elsewhen(st_addr_ex_valid && !io.flush){
-        sb(tail).addr := st_addr_ex
-        sb(tail).data := st_data_ex
-        sb(tail).wlen := io.st_wlen_ex
-        sb(tail).valid := true.B
+    when(!io.flush && st_addr_ex_valid){
+        sb(tail(1, 0)).addr := st_addr_ex
+        sb(tail(1, 0)).data := st_data_ex
+        sb(tail(1, 0)).wlen := io.st_wlen_ex
     }
-    // for commit 
-    val is_store_and_cmt = io.is_store_cmt
 
-    head := Mux(io.flush, 0.U, head + is_store_and_cmt)
-    elem_num := Mux(io.flush, 0.U, elem_num - is_store_and_cmt + st_addr_ex_valid)
-    tail := Mux(io.flush, 0.U, tail + st_addr_ex_valid)
 
-    when(is_store_and_cmt){
-        sb(head).valid := false.B
-    }
-    io.st_addr_cmt := sb(head).addr
-    io.st_data_cmt := sb(head).data
-    io.st_wlen_cmt := sb(head).wlen
+    head := Mux((io.flush || flush_buf) && !wait_to_cmt.orR, 0.U, head + (wait_to_cmt.orR || has_store_cmt))
+    elem_num := Mux((io.flush || flush_buf) && !wait_to_cmt.orR, 0.U, elem_num - io.is_store_cmt + Mux(full, 0.U, st_addr_ex_valid))
+    tail := Mux(io.flush, 0.U, tail + Mux(full, 0.U, st_addr_ex_valid))
+
+    io.st_addr_cmt := sb(head(1,0)).addr
+    io.st_data_cmt := sb(head(1,0)).data
+    io.st_wlen_cmt := sb(head(1,0)).wlen
 
     // read from ex
     val ld_addr_ex = io.addr_ex
     val ld_hit = Wire(Vec(n, Bool()))
     for(i <- 0 until n){
-        ld_hit(i) := sb(tail-i.U).valid && sb(tail-i.U).addr <= ld_addr_ex && ld_addr_ex < sb(tail-i.U).addr + (1.U(32.W) << sb(tail-i.U).wlen)
+        ld_hit(i) := (sb(tail(1, 0)-i.U).addr <= ld_addr_ex && ld_addr_ex < sb(tail(1, 0)-i.U).addr + (1.U(32.W) << sb(tail(1, 0)-i.U).wlen) 
+                        && Mux(head(2) ^ tail(2), tail(1, 0)-i.U >= head(1, 0) || tail(1, 0)-i.U < tail(1, 0), tail(1, 0)-i.U >= head(1, 0) && tail(1, 0)-i.U < tail(1, 0)))
     }
 
     io.ld_hit := ld_hit.exists(_ === true.B)
     val ld_hit_index = PriorityEncoderOH(ld_hit)
-    io.ld_data_ex := Mux1H(
-        ld_hit_index,
-        VecInit.tabulate(n)(i => sb(tail-i.U).data)
-    )
+    val rdata = VecInit.tabulate(n)(i => sb(tail(1,0)-i.U).data)
+    io.ld_data_ex := rdata(OHToUInt(ld_hit_index))
 }
