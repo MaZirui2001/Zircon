@@ -15,14 +15,14 @@ object RF_Func{
 }
 class Physical_Regfile_IO extends Bundle{
     // 8 read ports
-    val prj       = Input(Vec(4, UInt(6.W)))
-    val prk       = Input(Vec(4, UInt(6.W)))
+    val prj       = Input(Vec(4, UInt(7.W)))
+    val prk       = Input(Vec(4, UInt(7.W)))
 
     val prj_data  = Output(Vec(4, UInt(32.W)))
     val prk_data  = Output(Vec(4, UInt(32.W)))
 
     // 4 write ports
-    val prd       = Input(Vec(4, UInt(6.W)))
+    val prd       = Input(Vec(4, UInt(7.W)))
     val wdata     = Input(Vec(4, UInt(32.W)))
     val rf_we     = Input(Vec(4, Bool()))
 }
@@ -30,9 +30,9 @@ class Physical_Regfile_IO extends Bundle{
 class Physical_Regfile extends Module{
     val io = IO(new Physical_Regfile_IO)
 
-    val rf = Reg(Vec(64, UInt(32.W)))
+    val rf = Reg(Vec(96, UInt(32.W)))
     when(reset.asBool){
-        for(i <- 0 until 64){
+        for(i <- 0 until 96){
             rf(i) := 0.U
         }
     }

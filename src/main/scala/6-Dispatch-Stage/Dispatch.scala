@@ -41,7 +41,7 @@ class Dispatch_IO(n: Int) extends Bundle{
     val inst_packs          = Input(Vec(4, new inst_pack_RN_t))
 
     // index of rd in the issue queue
-    val prd_queue           = Input(Vec(4, Vec(n+2, UInt(6.W))))
+    val prd_queue           = Input(Vec(4, Vec(n+2, UInt(7.W))))
     val elem_num            = Input(Vec(2, UInt((log2Ceil(n)+1).W)))
 
     // output for each issue queue

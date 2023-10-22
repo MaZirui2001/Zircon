@@ -112,10 +112,10 @@ object Inst_Pack{
         inst_pack_ID
     }
     class inst_pack_RN_t extends inst_pack_ID_t{
-        val prj             = UInt(6.W)
-        val prk             = UInt(6.W)
-        val prd             = UInt(6.W)
-        val pprd            = UInt(6.W)
+        val prj             = UInt(7.W)
+        val prk             = UInt(7.W)
+        val prd             = UInt(7.W)
+        val pprd            = UInt(7.W)
         val rob_index       = UInt(5.W)
         val prj_raw         = Bool()
         val prk_raw         = Bool()
@@ -152,14 +152,14 @@ object Inst_Pack{
     class inst_pack_DP_t extends Bundle{
         val rj              = UInt(5.W)
         val rj_valid        = Bool()
-        val prj             = UInt(6.W)
+        val prj             = UInt(7.W)
         val rk              = UInt(5.W)
         val rk_valid        = Bool()
-        val prk             = UInt(6.W)
+        val prk             = UInt(7.W)
         val rd              = UInt(5.W)
         val rd_valid        = Bool()
-        val prd             = UInt(6.W)
-        val pprd            = UInt(6.W)
+        val prd             = UInt(7.W)
+        val pprd            = UInt(7.W)
         val imm             = UInt(32.W)
         val alu_op          = UInt(5.W)
         val alu_rs1_sel     = UInt(2.W)

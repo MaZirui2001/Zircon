@@ -22,28 +22,28 @@ class CPU_IO extends Bundle{
 
     val commit_en1          = Output(Bool())
     val commit_rd1          = Output(UInt(5.W))
-    val commit_prd1         = Output(UInt(6.W))
+    val commit_prd1         = Output(UInt(7.W))
     val commit_rd_valid1    = Output(Bool())
     val commit_rf_wdata1    = Output(UInt(32.W))
     val commit_pc_1         = Output(UInt(32.W))
     val commit_is_ucread1   = Output(Bool())
     val commit_en2          = Output(Bool())
     val commit_rd2          = Output(UInt(5.W))
-    val commit_prd2         = Output(UInt(6.W))
+    val commit_prd2         = Output(UInt(7.W))
     val commit_rd_valid2    = Output(Bool())
     val commit_rf_wdata2    = Output(UInt(32.W))
     val commit_pc_2         = Output(UInt(32.W))
     val commit_is_ucread2   = Output(Bool())
     val commit_en3          = Output(Bool())
     val commit_rd3          = Output(UInt(5.W))
-    val commit_prd3         = Output(UInt(6.W))
+    val commit_prd3         = Output(UInt(7.W))
     val commit_rd_valid3    = Output(Bool())
     val commit_rf_wdata3    = Output(UInt(32.W))
     val commit_pc_3         = Output(UInt(32.W))
     val commit_is_ucread3   = Output(Bool())
     val commit_en4          = Output(Bool())
     val commit_rd4          = Output(UInt(5.W))
-    val commit_prd4         = Output(UInt(6.W))
+    val commit_prd4         = Output(UInt(7.W))
     val commit_rd_valid4    = Output(Bool())
     val commit_rf_wdata4    = Output(UInt(32.W))
     val commit_pc_4         = Output(UInt(32.W))
@@ -176,10 +176,10 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // DP stage
     dp.io.inst_packs            := rn_dp_reg.io.insts_pack_DP
-    dp.io.prd_queue             := VecInit( VecInit(iq1.io.prd_queue :+ 0.U(6.W)), 
-                                            VecInit(iq2.io.prd_queue :+ 0.U(6.W)), 
+    dp.io.prd_queue             := VecInit( VecInit(iq1.io.prd_queue :+ 0.U(7.W)), 
+                                            VecInit(iq2.io.prd_queue :+ 0.U(7.W)), 
                                             VecInit(iq3.io.prd_queue :+ Mux(rf_ex_reg3.io.inst_pack_RF.rd_valid, rf_ex_reg3.io.inst_pack_RF.prd, 0.U)), 
-                                            VecInit(iq4.io.prd_queue :+ 0.U(6.W)))
+                                            VecInit(iq4.io.prd_queue :+ 0.U(7.W)))
     dp.io.elem_num              := VecInit(iq1.io.elem_num, iq2.io.elem_num)
 
     // issue stage

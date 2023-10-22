@@ -9,20 +9,20 @@ class Reg_rename_IO extends Bundle{
     val rd_valid            = Input(Vec(4, Bool()))
     val rename_en           = Input(Vec(4, Bool()))
 
-    val prj                 = Output(Vec(4, UInt(6.W)))
-    val prk                 = Output(Vec(4, UInt(6.W)))
-    val prd                 = Output(Vec(4, UInt(6.W)))
-    val pprd                = Output(Vec(4, UInt(6.W)))
+    val prj                 = Output(Vec(4, UInt(7.W)))
+    val prk                 = Output(Vec(4, UInt(7.W)))
+    val prd                 = Output(Vec(4, UInt(7.W)))
+    val pprd                = Output(Vec(4, UInt(7.W)))
     val prj_raw             = Output(Vec(4, Bool()))
     val prk_raw             = Output(Vec(4, Bool()))
 
     val commit_en           = Input(Vec(4, Bool()))
     val commit_pprd_valid   = Input(Vec(4, Bool()))
-    val commit_pprd         = Input(Vec(4, UInt(6.W)))
+    val commit_pprd         = Input(Vec(4, UInt(7.W)))
 
     val predict_fail        = Input(Bool())
-    val arch_rat            = Input(Vec(64, UInt(1.W)))
-    val head_arch           = Input(Vec(4, UInt(4.W)))
+    val arch_rat            = Input(Vec(96, UInt(1.W)))
+    val head_arch           = Input(Vec(4, UInt(5.W)))
 
     val free_list_empty     = Output(Bool())
 }
@@ -32,16 +32,16 @@ class Reg_Rename extends Module{
     val crat = Module(new CRat)
     val free_list = Module(new Free_List)
     
-    val prj_temp = Wire(Vec(4, UInt(6.W)))
-    val prk_temp = Wire(Vec(4, UInt(6.W)))
-    val pprd_temp = Wire(Vec(4, UInt(6.W)))
+    val prj_temp = Wire(Vec(4, UInt(7.W)))
+    val prk_temp = Wire(Vec(4, UInt(7.W)))
+    val pprd_temp = Wire(Vec(4, UInt(7.W)))
     val rd_valid_temp = Wire(Vec(4, Bool()))
 
     prj_temp := crat.io.prj
     prk_temp := crat.io.prk
     pprd_temp := crat.io.pprd
 
-    val alloc_preg = Wire(Vec(4, UInt(6.W)))
+    val alloc_preg = Wire(Vec(4, UInt(7.W)))
     alloc_preg := free_list.io.alloc_preg
     io.prd := alloc_preg
 

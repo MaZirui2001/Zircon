@@ -11,7 +11,7 @@ class Order_Select_IO(n: Int) extends Bundle {
     val stall               = Input(Bool())
 
     val issue_ack           = Output(Bool())
-    val wake_preg           = Output(UInt(6.W))
+    val wake_preg           = Output(UInt(7.W))
 
     val inst_issue          = Output(new issue_queue_t)
     val inst_issue_valid    = Output(Bool())

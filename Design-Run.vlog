@@ -5,3 +5,4 @@
 2023-10-21 17:55 LUT: 40234 FF: 13711 BRAM: 4 DSP: 8  update store buffer
 2023-10-21 19:11 LUT: 40124 FF: 13690 BRAM: 4 DSP: 8  fix empty bugs in rob and store buffer
 2023-10-22 21:31 LUT: 40129 FF: 13676 BRAM: 4 DSP: 8  update commit logic by delete branch update restrict
+2023-10-22 23:59 LUT: 47854 FF: 15572 BRAM: 4 DSP: 8  add 32 physical register

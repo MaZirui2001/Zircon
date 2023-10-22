@@ -33,7 +33,7 @@ class Unorder_Issue_Queue_IO(n: Int) extends Bundle{
     val queue_ready      = Output(Bool())
 
     // input from wakeup
-    val wake_preg        = Input(Vec(4, UInt(6.W)))
+    val wake_preg        = Input(Vec(4, UInt(7.W)))
 
     // input for issue ack
     val issue_ack        = Input(Vec(n, Bool()))
@@ -43,7 +43,7 @@ class Unorder_Issue_Queue_IO(n: Int) extends Bundle{
     val issue_req        = Output(Vec(n, Bool()))
 
     // output for dispatch
-    val prd_queue        = Output(Vec(n+1, UInt(6.W)))
+    val prd_queue        = Output(Vec(n+1, UInt(7.W)))
     val elem_num         = Output(UInt((log2Ceil(n)+1).W))
     val full             = Output(Bool())
  
@@ -80,7 +80,7 @@ class Unorder_Issue_Queue(n: Int) extends Module{
     val next_mask = ~(io.issue_ack.asUInt - 1.U)
     tail_pop := tail - io.issue_ack.exists(_ === true.B)
 
-    io.prd_queue := 0.U.asTypeOf(Vec(n+1, UInt(6.W)))
+    io.prd_queue := 0.U.asTypeOf(Vec(n+1, UInt(7.W)))
     for(i <- 0 until n){
         queue_next(i) := Mux(i.asUInt < tail_pop, Mux(next_mask(i), queue_temp(i+1), queue_temp(i)), 0.U.asTypeOf(new issue_queue_t))
         io.prd_queue(i) := Mux(queue_next(i).inst.rd_valid, queue_next(i).inst.prd, 0.U)

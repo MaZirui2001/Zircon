@@ -24,25 +24,25 @@ class Arch_Rat_IO extends Bundle {
     // for commit 
     val cmt_en          = Input(Vec(4, Bool()))
     val rd_cmt          = Input(Vec(4, UInt(5.W)))
-    val prd_cmt         = Input(Vec(4, UInt(6.W)))
-    val pprd_cmt        = Input(Vec(4, UInt(6.W)))
+    val prd_cmt         = Input(Vec(4, UInt(7.W)))
+    val pprd_cmt        = Input(Vec(4, UInt(7.W)))
     val rd_valid_cmt    = Input(Vec(4, Bool()))
     val predict_fail    = Input(Bool())
 
     // for reg rename
-    val arch_rat        = Output(Vec(64, UInt(1.W)))
-    val head_arch       = Output(Vec(4, UInt(4.W)))
+    val arch_rat        = Output(Vec(96, UInt(1.W)))
+    val head_arch       = Output(Vec(4, UInt(5.W)))
 }
 
 class Arch_Rat extends Module {
     val io = IO(new Arch_Rat_IO)
 
-    val arat = RegInit(VecInit(Seq.fill(64)(0.U.asTypeOf(new rat_t))))
-    val arat_next = Wire(Vec(64, new rat_t))
+    val arat = RegInit(VecInit(Seq.fill(96)(0.U.asTypeOf(new rat_t))))
+    val arat_next = Wire(Vec(96, new rat_t))
 
 
-    val head = RegInit(VecInit(1.U(4.W), 1.U(4.W), 1.U(4.W), 1.U(4.W)))
-    val head_next = Wire(Vec(4, UInt(4.W)))
+    val head = RegInit(VecInit(1.U(5.W), 1.U(5.W), 1.U(5.W), 1.U(5.W)))
+    val head_next = Wire(Vec(4, UInt(5.W)))
     val head_sel = RegInit(0.U(2.W))
 
     arat_next := arat
@@ -58,12 +58,12 @@ class Arch_Rat extends Module {
     val cmt_en = io.cmt_en.asUInt.orR
     head_next := head
     for(i <- 0 until 4){
-        head_next(head_sel+i.U) := head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i))
+        head_next(head_sel+i.U) := Mux(head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)) >= 24.U, 0.U, head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)))
     }
     head := head_next
     head_sel := Mux(io.predict_fail, 0.U, head_sel + PopCount(io.cmt_en))
 
-    for(i <- 0 until 64){
+    for(i <- 0 until 96){
         io.arch_rat(i) := arat_next(i).valid
     }
     for(i <- 0 until 4){

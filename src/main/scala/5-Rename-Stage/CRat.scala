@@ -14,13 +14,13 @@ class CRat_IO extends Bundle{
 
     val rd           = Input(Vec(4, UInt(5.W)))
     val rd_valid     = Input(Vec(4, Bool()))
-    val alloc_preg   = Input(Vec(4, UInt(6.W)))
+    val alloc_preg   = Input(Vec(4, UInt(7.W)))
 
-    val prj          = Output(Vec(4, UInt(6.W)))
-    val prk          = Output(Vec(4, UInt(6.W)))
-    val pprd         = Output(Vec(4, UInt(6.W)))
+    val prj          = Output(Vec(4, UInt(7.W)))
+    val prk          = Output(Vec(4, UInt(7.W)))
+    val pprd         = Output(Vec(4, UInt(7.W)))
 
-    val arch_rat     = Input(Vec(64, UInt(1.W)))
+    val arch_rat     = Input(Vec(96, UInt(1.W)))
     val predict_fail = Input(Bool())
 
     val stall = Input(Bool())
@@ -28,11 +28,11 @@ class CRat_IO extends Bundle{
 class CRat extends Module{
     val io = IO(new CRat_IO)
     import RAT._
-    val crat = RegInit(VecInit(Seq.fill(64)(0.U.asTypeOf(new rat_t))))
+    val crat = RegInit(VecInit(Seq.fill(96)(0.U.asTypeOf(new rat_t))))
 
     // write
     when(io.predict_fail){
-        for(i <- 0 until 64){
+        for(i <- 0 until 96){
             crat(i).valid := io.arch_rat(i)
         }
     }.otherwise{
@@ -48,11 +48,11 @@ class CRat extends Module{
         }
     }
     // read for rj, rk, rd
-    val rj_hit_oh = Wire(Vec(4, Vec(64, Bool())))
-    val rk_hit_oh = Wire(Vec(4, Vec(64, Bool())))
-    val rd_hit_oh = Wire(Vec(4, Vec(64, Bool())))
+    val rj_hit_oh = Wire(Vec(4, Vec(96, Bool())))
+    val rk_hit_oh = Wire(Vec(4, Vec(96, Bool())))
+    val rd_hit_oh = Wire(Vec(4, Vec(96, Bool())))
     for(i <- 0 until 4){
-        for(j <- 0 until 64){
+        for(j <- 0 until 96){
             rj_hit_oh(i)(j) := crat(j).valid && (crat(j).lr === io.rj(i))
             rk_hit_oh(i)(j) := crat(j).valid && (crat(j).lr === io.rk(i))
             rd_hit_oh(i)(j) := crat(j).valid && (crat(j).lr === io.rd(i))
