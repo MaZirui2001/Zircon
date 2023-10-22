@@ -16,9 +16,9 @@ class Free_List extends Module{
         val head_arch           = Input(Vec(4, UInt(5.W)))
     })
 
-    val free_list = Reg(Vec(4, Vec(24, UInt(7.W))))
+    val free_list = Reg(Vec(4, Vec(20, UInt(7.W))))
     when(reset.asBool) {
-        for(j <- 0 until 24){
+        for(j <- 0 until 20){
             for(i <- 0 until 4){
                 free_list(i)(j) := (j * 4 + i).asUInt
             }
@@ -34,10 +34,10 @@ class Free_List extends Module{
         when(io.predict_fail){
             head(i) := io.head_arch(i)
         }.elsewhen(!io.empty && io.rename_en(i)){
-            head(i) := Mux(head(i) + io.rd_valid(i) >= 24.U, 0.U, head(i) + io.rd_valid(i))
+            head(i) := Mux(head(i) + io.rd_valid(i) >= 20.U, 0.U, head(i) + io.rd_valid(i))
         }
         when(io.commit_en(i)){
-            tail(tail_sel+i.U) := Mux(tail(tail_sel+i.U) + io.commit_pprd_valid(i) >= 24.U, 0.U, tail(tail_sel+i.U) + io.commit_pprd_valid(i))
+            tail(tail_sel+i.U) := Mux(tail(tail_sel+i.U) + io.commit_pprd_valid(i) >= 20.U, 0.U, tail(tail_sel+i.U) + io.commit_pprd_valid(i))
             when(io.commit_pprd_valid(i)){
                 free_list(tail_sel+i.U)(tail(tail_sel+i.U)) := io.commit_pprd(i)
             }

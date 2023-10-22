@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../emulator"
+		},
+		{
+			"path": "../simulator"
+		
+		},
+		{
+			"path": "../software"
+		}
+	],
+	"settings": {
+		"files.watcherExclude": {
+			"**/target": true
+		}
+	}
+}

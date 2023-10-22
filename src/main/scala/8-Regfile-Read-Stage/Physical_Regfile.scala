@@ -30,9 +30,9 @@ class Physical_Regfile_IO extends Bundle{
 class Physical_Regfile extends Module{
     val io = IO(new Physical_Regfile_IO)
 
-    val rf = Reg(Vec(96, UInt(32.W)))
+    val rf = Reg(Vec(80, UInt(32.W)))
     when(reset.asBool){
-        for(i <- 0 until 96){
+        for(i <- 0 until 80){
             rf(i) := 0.U
         }
     }
