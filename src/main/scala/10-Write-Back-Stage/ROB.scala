@@ -17,6 +17,7 @@ object ROB_Pack{
         val pc = UInt(32.W)
         val rf_wdata = UInt(32.W)
         val is_store = Bool()
+        val is_ucread = Bool()
     }
     
 }
@@ -37,6 +38,7 @@ class ROB_IO(n: Int) extends Bundle{
     // for wb stage 
     val inst_valid_wb           = Input(Vec(4, Bool()))
     val rob_index_wb            = Input(Vec(4, UInt(log2Ceil(n).W)))
+    val is_ucread_wb            = Input(Vec(4, Bool()))
     val predict_fail_wb         = Input(Vec(4, Bool()))
     val real_jump_wb            = Input(Vec(4, Bool()))
     val branch_target_wb        = Input(Vec(4, UInt(32.W)))
@@ -44,6 +46,7 @@ class ROB_IO(n: Int) extends Bundle{
 
     // for cpu state: arch rat
     val cmt_en                  = Output(Vec(4, Bool()))
+    val is_ucread_cmt           = Output(Vec(4, Bool()))
     val rd_cmt                  = Output(Vec(4, UInt(5.W)))
     val prd_cmt                 = Output(Vec(4, UInt(6.W)))
     val rd_valid_cmt            = Output(Vec(4, Bool()))
@@ -70,9 +73,8 @@ class ROB(n: Int) extends Module{
     val elem_num    = RegInit(VecInit(Seq.fill(4)(0.U((log2Ceil(neach)+1).W))))
     val head_sel    = RegInit(0.U(2.W))
 
-    val empty       = elem_num(0) === 0.U || elem_num(1) === 0.U || elem_num(2) === 0.U || elem_num(3) === 0.U
-    val full        = elem_num(0) === neach.U || elem_num(1) === neach.U || elem_num(2) === neach.U || elem_num(3) === neach.U
-
+    val empty       = VecInit(elem_num.map(_ === 0.U)).asUInt.orR
+    val full        = VecInit(elem_num.map(_ === neach.U)).asUInt.orR
     // rn stage
 
     when(!full){
@@ -90,6 +92,7 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail(i)).predict_fail := false.B
                 rob(i)(tail(i)).branch_target := 0.U
                 rob(i)(tail(i)).complete := false.B
+                rob(i)(tail(i)).is_ucread := false.B
             }
         }
     }
@@ -106,6 +109,7 @@ class ROB(n: Int) extends Module{
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).branch_target := io.branch_target_wb(i)
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).rf_wdata := io.rf_wdata_wb(i)
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).real_jump := io.real_jump_wb(i)
+            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).is_ucread := io.is_ucread_wb(i)
         }
     }
     
@@ -142,6 +146,7 @@ class ROB(n: Int) extends Module{
         io.pc_cmt(i)        := Mux(rob(head_sel+i.U)(head(head_sel+i.U)).real_jump, rob(head_sel+i.U)(head(head_sel+i.U)).branch_target, rob(head_sel+i.U)(head(head_sel+i.U)).pc+4.U)
         io.rf_wdata_cmt(i)  := rob(head_sel+i.U)(head(head_sel+i.U)).rf_wdata
         is_store_cmt_bit(i) := rob(head_sel+i.U)(head(head_sel+i.U)).is_store && io.cmt_en(i)
+        io.is_ucread_cmt(i) := rob(head_sel+i.U)(head(head_sel+i.U)).is_ucread
     }
     io.is_store_num_cmt := PopCount(is_store_cmt_bit.asUInt)
 

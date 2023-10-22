@@ -26,26 +26,37 @@ class CPU_IO extends Bundle{
     val commit_rd_valid1    = Output(Bool())
     val commit_rf_wdata1    = Output(UInt(32.W))
     val commit_pc_1         = Output(UInt(32.W))
+    val commit_is_ucread1   = Output(Bool())
     val commit_en2          = Output(Bool())
     val commit_rd2          = Output(UInt(5.W))
     val commit_prd2         = Output(UInt(6.W))
     val commit_rd_valid2    = Output(Bool())
     val commit_rf_wdata2    = Output(UInt(32.W))
     val commit_pc_2         = Output(UInt(32.W))
+    val commit_is_ucread2   = Output(Bool())
     val commit_en3          = Output(Bool())
     val commit_rd3          = Output(UInt(5.W))
     val commit_prd3         = Output(UInt(6.W))
     val commit_rd_valid3    = Output(Bool())
     val commit_rf_wdata3    = Output(UInt(32.W))
     val commit_pc_3         = Output(UInt(32.W))
+    val commit_is_ucread3   = Output(Bool())
     val commit_en4          = Output(Bool())
     val commit_rd4          = Output(UInt(5.W))
     val commit_prd4         = Output(UInt(6.W))
     val commit_rd_valid4    = Output(Bool())
     val commit_rf_wdata4    = Output(UInt(32.W))
     val commit_pc_4         = Output(UInt(32.W))
+    val commit_is_ucread4   = Output(Bool())
 
     val commit_predict_fail = Output(Bool())
+    val commit_stall_by_fetch_queue = Output(Bool())
+    val commit_stall_by_rename = Output(Bool())
+    val commit_stall_by_rob = Output(Bool())
+    val commit_stall_by_iq1 = Output(Bool())
+    val commit_stall_by_iq2 = Output(Bool())
+    val commit_stall_by_iq3 = Output(Bool())
+    val commit_stall_by_iq4 = Output(Bool())
 
 }
 class CPU(RESET_VEC: Int) extends Module {
@@ -145,7 +156,6 @@ class CPU(RESET_VEC: Int) extends Module {
     id_rn_reg.io.insts_pack_ID  := VecInit(Seq.tabulate(4)(i => inst_pack_ID_gen(inst_queue.io.insts_pack_id(i), inst_queue.io.insts_valid_decode(i), inst_decode(i).rj, inst_decode(i).rj_valid, inst_decode(i).rk, inst_decode(i).rk_valid, 
                                                                             inst_decode(i).rd, inst_decode(i).rd_valid, inst_decode(i).imm, inst_decode(i).alu_op, inst_decode(i).alu_rs1_sel, inst_decode(i).alu_rs2_sel, 
                                                                             inst_decode(i).br_type, inst_decode(i).mem_type, inst_decode(i).fu_id, inst_decode(i).inst_exist)))
-
     // Reg Rename
     reg_rename.io.rj                := id_rn_reg.io.insts_pack_RN.map(_.rj)
     reg_rename.io.rk                := id_rn_reg.io.insts_pack_RN.map(_.rk)
@@ -388,6 +398,7 @@ class CPU(RESET_VEC: Int) extends Module {
         MEM_LDHU -> Cat(Fill(16, 0.U), mem_rdata(15, 0)),
         MEM_LDW -> mem_rdata(31, 0)
     ))
+    fu3_ex_wb_reg.io.is_ucread_EX2  := ls_ex1_ex2_reg.io.mem_addr_EX2(31, 28) === 0xa.U
 
     // 4. multiply-divide fu
     mdu.io.md_op    := rf_ex_reg4.io.inst_pack_EX.alu_op
@@ -428,6 +439,8 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.real_jump_wb         := VecInit(false.B, fu2_ex_wb_reg.io.real_jump_WB, false.B, false.B)
     rob.io.branch_target_wb     := VecInit(0.U, fu2_ex_wb_reg.io.branch_target_WB, 0.U, 0.U)
     rob.io.rf_wdata_wb          := VecInit(fu1_ex_wb_reg.io.alu_out_WB, fu2_ex_wb_reg.io.alu_out_WB, fu3_ex_wb_reg.io.mem_rdata_WB, fu4_ex_wb_reg.io.md_out_WB)
+    rob.io.is_ucread_wb         := VecInit(false.B, false.B, fu3_ex_wb_reg.io.is_ucread_WB, false.B)
+    
     // Commit stage
     arat.io.cmt_en          := rob.io.cmt_en
     arat.io.rd_cmt          := rob.io.rd_cmt
@@ -442,6 +455,7 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rd_valid1     := rob.io.rd_valid_cmt(0)
     io.commit_rf_wdata1     := rob.io.rf_wdata_cmt(0)
     io.commit_pc_1          := rob.io.pc_cmt(0)
+    io.commit_is_ucread1    := rob.io.is_ucread_cmt(0)
 
     io.commit_en2           := rob.io.cmt_en(1)
     io.commit_rd2           := rob.io.rd_cmt(1)
@@ -449,6 +463,7 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rd_valid2     := rob.io.rd_valid_cmt(1)
     io.commit_rf_wdata2     := rob.io.rf_wdata_cmt(1)
     io.commit_pc_2          := rob.io.pc_cmt(1)
+    io.commit_is_ucread2    := rob.io.is_ucread_cmt(1)
 
     io.commit_en3           := rob.io.cmt_en(2)
     io.commit_rd3           := rob.io.rd_cmt(2)
@@ -456,6 +471,7 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rd_valid3     := rob.io.rd_valid_cmt(2)
     io.commit_rf_wdata3     := rob.io.rf_wdata_cmt(2)
     io.commit_pc_3          := rob.io.pc_cmt(2)
+    io.commit_is_ucread3    := rob.io.is_ucread_cmt(2)
 
     io.commit_en4           := rob.io.cmt_en(3)
     io.commit_rd4           := rob.io.rd_cmt(3)
@@ -463,7 +479,17 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rd_valid4     := rob.io.rd_valid_cmt(3)
     io.commit_rf_wdata4     := rob.io.rf_wdata_cmt(3)
     io.commit_pc_4          := rob.io.pc_cmt(3)
+    io.commit_is_ucread4    := rob.io.is_ucread_cmt(3)
 
     io.commit_predict_fail := rob.io.predict_fail_cmt
+    io.commit_stall_by_fetch_queue := !inst_queue.io.inst_queue_ready
+    io.commit_stall_by_rename := reg_rename.io.free_list_empty
+    io.commit_stall_by_rob := rob.io.full
+    io.commit_stall_by_iq1 := iq1.io.full
+    io.commit_stall_by_iq2 := iq2.io.full
+    io.commit_stall_by_iq3 := iq3.io.full
+    io.commit_stall_by_iq4 := iq4.io.full
+
+
 }
 

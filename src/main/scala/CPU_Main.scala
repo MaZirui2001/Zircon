@@ -10,8 +10,8 @@ object CPU_Main extends App {
                             "-strip-fir-debug-info",
                             "-O=release",
                             "--ignore-read-enable-mem",
-                            // "--lower-memories",
-                            // "--lowering-options=noAlwaysComb, exprInEventControl, disallowPackedArrays, disallowLocalVariables, verifLabels, explicitBitcast, emitReplicatedOpsToHeader, locationInfoStyle=wrapInAtSquareBracket, disallowPortDeclSharing, printDebugInfo, disallowExpressionInliningInPorts, disallowMuxInlining, emitBindComments, omitVersionComment, caseInsensitiveKeywords",
+                            "--lower-memories",
+                            "--lowering-options=noAlwaysComb, exprInEventControl, disallowPackedArrays, disallowLocalVariables, verifLabels, explicitBitcast, emitReplicatedOpsToHeader, locationInfoStyle=wrapInAtSquareBracket, disallowPortDeclSharing, printDebugInfo, disallowExpressionInliningInPorts, disallowMuxInlining, emitBindComments, omitVersionComment, caseInsensitiveKeywords",
                             "-o=verilog/",
                             "-split-verilog",
                             //"--preserve-aggregate=vec"
