@@ -1,0 +1,7 @@
+
+2023-10-20 23:33 LUT: 41299 FF: 13634 BRAM: 4 DSP: 8 
+2023-10-21 00:40 LUT: 41413 FF: 13634 BRAM: 4 DSP: 8  update chisel to 6.0.0-M3
+2023-10-21 12:28 LUT: 42509 FF: 13626 BRAM: 4 DSP: 8  change scala inheritance, but abort
+2023-10-21 17:55 LUT: 40234 FF: 13711 BRAM: 4 DSP: 8  update store buffer
+2023-10-21 19:11 LUT: 40124 FF: 13690 BRAM: 4 DSP: 8  fix empty bugs in rob and store buffer
+2023-10-22 21:31 LUT: 40129 FF: 13676 BRAM: 4 DSP: 8  update commit logic by delete branch update restrict
