@@ -73,7 +73,7 @@ class ROB(n: Int) extends Module{
     val elem_num    = RegInit(VecInit(Seq.fill(4)(0.U((log2Ceil(neach)+1).W))))
     val head_sel    = RegInit(0.U(2.W))
 
-    val empty       = VecInit(elem_num.map(_ === 0.U)).asUInt.orR
+    val empty       = VecInit(elem_num.map(_ === 0.U))
     val full        = VecInit(elem_num.map(_ === neach.U)).asUInt.orR
     // rn stage
 
@@ -114,10 +114,10 @@ class ROB(n: Int) extends Module{
     }
     
     // cmt stage
-    io.cmt_en(0) := rob(head_sel)(head(head_sel)).complete && !empty
+    io.cmt_en(0) := rob(head_sel)(head(head_sel)).complete && !empty(head_sel)
     for(i <- 1 until 4){
         io.cmt_en(i) := (io.cmt_en(i-1) && rob(head_sel+i.U)(head(head_sel+i.U)).complete && !rob(head_sel+(i-1).U)(head(head_sel+(i-1).U)).predict_fail  
-                         && !rob(head_sel+(i-1).U)(head(head_sel+(i-1).U)).pred_update_en)
+                         && !empty(head_sel+i.U))
     }
     io.full := full
     val predict_fail_bit = VecInit(Seq.fill(4)(false.B))
