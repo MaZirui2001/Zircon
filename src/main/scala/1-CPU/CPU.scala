@@ -57,6 +57,7 @@ class CPU_IO extends Bundle{
     val commit_stall_by_iq2 = Output(Bool())
     val commit_stall_by_iq3 = Output(Bool())
     val commit_stall_by_iq4 = Output(Bool())
+    val commit_stall_by_sb  = Output(Bool())
 
 }
 class CPU(RESET_VEC: Int) extends Module {
@@ -485,6 +486,7 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_stall_by_iq2 := iq2.io.full
     io.commit_stall_by_iq3 := iq3.io.full
     io.commit_stall_by_iq4 := iq4.io.full
+    io.commit_stall_by_sb  := sb.io.full
 
 
 }

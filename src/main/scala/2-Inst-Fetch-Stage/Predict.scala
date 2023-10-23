@@ -80,7 +80,6 @@ class Predict extends Module{
         btb_tagv(i).enb := true.B
         btb_rdata(i).valid := btb_tagv(i).doutb(BTB_TAG_WIDTH)
         btb_rdata(i).tag := btb_tagv(i).doutb(BTB_TAG_WIDTH-1, 0)
-
     }
     for(i <- 0 until 4){
         btb_targ(i).addra := btb_windex

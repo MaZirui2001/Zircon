@@ -26,10 +26,10 @@ class Fetch_Queue_IO extends Bundle{
 class Fetch_Queue extends Module{
     val io = IO(new Fetch_Queue_IO)
     import Fetch._
-    val queue = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_IF_t))))))
+    val queue = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(8)(0.U.asTypeOf(new inst_pack_IF_t))))))
 
-    val head = RegInit(VecInit(Seq.fill(4)(0.U(2.W))))
-    val tail = RegInit(VecInit(Seq.fill(4)(0.U(2.W))))
+    val head = RegInit(VecInit(Seq.fill(4)(0.U(3.W))))
+    val tail = RegInit(VecInit(Seq.fill(4)(0.U(3.W))))
     val tail_sel = RegInit(0.U(2.W))
 
     val full = Wire(Bool())
