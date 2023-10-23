@@ -147,7 +147,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val pcs_IF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
     if_pd_reg.io.flush          := rob.io.predict_fail_cmt || (!pd_fq_reg.io.stall && pd.io.pred_fix)
     if_pd_reg.io.stall          := !inst_queue.io.inst_queue_ready 
-    if_pd_reg.io.insts_pack_IF  := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pcs_IF(i), inst_IF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc)))
+    if_pd_reg.io.insts_pack_IF  := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pcs_IF(i), inst_IF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i))))
 
     // PD stage
     pd.io.insts_pack_IF         := if_pd_reg.io.insts_pack_PD
@@ -155,7 +155,7 @@ class CPU(RESET_VEC: Int) extends Module {
     // PD-FQ SegReg
     pd_fq_reg.io.flush          := rob.io.predict_fail_cmt
     pd_fq_reg.io.stall          := !inst_queue.io.inst_queue_ready
-    pd_fq_reg.io.insts_pack_PD  := pd.io.insts_pack_PD
+    pd_fq_reg.io.insts_pack_PD  := VecInit(Seq.tabulate(4)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i))))
 
     // Fetch_Queue stage && FQ-ID SegReg
     inst_queue.io.insts_pack    := pd_fq_reg.io.insts_pack_FQ

@@ -65,17 +65,35 @@ object Inst_Pack{
         val inst_valid      = Bool()
         val predict_jump    = Bool()
         val pred_npc        = UInt(32.W)
+        val pred_valid      = Bool()
     }
-    def inst_pack_IF_gen(_pc: UInt, _inst : UInt, _inst_valid : Bool, _predict_jump : Bool, _pred_npc: UInt) : inst_pack_IF_t = {
+    def inst_pack_IF_gen(_pc: UInt, _inst : UInt, _inst_valid : Bool, _predict_jump : Bool, _pred_npc: UInt, _pred_valid: Bool) : inst_pack_IF_t = {
         val inst_pack_IF = Wire(new inst_pack_IF_t)
         inst_pack_IF.pc             := _pc
         inst_pack_IF.inst           := _inst
         inst_pack_IF.inst_valid     := _inst_valid
         inst_pack_IF.predict_jump   := _predict_jump
         inst_pack_IF.pred_npc       := _pred_npc
+        inst_pack_IF.pred_valid     := _pred_valid
         inst_pack_IF
     }
-    class inst_pack_ID_t extends inst_pack_IF_t{
+    class inst_pack_PD_t extends Bundle{
+        val pc              = UInt(32.W)
+        val inst            = UInt(32.W)
+        val inst_valid      = Bool()
+        val predict_jump    = Bool()
+        val pred_npc        = UInt(32.W)
+    }
+    def inst_pack_PD_gen(_inst_pack_IF : inst_pack_IF_t) : inst_pack_PD_t = {
+        val inst_pack_PD = Wire(new inst_pack_PD_t)
+        inst_pack_PD.pc             := _inst_pack_IF.pc
+        inst_pack_PD.inst           := _inst_pack_IF.inst
+        inst_pack_PD.inst_valid     := _inst_pack_IF.inst_valid
+        inst_pack_PD.predict_jump   := _inst_pack_IF.predict_jump
+        inst_pack_PD.pred_npc       := _inst_pack_IF.pred_npc
+        inst_pack_PD
+    }
+    class inst_pack_ID_t extends inst_pack_PD_t{
         val rj              = UInt(5.W)
         val rj_valid        = Bool()
         val rk              = UInt(5.W)
@@ -91,13 +109,13 @@ object Inst_Pack{
         val fu_id           = UInt(2.W)
         val inst_exist      = Bool()
     }
-    def inst_pack_ID_gen (inst_pack_IF : inst_pack_IF_t, _inst_valid: Bool, _rj : UInt, _rj_valid : Bool, _rk : UInt, _rk_valid : Bool, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _inst_exist : Bool) : inst_pack_ID_t = {
+    def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rj_valid : Bool, _rk : UInt, _rk_valid : Bool, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _inst_exist : Bool) : inst_pack_ID_t = {
         val inst_pack_ID = Wire(new inst_pack_ID_t)
-        inst_pack_ID.pc             := inst_pack_IF.pc
-        inst_pack_ID.inst           := inst_pack_IF.inst
+        inst_pack_ID.pc             := inst_pack_PD.pc
+        inst_pack_ID.inst           := inst_pack_PD.inst
         inst_pack_ID.inst_valid     := _inst_valid
-        inst_pack_ID.predict_jump   := inst_pack_IF.predict_jump
-        inst_pack_ID.pred_npc       := inst_pack_IF.pred_npc
+        inst_pack_ID.predict_jump   := inst_pack_PD.predict_jump
+        inst_pack_ID.pred_npc       := inst_pack_PD.pred_npc
         inst_pack_ID.rj             := _rj
         inst_pack_ID.rj_valid       := _rj_valid
         inst_pack_ID.rk             := _rk

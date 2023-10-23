@@ -26,6 +26,7 @@ class Predict_IO extends Bundle{
     val pc = Input(UInt(32.W))
     val predict_jump = Output(Vec(4, Bool()))
     val pred_npc = Output(UInt(32.W))
+    val pred_valid = Output(Vec(4, Bool()))
 
     // update
     val pc_cmt = Input(UInt(32.W))
@@ -66,17 +67,20 @@ class Predict extends Module{
     val pht_rdata       = VecInit(Seq.tabulate(4)(i => pht(i)(pht_rindex(i))))
 
     val predict_jump    = VecInit(Seq.tabulate(4)(i => pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
-
+    val predict_valid   = VecInit(Seq.tabulate(4)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
 
     val pred_valid      = ~((1.U(4.W) << pc(3, 2)) - 1.U)(3, 0)
 
     val pred_hit        = pred_valid & predict_jump.asUInt 
-    val pred_hit_oh     = PriorityEncoderOH(pred_hit)
+    val pred_valid_hit  = pred_valid & predict_valid.asUInt 
+    val pred_hit_oh     = Mux(pred_hit.orR, PriorityEncoderOH(pred_hit), 0.U)
+    // val predict_valid_oh = Mux(pred_valid_hit.orR, PriorityEncoderOH(pred_valid_hit), 0.U)
     val pred_hit_index  = PriorityEncoder(pred_hit)
 
     io.predict_jump     := (pred_hit_oh >> pc(3, 2)).asBools
-    //io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
-    io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
+    io.pred_valid       := (pred_valid_hit >> pc(3, 2)).asBools
+    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
+    //io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
     // update
     val update_en       = io.update_en
     // btb

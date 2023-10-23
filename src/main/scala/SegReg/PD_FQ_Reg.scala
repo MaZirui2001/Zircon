@@ -6,16 +6,16 @@ class PD_FQ_Reg extends Module {
     val io = IO(new Bundle {
         val flush           = Input(Bool())
         val stall           = Input(Bool())
-        val insts_pack_PD   = Input(Vec(4, new inst_pack_IF_t))
+        val insts_pack_PD   = Input(Vec(4, new inst_pack_PD_t))
 
-        val insts_pack_FQ   = Output(Vec(4, new inst_pack_IF_t))
+        val insts_pack_FQ   = Output(Vec(4, new inst_pack_PD_t))
     })
 
 
-    val insts_pack_reg = RegInit(VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_IF_t))))
+    val insts_pack_reg = RegInit(VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_PD_t))))
 
     when(io.flush) {
-        insts_pack_reg := VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_IF_t)))
+        insts_pack_reg := VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_PD_t)))
     }
     .elsewhen(!io.stall){
         insts_pack_reg := io.insts_pack_PD

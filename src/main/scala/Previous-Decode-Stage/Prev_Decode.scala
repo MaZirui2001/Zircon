@@ -39,7 +39,7 @@ class Prev_Decode extends RawModule {
 
 
     for(i <- 0 until 4){
-        when(insts_opcode(i) === "b01".U && io.insts_pack_IF(i).inst_valid){
+        when(insts_opcode(i) === "b01".U && !io.insts_pack_IF(i).pred_valid && io.insts_pack_IF(i).inst_valid){
             switch(br_type(i)){
                 is(B){
                     inst_pack_pd(i).predict_jump := true.B
@@ -49,30 +49,30 @@ class Prev_Decode extends RawModule {
                     inst_pack_pd(i).predict_jump := true.B
                     inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
                 }
-                // is(BEQ){
-                //     inst_pack_pd(i).predict_jump := io.insts_pack_IF(i).predict_jump || inst(i)(25)
-                //     inst_pack_pd(i).pred_npc := Mux(io.insts_pack_IF(i).predict_jump, io.insts_pack_IF(i).pred_npc, Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U))
-                // }
-                // is(BNE){
-                //     inst_pack_pd(i).predict_jump := io.insts_pack_IF(i).predict_jump || inst(i)(25)
-                //     inst_pack_pd(i).pred_npc := Mux(io.insts_pack_IF(i).predict_jump, io.insts_pack_IF(i).pred_npc, Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U))
-                // }
-                // is(BLT){
-                //     inst_pack_pd(i).predict_jump := io.insts_pack_IF(i).predict_jump || inst(i)(25)
-                //     inst_pack_pd(i).pred_npc := Mux(io.insts_pack_IF(i).predict_jump, io.insts_pack_IF(i).pred_npc, Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U))
-                // }
-                // is(BGE){
-                //     inst_pack_pd(i).predict_jump := io.insts_pack_IF(i).predict_jump || inst(i)(25)
-                //     inst_pack_pd(i).pred_npc := Mux(io.insts_pack_IF(i).predict_jump, io.insts_pack_IF(i).pred_npc, Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U))
-                // }
-                // is(BLTU){
-                //     inst_pack_pd(i).predict_jump := io.insts_pack_IF(i).predict_jump || inst(i)(25)
-                //     inst_pack_pd(i).pred_npc := Mux(io.insts_pack_IF(i).predict_jump, io.insts_pack_IF(i).pred_npc, Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U))
-                // }
-                // is(BGEU){
-                //     inst_pack_pd(i).predict_jump := io.insts_pack_IF(i).predict_jump || inst(i)(25)
-                //     inst_pack_pd(i).pred_npc := Mux(io.insts_pack_IF(i).predict_jump, io.insts_pack_IF(i).pred_npc, Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U))
-                // }
+                is(BEQ){
+                    inst_pack_pd(i).predict_jump := inst(i)(25)
+                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                }
+                is(BNE){
+                    inst_pack_pd(i).predict_jump := inst(i)(25)
+                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                }
+                is(BLT){
+                    inst_pack_pd(i).predict_jump := inst(i)(25)
+                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                }
+                is(BGE){
+                    inst_pack_pd(i).predict_jump :=inst(i)(25)
+                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                }
+                is(BLTU){
+                    inst_pack_pd(i).predict_jump := inst(i)(25)
+                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                }
+                is(BGEU){
+                    inst_pack_pd(i).predict_jump := inst(i)(25)
+                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                }
             }
         }
     }

@@ -12,11 +12,11 @@ object Fetch{
 }
 
 class Fetch_Queue_IO extends Bundle{
-    val insts_pack          = Input(Vec(4, new inst_pack_IF_t))
+    val insts_pack          = Input(Vec(4, new inst_pack_PD_t))
 
     val next_ready          = Input(Bool())
     val insts_valid_decode  = Output(Vec(4, Bool()))
-    val insts_pack_id       = Output(Vec(4, new inst_pack_IF_t))
+    val insts_pack_id       = Output(Vec(4, new inst_pack_PD_t))
     
 
     val inst_queue_ready    = Output(Bool())
@@ -26,7 +26,7 @@ class Fetch_Queue_IO extends Bundle{
 class Fetch_Queue extends Module{
     val io = IO(new Fetch_Queue_IO)
     import Fetch._
-    val queue = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(8)(0.U.asTypeOf(new inst_pack_IF_t))))))
+    val queue = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(8)(0.U.asTypeOf(new inst_pack_PD_t))))))
 
     val head = RegInit(VecInit(Seq.fill(4)(0.U(3.W))))
     val tail = RegInit(VecInit(Seq.fill(4)(0.U(3.W))))
