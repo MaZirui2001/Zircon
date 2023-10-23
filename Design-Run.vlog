@@ -8,4 +8,5 @@
 2023-10-22 23:59 LUT: 47854 FF: 15572 BRAM: 4 DSP: 8                add 32 physical register
 2023-10-23 08:53 LUT: 46944 FF: 15851 BRAM: 4 DSP: 8 IPC: 0.748148  reduced to 80 register, but add to 32 fetch queue items
 2023-10-23 12:03 LUT: 46311 FF: 17390 BRAM: 4 DSP: 8 IPC: 0.825421  start to predict jirl, but not use RAS
-2023-10-24 02:54 LUT: 50840 FF: 18225 BRAM: 4 DSP: 8 IPC: 0.825421  RAS is so bad, add previous decode stage to predict jumo
+2023-10-24 02:54 LUT: 50840 FF: 18225 BRAM: 4 DSP: 8 IPC: 0.825421  RAS is so bad, add previous decode stage to predict jump
+2023-10-24 11:06 LUT:
