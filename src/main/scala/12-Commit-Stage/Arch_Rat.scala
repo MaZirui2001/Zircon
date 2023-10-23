@@ -2,7 +2,6 @@ import chisel3._
 import chisel3.util._
 import RAT._
 import PRED_Config._
-import os.copy
 object ARCH_RAT_Func{
     def Valid_Write_First_Read(cmt_en: Vec[Bool], rd_valid_cmt: Vec[Bool], prd_cmt: Vec[UInt], pprd_cmt: Vec[UInt], arat: Vec[rat_t], rindex: Int) : Bool = {
         val prd_wf = Cat(
