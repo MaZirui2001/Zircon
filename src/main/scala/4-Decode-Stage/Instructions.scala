@@ -64,13 +64,15 @@ object Inst_Pack{
         val inst            = UInt(32.W)
         val inst_valid      = Bool()
         val predict_jump    = Bool()
+        val pred_npc        = UInt(32.W)
     }
-    def inst_pack_IF_gen(_pc: UInt, _inst : UInt, _inst_valid : Bool, _predict_jump : Bool) : inst_pack_IF_t = {
+    def inst_pack_IF_gen(_pc: UInt, _inst : UInt, _inst_valid : Bool, _predict_jump : Bool, _pred_npc: UInt) : inst_pack_IF_t = {
         val inst_pack_IF = Wire(new inst_pack_IF_t)
         inst_pack_IF.pc             := _pc
         inst_pack_IF.inst           := _inst
         inst_pack_IF.inst_valid     := _inst_valid
         inst_pack_IF.predict_jump   := _predict_jump
+        inst_pack_IF.pred_npc       := _pred_npc
         inst_pack_IF
     }
     class inst_pack_ID_t extends inst_pack_IF_t{
@@ -95,6 +97,7 @@ object Inst_Pack{
         inst_pack_ID.inst           := inst_pack_IF.inst
         inst_pack_ID.inst_valid     := _inst_valid
         inst_pack_ID.predict_jump   := inst_pack_IF.predict_jump
+        inst_pack_ID.pred_npc       := inst_pack_IF.pred_npc
         inst_pack_ID.rj             := _rj
         inst_pack_ID.rj_valid       := _rj_valid
         inst_pack_ID.rk             := _rk
@@ -126,6 +129,7 @@ object Inst_Pack{
         inst_pack_RN.inst           := inst_pack_ID.inst
         inst_pack_RN.inst_valid     := inst_pack_ID.inst_valid
         inst_pack_RN.predict_jump   := inst_pack_ID.predict_jump
+        inst_pack_RN.pred_npc       := inst_pack_ID.pred_npc
         inst_pack_RN.rj             := inst_pack_ID.rj
         inst_pack_RN.rj_valid       := inst_pack_ID.rj_valid
         inst_pack_RN.rk             := inst_pack_ID.rk
@@ -169,6 +173,7 @@ object Inst_Pack{
         val pc              = UInt(32.W)
         val rob_index       = UInt(5.W)
         val predict_jump    = Bool()
+        val pred_npc        = UInt(32.W)
         val inst_exist      = Bool()
     }
     def inst_pack_DP_gen (inst_pack_RN : inst_pack_RN_t) : inst_pack_DP_t = {
@@ -192,6 +197,7 @@ object Inst_Pack{
         inst_pack_DP.pc             := inst_pack_RN.pc
         inst_pack_DP.rob_index      := inst_pack_RN.rob_index
         inst_pack_DP.predict_jump   := inst_pack_RN.predict_jump
+        inst_pack_DP.pred_npc       := inst_pack_RN.pred_npc
         inst_pack_DP.inst_exist     := inst_pack_RN.inst_exist
         inst_pack_DP
     }
@@ -219,6 +225,7 @@ object Inst_Pack{
         inst_pack_IS.pc             := inst_pack_DP.pc
         inst_pack_IS.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS.predict_jump   := inst_pack_DP.predict_jump
+        inst_pack_IS.pred_npc       := inst_pack_DP.pred_npc
         inst_pack_IS.inst_exist     := inst_pack_DP.inst_exist
         inst_pack_IS.inst_valid     := _inst_valid
         inst_pack_IS

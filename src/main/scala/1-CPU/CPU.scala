@@ -139,7 +139,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val pcs_IF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
     if_fq_reg.io.flush          := rob.io.predict_fail_cmt
     if_fq_reg.io.stall          := !inst_queue.io.inst_queue_ready 
-    if_fq_reg.io.insts_pack_IF  := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pcs_IF(i), inst_IF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i))))
+    if_fq_reg.io.insts_pack_IF  := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pcs_IF(i), inst_IF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc)))
 
     // Fetch_Queue stage && FQ-ID SegReg
     inst_queue.io.insts_pack    := if_fq_reg.io.insts_pack_ID
@@ -343,6 +343,7 @@ class CPU(RESET_VEC: Int) extends Module {
     br.io.pc_ex         := rf_ex_reg2.io.inst_pack_EX.pc
     br.io.imm_ex        := rf_ex_reg2.io.inst_pack_EX.imm
     br.io.predict_jump  := rf_ex_reg2.io.inst_pack_EX.predict_jump
+    br.io.pred_npc      := rf_ex_reg2.io.inst_pack_EX.pred_npc
 
     fu2_bypass.io.prd_wb        := fu2_ex_wb_reg.io.inst_pack_WB.prd
     fu2_bypass.io.prj_ex        := rf_ex_reg2.io.inst_pack_EX.prj
@@ -419,7 +420,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // WB stage
     val is_store_rn = VecInit(Seq.tabulate(4)(i => (id_rn_reg.io.insts_pack_RN(i).mem_type =/= NO_MEM && id_rn_reg.io.insts_pack_RN(i).mem_type(4) === 0.U)))
-    val pred_update_en = VecInit(Seq.tabulate(4)(i => (id_rn_reg.io.insts_pack_RN(i).br_type =/= NO_BR && id_rn_reg.io.insts_pack_RN(i).br_type =/= BR_JIRL)))
+    val pred_update_en = VecInit(Seq.tabulate(4)(i => id_rn_reg.io.insts_pack_RN(i).br_type =/= NO_BR))
     rob.io.inst_valid_rn        := id_rn_reg.io.insts_pack_RN.map(_.inst_valid)
     rob.io.rd_rn                := id_rn_reg.io.insts_pack_RN.map(_.rd)
     rob.io.rd_valid_rn          := id_rn_reg.io.insts_pack_RN.map(_.rd_valid)
