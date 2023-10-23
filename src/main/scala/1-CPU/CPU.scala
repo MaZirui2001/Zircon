@@ -105,7 +105,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val ls_ex1_ex2_reg  = Module(new LS_EX1_EX2_Reg)
 
     val mdu             = Module(new MDU)
-    val sb              = Module(new SB(4))
+    val sb              = Module(new SB(8))
     val fu4_bypass      = Module(new Bypass)
 
     val fu1_ex_wb_reg   = Module(new FU1_EX_WB_Reg)
@@ -113,7 +113,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val fu3_ex_wb_reg   = Module(new LS_EX2_WB_Reg)
     val fu4_ex_wb_reg   = Module(new MD_EX_WB_Reg)
 
-    val rob             = Module(new ROB(32))
+    val rob             = Module(new ROB(64))
     val arat            = Module(new Arch_Rat)
 
     val stall_by_iq = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
@@ -132,6 +132,10 @@ class CPU(RESET_VEC: Int) extends Module {
     predict.io.real_jump            := rob.io.pred_real_jump_cmt
     predict.io.branch_target        := rob.io.pred_branch_target_cmt
     predict.io.update_en            := rob.io.pred_update_en_cmt
+    predict.io.br_type              := rob.io.br_type_pred_cmt
+    predict.io.predict_fail         := rob.io.predict_fail_cmt
+    predict.io.top_arch             := arat.io.top_arch
+    predict.io.ras_update_en        := rob.io.ras_update_en_cmt
 
 
     // IF-FQ SegReg
@@ -208,7 +212,7 @@ class CPU(RESET_VEC: Int) extends Module {
     iq2.io.prk_ready            := dp.io.prk_ready
     iq2.io.issue_ack            := sel2.io.issue_ack
     iq2.io.flush                := rob.io.predict_fail_cmt
-    iq2.io.stall                := stall_by_iq
+    iq2.io.stall                := stall_by_iq 
 
     sel2.io.insts_issue         := iq2.io.insts_issue
     sel2.io.issue_req           := iq2.io.issue_req
@@ -238,7 +242,7 @@ class CPU(RESET_VEC: Int) extends Module {
     iq4.io.prk_ready            := dp.io.prk_ready
     iq4.io.issue_ack            := sel4.io.issue_ack
     iq4.io.flush                := rob.io.predict_fail_cmt
-    iq4.io.stall                := stall_by_iq
+    iq4.io.stall                := stall_by_iq 
 
     sel4.io.insts_issue         := iq4.io.insts_issue
     sel4.io.issue_req           := iq4.io.issue_req
@@ -421,6 +425,8 @@ class CPU(RESET_VEC: Int) extends Module {
     // WB stage
     val is_store_rn = VecInit(Seq.tabulate(4)(i => (id_rn_reg.io.insts_pack_RN(i).mem_type =/= NO_MEM && id_rn_reg.io.insts_pack_RN(i).mem_type(4) === 0.U)))
     val pred_update_en = VecInit(Seq.tabulate(4)(i => id_rn_reg.io.insts_pack_RN(i).br_type =/= NO_BR))
+    val br_type_pred = VecInit(Seq.tabulate(4)(i => Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL, 1.U(2.W), Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
+    val ras_update_en = VecInit(Seq.tabulate(4)(i => id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL || id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL))
     rob.io.inst_valid_rn        := id_rn_reg.io.insts_pack_RN.map(_.inst_valid)
     rob.io.rd_rn                := id_rn_reg.io.insts_pack_RN.map(_.rd)
     rob.io.rd_valid_rn          := id_rn_reg.io.insts_pack_RN.map(_.rd_valid)
@@ -430,6 +436,8 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.is_store_rn          := is_store_rn
     rob.io.stall                := id_rn_reg.io.stall
     rob.io.pred_update_en_rn    := pred_update_en
+    rob.io.br_type_pred_rn      := br_type_pred
+    rob.io.ras_update_en_rn     := ras_update_en
 
     rob.io.inst_valid_wb        := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.inst_valid, fu2_ex_wb_reg.io.inst_pack_WB.inst_valid, fu3_ex_wb_reg.io.inst_pack_WB.inst_valid, fu4_ex_wb_reg.io.inst_pack_WB.inst_valid)
     rob.io.rob_index_wb         := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.rob_index, fu2_ex_wb_reg.io.inst_pack_WB.rob_index, fu3_ex_wb_reg.io.inst_pack_WB.rob_index, fu4_ex_wb_reg.io.inst_pack_WB.rob_index)
@@ -446,6 +454,8 @@ class CPU(RESET_VEC: Int) extends Module {
     arat.io.pprd_cmt        := rob.io.pprd_cmt
     arat.io.rd_valid_cmt    := rob.io.rd_valid_cmt
     arat.io.predict_fail    := rob.io.predict_fail_cmt
+    arat.io.br_type_pred_cmt := rob.io.br_type_pred_cmt
+    arat.io.ras_update_en_cmt := rob.io.ras_update_en_cmt
 
     io.commit_en1           := rob.io.cmt_en(0)
     io.commit_rd1           := rob.io.rd_cmt(0)

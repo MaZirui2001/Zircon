@@ -13,6 +13,8 @@ object ROB_Pack{
         val branch_target = UInt(32.W)
         val real_jump = Bool()
         val pred_update_en = Bool()
+        val ras_update_en = Bool()
+        val br_type_pred = UInt(2.W)
         val complete = Bool()
         val pc = UInt(32.W)
         val rf_wdata = UInt(32.W)
@@ -32,6 +34,8 @@ class ROB_IO(n: Int) extends Bundle{
     val pc_rn                   = Input(Vec(4, UInt(32.W)))
     val is_store_rn             = Input(Vec(4, Bool()))
     val pred_update_en_rn       = Input(Vec(4, Bool()))
+    val ras_update_en_rn        = Input(Vec(4, Bool()))
+    val br_type_pred_rn         = Input(Vec(4, UInt(2.W)))
     val full                    = Output(Bool())
     val stall                   = Input(Bool())
 
@@ -57,9 +61,12 @@ class ROB_IO(n: Int) extends Bundle{
     val predict_fail_cmt        = Output(Bool())
     val branch_target_cmt       = Output(UInt(32.W))
     val pred_update_en_cmt      = Output(Bool())
+    val ras_update_en_cmt       = Output(Bool())
     val pred_branch_target_cmt  = Output(UInt(32.W))
     val pred_pc_cmt             = Output(UInt(32.W))
     val pred_real_jump_cmt      = Output(Bool())
+    val br_type_pred_cmt        = Output(UInt(2.W))
+
     val rf_wdata_cmt            = Output(Vec(4, UInt(32.W)))
 }
 
@@ -76,7 +83,6 @@ class ROB(n: Int) extends Module{
     val empty       = VecInit(elem_num.map(_ === 0.U))
     val full        = VecInit(elem_num.map(_ === neach.U)).asUInt.orR
     // rn stage
-
     when(!full){
         for(i <- 0 until 4){
             when(io.inst_valid_rn(i)){
@@ -87,6 +93,8 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail(i)).pc := io.pc_rn(i)
                 rob(i)(tail(i)).is_store := io.is_store_rn(i)
                 rob(i)(tail(i)).pred_update_en := io.pred_update_en_rn(i)
+                rob(i)(tail(i)).br_type_pred := io.br_type_pred_rn(i)
+                rob(i)(tail(i)).ras_update_en := io.ras_update_en_rn(i)
                 rob(i)(tail(i)).rf_wdata := 0.U
                 rob(i)(tail(i)).real_jump := false.B
                 rob(i)(tail(i)).predict_fail := false.B
@@ -122,18 +130,22 @@ class ROB(n: Int) extends Module{
     io.full := full
     val predict_fail_bit = VecInit(Seq.fill(4)(false.B))
     val pred_update_en_bit = VecInit(Seq.fill(4)(false.B))
+    val ras_update_en_bit = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
         predict_fail_bit(i) := rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail && io.cmt_en(i)
         pred_update_en_bit(i) := rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en && io.cmt_en(i)
+        ras_update_en_bit(i) := rob(head_sel+i.U)(head(head_sel+i.U)).ras_update_en && io.cmt_en(i)
     }
     val pred_fail_ohbit         = PriorityEncoder(predict_fail_bit.asUInt)
     val pred_update_ohbit       = PriorityEncoder(pred_update_en_bit.asUInt)
+    io.ras_update_en_cmt        := ras_update_en_bit.asUInt.orR
     io.predict_fail_cmt         := predict_fail_bit.asUInt.orR
     io.branch_target_cmt        := Mux(rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).real_jump, 
                                    rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).branch_target,
                                    rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).pc + 4.U)
     io.pred_update_en_cmt       := pred_update_en_bit.asUInt.orR
     io.pred_branch_target_cmt   := rob(head_sel+pred_update_ohbit)(head(head_sel+pred_update_ohbit)).branch_target
+    io.br_type_pred_cmt         := rob(head_sel+pred_update_ohbit)(head(head_sel+pred_update_ohbit)).br_type_pred
     io.pred_pc_cmt              := rob(head_sel+pred_update_ohbit)(head(head_sel+pred_update_ohbit)).pc
     io.pred_real_jump_cmt       := rob(head_sel+pred_update_ohbit)(head(head_sel+pred_update_ohbit)).real_jump
 

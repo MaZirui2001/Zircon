@@ -42,7 +42,7 @@ class SB(n: Int) extends Module {
 
     val flush_buf = RegInit(false.B)
     val full = elem_num === n.U || flush_buf
-    val wait_to_cmt = RegInit(0.U(2.W))
+    val wait_to_cmt = RegInit(0.U(log2Ceil(n).W))
 
     val has_store_cmt = io.is_store_num_cmt =/= 0.U
 
@@ -62,9 +62,9 @@ class SB(n: Int) extends Module {
     val st_data_ex  = io.st_data_ex
     val st_addr_ex_valid = is_store_ex && !full
     when(!io.flush && st_addr_ex_valid){
-        sb(tail(1, 0)).addr := st_addr_ex
-        sb(tail(1, 0)).data := st_data_ex
-        sb(tail(1, 0)).wlen := io.st_wlen_ex
+        sb(tail(log2Ceil(n)-1, 0)).addr := st_addr_ex
+        sb(tail(log2Ceil(n)-1, 0)).data := st_data_ex
+        sb(tail(log2Ceil(n)-1, 0)).wlen := io.st_wlen_ex
     }
 
 
@@ -72,20 +72,20 @@ class SB(n: Int) extends Module {
     elem_num := Mux((io.flush || flush_buf) && !wait_to_cmt.orR, 0.U, elem_num - io.is_store_cmt + Mux(full, 0.U, st_addr_ex_valid))
     tail := Mux(io.flush, 0.U, tail + Mux(full, 0.U, st_addr_ex_valid))
 
-    io.st_addr_cmt := sb(head(1,0)).addr
-    io.st_data_cmt := sb(head(1,0)).data
-    io.st_wlen_cmt := sb(head(1,0)).wlen
+    io.st_addr_cmt := sb(head(log2Ceil(n)-1,0)).addr
+    io.st_data_cmt := sb(head(log2Ceil(n)-1,0)).data
+    io.st_wlen_cmt := sb(head(log2Ceil(n)-1,0)).wlen
 
     // read from ex
     val ld_addr_ex = io.addr_ex
     val ld_hit = Wire(Vec(n, Bool()))
     for(i <- 0 until n){
-        ld_hit(i) := (sb(tail(1, 0)-i.U).addr <= ld_addr_ex && ld_addr_ex < sb(tail(1, 0)-i.U).addr + (1.U(32.W) << sb(tail(1, 0)-i.U).wlen) 
-                        && Mux(head(2) ^ tail(2), tail(1, 0)-i.U >= head(1, 0) || tail(1, 0)-i.U < tail(1, 0), tail(1, 0)-i.U >= head(1, 0) && tail(1, 0)-i.U < tail(1, 0)))
+        ld_hit(i) := (sb(tail(log2Ceil(n)-1, 0)-i.U).addr <= ld_addr_ex && ld_addr_ex < sb(tail(log2Ceil(n)-1, 0)-i.U).addr + (1.U(32.W) << sb(tail(log2Ceil(n)-1, 0)-i.U).wlen) 
+                        && Mux(head(log2Ceil(n)) ^ tail(log2Ceil(n)), tail(log2Ceil(n)-1, 0)-i.U >= head(log2Ceil(n)-1, 0) || tail(log2Ceil(n)-1, 0)-i.U < tail(log2Ceil(n)-1, 0), tail(log2Ceil(n)-1, 0)-i.U >= head(log2Ceil(n)-1, 0) && tail(log2Ceil(n)-1, 0)-i.U < tail(log2Ceil(n)-1, 0)))
     }
 
     io.ld_hit := ld_hit.exists(_ === true.B)
     val ld_hit_index = PriorityEncoderOH(ld_hit)
-    val rdata = VecInit.tabulate(n)(i => sb(tail(1,0)-i.U).data)
+    val rdata = VecInit.tabulate(n)(i => sb(tail(log2Ceil(n)-1,0)-i.U).data)
     io.ld_data_ex := rdata(OHToUInt(ld_hit_index))
 }

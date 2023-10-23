@@ -119,7 +119,7 @@ object Inst_Pack{
         val prk             = UInt(7.W)
         val prd             = UInt(7.W)
         val pprd            = UInt(7.W)
-        val rob_index       = UInt(5.W)
+        val rob_index       = UInt(6.W)
         val prj_raw         = Bool()
         val prk_raw         = Bool()
     }
@@ -171,7 +171,7 @@ object Inst_Pack{
         val br_type         = UInt(4.W)
         val mem_type        = UInt(5.W)
         val pc              = UInt(32.W)
-        val rob_index       = UInt(5.W)
+        val rob_index       = UInt(6.W)
         val predict_jump    = Bool()
         val pred_npc        = UInt(32.W)
         val inst_exist      = Bool()

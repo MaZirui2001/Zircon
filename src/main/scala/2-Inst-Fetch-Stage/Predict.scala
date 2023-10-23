@@ -8,11 +8,16 @@ object PRED_Config{
         val valid = Bool()
         val target = UInt(30.W)
         val tag = UInt(BTB_TAG_WIDTH.W)
+        val typ = UInt(2.W)
     }
     val BHT_INDEX_WIDTH = 4
     val BHT_DEPTH = 1 << BHT_INDEX_WIDTH
     val PHT_INDEX_WIDTH = 6
     val PHT_DEPTH = 1 << PHT_INDEX_WIDTH
+
+    val JIRL = 1.U(2.W)
+    val BL = 2.U(2.W)
+    val ELSE = 0.U(2.W)
 }
 
 class Predict_IO extends Bundle{
@@ -27,6 +32,12 @@ class Predict_IO extends Bundle{
     val real_jump = Input(Bool())
     val branch_target = Input(UInt(32.W))
     val update_en = Input(Bool())
+    val br_type = Input(UInt(2.W))
+    val ras_update_en = Input(Bool())
+
+    // recover 
+    val top_arch     = Input(UInt(4.W))
+    val predict_fail = Input(Bool())
 }
 
 import PRED_Config._
@@ -34,9 +45,13 @@ class Predict extends Module{
     val io = IO(new Predict_IO)
 
     val btb_tagv = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
-    val btb_targ = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(30, BTB_DEPTH)).io))
+    val btb_targ = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(30+2, BTB_DEPTH)).io))
     val bht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(16)(0.U(4.W))))))
     val pht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(64)(2.U(2.W))))))
+
+    val ras = RegInit(VecInit(Seq.fill(16)(0x1c000000.U(32.W))))
+    val top = RegInit(0.U(4.W))
+    val jirl_sel = RegInit(2.U(2.W))
 
     // check
     val npc             = io.npc
@@ -56,10 +71,12 @@ class Predict extends Module{
     val pred_valid      = ~((1.U(4.W) << pc(3, 2)) - 1.U)(3, 0)
 
     val pred_hit        = pred_valid & predict_jump.asUInt 
+    val pred_hit_oh     = PriorityEncoderOH(pred_hit)
+    val pred_hit_index  = PriorityEncoder(pred_hit)
 
-    io.predict_jump     := (PriorityEncoderOH(pred_hit) >> pc(3, 2)).asBools
-    io.pred_npc         := btb_rdata(PriorityEncoder(pred_hit)).target ## 0.U(2.W)
-
+    io.predict_jump     := (pred_hit_oh >> pc(3, 2)).asBools
+    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
+    //io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
     // update
     val update_en       = io.update_en
     // btb
@@ -70,6 +87,7 @@ class Predict extends Module{
         btb_wdata(i).valid := true.B
         btb_wdata(i).target := io.branch_target(31, 2)
         btb_wdata(i).tag := io.pc_cmt(31, 32-BTB_TAG_WIDTH)
+        btb_wdata(i).typ := io.br_type
     }
     for(i <- 0 until 4){
         btb_tagv(i).addra := btb_windex
@@ -84,11 +102,12 @@ class Predict extends Module{
     for(i <- 0 until 4){
         btb_targ(i).addra := btb_windex
         btb_targ(i).addrb := btb_rindex
-        btb_targ(i).dina := btb_wdata(i).target
+        btb_targ(i).dina := btb_wdata(i).target ## btb_wdata(i).typ
         btb_targ(i).clka := clock
         btb_targ(i).wea := update_en && mask(i)
         btb_targ(i).enb := true.B
-        btb_rdata(i).target := btb_targ(i).doutb
+        btb_rdata(i).target := btb_targ(i).doutb(31, 2)
+        btb_rdata(i).typ := btb_targ(i).doutb(1, 0)
     }
 
     // bht
@@ -105,6 +124,24 @@ class Predict extends Module{
         pht(io.pc_cmt(3, 2))(pht_windex) := Mux(io.real_jump, 
                                             pht(io.pc_cmt(3, 2))(pht_windex) + (pht(io.pc_cmt(3, 2))(pht_windex) =/= 3.U), 
                                             pht(io.pc_cmt(3, 2))(pht_windex) - (pht(io.pc_cmt(3, 2))(pht_windex) =/= 0.U))
+    }
+
+
+    // RAS
+    when(io.predict_fail){
+        top := io.top_arch
+        when(io.br_type === BL){
+            ras(io.top_arch-1.U) := io.pc_cmt + 4.U
+        }
+    }.elsewhen(btb_rdata(pred_hit_index).typ === BL){
+        top := top + 1.U
+        ras(top) := io.pc + (pred_hit_index << 2.U) + 4.U
+    }.elsewhen(btb_rdata(pred_hit_index).typ === JIRL){
+        top := top - 1.U
+    }
+
+    when(io.ras_update_en && io.br_type === JIRL){
+        jirl_sel := Mux(io.predict_fail, Mux(jirl_sel(0), 2.U, 1.U), Mux(jirl_sel(1), 3.U, 0.U))
     }
 
 }

@@ -1,6 +1,8 @@
 import chisel3._
 import chisel3.util._
 import RAT._
+import PRED_Config._
+import os.copy
 object ARCH_RAT_Func{
     def Valid_Write_First_Read(cmt_en: Vec[Bool], rd_valid_cmt: Vec[Bool], prd_cmt: Vec[UInt], pprd_cmt: Vec[UInt], arat: Vec[rat_t], rindex: Int) : Bool = {
         val prd_wf = Cat(
@@ -32,6 +34,11 @@ class Arch_Rat_IO extends Bundle {
     // for reg rename
     val arch_rat        = Output(Vec(80, UInt(1.W)))
     val head_arch       = Output(Vec(4, UInt(5.W)))
+
+    // for ras
+    val top_arch         = Output(UInt(4.W))
+    val br_type_pred_cmt = Input(UInt(2.W))
+    val ras_update_en_cmt = Input(Bool())
 }
 
 class Arch_Rat extends Module {
@@ -62,6 +69,18 @@ class Arch_Rat extends Module {
     }
     head := head_next
     head_sel := Mux(io.predict_fail, 0.U, head_sel + PopCount(io.cmt_en))
+
+    // ras
+    val top = RegInit(0.U(4.W))
+    val top_next = Wire(UInt(4.W))
+    top_next := top
+    when(io.br_type_pred_cmt === JIRL && io.ras_update_en_cmt){
+        top_next := top - 1.U
+    }.elsewhen(io.br_type_pred_cmt === BL && io.ras_update_en_cmt){
+        top_next := top + 1.U
+    }
+    top := top_next
+    io.top_arch := top_next
 
     for(i <- 0 until 80){
         io.arch_rat(i) := arat_next(i).valid
