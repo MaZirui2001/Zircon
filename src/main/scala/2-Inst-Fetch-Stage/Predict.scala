@@ -39,41 +39,29 @@ class Predict extends Module{
     val pht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(64)(2.U(2.W))))))
 
     // check
-    val npc = io.npc
-    val pc = io.pc
-    val btb_rindex = npc(4-1+BTB_INDEX_WIDTH, 4)
-    val btb_rdata = Wire(Vec(4, new btb_t))
+    val npc             = io.npc
+    val pc              = io.pc
+    val btb_rindex      = npc(4-1+BTB_INDEX_WIDTH, 4)
+    val btb_rdata       = Wire(Vec(4, new btb_t))
 
-    val bht_rindex = pc(7, 4) 
-    val bht_rdata = Wire(Vec(4, UInt(4.W)))
-    for (i <- 0 until 4){
-        bht_rdata(i) := bht(i)(bht_rindex)
-    }
+    val bht_rindex      = pc(7, 4) 
+    val bht_rdata       = VecInit(bht.map(_(bht_rindex)))
 
-    val pht_rindex = Wire(Vec(4, UInt(6.W)))
-    for(i <- 0 until 4){
-        pht_rindex(i) := (bht_rdata(i) ^ pc(9, 6)) ## pc(5, 4)
-    }
-    val pht_rdata = Wire(Vec(4, UInt(2.W)))
-    for (i <- 0 until 4){
-        pht_rdata(i) := pht(i)(pht_rindex(i))
-    }
+    val pht_rindex      = VecInit(Seq.tabulate(4)(i => (bht_rdata(i) ^ pc(9, 6)) ## pc(5, 4)))
+    val pht_rdata       = VecInit(Seq.tabulate(4)(i => pht(i)(pht_rindex(i))))
 
-    val predict_jump = Wire(Vec(4, Bool()))
-    for (i <- 0 until 4){
-        predict_jump(i) := pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))
-    }
+    val predict_jump    = VecInit(Seq.tabulate(4)(i => pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
 
-    val pred_valid = Wire(UInt(4.W))
-    pred_valid := ~((1.U(4.W) << pc(3, 2)) - 1.U)
 
-    val pred_hit = pred_valid & predict_jump.asUInt 
+    val pred_valid      = ~((1.U(4.W) << pc(3, 2)) - 1.U)(3, 0)
 
-    io.predict_jump := (PriorityEncoderOH(pred_hit) >> pc(3, 2)).asBools
-    io.pred_npc := btb_rdata(PriorityEncoder(pred_hit)).target ## 0.U(2.W)
+    val pred_hit        = pred_valid & predict_jump.asUInt 
+
+    io.predict_jump     := (PriorityEncoderOH(pred_hit) >> pc(3, 2)).asBools
+    io.pred_npc         := btb_rdata(PriorityEncoder(pred_hit)).target ## 0.U(2.W)
 
     // update
-    val update_en = io.update_en
+    val update_en       = io.update_en
     // btb
     val mask = UIntToOH(io.pc_cmt(3, 2))
     val btb_wdata = Wire(Vec(4, new btb_t))

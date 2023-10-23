@@ -417,12 +417,8 @@ class CPU(RESET_VEC: Int) extends Module {
     fu4_bypass.io.rd_valid_wb   := fu4_ex_wb_reg.io.inst_pack_WB.rd_valid
 
     // WB stage
-    val is_store_rn = Wire(Vec(4, Bool()))
-    val pred_update_en = Wire(Vec(4, Bool()))
-    for (i <- 0 until 4){
-        is_store_rn(i) := id_rn_reg.io.insts_pack_RN(i).mem_type =/= NO_MEM && id_rn_reg.io.insts_pack_RN(i).mem_type(4) === 0.U
-        pred_update_en(i) := id_rn_reg.io.insts_pack_RN(i).br_type =/= NO_BR && id_rn_reg.io.insts_pack_RN(i).br_type =/= BR_JIRL
-    }
+    val is_store_rn = VecInit(Seq.tabulate(4)(i => (id_rn_reg.io.insts_pack_RN(i).mem_type =/= NO_MEM && id_rn_reg.io.insts_pack_RN(i).mem_type(4) === 0.U)))
+    val pred_update_en = VecInit(Seq.tabulate(4)(i => (id_rn_reg.io.insts_pack_RN(i).br_type =/= NO_BR && id_rn_reg.io.insts_pack_RN(i).br_type =/= BR_JIRL)))
     rob.io.inst_valid_rn        := id_rn_reg.io.insts_pack_RN.map(_.inst_valid)
     rob.io.rd_rn                := id_rn_reg.io.insts_pack_RN.map(_.rd)
     rob.io.rd_valid_rn          := id_rn_reg.io.insts_pack_RN.map(_.rd_valid)

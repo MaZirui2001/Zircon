@@ -125,9 +125,6 @@ class Reg_Rename extends Module{
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rd(3))){
         io.pprd(3) := alloc_preg(0)
     }
-
-    // crat.io.clock := clock
-    // crat.io.reset := reset
     crat.io.rj := io.rj
     crat.io.rk := io.rk
     crat.io.rd := io.rd
@@ -137,11 +134,7 @@ class Reg_Rename extends Module{
     crat.io.predict_fail := io.predict_fail
     crat.io.stall := io.free_list_empty
 
-    val commit_pprd_nez = Wire(Vec(4, Bool()))
-    for(i <- 0 until 4){
-        commit_pprd_nez(i) := (io.commit_pprd(i) =/= 0.U)
-    }
-
+    val commit_pprd_nez = VecInit(io.commit_pprd.map(_ =/= 0.U))
     free_list.io.rd_valid := io.rd_valid
     free_list.io.rename_en := io.rename_en
     free_list.io.commit_en := io.commit_en
