@@ -75,8 +75,8 @@ class Predict extends Module{
     val pred_hit_index  = PriorityEncoder(pred_hit)
 
     io.predict_jump     := (pred_hit_oh >> pc(3, 2)).asBools
-    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
-    //io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
+    //io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
+    io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
     // update
     val update_en       = io.update_en
     // btb

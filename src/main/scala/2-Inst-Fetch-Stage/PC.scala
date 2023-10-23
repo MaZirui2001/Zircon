@@ -10,6 +10,9 @@ class PC_IO extends Bundle {
     val pred_npc        = Input(UInt(32.W))
     val branch_target   = Input(UInt(32.W))
     val inst_valid_IF   = Output(Vec(4, Bool()))
+
+    val flush_by_pd     = Input(Bool())
+    val flush_pd_target = Input(UInt(32.W))
 }
 
 class PC(reset_val: Int) extends Module {
@@ -19,6 +22,9 @@ class PC(reset_val: Int) extends Module {
 
     when(io.predict_fail) {
         io.npc := io.branch_target
+    }
+    .elsewhen(io.flush_by_pd){
+        io.npc := io.flush_pd_target
     }
     .elsewhen(!io.pc_stall) {
         when(io.pred_jump.asUInt.orR){

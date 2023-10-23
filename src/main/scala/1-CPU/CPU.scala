@@ -65,7 +65,9 @@ class CPU(RESET_VEC: Int) extends Module {
 
     val pc              = Module(new PC(RESET_VEC))
     val predict         = Module(new Predict)
-    val if_fq_reg       = Module(new IF_FQ_Reg)
+    val if_pd_reg       = Module(new IF_PD_Reg)
+    val pd              = Module(new Prev_Decode)
+    val pd_fq_reg       = Module(new PD_FQ_Reg)
     val inst_decode     = VecInit(Seq.fill(4)(Module(new Decode).io))
     val id_rn_reg       = Module(new ID_RN_Reg)
     val reg_rename      = Module(new Reg_Rename)
@@ -113,7 +115,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val fu3_ex_wb_reg   = Module(new LS_EX2_WB_Reg)
     val fu4_ex_wb_reg   = Module(new MD_EX_WB_Reg)
 
-    val rob             = Module(new ROB(64))
+    val rob             = Module(new ROB(32))
     val arat            = Module(new Arch_Rat)
 
     val stall_by_iq = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
@@ -125,6 +127,8 @@ class CPU(RESET_VEC: Int) extends Module {
     pc.io.branch_target := rob.io.branch_target_cmt
     pc.io.pred_jump     := predict.io.predict_jump
     pc.io.pred_npc      := predict.io.pred_npc
+    pc.io.flush_by_pd   := pd.io.pred_fix
+    pc.io.flush_pd_target := pd.io.pred_fix_target
 
     predict.io.npc                  := pc.io.npc
     predict.io.pc                   := pc.io.pc_IF
@@ -138,15 +142,23 @@ class CPU(RESET_VEC: Int) extends Module {
     predict.io.ras_update_en        := rob.io.ras_update_en_cmt
 
 
-    // IF-FQ SegReg
+    // IF-PD SegReg
     val inst_IF                 = VecInit(io.inst1_IF, io.inst2_IF, io.inst3_IF, io.inst4_IF)
     val pcs_IF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
-    if_fq_reg.io.flush          := rob.io.predict_fail_cmt
-    if_fq_reg.io.stall          := !inst_queue.io.inst_queue_ready 
-    if_fq_reg.io.insts_pack_IF  := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pcs_IF(i), inst_IF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc)))
+    if_pd_reg.io.flush          := rob.io.predict_fail_cmt || (!pd_fq_reg.io.stall && pd.io.pred_fix)
+    if_pd_reg.io.stall          := !inst_queue.io.inst_queue_ready 
+    if_pd_reg.io.insts_pack_IF  := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pcs_IF(i), inst_IF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc)))
+
+    // PD stage
+    pd.io.insts_pack_IF         := if_pd_reg.io.insts_pack_PD
+
+    // PD-FQ SegReg
+    pd_fq_reg.io.flush          := rob.io.predict_fail_cmt
+    pd_fq_reg.io.stall          := !inst_queue.io.inst_queue_ready
+    pd_fq_reg.io.insts_pack_PD  := pd.io.insts_pack_PD
 
     // Fetch_Queue stage && FQ-ID SegReg
-    inst_queue.io.insts_pack    := if_fq_reg.io.insts_pack_ID
+    inst_queue.io.insts_pack    := pd_fq_reg.io.insts_pack_FQ
     inst_queue.io.next_ready    := !(rob.io.full || stall_by_iq || reg_rename.io.free_list_empty)
     inst_queue.io.flush         := rob.io.predict_fail_cmt
 

@@ -138,16 +138,17 @@ class ROB(n: Int) extends Module{
     }
     val pred_fail_ohbit         = PriorityEncoder(predict_fail_bit.asUInt)
     val pred_update_ohbit       = PriorityEncoder(pred_update_en_bit.asUInt)
+    val ras_update_ohbit        = PriorityEncoder(ras_update_en_bit.asUInt)
     io.ras_update_en_cmt        := ras_update_en_bit.asUInt.orR
     io.predict_fail_cmt         := predict_fail_bit.asUInt.orR
     io.branch_target_cmt        := Mux(rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).real_jump, 
                                    rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).branch_target,
                                    rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).pc + 4.U)
     io.pred_update_en_cmt       := pred_update_en_bit.asUInt.orR
-    io.pred_branch_target_cmt   := rob(head_sel+pred_update_ohbit)(head(head_sel+pred_update_ohbit)).branch_target
-    io.br_type_pred_cmt         := rob(head_sel+pred_update_ohbit)(head(head_sel+pred_update_ohbit)).br_type_pred
-    io.pred_pc_cmt              := rob(head_sel+pred_update_ohbit)(head(head_sel+pred_update_ohbit)).pc
-    io.pred_real_jump_cmt       := rob(head_sel+pred_update_ohbit)(head(head_sel+pred_update_ohbit)).real_jump
+    io.pred_branch_target_cmt   := rob(head_sel+Mux(!io.ras_update_en_cmt, pred_update_ohbit, ras_update_ohbit))(head(head_sel+Mux(!io.ras_update_en_cmt, pred_update_ohbit, ras_update_ohbit))).branch_target
+    io.br_type_pred_cmt         := rob(head_sel+Mux(!io.ras_update_en_cmt, pred_update_ohbit, ras_update_ohbit))(head(head_sel+Mux(!io.ras_update_en_cmt, pred_update_ohbit, ras_update_ohbit))).br_type_pred
+    io.pred_pc_cmt              := rob(head_sel+Mux(!io.ras_update_en_cmt, pred_update_ohbit, ras_update_ohbit))(head(head_sel+Mux(!io.ras_update_en_cmt, pred_update_ohbit, ras_update_ohbit))).pc
+    io.pred_real_jump_cmt       := rob(head_sel+Mux(!io.ras_update_en_cmt, pred_update_ohbit, ras_update_ohbit))(head(head_sel+Mux(!io.ras_update_en_cmt, pred_update_ohbit, ras_update_ohbit))).real_jump
 
     val is_store_cmt_bit = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
