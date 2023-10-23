@@ -11,6 +11,10 @@ object PD_Pack {
     val BGE  = 9.U(4.W)
     val BLTU = 10.U(4.W)
     val BGEU = 11.U(4.W)
+
+    val NOT_JUMP = 0.U(2.W)
+    val YES_JUMP = 1.U(2.W)
+    val MAY_JUMP = 2.U(2.W)
 }
 
 class Prev_Decode_IO extends Bundle {
@@ -37,39 +41,25 @@ class Prev_Decode extends RawModule {
     val pred_index = PriorityEncoder(pred_fix)
     io.pred_fix_target := inst_pack_pd(pred_index).pred_npc
 
+    val jump_type = VecInit(Seq.fill(4)(NOT_JUMP))
+    for(i <- 0 until 4){
+        when(insts_opcode(i) === "b01".U){
+            when(br_type(i) === B || br_type(i) === BL){
+                jump_type(i) := YES_JUMP
+            }.elsewhen(br_type(i) >= 6.U && br_type(i) <= 11.U){
+                jump_type(i) := MAY_JUMP
+            }
+        }
+    }
 
     for(i <- 0 until 4){
-        when(insts_opcode(i) === "b01".U && !io.insts_pack_IF(i).pred_valid && io.insts_pack_IF(i).inst_valid){
-            switch(br_type(i)){
-                is(B){
+        when(!io.insts_pack_IF(i).pred_valid && io.insts_pack_IF(i).inst_valid){
+            switch(jump_type(i)){
+                is(YES_JUMP){
                     inst_pack_pd(i).predict_jump := true.B
                     inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
                 }
-                is(BL){
-                    inst_pack_pd(i).predict_jump := true.B
-                    inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
-                }
-                is(BEQ){
-                    inst_pack_pd(i).predict_jump := inst(i)(25)
-                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
-                }
-                is(BNE){
-                    inst_pack_pd(i).predict_jump := inst(i)(25)
-                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
-                }
-                is(BLT){
-                    inst_pack_pd(i).predict_jump := inst(i)(25)
-                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
-                }
-                is(BGE){
-                    inst_pack_pd(i).predict_jump :=inst(i)(25)
-                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
-                }
-                is(BLTU){
-                    inst_pack_pd(i).predict_jump := inst(i)(25)
-                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
-                }
-                is(BGEU){
+                is(MAY_JUMP){
                     inst_pack_pd(i).predict_jump := inst(i)(25)
                     inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
                 }
