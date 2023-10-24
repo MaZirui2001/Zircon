@@ -68,6 +68,11 @@ class ROB_IO(n: Int) extends Bundle{
     val br_type_pred_cmt        = Output(UInt(2.W))
 
     val rf_wdata_cmt            = Output(Vec(4, UInt(32.W)))
+
+    // stat
+    val predict_fail_stat       = Output(Vec(4, Bool()))
+    val br_type_stat            = Output(Vec(4, UInt(2.W)))
+    val is_br_stat              = Output(Vec(4, Bool()))
 }
 
 class ROB(n: Int) extends Module{
@@ -167,12 +172,21 @@ class ROB(n: Int) extends Module{
     val head_inc = Wire(Vec(4, Bool()))
     head_inc := VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
-        head(head_sel+i.U) := Mux(io.predict_fail_cmt, 0.U, head(head_sel+i.U) + io.cmt_en(i))
+        head(head_sel+i.U) := Mux(io.predict_fail_cmt, 0.U, Mux(head(head_sel+i.U) + io.cmt_en(i) === neach.U, 0.U, head(head_sel+i.U) + io.cmt_en(i)))
         head_inc(head_sel+i.U) := io.cmt_en(i)
     }
     for(i <- 0 until 4){
-        tail(i) := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, tail(i) + io.inst_valid_rn(i), tail(i)))
+        tail(i) := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail(i) + io.inst_valid_rn(i) === neach.U, 0.U, tail(i) + io.inst_valid_rn(i)), tail(i)))
         elem_num(i) := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + io.inst_valid_rn(i) - head_inc(i), elem_num(i) - head_inc(i)))
+    }
+
+
+    // stat
+    io.predict_fail_stat := predict_fail_bit
+    io.br_type_stat := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).br_type_pred))
+    io.is_br_stat(0) := pred_update_en_bit(0) 
+    for(i <- 1 until 4){
+        io.is_br_stat(i) := pred_update_en_bit(i) && !(predict_fail_bit(i-1) && io.is_br_stat(i-1))
     }
 } 
 

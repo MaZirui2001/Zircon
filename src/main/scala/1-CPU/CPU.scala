@@ -4,60 +4,77 @@ import Inst_Pack._
 import Control_Signal._
 
 class CPU_IO extends Bundle{
-    val pc_IF               = Output(UInt(32.W))
-    val inst1_IF            = Input(UInt(32.W))
-    val inst2_IF            = Input(UInt(32.W))
-    val inst3_IF            = Input(UInt(32.W))
-    val inst4_IF            = Input(UInt(32.W))
+    val pc_IF                       = Output(UInt(32.W))
+    val inst1_IF                    = Input(UInt(32.W))
+    val inst2_IF                    = Input(UInt(32.W))
+    val inst3_IF                    = Input(UInt(32.W))
+    val inst4_IF                    = Input(UInt(32.W))
 
-    val mem_raddr_ex        = Output(UInt(32.W))
-    val mem_rdata_ex        = Input(UInt(32.W))
-    val mem_is_load_ex      = Output(Bool())
-    val mem_rlen_ex         = Output(UInt(3.W))
+    val mem_raddr_ex                = Output(UInt(32.W))
+    val mem_rdata_ex                = Input(UInt(32.W))
+    val mem_is_load_ex              = Output(Bool())
+    val mem_rlen_ex                 = Output(UInt(3.W))
 
-    val mem_waddr_cmt       = Output(UInt(32.W))
-    val mem_wdata_cmt       = Output(UInt(32.W))
-    val mem_wlen_cmt        = Output(UInt(3.W))
-    val mem_is_store_cmt    = Output(Bool())
+    val mem_waddr_cmt               = Output(UInt(32.W))
+    val mem_wdata_cmt               = Output(UInt(32.W))
+    val mem_wlen_cmt                = Output(UInt(3.W))
+    val mem_is_store_cmt            = Output(Bool())
 
-    val commit_en1          = Output(Bool())
-    val commit_rd1          = Output(UInt(5.W))
-    val commit_prd1         = Output(UInt(7.W))
-    val commit_rd_valid1    = Output(Bool())
-    val commit_rf_wdata1    = Output(UInt(32.W))
-    val commit_pc_1         = Output(UInt(32.W))
-    val commit_is_ucread1   = Output(Bool())
-    val commit_en2          = Output(Bool())
-    val commit_rd2          = Output(UInt(5.W))
-    val commit_prd2         = Output(UInt(7.W))
-    val commit_rd_valid2    = Output(Bool())
-    val commit_rf_wdata2    = Output(UInt(32.W))
-    val commit_pc_2         = Output(UInt(32.W))
-    val commit_is_ucread2   = Output(Bool())
-    val commit_en3          = Output(Bool())
-    val commit_rd3          = Output(UInt(5.W))
-    val commit_prd3         = Output(UInt(7.W))
-    val commit_rd_valid3    = Output(Bool())
-    val commit_rf_wdata3    = Output(UInt(32.W))
-    val commit_pc_3         = Output(UInt(32.W))
-    val commit_is_ucread3   = Output(Bool())
-    val commit_en4          = Output(Bool())
-    val commit_rd4          = Output(UInt(5.W))
-    val commit_prd4         = Output(UInt(7.W))
-    val commit_rd_valid4    = Output(Bool())
-    val commit_rf_wdata4    = Output(UInt(32.W))
-    val commit_pc_4         = Output(UInt(32.W))
-    val commit_is_ucread4   = Output(Bool())
+    val commit_en1                  = Output(Bool())
+    val commit_rd1                  = Output(UInt(5.W))
+    val commit_prd1                 = Output(UInt(7.W))
+    val commit_rd_valid1            = Output(Bool())
+    val commit_rf_wdata1            = Output(UInt(32.W))
+    val commit_pc_1                 = Output(UInt(32.W))
+    val commit_is_ucread1           = Output(Bool())
+    val commit_is_br1               = Output(Bool())
+    val commit_br_type1             = Output(UInt(2.W))
+    val commit_predict_fail1        = Output(Bool())
 
-    val commit_predict_fail = Output(Bool())
+    val commit_en2                  = Output(Bool())
+    val commit_rd2                  = Output(UInt(5.W))
+    val commit_prd2                 = Output(UInt(7.W))
+    val commit_rd_valid2            = Output(Bool())
+    val commit_rf_wdata2            = Output(UInt(32.W))
+    val commit_pc_2                 = Output(UInt(32.W))
+    val commit_is_ucread2           = Output(Bool())
+    val commit_is_br2               = Output(Bool())
+    val commit_br_type2             = Output(UInt(2.W))
+    val commit_predict_fail2        = Output(Bool())
+    
+    val commit_en3                  = Output(Bool())
+    val commit_rd3                  = Output(UInt(5.W))
+    val commit_prd3                 = Output(UInt(7.W))
+    val commit_rd_valid3            = Output(Bool())
+    val commit_rf_wdata3            = Output(UInt(32.W))
+    val commit_pc_3                 = Output(UInt(32.W))
+    val commit_is_ucread3           = Output(Bool())
+    val commit_is_br3               = Output(Bool())
+    val commit_br_type3             = Output(UInt(2.W))
+    val commit_predict_fail3        = Output(Bool())
+
+    val commit_en4                  = Output(Bool())
+    val commit_rd4                  = Output(UInt(5.W))
+    val commit_prd4                 = Output(UInt(7.W))
+    val commit_rd_valid4            = Output(Bool())
+    val commit_rf_wdata4            = Output(UInt(32.W))
+    val commit_pc_4                 = Output(UInt(32.W))
+    val commit_is_ucread4           = Output(Bool())
+    val commit_is_br4               = Output(Bool())
+    val commit_br_type4             = Output(UInt(2.W))
+    val commit_predict_fail4        = Output(Bool())
+
+
     val commit_stall_by_fetch_queue = Output(Bool())
-    val commit_stall_by_rename = Output(Bool())
-    val commit_stall_by_rob = Output(Bool())
-    val commit_stall_by_iq1 = Output(Bool())
-    val commit_stall_by_iq2 = Output(Bool())
-    val commit_stall_by_iq3 = Output(Bool())
-    val commit_stall_by_iq4 = Output(Bool())
-    val commit_stall_by_sb  = Output(Bool())
+    val commit_stall_by_rename      = Output(Bool())
+    val commit_stall_by_rob         = Output(Bool())
+    val commit_stall_by_iq1         = Output(Bool())
+    val commit_stall_by_iq2         = Output(Bool())
+    val commit_stall_by_iq3         = Output(Bool())
+    val commit_stall_by_iq4         = Output(Bool())
+    val commit_stall_by_sb          = Output(Bool())
+    
+
 
 }
 class CPU(RESET_VEC: Int) extends Module {
@@ -115,20 +132,20 @@ class CPU(RESET_VEC: Int) extends Module {
     val fu3_ex_wb_reg   = Module(new LS_EX2_WB_Reg)
     val fu4_ex_wb_reg   = Module(new MD_EX_WB_Reg)
 
-    val rob             = Module(new ROB(32))
+    val rob             = Module(new ROB(48))
     val arat            = Module(new Arch_Rat)
 
     val stall_by_iq = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
 
     // IF stage
-    io.pc_IF            := pc.io.pc_IF
-    pc.io.pc_stall      := !inst_queue.io.inst_queue_ready 
-    pc.io.predict_fail  := rob.io.predict_fail_cmt
-    pc.io.branch_target := rob.io.branch_target_cmt
-    pc.io.pred_jump     := predict.io.predict_jump
-    pc.io.pred_npc      := predict.io.pred_npc
-    pc.io.flush_by_pd   := pd.io.pred_fix
-    pc.io.flush_pd_target := pd.io.pred_fix_target
+    io.pc_IF                        := pc.io.pc_IF
+    pc.io.pc_stall                  := !inst_queue.io.inst_queue_ready 
+    pc.io.predict_fail              := rob.io.predict_fail_cmt
+    pc.io.branch_target             := rob.io.branch_target_cmt
+    pc.io.pred_jump                 := predict.io.predict_jump
+    pc.io.pred_npc                  := predict.io.pred_npc
+    pc.io.flush_by_pd               := pd.io.pred_fix 
+    pc.io.flush_pd_target           := pd.io.pred_fix_target
 
     predict.io.npc                  := pc.io.npc
     predict.io.pc                   := pc.io.pc_IF
@@ -476,6 +493,9 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rf_wdata1     := rob.io.rf_wdata_cmt(0)
     io.commit_pc_1          := rob.io.pc_cmt(0)
     io.commit_is_ucread1    := rob.io.is_ucread_cmt(0)
+    io.commit_is_br1        := rob.io.is_br_stat(0)
+    io.commit_br_type1      := rob.io.br_type_stat(0)
+    io.commit_predict_fail1 := rob.io.predict_fail_stat(0)
 
     io.commit_en2           := rob.io.cmt_en(1)
     io.commit_rd2           := rob.io.rd_cmt(1)
@@ -484,6 +504,9 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rf_wdata2     := rob.io.rf_wdata_cmt(1)
     io.commit_pc_2          := rob.io.pc_cmt(1)
     io.commit_is_ucread2    := rob.io.is_ucread_cmt(1)
+    io.commit_is_br2        := rob.io.is_br_stat(1)
+    io.commit_br_type2      := rob.io.br_type_stat(1)
+    io.commit_predict_fail2 := rob.io.predict_fail_stat(1)
 
     io.commit_en3           := rob.io.cmt_en(2)
     io.commit_rd3           := rob.io.rd_cmt(2)
@@ -492,6 +515,9 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rf_wdata3     := rob.io.rf_wdata_cmt(2)
     io.commit_pc_3          := rob.io.pc_cmt(2)
     io.commit_is_ucread3    := rob.io.is_ucread_cmt(2)
+    io.commit_is_br3        := rob.io.is_br_stat(2)
+    io.commit_br_type3      := rob.io.br_type_stat(2)
+    io.commit_predict_fail3 := rob.io.predict_fail_stat(2)
 
     io.commit_en4           := rob.io.cmt_en(3)
     io.commit_rd4           := rob.io.rd_cmt(3)
@@ -500,16 +526,18 @@ class CPU(RESET_VEC: Int) extends Module {
     io.commit_rf_wdata4     := rob.io.rf_wdata_cmt(3)
     io.commit_pc_4          := rob.io.pc_cmt(3)
     io.commit_is_ucread4    := rob.io.is_ucread_cmt(3)
+    io.commit_is_br4        := rob.io.is_br_stat(3)
+    io.commit_br_type4      := rob.io.br_type_stat(3)
+    io.commit_predict_fail4 := rob.io.predict_fail_stat(3)
 
-    io.commit_predict_fail := rob.io.predict_fail_cmt
-    io.commit_stall_by_fetch_queue := !inst_queue.io.inst_queue_ready
-    io.commit_stall_by_rename := reg_rename.io.free_list_empty
-    io.commit_stall_by_rob := rob.io.full
-    io.commit_stall_by_iq1 := iq1.io.full
-    io.commit_stall_by_iq2 := iq2.io.full
-    io.commit_stall_by_iq3 := iq3.io.full
-    io.commit_stall_by_iq4 := iq4.io.full
-    io.commit_stall_by_sb  := sb.io.full
+    io.commit_stall_by_fetch_queue  := !inst_queue.io.inst_queue_ready
+    io.commit_stall_by_rename       := reg_rename.io.free_list_empty
+    io.commit_stall_by_rob          := rob.io.full
+    io.commit_stall_by_iq1          := iq1.io.full  && !iq1.io.stall
+    io.commit_stall_by_iq2          := iq2.io.full  && !iq2.io.stall
+    io.commit_stall_by_iq3          := iq3.io.full  && !iq3.io.stall
+    io.commit_stall_by_iq4          := iq4.io.full && !iq4.io.stall
+    io.commit_stall_by_sb           := sb.io.full
 
 
 }
