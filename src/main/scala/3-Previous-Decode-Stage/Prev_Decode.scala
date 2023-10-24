@@ -23,6 +23,8 @@ class Prev_Decode_IO extends Bundle {
     val insts_pack_PD   = Output(Vec(4, new inst_pack_IF_t))
     val pred_fix        = Output(Bool())
     val pred_fix_target = Output(UInt(32.W))
+    val pred_fix_is_bl = Output(Bool())
+    val pred_fix_pc_plus_4 = Output(UInt(32.W))
 }
 import PD_Pack._
 class Prev_Decode extends RawModule {
@@ -51,6 +53,18 @@ class Prev_Decode extends RawModule {
             }
         }
     }
+    val pred_fix_is_bl = Wire(Vec(4, Bool()))
+    pred_fix_is_bl := VecInit(Seq.fill(4)(false.B))
+    val pred_fix_pc_plus_4 = Wire(Vec(4, UInt(32.W)))
+    for(i <- 0 until 4){
+        when(insts_opcode(i) === "b01".U){
+            pred_fix_is_bl(i) := br_type(i) === BL
+        }
+        pred_fix_pc_plus_4(i) := io.insts_pack_IF(i).pc + 4.U
+    }
+    io.pred_fix_is_bl := pred_fix_is_bl(pred_index)
+    io.pred_fix_pc_plus_4 := pred_fix_pc_plus_4(pred_index)
+    
 
     for(i <- 0 until 4){
         when(!io.insts_pack_IF(i).pred_valid && io.insts_pack_IF(i).inst_valid){
@@ -58,6 +72,7 @@ class Prev_Decode extends RawModule {
                 is(YES_JUMP){
                     inst_pack_pd(i).predict_jump := true.B
                     inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
+                    
                 }
                 is(MAY_JUMP){
                     inst_pack_pd(i).predict_jump := inst(i)(25)

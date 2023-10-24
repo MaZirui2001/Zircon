@@ -157,6 +157,9 @@ class CPU(RESET_VEC: Int) extends Module {
     predict.io.predict_fail         := rob.io.predict_fail_cmt
     predict.io.top_arch             := arat.io.top_arch
     predict.io.ras_update_en        := rob.io.ras_update_en_cmt
+    predict.io.pd_pred_fix          := pd.io.pred_fix
+    predict.io.pd_pred_fix_is_bl    := pd.io.pred_fix_is_bl
+    predict.io.pd_pc_plus_4         := pd.io.pred_fix_pc_plus_4
 
 
     // IF-PD SegReg
@@ -478,7 +481,6 @@ class CPU(RESET_VEC: Int) extends Module {
     
     // Commit stage
     arat.io.cmt_en          := rob.io.cmt_en
-    arat.io.rd_cmt          := rob.io.rd_cmt
     arat.io.prd_cmt         := rob.io.prd_cmt
     arat.io.pprd_cmt        := rob.io.pprd_cmt
     arat.io.rd_valid_cmt    := rob.io.rd_valid_cmt

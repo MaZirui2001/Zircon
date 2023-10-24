@@ -24,7 +24,6 @@ import ARCH_RAT_Func._
 class Arch_Rat_IO extends Bundle {
     // for commit 
     val cmt_en          = Input(Vec(4, Bool()))
-    val rd_cmt          = Input(Vec(4, UInt(5.W)))
     val prd_cmt         = Input(Vec(4, UInt(7.W)))
     val pprd_cmt        = Input(Vec(4, UInt(7.W)))
     val rd_valid_cmt    = Input(Vec(4, Bool()))
@@ -43,8 +42,8 @@ class Arch_Rat_IO extends Bundle {
 class Arch_Rat extends Module {
     val io = IO(new Arch_Rat_IO)
 
-    val arat = RegInit(VecInit(Seq.fill(80)(0.U.asTypeOf(new rat_t))))
-    val arat_next = Wire(Vec(80, new rat_t))
+    val arat = RegInit(VecInit(Seq.fill(80)(false.B)))
+    val arat_next = Wire(Vec(80, Bool()))
 
 
     val head = RegInit(VecInit(1.U(5.W), 1.U(5.W), 1.U(5.W), 1.U(5.W)))
@@ -54,9 +53,8 @@ class Arch_Rat extends Module {
     arat_next := arat
     for(i <- 0 until 4){
         when(io.rd_valid_cmt(i) && io.cmt_en(i)){
-            arat_next(io.pprd_cmt(i)).valid := false.B
-            arat_next(io.prd_cmt(i)).lr := io.rd_cmt(i)
-            arat_next(io.prd_cmt(i)).valid := true.B
+            arat_next(io.pprd_cmt(i)) := false.B
+            arat_next(io.prd_cmt(i)) := true.B
         }
     }
     arat := arat_next
@@ -82,7 +80,7 @@ class Arch_Rat extends Module {
     io.top_arch := top_next
 
     for(i <- 0 until 80){
-        io.arch_rat(i) := arat_next(i).valid
+        io.arch_rat(i) := arat_next(i)
     }
     for(i <- 0 until 4){
         io.head_arch(i) := head_next(i)

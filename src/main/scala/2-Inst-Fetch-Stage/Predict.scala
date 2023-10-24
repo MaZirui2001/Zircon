@@ -39,6 +39,9 @@ class Predict_IO extends Bundle{
     // recover 
     val top_arch     = Input(UInt(4.W))
     val predict_fail = Input(Bool())
+    val pd_pred_fix = Input(Bool())
+    val pd_pred_fix_is_bl = Input(Bool())
+    val pd_pc_plus_4 = Input(UInt(32.W))
 }
 
 import PRED_Config._
@@ -52,7 +55,7 @@ class Predict extends Module{
 
     val ras = RegInit(VecInit(Seq.fill(16)(0x1c000000.U(32.W))))
     val top = RegInit(0.U(4.W))
-    val jirl_sel = RegInit(2.U(2.W))
+    val jirl_sel = RegInit(0.U(2.W))
 
     // check
     val npc             = io.npc
@@ -78,8 +81,8 @@ class Predict extends Module{
 
     io.predict_jump     := (pred_hit_oh >> pc(3, 2)).asBools
     io.pred_valid       := (pred_valid_hit >> pc(3, 2)).asBools
-    //io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
-    io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
+    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && jirl_sel =/= 3.U, ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
+    // io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
     // update
     val update_en       = io.update_en
     // btb
@@ -132,19 +135,24 @@ class Predict extends Module{
 
     // RAS
     when(io.predict_fail){
-        top := io.top_arch
-        when(io.br_type === BL){
-            ras(io.top_arch-1.U) := io.pc_cmt + 4.U
+        when(io.br_type === JIRL){
+            top := io.top_arch
+        }
+    }
+    .elsewhen(io.pd_pred_fix){
+        when(io.pd_pred_fix_is_bl){
+            top := top + 1.U
+            ras(top) := io.pd_pc_plus_4
         }
     }.elsewhen(btb_rdata(pred_hit_index).typ === BL){
         top := top + 1.U
-        ras(top) := io.pc + (pred_hit_index << 2.U) + 4.U
+        ras(top) := (io.pc(31, 4) ## (0.U(4.W))) + (pred_hit_index << 2.U) + 4.U
     }.elsewhen(btb_rdata(pred_hit_index).typ === JIRL){
         top := top - 1.U
     }
 
     when(io.ras_update_en && io.br_type === JIRL){
-        jirl_sel := Mux(io.predict_fail, Mux(jirl_sel(0), 2.U, 1.U), Mux(jirl_sel(1), 3.U, 0.U))
+        jirl_sel := Mux(io.predict_fail, Mux(jirl_sel === 3.U, 2.U, jirl_sel+1.U), Mux(jirl_sel === 3.U, 3.U, jirl_sel-(jirl_sel =/= 0.U)))
     }
 
 }
