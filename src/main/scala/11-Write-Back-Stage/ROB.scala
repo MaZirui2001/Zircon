@@ -91,21 +91,16 @@ class ROB(n: Int) extends Module{
     when(!full){
         for(i <- 0 until 4){
             when(io.inst_valid_rn(i)){
-                rob(i)(tail(i)).rd := io.rd_rn(i)
-                rob(i)(tail(i)).rd_valid := io.rd_valid_rn(i)
-                rob(i)(tail(i)).prd := io.prd_rn(i)
-                rob(i)(tail(i)).pprd := io.pprd_rn(i)
-                rob(i)(tail(i)).pc := io.pc_rn(i)
-                rob(i)(tail(i)).is_store := io.is_store_rn(i)
-                rob(i)(tail(i)).pred_update_en := io.pred_update_en_rn(i)
-                rob(i)(tail(i)).br_type_pred := io.br_type_pred_rn(i)
-                rob(i)(tail(i)).ras_update_en := io.ras_update_en_rn(i)
-                rob(i)(tail(i)).rf_wdata := 0.U
-                rob(i)(tail(i)).real_jump := false.B
-                rob(i)(tail(i)).predict_fail := false.B
-                rob(i)(tail(i)).branch_target := 0.U
-                rob(i)(tail(i)).complete := false.B
-                rob(i)(tail(i)).is_ucread := false.B
+                rob(i)(tail(i)).rd              := io.rd_rn(i)
+                rob(i)(tail(i)).rd_valid        := io.rd_valid_rn(i)
+                rob(i)(tail(i)).prd             := io.prd_rn(i)
+                rob(i)(tail(i)).pprd            := io.pprd_rn(i)
+                rob(i)(tail(i)).pc              := io.pc_rn(i)
+                rob(i)(tail(i)).is_store        := io.is_store_rn(i)
+                rob(i)(tail(i)).pred_update_en  := io.pred_update_en_rn(i)
+                rob(i)(tail(i)).br_type_pred    := io.br_type_pred_rn(i)
+                rob(i)(tail(i)).ras_update_en   := io.ras_update_en_rn(i)
+                rob(i)(tail(i)).complete        := false.B
             }
         }
     }
@@ -117,75 +112,68 @@ class ROB(n: Int) extends Module{
     // wb stage
     for(i <- 0 until 4){
         when(io.inst_valid_wb(i)){
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).complete := true.B
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).predict_fail := io.predict_fail_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).branch_target := io.branch_target_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).rf_wdata := io.rf_wdata_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).real_jump := io.real_jump_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).is_ucread := io.is_ucread_wb(i)
+            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).complete        := true.B
+            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).predict_fail    := io.predict_fail_wb(i)
+            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).branch_target   := io.branch_target_wb(i)
+            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).rf_wdata        := io.rf_wdata_wb(i)
+            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).real_jump       := io.real_jump_wb(i)
+            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).is_ucread       := io.is_ucread_wb(i)
         }
     }
     
     // cmt stage
     io.cmt_en(0) := rob(head_sel)(head(head_sel)).complete && !empty(head_sel)
     for(i <- 1 until 4){
-        io.cmt_en(i) := (io.cmt_en(i-1) && rob(head_sel+i.U)(head(head_sel+i.U)).complete && !rob(head_sel+(i-1).U)(head(head_sel+(i-1).U)).predict_fail  
-                         && !empty(head_sel+i.U))
+        io.cmt_en(i) := (io.cmt_en(i-1) && rob(head_sel+i.U)(head(head_sel+i.U)).complete && !rob(head_sel+(i-1).U)(head(head_sel+(i-1).U)).predict_fail && !empty(head_sel+i.U))
     }
-    io.full := full
-    val predict_fail_bit = VecInit(Seq.fill(4)(false.B))
-    val pred_update_en_bit = VecInit(Seq.fill(4)(false.B))
-    val ras_update_en_bit = VecInit(Seq.fill(4)(false.B))
-    val ras_pred_fail =  VecInit(Seq.fill(4)(false.B))
-    for(i <- 0 until 4){
-        predict_fail_bit(i) := rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail && io.cmt_en(i)
-        pred_update_en_bit(i) := rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en && io.cmt_en(i)
-        ras_update_en_bit(i) := rob(head_sel+i.U)(head(head_sel+i.U)).ras_update_en && io.cmt_en(i)
-        ras_pred_fail(i) := ras_update_en_bit(i) && predict_fail_bit(i)
-    }
+    io.full                     := full
+    val predict_fail_bit        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail && io.cmt_en(i)))
+    val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en && io.cmt_en(i)))
+    val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).ras_update_en && io.cmt_en(i)))
+    val ras_pred_fail           =  VecInit(Seq.tabulate(4)(i => ras_update_en_bit(i) && predict_fail_bit(i)))
+
     val pred_fail_ohbit         = PriorityEncoder(predict_fail_bit.asUInt)
     val pred_update_ohbit       = PriorityEncoder(pred_update_en_bit.asUInt)
     val ras_update_ohbit        = PriorityEncoder(ras_update_en_bit.asUInt)
+    val cmt_index               = head_sel+pred_fail_ohbit
+    val cmt_pred_index          = head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit)
     io.ras_update_en_cmt        := ras_update_en_bit.asUInt.orR
     io.predict_fail_cmt         := predict_fail_bit.asUInt.orR
-    io.branch_target_cmt        := Mux(rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).real_jump, 
-                                   rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).branch_target,
-                                   rob(head_sel+pred_fail_ohbit)(head(head_sel+pred_fail_ohbit)).pc + 4.U)
+    io.branch_target_cmt        := Mux(rob(cmt_index)(head(cmt_index)).real_jump, 
+                                   rob(cmt_index)(head(cmt_index)).branch_target,
+                                   rob(cmt_index)(head(cmt_index)).pc + 4.U)
     io.pred_update_en_cmt       := pred_update_en_bit.asUInt.orR
-    io.pred_branch_target_cmt   := rob(head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit))(head(head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit))).branch_target
-    io.br_type_pred_cmt         := rob(head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit))(head(head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit))).br_type_pred
-    io.pred_pc_cmt              := rob(head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit))(head(head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit))).pc
-    io.pred_real_jump_cmt       := rob(head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit))(head(head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit))).real_jump
+    io.pred_branch_target_cmt   := rob(cmt_pred_index)(head(cmt_pred_index)).branch_target
+    io.br_type_pred_cmt         := rob(cmt_pred_index)(head(cmt_pred_index)).br_type_pred
+    io.pred_pc_cmt              := rob(cmt_pred_index)(head(cmt_pred_index)).pc
+    io.pred_real_jump_cmt       := rob(cmt_pred_index)(head(cmt_pred_index)).real_jump
 
-    val is_store_cmt_bit = VecInit(Seq.fill(4)(false.B))
-    for(i <- 0 until 4){
-        io.rd_cmt(i)        := rob(head_sel+i.U)(head(head_sel+i.U)).rd
-        io.rd_valid_cmt(i)  := rob(head_sel+i.U)(head(head_sel+i.U)).rd_valid
-        io.prd_cmt(i)       := rob(head_sel+i.U)(head(head_sel+i.U)).prd
-        io.pprd_cmt(i)      := rob(head_sel+i.U)(head(head_sel+i.U)).pprd
-        io.pc_cmt(i)        := Mux(rob(head_sel+i.U)(head(head_sel+i.U)).real_jump, rob(head_sel+i.U)(head(head_sel+i.U)).branch_target, rob(head_sel+i.U)(head(head_sel+i.U)).pc+4.U)
-        io.rf_wdata_cmt(i)  := rob(head_sel+i.U)(head(head_sel+i.U)).rf_wdata
-        is_store_cmt_bit(i) := rob(head_sel+i.U)(head(head_sel+i.U)).is_store && io.cmt_en(i)
-        io.is_ucread_cmt(i) := rob(head_sel+i.U)(head(head_sel+i.U)).is_ucread
-    }
-    io.is_store_num_cmt := PopCount(is_store_cmt_bit.asUInt)
+    val is_store_cmt_bit        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).is_store && io.cmt_en(i)))
+    io.is_store_num_cmt         := PopCount(is_store_cmt_bit.asUInt)
 
-    head_sel := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
-    val head_inc = Wire(Vec(4, Bool()))
-    head_inc := VecInit(Seq.fill(4)(false.B))
+    io.rd_cmt                   := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).rd))
+    io.rd_valid_cmt             := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).rd_valid))
+    io.prd_cmt                  := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).prd))
+    io.pprd_cmt                 := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pprd))
+    io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob(head_sel+i.U)(head(head_sel+i.U)).real_jump, rob(head_sel+i.U)(head(head_sel+i.U)).branch_target, rob(head_sel+i.U)(head(head_sel+i.U)).pc+4.U)))
+    io.rf_wdata_cmt             := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).rf_wdata))
+    io.is_ucread_cmt            := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).is_ucread && io.cmt_en(i)))
+    
+    head_sel                    := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
+    val head_inc                = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
-        head(head_sel+i.U) := Mux(io.predict_fail_cmt, 0.U, Mux(head(head_sel+i.U) + io.cmt_en(i) === neach.U, 0.U, head(head_sel+i.U) + io.cmt_en(i)))
-        head_inc(head_sel+i.U) := io.cmt_en(i)
+        head(head_sel+i.U)      := Mux(io.predict_fail_cmt, 0.U, Mux(head(head_sel+i.U) + io.cmt_en(i) === neach.U, 0.U, head(head_sel+i.U) + io.cmt_en(i)))
+        head_inc(head_sel+i.U)  := io.cmt_en(i)
     }
     for(i <- 0 until 4){
-        tail(i) := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail(i) + io.inst_valid_rn(i) === neach.U, 0.U, tail(i) + io.inst_valid_rn(i)), tail(i)))
-        elem_num(i) := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + io.inst_valid_rn(i) - head_inc(i), elem_num(i) - head_inc(i)))
+        tail(i)                 := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail(i) + io.inst_valid_rn(i) === neach.U, 0.U, tail(i) + io.inst_valid_rn(i)), tail(i)))
+        elem_num(i)             := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + io.inst_valid_rn(i) - head_inc(i), elem_num(i) - head_inc(i)))
     }
 
 
     // stat
-    io.predict_fail_stat := predict_fail_bit
-    io.br_type_stat := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).br_type_pred))
+    io.predict_fail_stat        := predict_fail_bit
+    io.br_type_stat             := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).br_type_pred))
     io.is_br_stat(0) := pred_update_en_bit(0) 
     for(i <- 1 until 4){
         io.is_br_stat(i) := pred_update_en_bit(i) && !(predict_fail_bit(i-1) && io.is_br_stat(i-1))
