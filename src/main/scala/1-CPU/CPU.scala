@@ -457,8 +457,8 @@ class CPU(RESET_VEC: Int) extends Module {
     // WB stage
     val is_store_rn = VecInit(Seq.tabulate(4)(i => (id_rn_reg.io.insts_pack_RN(i).mem_type =/= NO_MEM && id_rn_reg.io.insts_pack_RN(i).mem_type(4) === 0.U)))
     val pred_update_en = VecInit(Seq.tabulate(4)(i => id_rn_reg.io.insts_pack_RN(i).br_type =/= NO_BR))
-    val br_type_pred = VecInit(Seq.tabulate(4)(i => Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL, 1.U(2.W), Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
-    val ras_update_en = VecInit(Seq.tabulate(4)(i => id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL || id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL))
+    val br_type_pred = VecInit(Seq.tabulate(4)(i => Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL && id_rn_reg.io.insts_pack_RN(i).rj === 1.U, 1.U(2.W), Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
+    val ras_update_en = VecInit(Seq.tabulate(4)(i => ((id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL && id_rn_reg.io.insts_pack_RN(i).rj === 1.U) || id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL)))
     rob.io.inst_valid_rn        := id_rn_reg.io.insts_pack_RN.map(_.inst_valid)
     rob.io.rd_rn                := id_rn_reg.io.insts_pack_RN.map(_.rd)
     rob.io.rd_valid_rn          := id_rn_reg.io.insts_pack_RN.map(_.rd_valid)

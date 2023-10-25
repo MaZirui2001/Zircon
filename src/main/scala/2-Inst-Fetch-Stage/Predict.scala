@@ -81,7 +81,7 @@ class Predict extends Module{
 
     io.predict_jump     := (pred_hit_oh >> pc(3, 2)).asBools
     io.pred_valid       := (pred_valid_hit >> pc(3, 2)).asBools
-    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && jirl_sel =/= 3.U, ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
+    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
     // io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
     // update
     val update_en       = io.update_en
@@ -152,7 +152,7 @@ class Predict extends Module{
     }
 
     when(io.ras_update_en && io.br_type === JIRL){
-        jirl_sel := Mux(io.predict_fail, Mux(jirl_sel === 3.U, 2.U, jirl_sel+1.U), Mux(jirl_sel === 3.U, 3.U, jirl_sel-(jirl_sel =/= 0.U)))
+        jirl_sel := Mux(io.predict_fail, Mux(jirl_sel(0), 2.U, 1.U), Mux(jirl_sel(1), 3.U, 0.U))
     }
 
 }
