@@ -45,7 +45,7 @@ class Dispatch_IO(n: Int) extends Bundle{
     val elem_num            = Input(Vec(2, UInt((log2Ceil(n)+1).W)))
 
     // output for each issue queue
-    val insts_disp_index    = Output(Vec(4, Vec(4, UInt(3.W))))
+    val insts_disp_index    = Output(Vec(4, Vec(4, UInt(2.W))))
     val insts_disp_valid    = Output(Vec(4, Vec(4, Bool())))
 
     val insert_num          = Output(Vec(4, UInt(3.W)))
