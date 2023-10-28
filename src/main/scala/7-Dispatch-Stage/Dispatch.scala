@@ -73,32 +73,25 @@ class Dispatch extends RawModule{
         }
         io.insert_num(i) := Mux(queue_id_hit_trav(i).asUInt.orR, PopCount(queue_id_hit_trav(i)), 0.U)
     }
-    val prj_ready = Wire(Vec(4, Bool()))
-    val prk_ready = Wire(Vec(4, Bool()))
     import Dispatch_Func._
     for(i <- 0 until 4){
-        prj_ready(i) := !io.inst_packs(i).rj_valid || io.inst_packs(i).prj === 0.U || (!io.inst_packs(i).prj_raw && Ready_Generate(io.inst_packs(i).prj, io.prd_queue, queue_sel(i)))
-        prk_ready(i) := !io.inst_packs(i).rk_valid || io.inst_packs(i).prk === 0.U || (!io.inst_packs(i).prk_raw && Ready_Generate(io.inst_packs(i).prk, io.prd_queue, queue_sel(i)))
+        io.prj_ready(i) := !io.inst_packs(i).rj_valid || io.inst_packs(i).prj === 0.U || (!io.inst_packs(i).prj_raw && Ready_Generate(io.inst_packs(i).prj, io.prd_queue, queue_sel(i)))
+        io.prk_ready(i) := !io.inst_packs(i).rk_valid || io.inst_packs(i).prk === 0.U || (!io.inst_packs(i).prk_raw && Ready_Generate(io.inst_packs(i).prk, io.prd_queue, queue_sel(i)))
     }
     
     // alloc insts to issue queue, pressed
-    val index_now = Wire(Vec(5, Vec(4, UInt(2.W))))
-    index_now := 0.U.asTypeOf(Vec(5, Vec(4, UInt(2.W))))
-    io.insts_disp_index := 0.U.asTypeOf(Vec(4, Vec(4, UInt(2.W))))
-    io.insts_disp_valid := 0.U.asTypeOf(Vec(4, Vec(4, Bool())))
-    io.prj_ready := prj_ready
-    io.prk_ready := prk_ready
-
+    io.insts_disp_index := DontCare
+    var alloc_index = VecInit(Seq.fill(4)(0.U(2.W)))
     for(i <- 0 until 4){
+        var next_alloc_index = Wire(Vec(4, UInt(2.W)))
         for(j <- 0 until 4){
             when(queue_id_hit(i)(j)){
-                io.insts_disp_index(j)(index_now(i)(j)) := i.U(2.W)
+                io.insts_disp_index(j)(alloc_index(j)) := i.U(3.W)
             }
-            index_now(i+1)(j) := index_now(i)(j) + queue_id_hit(i)(j)
+            next_alloc_index(j) := Mux(queue_id_hit(i)(j), alloc_index(j) + 1.U, alloc_index(j))
         }
-        io.insts_disp_valid(i) :=  ((1.U(4.W) << io.insert_num(i))(3, 0) - 1.U).asBools
+        alloc_index = next_alloc_index
     }
+    io.insts_disp_valid := io.insert_num.map(x => VecInit(((1.U(4.W) << x)(3, 0) - 1.U).asBools))
 }
-// object Dispatch extends App{
-//     emitVerilog(new Dispatch, Array("-td", "build/"))
-// }
+

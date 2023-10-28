@@ -10,3 +10,4 @@
 2023-10-23 12:03 LUT: 46311 FF: 17390 BRAM: 4 DSP: 8                start to predict jirl, but not use RAS
 2023-10-24 02:54 LUT: 50840 FF: 18225 BRAM: 4 DSP: 8                RAS is so bad, add previous decode stage to predict jump
 2023-10-24 18:13 LUT: 54635 FF: 20240 BRAM: 4 DSP: 8                add 16 rob items
+2023-10-24 15:20 LUT: 50539 FF: 20764 BRAM: 4 DSP: 8                update inst queue by chage into one hot code

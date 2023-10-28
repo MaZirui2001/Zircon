@@ -25,40 +25,62 @@ class Fetch_Queue_IO extends Bundle{
 
 class Fetch_Queue extends Module{
     val io = IO(new Fetch_Queue_IO)
-    import Fetch._
-    val queue = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(8)(0.U.asTypeOf(new inst_pack_PD_t))))))
 
-    val head = RegInit(VecInit(Seq.fill(4)(0.U(3.W))))
-    val tail = RegInit(VecInit(Seq.fill(4)(0.U(3.W))))
-    val tail_sel = RegInit(0.U(2.W))
+    /* config */
+    val num_entries = 32
+    val fetch_width = 4
+    val row_width = num_entries / fetch_width
+    val queue = RegInit(VecInit(Seq.fill(fetch_width)(VecInit(Seq.fill(row_width)(0.U.asTypeOf(new inst_pack_PD_t))))))
 
-    val full = Wire(Bool())
-    full := (head(0) === tail(0)+1.U) | (head(1) === tail(1)+1.U) | (head(2) === tail(2)+1.U) | (head(3) === tail(3)+1.U)
-    val empty = Wire(Bool())
-    empty := ((head(0) === tail(0)) | (head(1) === tail(1)) | (head(2) === tail(2)) | (head(3) === tail(3)))
+    val head = RegInit((1.U(row_width.W)))
+    val head_index = OHToUInt(head)
+    val tail = RegInit((1.U(num_entries.W)))
+    val tail_index = OHToUInt(tail)
 
+    val full = head_index === tail_index(log2Ceil(num_entries)-1, log2Ceil(fetch_width)) + 1.U
+    val empty = head_index === tail_index(log2Ceil(num_entries)-1, log2Ceil(fetch_width))
+
+
+    // Enqueue
     io.inst_queue_ready := !full
 
-    for(i <- 0 until 4){
-        when(io.flush){
-            tail(i) := 0.U
-        }.elsewhen(io.insts_pack(i).inst_valid && !full){
-            queue(i.U+tail_sel)(tail(i.U+tail_sel)) := io.insts_pack(i)
-            tail(i.U+tail_sel) := tail(i.U+tail_sel) + 1.U
-        }
-        
-        when(io.flush){
-            head(i) := 0.U
-        }.elsewhen(io.next_ready && !empty){
-            head(i) := head(i) + 1.U
+    def inc(ptr: UInt) = {
+        val n = ptr.getWidth
+        Cat(ptr(n-2, 0), ptr(n-1))
+    }
+    // calculate the entry index for each instruction
+    val entry_idxs = Wire(Vec(fetch_width, UInt(num_entries.W)))
+    var entry_index = tail
+    for(i <- 0 until fetch_width){
+        entry_idxs(i) := entry_index
+        entry_index = Mux(io.insts_pack(i).inst_valid, inc(entry_index), entry_index)
+    }
+    // write to queue
+    for(i <- 0 until fetch_width){
+        for(j <- 0 until num_entries){
+            when(!full && io.insts_pack(i).inst_valid && entry_idxs(i)(j)){
+                queue(j % fetch_width)(j / fetch_width) := io.insts_pack(i)
+            }
         }
     }
-    tail_sel := Mux(io.flush, 0.U, Mux(full, tail_sel, tail_sel + PopCount(io.insts_pack.map(_.inst_valid))))
-
-    for(i <- 0 until 4){
-        io.insts_pack_id(i) := queue(i)(head(i))
+    // Dequeue
+    for(i <- 0 until fetch_width){
+        io.insts_pack_id(i) := queue(i)(head_index)
         io.insts_valid_decode(i) := !empty
     }
+    // update ptrs
+    when(!full){
+        tail := entry_index
+    }
+    when(io.next_ready && !empty){
+        head := inc(head)
+    }
+    when(io.flush){
+        head := 1.U
+        tail := 1.U
+    }
+
+
 }
 // object Fetch_Queue extends App{
 //     emitVerilog(new Fetch_Queue, Array("-td", "build/"))
