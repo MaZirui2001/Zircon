@@ -1135,18 +1135,6 @@ module CPU(
     endcase
   end // always_comb
   wire [31:0] mem_rdata = _sb_io_ld_hit ? _sb_io_ld_data_ex : io_mem_rdata_ex;
-  wire        _ras_update_en_T = _id_rn_reg_io_insts_pack_RN_0_br_type == 4'h1;
-  wire        _ras_update_en_T_1 = _id_rn_reg_io_insts_pack_RN_0_rj == 5'h1;
-  wire        _ras_update_en_T_3 = _id_rn_reg_io_insts_pack_RN_0_br_type == 4'h3;
-  wire        _ras_update_en_T_5 = _id_rn_reg_io_insts_pack_RN_1_br_type == 4'h1;
-  wire        _ras_update_en_T_6 = _id_rn_reg_io_insts_pack_RN_1_rj == 5'h1;
-  wire        _ras_update_en_T_8 = _id_rn_reg_io_insts_pack_RN_1_br_type == 4'h3;
-  wire        _ras_update_en_T_10 = _id_rn_reg_io_insts_pack_RN_2_br_type == 4'h1;
-  wire        _ras_update_en_T_11 = _id_rn_reg_io_insts_pack_RN_2_rj == 5'h1;
-  wire        _ras_update_en_T_13 = _id_rn_reg_io_insts_pack_RN_2_br_type == 4'h3;
-  wire        _ras_update_en_T_15 = _id_rn_reg_io_insts_pack_RN_3_br_type == 4'h1;
-  wire        _ras_update_en_T_16 = _id_rn_reg_io_insts_pack_RN_3_rj == 5'h1;
-  wire        _ras_update_en_T_18 = _id_rn_reg_io_insts_pack_RN_3_br_type == 4'h3;
   always @(posedge clock) begin
     if (reset) begin
       r <= 7'h0;
@@ -3024,22 +3012,26 @@ module CPU(
     .io_pred_update_en_rn_1    (|_id_rn_reg_io_insts_pack_RN_1_br_type),
     .io_pred_update_en_rn_2    (|_id_rn_reg_io_insts_pack_RN_2_br_type),
     .io_pred_update_en_rn_3    (|_id_rn_reg_io_insts_pack_RN_3_br_type),
-    .io_ras_update_en_rn_0
-      (_ras_update_en_T & _ras_update_en_T_1 | _ras_update_en_T_3),
-    .io_ras_update_en_rn_1
-      (_ras_update_en_T_5 & _ras_update_en_T_6 | _ras_update_en_T_8),
-    .io_ras_update_en_rn_2
-      (_ras_update_en_T_10 & _ras_update_en_T_11 | _ras_update_en_T_13),
-    .io_ras_update_en_rn_3
-      (_ras_update_en_T_15 & _ras_update_en_T_16 | _ras_update_en_T_18),
     .io_br_type_pred_rn_0
-      (_ras_update_en_T & _ras_update_en_T_1 ? 2'h1 : {_ras_update_en_T_3, 1'h0}),
+      (_id_rn_reg_io_insts_pack_RN_0_br_type == 4'h1
+       & _id_rn_reg_io_insts_pack_RN_0_rj == 5'h1
+         ? 2'h1
+         : {_id_rn_reg_io_insts_pack_RN_0_br_type == 4'h3, 1'h0}),
     .io_br_type_pred_rn_1
-      (_ras_update_en_T_5 & _ras_update_en_T_6 ? 2'h1 : {_ras_update_en_T_8, 1'h0}),
+      (_id_rn_reg_io_insts_pack_RN_1_br_type == 4'h1
+       & _id_rn_reg_io_insts_pack_RN_1_rj == 5'h1
+         ? 2'h1
+         : {_id_rn_reg_io_insts_pack_RN_1_br_type == 4'h3, 1'h0}),
     .io_br_type_pred_rn_2
-      (_ras_update_en_T_10 & _ras_update_en_T_11 ? 2'h1 : {_ras_update_en_T_13, 1'h0}),
+      (_id_rn_reg_io_insts_pack_RN_2_br_type == 4'h1
+       & _id_rn_reg_io_insts_pack_RN_2_rj == 5'h1
+         ? 2'h1
+         : {_id_rn_reg_io_insts_pack_RN_2_br_type == 4'h3, 1'h0}),
     .io_br_type_pred_rn_3
-      (_ras_update_en_T_15 & _ras_update_en_T_16 ? 2'h1 : {_ras_update_en_T_18, 1'h0}),
+      (_id_rn_reg_io_insts_pack_RN_3_br_type == 4'h1
+       & _id_rn_reg_io_insts_pack_RN_3_rj == 5'h1
+         ? 2'h1
+         : {_id_rn_reg_io_insts_pack_RN_3_br_type == 4'h3, 1'h0}),
     .io_stall                  (_id_rn_reg_io_stall_T_1),
     .io_inst_valid_wb_0        (_fu1_ex_wb_reg_io_inst_pack_WB_inst_valid),
     .io_inst_valid_wb_1        (_fu2_ex_wb_reg_io_inst_pack_WB_inst_valid),

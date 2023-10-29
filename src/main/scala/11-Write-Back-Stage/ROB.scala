@@ -1,5 +1,6 @@
 import chisel3._
 import chisel3.util._
+import PRED_Config._
 
 // LUT: 1119 FF: 425
 
@@ -13,7 +14,6 @@ object ROB_Pack{
         val branch_target = UInt(32.W)
         val real_jump = Bool()
         val pred_update_en = Bool()
-        val ras_update_en = Bool()
         val br_type_pred = UInt(2.W)
         val complete = Bool()
         val pc = UInt(32.W)
@@ -34,7 +34,6 @@ class ROB_IO(n: Int) extends Bundle{
     val pc_rn                   = Input(Vec(4, UInt(32.W)))
     val is_store_rn             = Input(Vec(4, Bool()))
     val pred_update_en_rn       = Input(Vec(4, Bool()))
-    val ras_update_en_rn        = Input(Vec(4, Bool()))
     val br_type_pred_rn         = Input(Vec(4, UInt(2.W)))
     val full                    = Output(Bool())
     val stall                   = Input(Bool())
@@ -99,7 +98,6 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail(i)).is_store        := io.is_store_rn(i)
                 rob(i)(tail(i)).pred_update_en  := io.pred_update_en_rn(i)
                 rob(i)(tail(i)).br_type_pred    := io.br_type_pred_rn(i)
-                rob(i)(tail(i)).ras_update_en   := io.ras_update_en_rn(i)
                 rob(i)(tail(i)).complete        := false.B
             }
         }
@@ -127,40 +125,44 @@ class ROB(n: Int) extends Module{
         io.cmt_en(i) := (io.cmt_en(i-1) && rob(head_sel+i.U)(head(head_sel+i.U)).complete && !rob(head_sel+(i-1).U)(head(head_sel+(i-1).U)).predict_fail && !empty(head_sel+i.U))
     }
     // update predict and ras
+    val rob_update_items        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U))))
     io.full                     := full
-    val predict_fail_bit        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail && io.cmt_en(i)))
-    val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en && io.cmt_en(i)))
-    val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).ras_update_en && io.cmt_en(i)))
+    val predict_fail_bit        = VecInit(Seq.tabulate(4)(i => rob_update_items(i).predict_fail && io.cmt_en(i)))
+    val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob_update_items(i).pred_update_en && io.cmt_en(i)))
+    val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => rob_update_items(i).pred_update_en && (rob_update_items(i).br_type_pred === BL ||  rob_update_items(i).br_type_pred === JIRL) && io.cmt_en(i)))
     val ras_pred_fail           = VecInit(Seq.tabulate(4)(i => ras_update_en_bit(i) && predict_fail_bit(i)))
 
-    val pred_fail_ohbit         = PriorityEncoder(predict_fail_bit.asUInt)
+    val pred_fail_ohbit         = OHToUInt(predict_fail_bit.asUInt)
     val pred_update_ohbit       = PriorityEncoder(pred_update_en_bit.asUInt)
     val ras_update_ohbit        = PriorityEncoder(ras_update_en_bit.asUInt)
+       
     val cmt_index               = head_sel+pred_fail_ohbit
     val cmt_pred_index          = head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit)
-    
+    val rob_pred_update_item    = rob(cmt_index)(head(cmt_index))
+    val rob_jump_update_item    = rob(cmt_pred_index)(head(cmt_pred_index))
+
     io.ras_update_en_cmt        := ras_update_en_bit.asUInt.orR
     io.predict_fail_cmt         := predict_fail_bit.asUInt.orR
-    io.branch_target_cmt        := Mux(rob(cmt_index)(head(cmt_index)).real_jump, 
-                                   rob(cmt_index)(head(cmt_index)).branch_target,
-                                   rob(cmt_index)(head(cmt_index)).pc + 4.U)
+    io.branch_target_cmt        := Mux(rob_pred_update_item.real_jump, 
+                                   rob_pred_update_item.branch_target,
+                                   rob_pred_update_item.pc + 4.U)
     io.pred_update_en_cmt       := pred_update_en_bit.asUInt.orR
-    io.pred_branch_target_cmt   := rob(cmt_pred_index)(head(cmt_pred_index)).branch_target
-    io.br_type_pred_cmt         := rob(cmt_pred_index)(head(cmt_pred_index)).br_type_pred
-    io.pred_pc_cmt              := rob(cmt_pred_index)(head(cmt_pred_index)).pc
-    io.pred_real_jump_cmt       := rob(cmt_pred_index)(head(cmt_pred_index)).real_jump
+    io.pred_branch_target_cmt   := rob_jump_update_item.branch_target
+    io.br_type_pred_cmt         := rob_jump_update_item.br_type_pred
+    io.pred_pc_cmt              := rob_jump_update_item.pc
+    io.pred_real_jump_cmt       := rob_jump_update_item.real_jump
 
     // update store buffer
-    val is_store_cmt_bit        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).is_store && io.cmt_en(i)))
+    val is_store_cmt_bit        = VecInit(Seq.tabulate(4)(i => rob_update_items(i).is_store && io.cmt_en(i)))
     io.is_store_num_cmt         := PopCount(is_store_cmt_bit.asUInt)
 
-    io.rd_cmt                   := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).rd))
-    io.rd_valid_cmt             := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).rd_valid))
-    io.prd_cmt                  := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).prd))
-    io.pprd_cmt                 := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pprd))
-    io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob(head_sel+i.U)(head(head_sel+i.U)).real_jump, rob(head_sel+i.U)(head(head_sel+i.U)).branch_target, rob(head_sel+i.U)(head(head_sel+i.U)).pc+4.U)))
-    io.rf_wdata_cmt             := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).rf_wdata))
-    io.is_ucread_cmt            := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).is_ucread && io.cmt_en(i)))
+    io.rd_cmt                   := VecInit(Seq.tabulate(4)(i => rob_update_items(i).rd))
+    io.rd_valid_cmt             := VecInit(Seq.tabulate(4)(i => rob_update_items(i).rd_valid))
+    io.prd_cmt                  := VecInit(Seq.tabulate(4)(i => rob_update_items(i).prd))
+    io.pprd_cmt                 := VecInit(Seq.tabulate(4)(i => rob_update_items(i).pprd))
+    io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob_update_items(i).real_jump, rob_update_items(i).branch_target ,rob_update_items(i).pc+4.U)))
+    io.rf_wdata_cmt             := VecInit(Seq.tabulate(4)(i => rob_update_items(i).rf_wdata))
+    io.is_ucread_cmt            := VecInit(Seq.tabulate(4)(i => rob_update_items(i).is_ucread && io.cmt_en(i)))
     
     // update ptrs
     head_sel                    := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
