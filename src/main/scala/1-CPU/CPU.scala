@@ -457,9 +457,9 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // WB stage
     val is_store_rn = VecInit(Seq.tabulate(4)(i => (id_rn_reg.io.insts_pack_RN(i).mem_type =/= NO_MEM && id_rn_reg.io.insts_pack_RN(i).mem_type(4) === 0.U)))
-    val pred_update_en = VecInit(Seq.tabulate(4)(i => id_rn_reg.io.insts_pack_RN(i).br_type =/= NO_BR))
-    val br_type_pred = VecInit(Seq.tabulate(4)(i => Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL && id_rn_reg.io.insts_pack_RN(i).rj === 1.U, 1.U(2.W), Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
-    val ras_update_en = VecInit(Seq.tabulate(4)(i => ((id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL && id_rn_reg.io.insts_pack_RN(i).rj === 1.U) || id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL)))
+    val br_type_pred = VecInit(Seq.tabulate(4)(i => Mux(id_rn_reg.io.insts_pack_RN(i).br_type === NO_BR, 3.U, 
+                                                    Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_JIRL && id_rn_reg.io.insts_pack_RN(i).rj === 1.U, 1.U(2.W), 
+                                                    Mux(id_rn_reg.io.insts_pack_RN(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W))))))
     rob.io.inst_valid_rn        := id_rn_reg.io.insts_pack_RN.map(_.inst_valid)
     rob.io.rd_rn                := id_rn_reg.io.insts_pack_RN.map(_.rd)
     rob.io.rd_valid_rn          := id_rn_reg.io.insts_pack_RN.map(_.rd_valid)
@@ -468,9 +468,7 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.pc_rn                := id_rn_reg.io.insts_pack_RN.map(_.pc)
     rob.io.is_store_rn          := is_store_rn
     rob.io.stall                := id_rn_reg.io.stall
-    rob.io.pred_update_en_rn    := pred_update_en
     rob.io.br_type_pred_rn      := br_type_pred
-    rob.io.ras_update_en_rn     := ras_update_en
 
     rob.io.inst_valid_wb        := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.inst_valid, fu2_ex_wb_reg.io.inst_pack_WB.inst_valid, fu3_ex_wb_reg.io.inst_pack_WB.inst_valid, fu4_ex_wb_reg.io.inst_pack_WB.inst_valid)
     rob.io.rob_index_wb         := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.rob_index, fu2_ex_wb_reg.io.inst_pack_WB.rob_index, fu3_ex_wb_reg.io.inst_pack_WB.rob_index, fu4_ex_wb_reg.io.inst_pack_WB.rob_index)

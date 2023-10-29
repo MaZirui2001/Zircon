@@ -12,3 +12,5 @@
 2023-10-24 18:13 LUT: 54635 FF: 20240 BRAM: 4 DSP: 8                add 16 rob items
 2023-10-24 15:20 LUT: 53344 FF: 20779 BRAM: 4 DSP: 8                update inst queue by chage into one hot code
 2023-10-29 15:19 LUT: 53384 FF: 20786 BRAM: 4 DSP: 8                update SegReg
+2023-10-29 16:51 LUT: 53380 FF: 20683 BRAM: 4 DSP: 8                delete some useless items in ROB
+2023-10-29 17:17 LUT: 53375 FF: 20683 BRAM: 4 DSP: 8                delete prev deocde unused logic 

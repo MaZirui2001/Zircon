@@ -3008,30 +3008,34 @@ module CPU(
     .io_is_store_rn_3
       ((|_id_rn_reg_io_insts_pack_RN_3_mem_type)
        & ~(_id_rn_reg_io_insts_pack_RN_3_mem_type[4])),
-    .io_pred_update_en_rn_0    (|_id_rn_reg_io_insts_pack_RN_0_br_type),
-    .io_pred_update_en_rn_1    (|_id_rn_reg_io_insts_pack_RN_1_br_type),
-    .io_pred_update_en_rn_2    (|_id_rn_reg_io_insts_pack_RN_2_br_type),
-    .io_pred_update_en_rn_3    (|_id_rn_reg_io_insts_pack_RN_3_br_type),
     .io_br_type_pred_rn_0
-      (_id_rn_reg_io_insts_pack_RN_0_br_type == 4'h1
-       & _id_rn_reg_io_insts_pack_RN_0_rj == 5'h1
-         ? 2'h1
-         : {_id_rn_reg_io_insts_pack_RN_0_br_type == 4'h3, 1'h0}),
+      (_id_rn_reg_io_insts_pack_RN_0_br_type == 4'h0
+         ? 2'h3
+         : _id_rn_reg_io_insts_pack_RN_0_br_type == 4'h1
+           & _id_rn_reg_io_insts_pack_RN_0_rj == 5'h1
+             ? 2'h1
+             : {_id_rn_reg_io_insts_pack_RN_0_br_type == 4'h3, 1'h0}),
     .io_br_type_pred_rn_1
-      (_id_rn_reg_io_insts_pack_RN_1_br_type == 4'h1
-       & _id_rn_reg_io_insts_pack_RN_1_rj == 5'h1
-         ? 2'h1
-         : {_id_rn_reg_io_insts_pack_RN_1_br_type == 4'h3, 1'h0}),
+      (_id_rn_reg_io_insts_pack_RN_1_br_type == 4'h0
+         ? 2'h3
+         : _id_rn_reg_io_insts_pack_RN_1_br_type == 4'h1
+           & _id_rn_reg_io_insts_pack_RN_1_rj == 5'h1
+             ? 2'h1
+             : {_id_rn_reg_io_insts_pack_RN_1_br_type == 4'h3, 1'h0}),
     .io_br_type_pred_rn_2
-      (_id_rn_reg_io_insts_pack_RN_2_br_type == 4'h1
-       & _id_rn_reg_io_insts_pack_RN_2_rj == 5'h1
-         ? 2'h1
-         : {_id_rn_reg_io_insts_pack_RN_2_br_type == 4'h3, 1'h0}),
+      (_id_rn_reg_io_insts_pack_RN_2_br_type == 4'h0
+         ? 2'h3
+         : _id_rn_reg_io_insts_pack_RN_2_br_type == 4'h1
+           & _id_rn_reg_io_insts_pack_RN_2_rj == 5'h1
+             ? 2'h1
+             : {_id_rn_reg_io_insts_pack_RN_2_br_type == 4'h3, 1'h0}),
     .io_br_type_pred_rn_3
-      (_id_rn_reg_io_insts_pack_RN_3_br_type == 4'h1
-       & _id_rn_reg_io_insts_pack_RN_3_rj == 5'h1
-         ? 2'h1
-         : {_id_rn_reg_io_insts_pack_RN_3_br_type == 4'h3, 1'h0}),
+      (_id_rn_reg_io_insts_pack_RN_3_br_type == 4'h0
+         ? 2'h3
+         : _id_rn_reg_io_insts_pack_RN_3_br_type == 4'h1
+           & _id_rn_reg_io_insts_pack_RN_3_rj == 5'h1
+             ? 2'h1
+             : {_id_rn_reg_io_insts_pack_RN_3_br_type == 4'h3, 1'h0}),
     .io_stall                  (_id_rn_reg_io_stall_T_1),
     .io_inst_valid_wb_0        (_fu1_ex_wb_reg_io_inst_pack_WB_inst_valid),
     .io_inst_valid_wb_1        (_fu2_ex_wb_reg_io_inst_pack_WB_inst_valid),

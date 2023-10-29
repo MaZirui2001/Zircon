@@ -247,10 +247,9 @@ module Prev_Decode(
       : io_insts_pack_IF_3_pred_npc;
   wire        inst_valid_1 =
     io_insts_pack_IF_0_inst_valid & io_insts_pack_IF_1_inst_valid
-    & ~(inst_pack_pd_0_predict_jump & ~io_insts_pack_IF_0_predict_jump);
+    & ~inst_pack_pd_0_predict_jump;
   wire        inst_valid_2 =
-    inst_valid_1 & io_insts_pack_IF_2_inst_valid
-    & ~(inst_pack_pd_1_predict_jump & ~io_insts_pack_IF_1_predict_jump);
+    inst_valid_1 & io_insts_pack_IF_2_inst_valid & ~inst_pack_pd_1_predict_jump;
   assign io_insts_pack_PD_0_pc = io_insts_pack_IF_0_pc;
   assign io_insts_pack_PD_0_inst = io_insts_pack_IF_0_inst;
   assign io_insts_pack_PD_0_inst_valid = io_insts_pack_IF_0_inst_valid;
@@ -269,8 +268,7 @@ module Prev_Decode(
   assign io_insts_pack_PD_3_pc = io_insts_pack_IF_3_pc;
   assign io_insts_pack_PD_3_inst = io_insts_pack_IF_3_inst;
   assign io_insts_pack_PD_3_inst_valid =
-    inst_valid_2 & io_insts_pack_IF_3_inst_valid
-    & ~(inst_pack_pd_2_predict_jump & ~io_insts_pack_IF_2_predict_jump);
+    inst_valid_2 & io_insts_pack_IF_3_inst_valid & ~inst_pack_pd_2_predict_jump;
   assign io_insts_pack_PD_3_predict_jump = inst_pack_pd_3_predict_jump;
   assign io_insts_pack_PD_3_pred_npc = inst_pack_pd_3_pred_npc;
   assign io_pred_fix =

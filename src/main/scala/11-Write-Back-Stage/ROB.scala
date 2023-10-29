@@ -13,7 +13,6 @@ object ROB_Pack{
         val predict_fail = Bool()
         val branch_target = UInt(32.W)
         val real_jump = Bool()
-        val pred_update_en = Bool()
         val br_type_pred = UInt(2.W)
         val complete = Bool()
         val pc = UInt(32.W)
@@ -33,7 +32,6 @@ class ROB_IO(n: Int) extends Bundle{
     val rob_index_rn            = Output(Vec(4, UInt(log2Ceil(n).W)))
     val pc_rn                   = Input(Vec(4, UInt(32.W)))
     val is_store_rn             = Input(Vec(4, Bool()))
-    val pred_update_en_rn       = Input(Vec(4, Bool()))
     val br_type_pred_rn         = Input(Vec(4, UInt(2.W)))
     val full                    = Output(Bool())
     val stall                   = Input(Bool())
@@ -96,7 +94,6 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail(i)).pprd            := io.pprd_rn(i)
                 rob(i)(tail(i)).pc              := io.pc_rn(i)
                 rob(i)(tail(i)).is_store        := io.is_store_rn(i)
-                rob(i)(tail(i)).pred_update_en  := io.pred_update_en_rn(i)
                 rob(i)(tail(i)).br_type_pred    := io.br_type_pred_rn(i)
                 rob(i)(tail(i)).complete        := false.B
             }
@@ -128,8 +125,8 @@ class ROB(n: Int) extends Module{
     val rob_update_items        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U))))
     io.full                     := full
     val predict_fail_bit        = VecInit(Seq.tabulate(4)(i => rob_update_items(i).predict_fail && io.cmt_en(i)))
-    val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob_update_items(i).pred_update_en && io.cmt_en(i)))
-    val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => rob_update_items(i).pred_update_en && (rob_update_items(i).br_type_pred === BL ||  rob_update_items(i).br_type_pred === JIRL) && io.cmt_en(i)))
+    val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob_update_items(i).br_type_pred =/= 3.U && io.cmt_en(i)))
+    val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => (rob_update_items(i).br_type_pred === BL || rob_update_items(i).br_type_pred === JIRL) && io.cmt_en(i)))
     val ras_pred_fail           = VecInit(Seq.tabulate(4)(i => ras_update_en_bit(i) && predict_fail_bit(i)))
 
     val pred_fail_ohbit         = OHToUInt(predict_fail_bit.asUInt)

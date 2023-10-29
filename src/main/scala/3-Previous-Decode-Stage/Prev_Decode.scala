@@ -37,7 +37,8 @@ class Prev_Decode extends RawModule {
     inst_pack_pd := io.insts_pack_IF
     val inst = VecInit(io.insts_pack_IF.map(_.inst))
 
-    val pred_fix = VecInit(Seq.tabulate(4)(i => io.insts_pack_IF(i).inst_valid && !io.insts_pack_IF(i).predict_jump && inst_pack_pd(i).predict_jump))
+    val pred_fix = VecInit(Seq.tabulate(4)(i => io.insts_pack_IF(i).inst_valid && 
+                    !io.insts_pack_IF(i).predict_jump && inst_pack_pd(i).predict_jump))
     io.pred_fix := pred_fix.asUInt.orR
 
     val pred_index = PriorityEncoder(pred_fix)
@@ -53,8 +54,7 @@ class Prev_Decode extends RawModule {
             }
         }
     }
-    val pred_fix_is_bl = Wire(Vec(4, Bool()))
-    pred_fix_is_bl := VecInit(Seq.fill(4)(false.B))
+    val pred_fix_is_bl = VecInit(Seq.fill(4)(false.B))
     val pred_fix_pc_plus_4 = Wire(Vec(4, UInt(32.W)))
     for(i <- 0 until 4){
         when(insts_opcode(i) === "b01".U){
@@ -65,14 +65,12 @@ class Prev_Decode extends RawModule {
     io.pred_fix_is_bl := pred_fix_is_bl(pred_index)
     io.pred_fix_pc_plus_4 := pred_fix_pc_plus_4(pred_index)
     
-
     for(i <- 0 until 4){
         when(!io.insts_pack_IF(i).pred_valid && io.insts_pack_IF(i).inst_valid){
             switch(jump_type(i)){
                 is(YES_JUMP){
                     inst_pack_pd(i).predict_jump := true.B
                     inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
-                    
                 }
                 is(MAY_JUMP){
                     inst_pack_pd(i).predict_jump := inst(i)(25)
@@ -85,7 +83,7 @@ class Prev_Decode extends RawModule {
     inst_valid(0) := io.insts_pack_IF(0).inst_valid
     inst_pack_pd(0).inst_valid := inst_valid(0)
     for(i <- 1 until 4){
-        inst_valid(i) := inst_valid(i-1) && io.insts_pack_IF(i).inst_valid && !(inst_pack_pd(i-1).predict_jump && !io.insts_pack_IF(i-1).predict_jump)
+        inst_valid(i) := inst_valid(i-1) && io.insts_pack_IF(i).inst_valid && !(inst_pack_pd(i-1).predict_jump)
         inst_pack_pd(i).inst_valid := inst_valid(i)
     }
     io.insts_pack_PD := inst_pack_pd

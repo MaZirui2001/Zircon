@@ -75,6 +75,3 @@ class Order_Issue_Queue(n: Int) extends Module {
     io.insts_issue := queue(0)
     io.issue_req := tail =/= 0.U && queue(0).prj_waked && queue(0).prk_waked
 }
-// object Order_Issue_Queue extends App {
-//     emitVerilog(new Order_Issue_Queue(8), Array("-td", "build/"))
-// }
