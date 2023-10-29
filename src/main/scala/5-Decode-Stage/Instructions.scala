@@ -172,41 +172,16 @@ object Inst_Pack{
         inst_pack_RN
     }
     class inst_pack_DP_t extends Bundle{
-        // val rj              = UInt(5.W)
-        // val rj_valid        = Bool()
         val prj             = UInt(7.W)
-        // val rk              = UInt(5.W)
-        // val rk_valid        = Bool()
         val prk             = UInt(7.W)
         val rd              = UInt(5.W)
         val rd_valid        = Bool()
         val prd             = UInt(7.W)
         val pprd            = UInt(7.W)
         val imm             = UInt(32.W)
-        // val alu_op          = UInt(5.W)
-        // val alu_rs1_sel     = UInt(2.W)
-        // val alu_rs2_sel     = UInt(2.W)
-        // val br_type         = UInt(4.W)
-        // val mem_type        = UInt(5.W)
-        // val pc              = UInt(32.W)
         val rob_index       = UInt(6.W)
-        // val predict_jump    = Bool()
-        // val pred_npc        = UInt(32.W)
         val inst_exist      = Bool()
     }
-    // def inst_pack_DP_gen (inst_pack_RN : inst_pack_RN_t) : inst_pack_DP_t = {
-    //     val inst_pack_DP = Wire(new inst_pack_DP_t)
-    //     inst_pack_DP.prj            := inst_pack_RN.prj
-    //     inst_pack_DP.prk            := inst_pack_RN.prk
-    //     inst_pack_DP.rd             := inst_pack_RN.rd
-    //     inst_pack_DP.rd_valid       := inst_pack_RN.rd_valid
-    //     inst_pack_DP.prd            := inst_pack_RN.prd
-    //     inst_pack_DP.pprd           := inst_pack_RN.pprd
-    //     inst_pack_DP.imm            := inst_pack_RN.imm
-    //     inst_pack_DP.rob_index      := inst_pack_RN.rob_index
-    //     inst_pack_DP.inst_exist     := inst_pack_RN.inst_exist
-    //     inst_pack_DP
-    // }
     class inst_pack_DP_FU1_t extends inst_pack_DP_t{
         val alu_op          = UInt(5.W)
         val alu_rs1_sel     = UInt(2.W)
@@ -299,7 +274,6 @@ object Inst_Pack{
         val rd              = UInt(5.W)
         val rd_valid        = Bool()
         val prd             = UInt(7.W)
-        // val pprd            = UInt(7.W)
         val imm             = UInt(32.W)
         val rob_index       = UInt(6.W)
         val inst_exist      = Bool()
@@ -318,7 +292,6 @@ object Inst_Pack{
         inst_pack_IS_FU1.rd             := inst_pack_DP.rd
         inst_pack_IS_FU1.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_FU1.prd            := inst_pack_DP.prd
-        // inst_pack_IS_FU1.pprd           := inst_pack_DP.pprd
         inst_pack_IS_FU1.imm            := inst_pack_DP.imm
         inst_pack_IS_FU1.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_FU1.inst_exist     := inst_pack_DP.inst_exist
@@ -346,7 +319,6 @@ object Inst_Pack{
         inst_pack_IS_FU2.rd             := inst_pack_DP.rd
         inst_pack_IS_FU2.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_FU2.prd            := inst_pack_DP.prd
-        // inst_pack_IS_FU2.pprd           := inst_pack_DP.pprd
         inst_pack_IS_FU2.imm            := inst_pack_DP.imm
         inst_pack_IS_FU2.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_FU2.inst_exist     := inst_pack_DP.inst_exist
@@ -370,7 +342,6 @@ object Inst_Pack{
         inst_pack_IS_LS.rd             := inst_pack_DP.rd
         inst_pack_IS_LS.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_LS.prd            := inst_pack_DP.prd
-        // inst_pack_IS_LS.pprd           := inst_pack_DP.pprd
         inst_pack_IS_LS.imm            := inst_pack_DP.imm
         inst_pack_IS_LS.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_LS.inst_exist     := inst_pack_DP.inst_exist
@@ -388,7 +359,6 @@ object Inst_Pack{
         inst_pack_IS_MD.rd             := inst_pack_DP.rd
         inst_pack_IS_MD.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_MD.prd            := inst_pack_DP.prd
-        // inst_pack_IS_MD.pprd           := inst_pack_DP.pprd
         inst_pack_IS_MD.imm            := inst_pack_DP.imm
         inst_pack_IS_MD.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_MD.inst_exist     := inst_pack_DP.inst_exist
