@@ -126,17 +126,19 @@ class ROB(n: Int) extends Module{
     for(i <- 1 until 4){
         io.cmt_en(i) := (io.cmt_en(i-1) && rob(head_sel+i.U)(head(head_sel+i.U)).complete && !rob(head_sel+(i-1).U)(head(head_sel+(i-1).U)).predict_fail && !empty(head_sel+i.U))
     }
+    // update predict and ras
     io.full                     := full
     val predict_fail_bit        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail && io.cmt_en(i)))
     val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en && io.cmt_en(i)))
     val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).ras_update_en && io.cmt_en(i)))
-    val ras_pred_fail           =  VecInit(Seq.tabulate(4)(i => ras_update_en_bit(i) && predict_fail_bit(i)))
+    val ras_pred_fail           = VecInit(Seq.tabulate(4)(i => ras_update_en_bit(i) && predict_fail_bit(i)))
 
     val pred_fail_ohbit         = PriorityEncoder(predict_fail_bit.asUInt)
     val pred_update_ohbit       = PriorityEncoder(pred_update_en_bit.asUInt)
     val ras_update_ohbit        = PriorityEncoder(ras_update_en_bit.asUInt)
     val cmt_index               = head_sel+pred_fail_ohbit
     val cmt_pred_index          = head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit)
+    
     io.ras_update_en_cmt        := ras_update_en_bit.asUInt.orR
     io.predict_fail_cmt         := predict_fail_bit.asUInt.orR
     io.branch_target_cmt        := Mux(rob(cmt_index)(head(cmt_index)).real_jump, 
@@ -148,6 +150,7 @@ class ROB(n: Int) extends Module{
     io.pred_pc_cmt              := rob(cmt_pred_index)(head(cmt_pred_index)).pc
     io.pred_real_jump_cmt       := rob(cmt_pred_index)(head(cmt_pred_index)).real_jump
 
+    // update store buffer
     val is_store_cmt_bit        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).is_store && io.cmt_en(i)))
     io.is_store_num_cmt         := PopCount(is_store_cmt_bit.asUInt)
 
@@ -159,6 +162,7 @@ class ROB(n: Int) extends Module{
     io.rf_wdata_cmt             := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).rf_wdata))
     io.is_ucread_cmt            := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).is_ucread && io.cmt_en(i)))
     
+    // update ptrs
     head_sel                    := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
     val head_inc                = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
