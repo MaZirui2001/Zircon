@@ -92,14 +92,14 @@ class CPU(RESET_VEC: Int) extends Module {
     
     val dp              = Module(new Dispatch)
     val inst_queue      = Module(new Fetch_Queue)
-    val iq1             = Module(new Unorder_Issue_Queue(8))
-    val sel1            = Module(new Unorder_Select(8))
-    val iq2             = Module(new Unorder_Issue_Queue(8))
-    val sel2            = Module(new Unorder_Select(8))
-    val iq3             = Module(new Order_Issue_Queue(8))
-    val sel3            = Module(new Order_Select(8))
-    val iq4             = Module(new Order_Issue_Queue(8))
-    val sel4            = Module(new Order_Select(8))
+    val iq1             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_FU1_t))
+    val sel1            = Module(new Unorder_Select(8, new inst_pack_DP_FU1_t))
+    val iq2             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_FU2_t))
+    val sel2            = Module(new Unorder_Select(8, new inst_pack_DP_FU2_t))
+    val iq3             = Module(new Order_Issue_Queue(8, new inst_pack_DP_LS_t))
+    val sel3            = Module(new Order_Select(8, new inst_pack_DP_LS_t))
+    val iq4             = Module(new Order_Issue_Queue(8, new inst_pack_DP_MD_t))
+    val sel4            = Module(new Order_Select(8, new inst_pack_DP_MD_t))
 
     val rob             = Module(new ROB(48))
     val is_rf_reg1      = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
@@ -222,7 +222,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // issue stage
     // 1. arith1, common calculate
-    iq1.io.insts_dispatch       := rn_dp_reg.io.insts_pack_DP
+    iq1.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_FU1_gen(rn_dp_reg.io.insts_pack_DP(i))))
     iq1.io.insts_disp_index     := dp.io.insts_disp_index(0)
     iq1.io.insts_disp_valid     := dp.io.insts_disp_valid(0)
     iq1.io.insert_num           := dp.io.insert_num(0)
@@ -237,7 +237,7 @@ class CPU(RESET_VEC: Int) extends Module {
     sel1.io.stall               := !(iq1.io.issue_req.asUInt.orR)
 
     // 2. arith2, calculate and branch 
-    iq2.io.insts_dispatch       := rn_dp_reg.io.insts_pack_DP
+    iq2.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_FU2_gen(rn_dp_reg.io.insts_pack_DP(i))))
     iq2.io.insts_disp_index     := dp.io.insts_disp_index(1)
     iq2.io.insts_disp_valid     := dp.io.insts_disp_valid(1)
     iq2.io.insert_num           := dp.io.insert_num(1)
@@ -252,7 +252,7 @@ class CPU(RESET_VEC: Int) extends Module {
     sel2.io.stall               := !(iq2.io.issue_req.asUInt.orR)
 
     // 3. load, load and store
-    iq3.io.insts_dispatch       := rn_dp_reg.io.insts_pack_DP
+    iq3.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_LS_gen(rn_dp_reg.io.insts_pack_DP(i))))
     iq3.io.insts_disp_index     := dp.io.insts_disp_index(2)
     iq3.io.insts_disp_valid     := dp.io.insts_disp_valid(2)
     iq3.io.insert_num           := dp.io.insert_num(2)
@@ -267,7 +267,7 @@ class CPU(RESET_VEC: Int) extends Module {
     sel3.io.stall               := !(iq3.io.issue_req) || sb.io.full
 
     // 4. multiply, multiply and divide
-    iq4.io.insts_dispatch       := rn_dp_reg.io.insts_pack_DP
+    iq4.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_MD_gen(rn_dp_reg.io.insts_pack_DP(i))))
     iq4.io.insts_disp_index     := dp.io.insts_disp_index(3)
     iq4.io.insts_disp_valid     := dp.io.insts_disp_valid(3)
     iq4.io.insert_num           := dp.io.insert_num(3)

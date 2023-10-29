@@ -78,30 +78,32 @@ class ROB(n: Int) extends Module{
     import ROB_Pack._
     val rob         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
     val head        = RegInit(VecInit(Seq.fill(4)(0.U(log2Ceil(neach).W))))
-    val tail        = RegInit(VecInit(Seq.fill(4)(0.U(log2Ceil(neach).W))))
+    val tail        = RegInit((0.U(log2Ceil(neach).W)))
     val elem_num    = RegInit(VecInit(Seq.fill(4)(0.U((log2Ceil(neach)+1).W))))
     val head_sel    = RegInit(0.U(2.W))
 
     val empty       = VecInit(elem_num.map(_ === 0.U))
     val full        = VecInit(elem_num.map(_ === neach.U)).asUInt.orR
+
+    val inst_valid_rn = io.inst_valid_rn.reduce(_||_)
     // rn stage
     when(!full){
         for(i <- 0 until 4){
             when(io.inst_valid_rn(i)){
-                rob(i)(tail(i)).rd              := io.rd_rn(i)
-                rob(i)(tail(i)).rd_valid        := io.rd_valid_rn(i)
-                rob(i)(tail(i)).prd             := io.prd_rn(i)
-                rob(i)(tail(i)).pprd            := io.pprd_rn(i)
-                rob(i)(tail(i)).pc              := io.pc_rn(i)
-                rob(i)(tail(i)).is_store        := io.is_store_rn(i)
-                rob(i)(tail(i)).br_type_pred    := io.br_type_pred_rn(i)
-                rob(i)(tail(i)).complete        := false.B
+                rob(i)(tail).rd              := io.rd_rn(i)
+                rob(i)(tail).rd_valid        := io.rd_valid_rn(i)
+                rob(i)(tail).prd             := io.prd_rn(i)
+                rob(i)(tail).pprd            := io.pprd_rn(i)
+                rob(i)(tail).pc              := io.pc_rn(i)
+                rob(i)(tail).is_store        := io.is_store_rn(i)
+                rob(i)(tail).br_type_pred    := io.br_type_pred_rn(i)
+                rob(i)(tail).complete        := false.B
             }
         }
     }
 
     for(i <- 0 until 4){
-        io.rob_index_rn(i) := tail(i) ## i.U(2.W)
+        io.rob_index_rn(i) := tail ## i.U(2.W)
     }
 
     // wb stage
@@ -157,7 +159,7 @@ class ROB(n: Int) extends Module{
     io.rd_valid_cmt             := VecInit(Seq.tabulate(4)(i => rob_update_items(i).rd_valid))
     io.prd_cmt                  := VecInit(Seq.tabulate(4)(i => rob_update_items(i).prd))
     io.pprd_cmt                 := VecInit(Seq.tabulate(4)(i => rob_update_items(i).pprd))
-    io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob_update_items(i).real_jump, rob_update_items(i).branch_target ,rob_update_items(i).pc+4.U)))
+    io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob_update_items(i).real_jump, rob_update_items(i).branch_target, rob_update_items(i).pc+4.U)))
     io.rf_wdata_cmt             := VecInit(Seq.tabulate(4)(i => rob_update_items(i).rf_wdata))
     io.is_ucread_cmt            := VecInit(Seq.tabulate(4)(i => rob_update_items(i).is_ucread && io.cmt_en(i)))
     
@@ -169,9 +171,9 @@ class ROB(n: Int) extends Module{
         head_inc(head_sel+i.U)  := io.cmt_en(i)
     }
     for(i <- 0 until 4){
-        tail(i)                 := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail(i) + io.inst_valid_rn(i) === neach.U, 0.U, tail(i) + io.inst_valid_rn(i)), tail(i)))
         elem_num(i)             := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + io.inst_valid_rn(i) - head_inc(i), elem_num(i) - head_inc(i)))
     }
+    tail := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_rn === neach.U, 0.U, tail + inst_valid_rn), tail))
 
 
     // stat
