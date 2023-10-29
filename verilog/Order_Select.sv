@@ -6,14 +6,8 @@ module Order_Select(
   input  [6:0]  io_insts_issue_inst_prd,
   input  [31:0] io_insts_issue_inst_imm,
   input  [4:0]  io_insts_issue_inst_alu_op,
-  input  [1:0]  io_insts_issue_inst_alu_rs1_sel,
-                io_insts_issue_inst_alu_rs2_sel,
-  input  [3:0]  io_insts_issue_inst_br_type,
-  input  [4:0]  io_insts_issue_inst_mem_type,
-  input  [31:0] io_insts_issue_inst_pc,
+                io_insts_issue_inst_mem_type,
   input  [5:0]  io_insts_issue_inst_rob_index,
-  input         io_insts_issue_inst_predict_jump,
-  input  [31:0] io_insts_issue_inst_pred_npc,
   input         io_issue_req,
                 io_stall,
   output        io_issue_ack,
@@ -24,14 +18,8 @@ module Order_Select(
   output [6:0]  io_inst_issue_inst_prd,
   output [31:0] io_inst_issue_inst_imm,
   output [4:0]  io_inst_issue_inst_alu_op,
-  output [1:0]  io_inst_issue_inst_alu_rs1_sel,
-                io_inst_issue_inst_alu_rs2_sel,
-  output [3:0]  io_inst_issue_inst_br_type,
-  output [4:0]  io_inst_issue_inst_mem_type,
-  output [31:0] io_inst_issue_inst_pc,
+                io_inst_issue_inst_mem_type,
   output [5:0]  io_inst_issue_inst_rob_index,
-  output        io_inst_issue_inst_predict_jump,
-  output [31:0] io_inst_issue_inst_pred_npc,
   output        io_inst_issue_valid
 );
 
@@ -47,21 +35,10 @@ module Order_Select(
   assign io_inst_issue_inst_imm = _io_issue_ack_output ? io_insts_issue_inst_imm : 32'h0;
   assign io_inst_issue_inst_alu_op =
     _io_issue_ack_output ? io_insts_issue_inst_alu_op : 5'h0;
-  assign io_inst_issue_inst_alu_rs1_sel =
-    _io_issue_ack_output ? io_insts_issue_inst_alu_rs1_sel : 2'h0;
-  assign io_inst_issue_inst_alu_rs2_sel =
-    _io_issue_ack_output ? io_insts_issue_inst_alu_rs2_sel : 2'h0;
-  assign io_inst_issue_inst_br_type =
-    _io_issue_ack_output ? io_insts_issue_inst_br_type : 4'h0;
   assign io_inst_issue_inst_mem_type =
     _io_issue_ack_output ? io_insts_issue_inst_mem_type : 5'h0;
-  assign io_inst_issue_inst_pc = _io_issue_ack_output ? io_insts_issue_inst_pc : 32'h0;
   assign io_inst_issue_inst_rob_index =
     _io_issue_ack_output ? io_insts_issue_inst_rob_index : 6'h0;
-  assign io_inst_issue_inst_predict_jump =
-    _io_issue_ack_output & io_insts_issue_inst_predict_jump;
-  assign io_inst_issue_inst_pred_npc =
-    _io_issue_ack_output ? io_insts_issue_inst_pred_npc : 32'h0;
   assign io_inst_issue_valid = _io_issue_ack_output;
 endmodule
 

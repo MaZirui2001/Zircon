@@ -15,6 +15,7 @@ object CPU_Main extends App {
                             "--lowering-options=disallowPackedArrays, disallowLocalVariables",
                             "-o=verilog/",
                             "-split-verilog",
+                            "--disable-aggressive-merge-connections",
                             //"--preserve-aggregate=vec"
                             )
     )

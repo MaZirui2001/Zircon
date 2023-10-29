@@ -2,25 +2,25 @@ import chisel3._
 import chisel3.util._
 import Inst_Pack._
 
-class RF_EX_Reg extends Module {
+class RF_EX_Reg[T <: Bundle](inst_pack_t: T) extends Module {
     val io = IO(new Bundle {
         val flush           = Input(Bool())
         val stall           = Input(Bool())
-        val inst_pack_RF    = Input(new inst_pack_IS_t)
+        val inst_pack_RF    = Input(inst_pack_t)
         val src1_RF         = Input(UInt(32.W))
         val src2_RF         = Input(UInt(32.W))
 
-        val inst_pack_EX    = Output(new inst_pack_IS_t)
+        val inst_pack_EX    = Output(inst_pack_t)
         val src1_EX         = Output(UInt(32.W))
         val src2_EX         = Output(UInt(32.W))
     })
 
-    val inst_pack_reg = RegInit(0.U.asTypeOf(new inst_pack_IS_t))
+    val inst_pack_reg = RegInit(0.U.asTypeOf(inst_pack_t))
     val src1_reg = RegInit(0.U(32.W))
     val src2_reg = RegInit(0.U(32.W))
 
     when(io.flush) {
-        inst_pack_reg := 0.U.asTypeOf(new inst_pack_IS_t)
+        inst_pack_reg := 0.U.asTypeOf(inst_pack_t)
         src1_reg := 0.U(32.W)
         src2_reg := 0.U(32.W)
     }

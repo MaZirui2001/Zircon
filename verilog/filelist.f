@@ -19,8 +19,12 @@ Order_Issue_Queue.sv
 Order_Select.sv
 ROB.sv
 IS_RF_Reg.sv
+IS_RF_Reg_1.sv
+IS_RF_Reg_2.sv
 Physical_Regfile.sv
 RF_EX_Reg.sv
+RF_EX_Reg_1.sv
+RF_EX_Reg_2.sv
 ALU.sv
 Bypass.sv
 Branch.sv
@@ -30,6 +34,7 @@ SB.sv
 FU1_EX_WB_Reg.sv
 FU2_EX_WB_Reg.sv
 LS_EX2_WB_Reg.sv
+MD_EX_WB_Reg.sv
 Arch_Rat.sv
 CPU.sv
 ./xilinx_simple_dual_port_1_clock_ram.sv

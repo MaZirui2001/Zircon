@@ -102,17 +102,17 @@ class CPU(RESET_VEC: Int) extends Module {
     val sel4            = Module(new Order_Select(8))
 
     val rob             = Module(new ROB(48))
-    val is_rf_reg1      = Module(new IS_RF_Reg)
-    val is_rf_reg2      = Module(new IS_RF_Reg)
-    val is_rf_reg3      = Module(new IS_RF_Reg)
-    val is_rf_reg4      = Module(new IS_RF_Reg)
+    val is_rf_reg1      = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
+    val is_rf_reg2      = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
+    val is_rf_reg3      = Module(new IS_RF_Reg(new inst_pack_IS_LS_t))
+    val is_rf_reg4      = Module(new IS_RF_Reg(new inst_pack_IS_MD_t))
 
     val rf              = Module(new Physical_Regfile)
 
-    val rf_ex_reg1      = Module(new RF_EX_Reg)
-    val rf_ex_reg2      = Module(new RF_EX_Reg)
-    val rf_ex_reg3      = Module(new RF_EX_Reg)
-    val rf_ex_reg4      = Module(new RF_EX_Reg)
+    val rf_ex_reg1      = Module(new RF_EX_Reg(new inst_pack_IS_FU1_t))
+    val rf_ex_reg2      = Module(new RF_EX_Reg(new inst_pack_IS_FU2_t))
+    val rf_ex_reg3      = Module(new RF_EX_Reg(new inst_pack_IS_LS_t))
+    val rf_ex_reg4      = Module(new RF_EX_Reg(new inst_pack_IS_MD_t))
 
     val alu1            = Module(new ALU)
     val fu1_bypass      = Module(new Bypass)
@@ -290,19 +290,19 @@ class CPU(RESET_VEC: Int) extends Module {
     // IS-EX SegReg
     is_rf_reg1.io.flush         := rob.io.predict_fail_cmt
     is_rf_reg1.io.stall         := false.B
-    is_rf_reg1.io.inst_pack_IS  := inst_pack_IS_gen(sel1.io.inst_issue.inst, sel1.io.inst_issue_valid)
+    is_rf_reg1.io.inst_pack_IS  := inst_pack_IS_FU1_gen(sel1.io.inst_issue.inst, sel1.io.inst_issue_valid)
 
     is_rf_reg2.io.flush         := rob.io.predict_fail_cmt
     is_rf_reg2.io.stall         := false.B
-    is_rf_reg2.io.inst_pack_IS  := inst_pack_IS_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
+    is_rf_reg2.io.inst_pack_IS  := inst_pack_IS_FU2_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
 
     is_rf_reg3.io.flush         := rob.io.predict_fail_cmt
     is_rf_reg3.io.stall         := false.B
-    is_rf_reg3.io.inst_pack_IS  := inst_pack_IS_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
+    is_rf_reg3.io.inst_pack_IS  := inst_pack_IS_LS_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
 
     is_rf_reg4.io.flush         := rob.io.predict_fail_cmt
     is_rf_reg4.io.stall         := false.B
-    is_rf_reg4.io.inst_pack_IS  := inst_pack_IS_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid)
+    is_rf_reg4.io.inst_pack_IS  := inst_pack_IS_MD_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid)
 
     // RF stage
     rf.io.prj       := VecInit(is_rf_reg1.io.inst_pack_RF.prj, is_rf_reg2.io.inst_pack_RF.prj, is_rf_reg3.io.inst_pack_RF.prj, is_rf_reg4.io.inst_pack_RF.prj)

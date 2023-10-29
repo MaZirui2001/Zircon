@@ -9,7 +9,6 @@ module Unorder_Select(
   input  [1:0]  io_insts_issue_0_inst_alu_rs1_sel,
                 io_insts_issue_0_inst_alu_rs2_sel,
   input  [3:0]  io_insts_issue_0_inst_br_type,
-  input  [4:0]  io_insts_issue_0_inst_mem_type,
   input  [31:0] io_insts_issue_0_inst_pc,
   input  [5:0]  io_insts_issue_0_inst_rob_index,
   input         io_insts_issue_0_inst_predict_jump,
@@ -23,7 +22,6 @@ module Unorder_Select(
   input  [1:0]  io_insts_issue_1_inst_alu_rs1_sel,
                 io_insts_issue_1_inst_alu_rs2_sel,
   input  [3:0]  io_insts_issue_1_inst_br_type,
-  input  [4:0]  io_insts_issue_1_inst_mem_type,
   input  [31:0] io_insts_issue_1_inst_pc,
   input  [5:0]  io_insts_issue_1_inst_rob_index,
   input         io_insts_issue_1_inst_predict_jump,
@@ -37,7 +35,6 @@ module Unorder_Select(
   input  [1:0]  io_insts_issue_2_inst_alu_rs1_sel,
                 io_insts_issue_2_inst_alu_rs2_sel,
   input  [3:0]  io_insts_issue_2_inst_br_type,
-  input  [4:0]  io_insts_issue_2_inst_mem_type,
   input  [31:0] io_insts_issue_2_inst_pc,
   input  [5:0]  io_insts_issue_2_inst_rob_index,
   input         io_insts_issue_2_inst_predict_jump,
@@ -51,7 +48,6 @@ module Unorder_Select(
   input  [1:0]  io_insts_issue_3_inst_alu_rs1_sel,
                 io_insts_issue_3_inst_alu_rs2_sel,
   input  [3:0]  io_insts_issue_3_inst_br_type,
-  input  [4:0]  io_insts_issue_3_inst_mem_type,
   input  [31:0] io_insts_issue_3_inst_pc,
   input  [5:0]  io_insts_issue_3_inst_rob_index,
   input         io_insts_issue_3_inst_predict_jump,
@@ -65,7 +61,6 @@ module Unorder_Select(
   input  [1:0]  io_insts_issue_4_inst_alu_rs1_sel,
                 io_insts_issue_4_inst_alu_rs2_sel,
   input  [3:0]  io_insts_issue_4_inst_br_type,
-  input  [4:0]  io_insts_issue_4_inst_mem_type,
   input  [31:0] io_insts_issue_4_inst_pc,
   input  [5:0]  io_insts_issue_4_inst_rob_index,
   input         io_insts_issue_4_inst_predict_jump,
@@ -79,7 +74,6 @@ module Unorder_Select(
   input  [1:0]  io_insts_issue_5_inst_alu_rs1_sel,
                 io_insts_issue_5_inst_alu_rs2_sel,
   input  [3:0]  io_insts_issue_5_inst_br_type,
-  input  [4:0]  io_insts_issue_5_inst_mem_type,
   input  [31:0] io_insts_issue_5_inst_pc,
   input  [5:0]  io_insts_issue_5_inst_rob_index,
   input         io_insts_issue_5_inst_predict_jump,
@@ -93,7 +87,6 @@ module Unorder_Select(
   input  [1:0]  io_insts_issue_6_inst_alu_rs1_sel,
                 io_insts_issue_6_inst_alu_rs2_sel,
   input  [3:0]  io_insts_issue_6_inst_br_type,
-  input  [4:0]  io_insts_issue_6_inst_mem_type,
   input  [31:0] io_insts_issue_6_inst_pc,
   input  [5:0]  io_insts_issue_6_inst_rob_index,
   input         io_insts_issue_6_inst_predict_jump,
@@ -107,7 +100,6 @@ module Unorder_Select(
   input  [1:0]  io_insts_issue_7_inst_alu_rs1_sel,
                 io_insts_issue_7_inst_alu_rs2_sel,
   input  [3:0]  io_insts_issue_7_inst_br_type,
-  input  [4:0]  io_insts_issue_7_inst_mem_type,
   input  [31:0] io_insts_issue_7_inst_pc,
   input  [5:0]  io_insts_issue_7_inst_rob_index,
   input         io_insts_issue_7_inst_predict_jump,
@@ -139,7 +131,6 @@ module Unorder_Select(
   output [1:0]  io_inst_issue_inst_alu_rs1_sel,
                 io_inst_issue_inst_alu_rs2_sel,
   output [3:0]  io_inst_issue_inst_br_type,
-  output [4:0]  io_inst_issue_inst_mem_type,
   output [31:0] io_inst_issue_inst_pc,
   output [5:0]  io_inst_issue_inst_rob_index,
   output        io_inst_issue_inst_predict_jump,
@@ -156,11 +147,10 @@ module Unorder_Select(
   reg  [1:0]  casez_tmp_5;
   reg  [1:0]  casez_tmp_6;
   reg  [3:0]  casez_tmp_7;
-  reg  [4:0]  casez_tmp_8;
-  reg  [31:0] casez_tmp_9;
-  reg  [5:0]  casez_tmp_10;
-  reg         casez_tmp_11;
-  reg  [31:0] casez_tmp_12;
+  reg  [31:0] casez_tmp_8;
+  reg  [5:0]  casez_tmp_9;
+  reg         casez_tmp_10;
+  reg  [31:0] casez_tmp_11;
   wire [7:0]  issue_ack =
     io_issue_req_0
       ? 8'h1
@@ -380,101 +370,81 @@ module Unorder_Select(
   always_comb begin
     casez (select_index)
       3'b000:
-        casez_tmp_8 = io_insts_issue_0_inst_mem_type;
+        casez_tmp_8 = io_insts_issue_0_inst_pc;
       3'b001:
-        casez_tmp_8 = io_insts_issue_1_inst_mem_type;
+        casez_tmp_8 = io_insts_issue_1_inst_pc;
       3'b010:
-        casez_tmp_8 = io_insts_issue_2_inst_mem_type;
+        casez_tmp_8 = io_insts_issue_2_inst_pc;
       3'b011:
-        casez_tmp_8 = io_insts_issue_3_inst_mem_type;
+        casez_tmp_8 = io_insts_issue_3_inst_pc;
       3'b100:
-        casez_tmp_8 = io_insts_issue_4_inst_mem_type;
+        casez_tmp_8 = io_insts_issue_4_inst_pc;
       3'b101:
-        casez_tmp_8 = io_insts_issue_5_inst_mem_type;
+        casez_tmp_8 = io_insts_issue_5_inst_pc;
       3'b110:
-        casez_tmp_8 = io_insts_issue_6_inst_mem_type;
+        casez_tmp_8 = io_insts_issue_6_inst_pc;
       default:
-        casez_tmp_8 = io_insts_issue_7_inst_mem_type;
+        casez_tmp_8 = io_insts_issue_7_inst_pc;
     endcase
   end // always_comb
   always_comb begin
     casez (select_index)
       3'b000:
-        casez_tmp_9 = io_insts_issue_0_inst_pc;
+        casez_tmp_9 = io_insts_issue_0_inst_rob_index;
       3'b001:
-        casez_tmp_9 = io_insts_issue_1_inst_pc;
+        casez_tmp_9 = io_insts_issue_1_inst_rob_index;
       3'b010:
-        casez_tmp_9 = io_insts_issue_2_inst_pc;
+        casez_tmp_9 = io_insts_issue_2_inst_rob_index;
       3'b011:
-        casez_tmp_9 = io_insts_issue_3_inst_pc;
+        casez_tmp_9 = io_insts_issue_3_inst_rob_index;
       3'b100:
-        casez_tmp_9 = io_insts_issue_4_inst_pc;
+        casez_tmp_9 = io_insts_issue_4_inst_rob_index;
       3'b101:
-        casez_tmp_9 = io_insts_issue_5_inst_pc;
+        casez_tmp_9 = io_insts_issue_5_inst_rob_index;
       3'b110:
-        casez_tmp_9 = io_insts_issue_6_inst_pc;
+        casez_tmp_9 = io_insts_issue_6_inst_rob_index;
       default:
-        casez_tmp_9 = io_insts_issue_7_inst_pc;
+        casez_tmp_9 = io_insts_issue_7_inst_rob_index;
     endcase
   end // always_comb
   always_comb begin
     casez (select_index)
       3'b000:
-        casez_tmp_10 = io_insts_issue_0_inst_rob_index;
+        casez_tmp_10 = io_insts_issue_0_inst_predict_jump;
       3'b001:
-        casez_tmp_10 = io_insts_issue_1_inst_rob_index;
+        casez_tmp_10 = io_insts_issue_1_inst_predict_jump;
       3'b010:
-        casez_tmp_10 = io_insts_issue_2_inst_rob_index;
+        casez_tmp_10 = io_insts_issue_2_inst_predict_jump;
       3'b011:
-        casez_tmp_10 = io_insts_issue_3_inst_rob_index;
+        casez_tmp_10 = io_insts_issue_3_inst_predict_jump;
       3'b100:
-        casez_tmp_10 = io_insts_issue_4_inst_rob_index;
+        casez_tmp_10 = io_insts_issue_4_inst_predict_jump;
       3'b101:
-        casez_tmp_10 = io_insts_issue_5_inst_rob_index;
+        casez_tmp_10 = io_insts_issue_5_inst_predict_jump;
       3'b110:
-        casez_tmp_10 = io_insts_issue_6_inst_rob_index;
+        casez_tmp_10 = io_insts_issue_6_inst_predict_jump;
       default:
-        casez_tmp_10 = io_insts_issue_7_inst_rob_index;
+        casez_tmp_10 = io_insts_issue_7_inst_predict_jump;
     endcase
   end // always_comb
   always_comb begin
     casez (select_index)
       3'b000:
-        casez_tmp_11 = io_insts_issue_0_inst_predict_jump;
+        casez_tmp_11 = io_insts_issue_0_inst_pred_npc;
       3'b001:
-        casez_tmp_11 = io_insts_issue_1_inst_predict_jump;
+        casez_tmp_11 = io_insts_issue_1_inst_pred_npc;
       3'b010:
-        casez_tmp_11 = io_insts_issue_2_inst_predict_jump;
+        casez_tmp_11 = io_insts_issue_2_inst_pred_npc;
       3'b011:
-        casez_tmp_11 = io_insts_issue_3_inst_predict_jump;
+        casez_tmp_11 = io_insts_issue_3_inst_pred_npc;
       3'b100:
-        casez_tmp_11 = io_insts_issue_4_inst_predict_jump;
+        casez_tmp_11 = io_insts_issue_4_inst_pred_npc;
       3'b101:
-        casez_tmp_11 = io_insts_issue_5_inst_predict_jump;
+        casez_tmp_11 = io_insts_issue_5_inst_pred_npc;
       3'b110:
-        casez_tmp_11 = io_insts_issue_6_inst_predict_jump;
+        casez_tmp_11 = io_insts_issue_6_inst_pred_npc;
       default:
-        casez_tmp_11 = io_insts_issue_7_inst_predict_jump;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (select_index)
-      3'b000:
-        casez_tmp_12 = io_insts_issue_0_inst_pred_npc;
-      3'b001:
-        casez_tmp_12 = io_insts_issue_1_inst_pred_npc;
-      3'b010:
-        casez_tmp_12 = io_insts_issue_2_inst_pred_npc;
-      3'b011:
-        casez_tmp_12 = io_insts_issue_3_inst_pred_npc;
-      3'b100:
-        casez_tmp_12 = io_insts_issue_4_inst_pred_npc;
-      3'b101:
-        casez_tmp_12 = io_insts_issue_5_inst_pred_npc;
-      3'b110:
-        casez_tmp_12 = io_insts_issue_6_inst_pred_npc;
-      default:
-        casez_tmp_12 = io_insts_issue_7_inst_pred_npc;
+        casez_tmp_11 = io_insts_issue_7_inst_pred_npc;
     endcase
   end // always_comb
   wire [7:0]  _io_inst_issue_T =
@@ -514,11 +484,10 @@ module Unorder_Select(
   assign io_inst_issue_inst_alu_rs1_sel = (|_io_inst_issue_T) ? casez_tmp_5 : 2'h0;
   assign io_inst_issue_inst_alu_rs2_sel = (|_io_inst_issue_T) ? casez_tmp_6 : 2'h0;
   assign io_inst_issue_inst_br_type = (|_io_inst_issue_T) ? casez_tmp_7 : 4'h0;
-  assign io_inst_issue_inst_mem_type = (|_io_inst_issue_T) ? casez_tmp_8 : 5'h0;
-  assign io_inst_issue_inst_pc = (|_io_inst_issue_T) ? casez_tmp_9 : 32'h0;
-  assign io_inst_issue_inst_rob_index = (|_io_inst_issue_T) ? casez_tmp_10 : 6'h0;
-  assign io_inst_issue_inst_predict_jump = (|_io_inst_issue_T) & casez_tmp_11;
-  assign io_inst_issue_inst_pred_npc = (|_io_inst_issue_T) ? casez_tmp_12 : 32'h0;
+  assign io_inst_issue_inst_pc = (|_io_inst_issue_T) ? casez_tmp_8 : 32'h0;
+  assign io_inst_issue_inst_rob_index = (|_io_inst_issue_T) ? casez_tmp_9 : 6'h0;
+  assign io_inst_issue_inst_predict_jump = (|_io_inst_issue_T) & casez_tmp_10;
+  assign io_inst_issue_inst_pred_npc = (|_io_inst_issue_T) ? casez_tmp_11 : 32'h0;
   assign io_inst_issue_valid =
     |{_io_issue_ack_7_output,
       _io_issue_ack_6_output,
