@@ -222,30 +222,51 @@ object Inst_Pack{
     class inst_pack_IS_t extends inst_pack_DP_t{
         val inst_valid     = Bool()
     }
-    // def inst_pack_IS_gen(inst_pack_DP : inst_pack_DP_t, _inst_valid : Bool) : inst_pack_IS_t = {
-    //     val inst_pack_IS = Wire(new inst_pack_IS_t)
-    //     inst_pack_IS.rj             := inst_pack_DP.rj
-    //     inst_pack_IS.rj_valid       := inst_pack_DP.rj_valid
-    //     inst_pack_IS.prj            := inst_pack_DP.prj
-    //     inst_pack_IS.rk             := inst_pack_DP.rk
-    //     inst_pack_IS.rk_valid       := inst_pack_DP.rk_valid
-    //     inst_pack_IS.prk            := inst_pack_DP.prk
-    //     inst_pack_IS.rd             := inst_pack_DP.rd
-    //     inst_pack_IS.rd_valid       := inst_pack_DP.rd_valid
-    //     inst_pack_IS.prd            := inst_pack_DP.prd
-    //     inst_pack_IS.pprd           := inst_pack_DP.pprd
-    //     inst_pack_IS.imm            := inst_pack_DP.imm
-    //     inst_pack_IS.alu_op         := inst_pack_DP.alu_op
-    //     inst_pack_IS.alu_rs1_sel    := inst_pack_DP.alu_rs1_sel
-    //     inst_pack_IS.alu_rs2_sel    := inst_pack_DP.alu_rs2_sel
-    //     inst_pack_IS.br_type        := inst_pack_DP.br_type
-    //     inst_pack_IS.mem_type       := inst_pack_DP.mem_type
-    //     inst_pack_IS.pc             := inst_pack_DP.pc
-    //     inst_pack_IS.rob_index      := inst_pack_DP.rob_index
-    //     inst_pack_IS.predict_jump   := inst_pack_DP.predict_jump
-    //     inst_pack_IS.pred_npc       := inst_pack_DP.pred_npc
-    //     inst_pack_IS.inst_exist     := inst_pack_DP.inst_exist
-    //     inst_pack_IS.inst_valid     := _inst_valid
-    //     inst_pack_IS
+    def inst_pack_IS_gen(inst_pack_DP : inst_pack_DP_t, _inst_valid : Bool) : inst_pack_IS_t = {
+        val inst_pack_IS = Wire(new inst_pack_IS_t)
+        inst_pack_IS.rj             := inst_pack_DP.rj
+        inst_pack_IS.rj_valid       := inst_pack_DP.rj_valid
+        inst_pack_IS.prj            := inst_pack_DP.prj
+        inst_pack_IS.rk             := inst_pack_DP.rk
+        inst_pack_IS.rk_valid       := inst_pack_DP.rk_valid
+        inst_pack_IS.prk            := inst_pack_DP.prk
+        inst_pack_IS.rd             := inst_pack_DP.rd
+        inst_pack_IS.rd_valid       := inst_pack_DP.rd_valid
+        inst_pack_IS.prd            := inst_pack_DP.prd
+        inst_pack_IS.pprd           := inst_pack_DP.pprd
+        inst_pack_IS.imm            := inst_pack_DP.imm
+        inst_pack_IS.alu_op         := inst_pack_DP.alu_op
+        inst_pack_IS.alu_rs1_sel    := inst_pack_DP.alu_rs1_sel
+        inst_pack_IS.alu_rs2_sel    := inst_pack_DP.alu_rs2_sel
+        inst_pack_IS.br_type        := inst_pack_DP.br_type
+        inst_pack_IS.mem_type       := inst_pack_DP.mem_type
+        inst_pack_IS.pc             := inst_pack_DP.pc
+        inst_pack_IS.rob_index      := inst_pack_DP.rob_index
+        inst_pack_IS.predict_jump   := inst_pack_DP.predict_jump
+        inst_pack_IS.pred_npc       := inst_pack_DP.pred_npc
+        inst_pack_IS.inst_exist     := inst_pack_DP.inst_exist
+        inst_pack_IS.inst_valid     := _inst_valid
+        inst_pack_IS
+    }
+        // class inst_pack_IS_FU1_t extends inst_pack_IS_t{
+    //     val alu_op          = UInt(5.W)
+    //     val alu_rs1_sel     = UInt(2.W)
+    //     val alu_rs2_sel     = UInt(2.W)
+    //     val pc              = UInt(32.W)
+    // }
+    // class inst_pack_IS_FU2_t extends inst_pack_IS_t{
+    //     val alu_op          = UInt(5.W)
+    //     val alu_rs1_sel     = UInt(2.W)
+    //     val alu_rs2_sel     = UInt(2.W)
+    //     val pc              = UInt(32.W)
+    //     val br_type         = UInt(4.W)
+    //     val predict_jump    = Bool()
+    //     val pred_npc        = UInt(32.W)
+    // }
+    // class inst_pack_IS_LS_t extends inst_pack_IS_t{
+    //     val mem_type        = UInt(5.W)
+    // }
+    // class inst_pack_IS_MD_t extends inst_pack_IS_t{
+    //     val alu_op          = UInt(5.W)
     // }
 }
