@@ -38,7 +38,7 @@ class Prev_Decode extends RawModule {
     val inst = VecInit(io.insts_pack_IF.map(_.inst))
 
     val need_fix = VecInit(Seq.fill(4)(false.B))
-    val pred_fix = VecInit(Seq.tabulate(4)(i => io.insts_pack_IF(i).inst_valid && need_fix(i)))
+    val pred_fix = VecInit(Seq.tabulate(4)(i => need_fix(i)))
     io.pred_fix := pred_fix.asUInt.orR
 
     val pred_index = PriorityEncoder(pred_fix)

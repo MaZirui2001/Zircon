@@ -6,7 +6,6 @@ object CPU_Main extends App {
         new CPU(0x1c000000), 
         Array("-td", "build/"),
         firtoolOpts = Array("-disable-all-randomization", 
-                            "-format=fir",
                             "-strip-debug-info",
                             "-strip-fir-debug-info",
                             "-O=release",
