@@ -10,7 +10,7 @@ object PRED_Config{
         val tag = UInt(BTB_TAG_WIDTH.W)
         val typ = UInt(2.W)
     }
-    val BHT_INDEX_WIDTH = 4
+    val BHT_INDEX_WIDTH = 6
     val BHT_DEPTH = 1 << BHT_INDEX_WIDTH
     val PHT_INDEX_WIDTH = 6
     val PHT_DEPTH = 1 << PHT_INDEX_WIDTH
@@ -50,7 +50,7 @@ class Predict extends Module{
 
     val btb_tagv = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
     val btb_targ = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(30+2, BTB_DEPTH)).io))
-    val bht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(256)(0.U(4.W))))))
+    val bht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(64)(0.U(4.W))))))
     val pht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(64)(2.U(2.W))))))
 
     val ras = RegInit(VecInit(Seq.fill(16)(0x1c000000.U(32.W))))
@@ -63,7 +63,7 @@ class Predict extends Module{
     val btb_rindex      = npc(4-1+BTB_INDEX_WIDTH, 4)
     val btb_rdata       = Wire(Vec(4, new btb_t))
 
-    val bht_rindex      = pc(11, 4) 
+    val bht_rindex      = pc(4-1+BHT_INDEX_WIDTH, 4) 
     val bht_rdata       = VecInit(bht.map(_(bht_rindex)))
 
     val pht_rindex      = VecInit(Seq.tabulate(4)(i => (bht_rdata(i) ^ pc(9, 6)) ## pc(5, 4)))
@@ -117,7 +117,7 @@ class Predict extends Module{
     }
 
     // bht
-    val bht_windex = io.pc_cmt(11, 4)
+    val bht_windex = io.pc_cmt(4-1+BHT_INDEX_WIDTH, 4)
     val bht_wdata = io.real_jump
     when(update_en){
         bht(io.pc_cmt(3, 2))(bht_windex) := bht_wdata ## bht(io.pc_cmt(3, 2))(bht_windex)(3, 1)
