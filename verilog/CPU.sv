@@ -62,7 +62,11 @@ module CPU(
                 io_commit_stall_by_iq2,
                 io_commit_stall_by_iq3,
                 io_commit_stall_by_iq4,
-                io_commit_stall_by_sb
+                io_commit_stall_by_sb,
+                io_commit_iq1_issue,
+                io_commit_iq2_issue,
+                io_commit_iq3_issue,
+                io_commit_iq4_issue
 );
 
   wire        _arat_io_arch_rat_0;
@@ -3791,5 +3795,9 @@ module CPU(
   assign io_commit_stall_by_iq3 = _iq3_io_full & ~stall_by_iq;
   assign io_commit_stall_by_iq4 = _iq4_io_full & ~stall_by_iq;
   assign io_commit_stall_by_sb = _sb_io_full;
+  assign io_commit_iq1_issue = _sel1_io_inst_issue_valid;
+  assign io_commit_iq2_issue = _sel2_io_inst_issue_valid;
+  assign io_commit_iq3_issue = _sel3_io_inst_issue_valid;
+  assign io_commit_iq4_issue = _sel4_io_inst_issue_valid;
 endmodule
 
