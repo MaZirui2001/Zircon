@@ -96,8 +96,8 @@ class CPU(RESET_VEC: Int) extends Module {
     val sel1            = Module(new Unorder_Select(8, new inst_pack_DP_FU1_t))
     val iq2             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_FU2_t))
     val sel2            = Module(new Unorder_Select(8, new inst_pack_DP_FU2_t))
-    val iq3             = Module(new Order_Issue_Queue(8, new inst_pack_DP_LS_t))
-    val sel3            = Module(new Order_Select(8, new inst_pack_DP_LS_t))
+    val iq3             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_LS_t))
+    val sel3            = Module(new Unorder_Select(8, new inst_pack_DP_LS_t))
     val iq4             = Module(new Order_Issue_Queue(8, new inst_pack_DP_MD_t))
     val sel4            = Module(new Order_Select(8, new inst_pack_DP_MD_t))
 
@@ -264,7 +264,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     sel3.io.insts_issue         := iq3.io.insts_issue
     sel3.io.issue_req           := iq3.io.issue_req
-    sel3.io.stall               := !(iq3.io.issue_req) || sb.io.full
+    sel3.io.stall               := !(iq3.io.issue_req.asUInt.orR) || sb.io.full
 
     // 4. multiply, multiply and divide
     iq4.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_MD_gen(rn_dp_reg.io.insts_pack_DP(i))))

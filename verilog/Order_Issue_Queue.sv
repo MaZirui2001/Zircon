@@ -16,28 +16,28 @@ module Order_Issue_Queue(
   input  [6:0]  io_insts_dispatch_0_prd,
   input  [31:0] io_insts_dispatch_0_imm,
   input  [5:0]  io_insts_dispatch_0_rob_index,
-  input  [4:0]  io_insts_dispatch_0_mem_type,
+  input  [4:0]  io_insts_dispatch_0_alu_op,
   input  [6:0]  io_insts_dispatch_1_prj,
                 io_insts_dispatch_1_prk,
   input         io_insts_dispatch_1_rd_valid,
   input  [6:0]  io_insts_dispatch_1_prd,
   input  [31:0] io_insts_dispatch_1_imm,
   input  [5:0]  io_insts_dispatch_1_rob_index,
-  input  [4:0]  io_insts_dispatch_1_mem_type,
+  input  [4:0]  io_insts_dispatch_1_alu_op,
   input  [6:0]  io_insts_dispatch_2_prj,
                 io_insts_dispatch_2_prk,
   input         io_insts_dispatch_2_rd_valid,
   input  [6:0]  io_insts_dispatch_2_prd,
   input  [31:0] io_insts_dispatch_2_imm,
   input  [5:0]  io_insts_dispatch_2_rob_index,
-  input  [4:0]  io_insts_dispatch_2_mem_type,
+  input  [4:0]  io_insts_dispatch_2_alu_op,
   input  [6:0]  io_insts_dispatch_3_prj,
                 io_insts_dispatch_3_prk,
   input         io_insts_dispatch_3_rd_valid,
   input  [6:0]  io_insts_dispatch_3_prd,
   input  [31:0] io_insts_dispatch_3_imm,
   input  [5:0]  io_insts_dispatch_3_rob_index,
-  input  [4:0]  io_insts_dispatch_3_mem_type,
+  input  [4:0]  io_insts_dispatch_3_alu_op,
   input  [2:0]  io_insert_num,
   input         io_prj_ready_0,
                 io_prj_ready_1,
@@ -60,7 +60,7 @@ module Order_Issue_Queue(
   output [6:0]  io_insts_issue_inst_prd,
   output [31:0] io_insts_issue_inst_imm,
   output [5:0]  io_insts_issue_inst_rob_index,
-  output [4:0]  io_insts_issue_inst_mem_type,
+  output [4:0]  io_insts_issue_inst_alu_op,
   output        io_issue_req,
   output [6:0]  io_prd_queue_0,
                 io_prd_queue_1,
@@ -169,7 +169,7 @@ module Order_Issue_Queue(
   reg  [6:0]  queue_0_inst_prd;
   reg  [31:0] queue_0_inst_imm;
   reg  [5:0]  queue_0_inst_rob_index;
-  reg  [4:0]  queue_0_inst_mem_type;
+  reg  [4:0]  queue_0_inst_alu_op;
   reg         queue_0_prj_waked;
   reg         queue_0_prk_waked;
   reg  [6:0]  queue_1_inst_prj;
@@ -178,7 +178,7 @@ module Order_Issue_Queue(
   reg  [6:0]  queue_1_inst_prd;
   reg  [31:0] queue_1_inst_imm;
   reg  [5:0]  queue_1_inst_rob_index;
-  reg  [4:0]  queue_1_inst_mem_type;
+  reg  [4:0]  queue_1_inst_alu_op;
   reg         queue_1_prj_waked;
   reg         queue_1_prk_waked;
   reg  [6:0]  queue_2_inst_prj;
@@ -187,7 +187,7 @@ module Order_Issue_Queue(
   reg  [6:0]  queue_2_inst_prd;
   reg  [31:0] queue_2_inst_imm;
   reg  [5:0]  queue_2_inst_rob_index;
-  reg  [4:0]  queue_2_inst_mem_type;
+  reg  [4:0]  queue_2_inst_alu_op;
   reg         queue_2_prj_waked;
   reg         queue_2_prk_waked;
   reg  [6:0]  queue_3_inst_prj;
@@ -196,7 +196,7 @@ module Order_Issue_Queue(
   reg  [6:0]  queue_3_inst_prd;
   reg  [31:0] queue_3_inst_imm;
   reg  [5:0]  queue_3_inst_rob_index;
-  reg  [4:0]  queue_3_inst_mem_type;
+  reg  [4:0]  queue_3_inst_alu_op;
   reg         queue_3_prj_waked;
   reg         queue_3_prk_waked;
   reg  [6:0]  queue_4_inst_prj;
@@ -205,7 +205,7 @@ module Order_Issue_Queue(
   reg  [6:0]  queue_4_inst_prd;
   reg  [31:0] queue_4_inst_imm;
   reg  [5:0]  queue_4_inst_rob_index;
-  reg  [4:0]  queue_4_inst_mem_type;
+  reg  [4:0]  queue_4_inst_alu_op;
   reg         queue_4_prj_waked;
   reg         queue_4_prk_waked;
   reg  [6:0]  queue_5_inst_prj;
@@ -214,7 +214,7 @@ module Order_Issue_Queue(
   reg  [6:0]  queue_5_inst_prd;
   reg  [31:0] queue_5_inst_imm;
   reg  [5:0]  queue_5_inst_rob_index;
-  reg  [4:0]  queue_5_inst_mem_type;
+  reg  [4:0]  queue_5_inst_alu_op;
   reg         queue_5_prj_waked;
   reg         queue_5_prk_waked;
   reg  [6:0]  queue_6_inst_prj;
@@ -223,7 +223,7 @@ module Order_Issue_Queue(
   reg  [6:0]  queue_6_inst_prd;
   reg  [31:0] queue_6_inst_imm;
   reg  [5:0]  queue_6_inst_rob_index;
-  reg  [4:0]  queue_6_inst_mem_type;
+  reg  [4:0]  queue_6_inst_alu_op;
   reg         queue_6_prj_waked;
   reg         queue_6_prk_waked;
   reg  [6:0]  queue_7_inst_prj;
@@ -232,7 +232,7 @@ module Order_Issue_Queue(
   reg  [6:0]  queue_7_inst_prd;
   reg  [31:0] queue_7_inst_imm;
   reg  [5:0]  queue_7_inst_rob_index;
-  reg  [4:0]  queue_7_inst_mem_type;
+  reg  [4:0]  queue_7_inst_alu_op;
   reg         queue_7_prj_waked;
   reg         queue_7_prk_waked;
   reg  [3:0]  tail;
@@ -445,13 +445,13 @@ module Order_Issue_Queue(
   always_comb begin
     casez (casez_tmp_0)
       2'b00:
-        casez_tmp_7 = io_insts_dispatch_0_mem_type;
+        casez_tmp_7 = io_insts_dispatch_0_alu_op;
       2'b01:
-        casez_tmp_7 = io_insts_dispatch_1_mem_type;
+        casez_tmp_7 = io_insts_dispatch_1_alu_op;
       2'b10:
-        casez_tmp_7 = io_insts_dispatch_2_mem_type;
+        casez_tmp_7 = io_insts_dispatch_2_alu_op;
       default:
-        casez_tmp_7 = io_insts_dispatch_3_mem_type;
+        casez_tmp_7 = io_insts_dispatch_3_alu_op;
     endcase
   end // always_comb
   always_comb begin
@@ -578,13 +578,13 @@ module Order_Issue_Queue(
   always_comb begin
     casez (casez_tmp_11)
       2'b00:
-        casez_tmp_18 = io_insts_dispatch_0_mem_type;
+        casez_tmp_18 = io_insts_dispatch_0_alu_op;
       2'b01:
-        casez_tmp_18 = io_insts_dispatch_1_mem_type;
+        casez_tmp_18 = io_insts_dispatch_1_alu_op;
       2'b10:
-        casez_tmp_18 = io_insts_dispatch_2_mem_type;
+        casez_tmp_18 = io_insts_dispatch_2_alu_op;
       default:
-        casez_tmp_18 = io_insts_dispatch_3_mem_type;
+        casez_tmp_18 = io_insts_dispatch_3_alu_op;
     endcase
   end // always_comb
   always_comb begin
@@ -711,13 +711,13 @@ module Order_Issue_Queue(
   always_comb begin
     casez (casez_tmp_22)
       2'b00:
-        casez_tmp_29 = io_insts_dispatch_0_mem_type;
+        casez_tmp_29 = io_insts_dispatch_0_alu_op;
       2'b01:
-        casez_tmp_29 = io_insts_dispatch_1_mem_type;
+        casez_tmp_29 = io_insts_dispatch_1_alu_op;
       2'b10:
-        casez_tmp_29 = io_insts_dispatch_2_mem_type;
+        casez_tmp_29 = io_insts_dispatch_2_alu_op;
       default:
-        casez_tmp_29 = io_insts_dispatch_3_mem_type;
+        casez_tmp_29 = io_insts_dispatch_3_alu_op;
     endcase
   end // always_comb
   always_comb begin
@@ -844,13 +844,13 @@ module Order_Issue_Queue(
   always_comb begin
     casez (casez_tmp_33)
       2'b00:
-        casez_tmp_40 = io_insts_dispatch_0_mem_type;
+        casez_tmp_40 = io_insts_dispatch_0_alu_op;
       2'b01:
-        casez_tmp_40 = io_insts_dispatch_1_mem_type;
+        casez_tmp_40 = io_insts_dispatch_1_alu_op;
       2'b10:
-        casez_tmp_40 = io_insts_dispatch_2_mem_type;
+        casez_tmp_40 = io_insts_dispatch_2_alu_op;
       default:
-        casez_tmp_40 = io_insts_dispatch_3_mem_type;
+        casez_tmp_40 = io_insts_dispatch_3_alu_op;
     endcase
   end // always_comb
   always_comb begin
@@ -977,13 +977,13 @@ module Order_Issue_Queue(
   always_comb begin
     casez (casez_tmp_44)
       2'b00:
-        casez_tmp_51 = io_insts_dispatch_0_mem_type;
+        casez_tmp_51 = io_insts_dispatch_0_alu_op;
       2'b01:
-        casez_tmp_51 = io_insts_dispatch_1_mem_type;
+        casez_tmp_51 = io_insts_dispatch_1_alu_op;
       2'b10:
-        casez_tmp_51 = io_insts_dispatch_2_mem_type;
+        casez_tmp_51 = io_insts_dispatch_2_alu_op;
       default:
-        casez_tmp_51 = io_insts_dispatch_3_mem_type;
+        casez_tmp_51 = io_insts_dispatch_3_alu_op;
     endcase
   end // always_comb
   always_comb begin
@@ -1110,13 +1110,13 @@ module Order_Issue_Queue(
   always_comb begin
     casez (casez_tmp_55)
       2'b00:
-        casez_tmp_62 = io_insts_dispatch_0_mem_type;
+        casez_tmp_62 = io_insts_dispatch_0_alu_op;
       2'b01:
-        casez_tmp_62 = io_insts_dispatch_1_mem_type;
+        casez_tmp_62 = io_insts_dispatch_1_alu_op;
       2'b10:
-        casez_tmp_62 = io_insts_dispatch_2_mem_type;
+        casez_tmp_62 = io_insts_dispatch_2_alu_op;
       default:
-        casez_tmp_62 = io_insts_dispatch_3_mem_type;
+        casez_tmp_62 = io_insts_dispatch_3_alu_op;
     endcase
   end // always_comb
   always_comb begin
@@ -1243,13 +1243,13 @@ module Order_Issue_Queue(
   always_comb begin
     casez (casez_tmp_66)
       2'b00:
-        casez_tmp_73 = io_insts_dispatch_0_mem_type;
+        casez_tmp_73 = io_insts_dispatch_0_alu_op;
       2'b01:
-        casez_tmp_73 = io_insts_dispatch_1_mem_type;
+        casez_tmp_73 = io_insts_dispatch_1_alu_op;
       2'b10:
-        casez_tmp_73 = io_insts_dispatch_2_mem_type;
+        casez_tmp_73 = io_insts_dispatch_2_alu_op;
       default:
-        casez_tmp_73 = io_insts_dispatch_3_mem_type;
+        casez_tmp_73 = io_insts_dispatch_3_alu_op;
     endcase
   end // always_comb
   always_comb begin
@@ -1376,13 +1376,13 @@ module Order_Issue_Queue(
   always_comb begin
     casez (casez_tmp_77)
       2'b00:
-        casez_tmp_84 = io_insts_dispatch_0_mem_type;
+        casez_tmp_84 = io_insts_dispatch_0_alu_op;
       2'b01:
-        casez_tmp_84 = io_insts_dispatch_1_mem_type;
+        casez_tmp_84 = io_insts_dispatch_1_alu_op;
       2'b10:
-        casez_tmp_84 = io_insts_dispatch_2_mem_type;
+        casez_tmp_84 = io_insts_dispatch_2_alu_op;
       default:
-        casez_tmp_84 = io_insts_dispatch_3_mem_type;
+        casez_tmp_84 = io_insts_dispatch_3_alu_op;
     endcase
   end // always_comb
   always_comb begin
@@ -1417,7 +1417,7 @@ module Order_Issue_Queue(
       queue_0_inst_prd <= 7'h0;
       queue_0_inst_imm <= 32'h0;
       queue_0_inst_rob_index <= 6'h0;
-      queue_0_inst_mem_type <= 5'h0;
+      queue_0_inst_alu_op <= 5'h0;
       queue_0_prj_waked <= 1'h0;
       queue_0_prk_waked <= 1'h0;
       queue_1_inst_prj <= 7'h0;
@@ -1426,7 +1426,7 @@ module Order_Issue_Queue(
       queue_1_inst_prd <= 7'h0;
       queue_1_inst_imm <= 32'h0;
       queue_1_inst_rob_index <= 6'h0;
-      queue_1_inst_mem_type <= 5'h0;
+      queue_1_inst_alu_op <= 5'h0;
       queue_1_prj_waked <= 1'h0;
       queue_1_prk_waked <= 1'h0;
       queue_2_inst_prj <= 7'h0;
@@ -1435,7 +1435,7 @@ module Order_Issue_Queue(
       queue_2_inst_prd <= 7'h0;
       queue_2_inst_imm <= 32'h0;
       queue_2_inst_rob_index <= 6'h0;
-      queue_2_inst_mem_type <= 5'h0;
+      queue_2_inst_alu_op <= 5'h0;
       queue_2_prj_waked <= 1'h0;
       queue_2_prk_waked <= 1'h0;
       queue_3_inst_prj <= 7'h0;
@@ -1444,7 +1444,7 @@ module Order_Issue_Queue(
       queue_3_inst_prd <= 7'h0;
       queue_3_inst_imm <= 32'h0;
       queue_3_inst_rob_index <= 6'h0;
-      queue_3_inst_mem_type <= 5'h0;
+      queue_3_inst_alu_op <= 5'h0;
       queue_3_prj_waked <= 1'h0;
       queue_3_prk_waked <= 1'h0;
       queue_4_inst_prj <= 7'h0;
@@ -1453,7 +1453,7 @@ module Order_Issue_Queue(
       queue_4_inst_prd <= 7'h0;
       queue_4_inst_imm <= 32'h0;
       queue_4_inst_rob_index <= 6'h0;
-      queue_4_inst_mem_type <= 5'h0;
+      queue_4_inst_alu_op <= 5'h0;
       queue_4_prj_waked <= 1'h0;
       queue_4_prk_waked <= 1'h0;
       queue_5_inst_prj <= 7'h0;
@@ -1462,7 +1462,7 @@ module Order_Issue_Queue(
       queue_5_inst_prd <= 7'h0;
       queue_5_inst_imm <= 32'h0;
       queue_5_inst_rob_index <= 6'h0;
-      queue_5_inst_mem_type <= 5'h0;
+      queue_5_inst_alu_op <= 5'h0;
       queue_5_prj_waked <= 1'h0;
       queue_5_prk_waked <= 1'h0;
       queue_6_inst_prj <= 7'h0;
@@ -1471,7 +1471,7 @@ module Order_Issue_Queue(
       queue_6_inst_prd <= 7'h0;
       queue_6_inst_imm <= 32'h0;
       queue_6_inst_rob_index <= 6'h0;
-      queue_6_inst_mem_type <= 5'h0;
+      queue_6_inst_alu_op <= 5'h0;
       queue_6_prj_waked <= 1'h0;
       queue_6_prk_waked <= 1'h0;
       queue_7_inst_prj <= 7'h0;
@@ -1480,7 +1480,7 @@ module Order_Issue_Queue(
       queue_7_inst_prd <= 7'h0;
       queue_7_inst_imm <= 32'h0;
       queue_7_inst_rob_index <= 6'h0;
-      queue_7_inst_mem_type <= 5'h0;
+      queue_7_inst_alu_op <= 5'h0;
       queue_7_prj_waked <= 1'h0;
       queue_7_prk_waked <= 1'h0;
       tail <= 4'h0;
@@ -1493,7 +1493,7 @@ module Order_Issue_Queue(
           queue_0_inst_prd <= queue_1_inst_prd;
           queue_0_inst_imm <= queue_1_inst_imm;
           queue_0_inst_rob_index <= queue_1_inst_rob_index;
-          queue_0_inst_mem_type <= queue_1_inst_mem_type;
+          queue_0_inst_alu_op <= queue_1_inst_alu_op;
         end
         queue_0_inst_rd_valid <= queue_next_0_inst_rd_valid;
         queue_0_prj_waked <=
@@ -1522,7 +1522,7 @@ module Order_Issue_Queue(
           queue_0_inst_prd <= casez_tmp_4;
           queue_0_inst_imm <= casez_tmp_5;
           queue_0_inst_rob_index <= casez_tmp_6;
-          queue_0_inst_mem_type <= casez_tmp_7;
+          queue_0_inst_alu_op <= casez_tmp_7;
         end
         else begin
           queue_0_inst_prj <= 7'h0;
@@ -1530,7 +1530,7 @@ module Order_Issue_Queue(
           queue_0_inst_prd <= 7'h0;
           queue_0_inst_imm <= 32'h0;
           queue_0_inst_rob_index <= 6'h0;
-          queue_0_inst_mem_type <= 5'h0;
+          queue_0_inst_alu_op <= 5'h0;
         end
         queue_0_inst_rd_valid <= casez_tmp & casez_tmp_3;
         queue_0_prj_waked <= casez_tmp_8;
@@ -1543,7 +1543,7 @@ module Order_Issue_Queue(
           queue_1_inst_prd <= queue_2_inst_prd;
           queue_1_inst_imm <= queue_2_inst_imm;
           queue_1_inst_rob_index <= queue_2_inst_rob_index;
-          queue_1_inst_mem_type <= queue_2_inst_mem_type;
+          queue_1_inst_alu_op <= queue_2_inst_alu_op;
         end
         queue_1_inst_rd_valid <= queue_next_1_inst_rd_valid;
         queue_1_prj_waked <=
@@ -1560,7 +1560,7 @@ module Order_Issue_Queue(
           queue_1_inst_prd <= casez_tmp_15;
           queue_1_inst_imm <= casez_tmp_16;
           queue_1_inst_rob_index <= casez_tmp_17;
-          queue_1_inst_mem_type <= casez_tmp_18;
+          queue_1_inst_alu_op <= casez_tmp_18;
         end
         else begin
           queue_1_inst_prj <= 7'h0;
@@ -1568,7 +1568,7 @@ module Order_Issue_Queue(
           queue_1_inst_prd <= 7'h0;
           queue_1_inst_imm <= 32'h0;
           queue_1_inst_rob_index <= 6'h0;
-          queue_1_inst_mem_type <= 5'h0;
+          queue_1_inst_alu_op <= 5'h0;
         end
         queue_1_inst_rd_valid <= casez_tmp_10 & casez_tmp_14;
         queue_1_prj_waked <= casez_tmp_19;
@@ -1581,7 +1581,7 @@ module Order_Issue_Queue(
           queue_2_inst_prd <= queue_3_inst_prd;
           queue_2_inst_imm <= queue_3_inst_imm;
           queue_2_inst_rob_index <= queue_3_inst_rob_index;
-          queue_2_inst_mem_type <= queue_3_inst_mem_type;
+          queue_2_inst_alu_op <= queue_3_inst_alu_op;
         end
         queue_2_inst_rd_valid <= queue_next_2_inst_rd_valid;
         queue_2_prj_waked <=
@@ -1598,7 +1598,7 @@ module Order_Issue_Queue(
           queue_2_inst_prd <= casez_tmp_26;
           queue_2_inst_imm <= casez_tmp_27;
           queue_2_inst_rob_index <= casez_tmp_28;
-          queue_2_inst_mem_type <= casez_tmp_29;
+          queue_2_inst_alu_op <= casez_tmp_29;
         end
         else begin
           queue_2_inst_prj <= 7'h0;
@@ -1606,7 +1606,7 @@ module Order_Issue_Queue(
           queue_2_inst_prd <= 7'h0;
           queue_2_inst_imm <= 32'h0;
           queue_2_inst_rob_index <= 6'h0;
-          queue_2_inst_mem_type <= 5'h0;
+          queue_2_inst_alu_op <= 5'h0;
         end
         queue_2_inst_rd_valid <= casez_tmp_21 & casez_tmp_25;
         queue_2_prj_waked <= casez_tmp_30;
@@ -1619,7 +1619,7 @@ module Order_Issue_Queue(
           queue_3_inst_prd <= queue_4_inst_prd;
           queue_3_inst_imm <= queue_4_inst_imm;
           queue_3_inst_rob_index <= queue_4_inst_rob_index;
-          queue_3_inst_mem_type <= queue_4_inst_mem_type;
+          queue_3_inst_alu_op <= queue_4_inst_alu_op;
         end
         queue_3_inst_rd_valid <= queue_next_3_inst_rd_valid;
         queue_3_prj_waked <=
@@ -1636,7 +1636,7 @@ module Order_Issue_Queue(
           queue_3_inst_prd <= casez_tmp_37;
           queue_3_inst_imm <= casez_tmp_38;
           queue_3_inst_rob_index <= casez_tmp_39;
-          queue_3_inst_mem_type <= casez_tmp_40;
+          queue_3_inst_alu_op <= casez_tmp_40;
         end
         else begin
           queue_3_inst_prj <= 7'h0;
@@ -1644,7 +1644,7 @@ module Order_Issue_Queue(
           queue_3_inst_prd <= 7'h0;
           queue_3_inst_imm <= 32'h0;
           queue_3_inst_rob_index <= 6'h0;
-          queue_3_inst_mem_type <= 5'h0;
+          queue_3_inst_alu_op <= 5'h0;
         end
         queue_3_inst_rd_valid <= casez_tmp_32 & casez_tmp_36;
         queue_3_prj_waked <= casez_tmp_41;
@@ -1657,7 +1657,7 @@ module Order_Issue_Queue(
           queue_4_inst_prd <= queue_5_inst_prd;
           queue_4_inst_imm <= queue_5_inst_imm;
           queue_4_inst_rob_index <= queue_5_inst_rob_index;
-          queue_4_inst_mem_type <= queue_5_inst_mem_type;
+          queue_4_inst_alu_op <= queue_5_inst_alu_op;
         end
         queue_4_inst_rd_valid <= queue_next_4_inst_rd_valid;
         queue_4_prj_waked <=
@@ -1674,7 +1674,7 @@ module Order_Issue_Queue(
           queue_4_inst_prd <= casez_tmp_48;
           queue_4_inst_imm <= casez_tmp_49;
           queue_4_inst_rob_index <= casez_tmp_50;
-          queue_4_inst_mem_type <= casez_tmp_51;
+          queue_4_inst_alu_op <= casez_tmp_51;
         end
         else begin
           queue_4_inst_prj <= 7'h0;
@@ -1682,7 +1682,7 @@ module Order_Issue_Queue(
           queue_4_inst_prd <= 7'h0;
           queue_4_inst_imm <= 32'h0;
           queue_4_inst_rob_index <= 6'h0;
-          queue_4_inst_mem_type <= 5'h0;
+          queue_4_inst_alu_op <= 5'h0;
         end
         queue_4_inst_rd_valid <= casez_tmp_43 & casez_tmp_47;
         queue_4_prj_waked <= casez_tmp_52;
@@ -1695,7 +1695,7 @@ module Order_Issue_Queue(
           queue_5_inst_prd <= queue_6_inst_prd;
           queue_5_inst_imm <= queue_6_inst_imm;
           queue_5_inst_rob_index <= queue_6_inst_rob_index;
-          queue_5_inst_mem_type <= queue_6_inst_mem_type;
+          queue_5_inst_alu_op <= queue_6_inst_alu_op;
         end
         queue_5_inst_rd_valid <= queue_next_5_inst_rd_valid;
         queue_5_prj_waked <=
@@ -1712,7 +1712,7 @@ module Order_Issue_Queue(
           queue_5_inst_prd <= casez_tmp_59;
           queue_5_inst_imm <= casez_tmp_60;
           queue_5_inst_rob_index <= casez_tmp_61;
-          queue_5_inst_mem_type <= casez_tmp_62;
+          queue_5_inst_alu_op <= casez_tmp_62;
         end
         else begin
           queue_5_inst_prj <= 7'h0;
@@ -1720,7 +1720,7 @@ module Order_Issue_Queue(
           queue_5_inst_prd <= 7'h0;
           queue_5_inst_imm <= 32'h0;
           queue_5_inst_rob_index <= 6'h0;
-          queue_5_inst_mem_type <= 5'h0;
+          queue_5_inst_alu_op <= 5'h0;
         end
         queue_5_inst_rd_valid <= casez_tmp_54 & casez_tmp_58;
         queue_5_prj_waked <= casez_tmp_63;
@@ -1733,7 +1733,7 @@ module Order_Issue_Queue(
           queue_6_inst_prd <= queue_7_inst_prd;
           queue_6_inst_imm <= queue_7_inst_imm;
           queue_6_inst_rob_index <= queue_7_inst_rob_index;
-          queue_6_inst_mem_type <= queue_7_inst_mem_type;
+          queue_6_inst_alu_op <= queue_7_inst_alu_op;
         end
         queue_6_inst_rd_valid <= queue_next_6_inst_rd_valid;
         queue_6_prj_waked <=
@@ -1750,7 +1750,7 @@ module Order_Issue_Queue(
           queue_6_inst_prd <= casez_tmp_70;
           queue_6_inst_imm <= casez_tmp_71;
           queue_6_inst_rob_index <= casez_tmp_72;
-          queue_6_inst_mem_type <= casez_tmp_73;
+          queue_6_inst_alu_op <= casez_tmp_73;
         end
         else begin
           queue_6_inst_prj <= 7'h0;
@@ -1758,7 +1758,7 @@ module Order_Issue_Queue(
           queue_6_inst_prd <= 7'h0;
           queue_6_inst_imm <= 32'h0;
           queue_6_inst_rob_index <= 6'h0;
-          queue_6_inst_mem_type <= 5'h0;
+          queue_6_inst_alu_op <= 5'h0;
         end
         queue_6_inst_rd_valid <= casez_tmp_65 & casez_tmp_69;
         queue_6_prj_waked <= casez_tmp_74;
@@ -1774,7 +1774,7 @@ module Order_Issue_Queue(
           queue_7_inst_prd <= 7'h0;
           queue_7_inst_imm <= 32'h0;
           queue_7_inst_rob_index <= 6'h0;
-          queue_7_inst_mem_type <= 5'h0;
+          queue_7_inst_alu_op <= 5'h0;
         end
         queue_7_prj_waked <= _tail_pop_T[3] & ~io_issue_ack & queue_temp_7_prj_waked;
         queue_7_prk_waked <= _tail_pop_T[3] & ~io_issue_ack & queue_temp_7_prk_waked;
@@ -1786,7 +1786,7 @@ module Order_Issue_Queue(
           queue_7_inst_prd <= casez_tmp_81;
           queue_7_inst_imm <= casez_tmp_82;
           queue_7_inst_rob_index <= casez_tmp_83;
-          queue_7_inst_mem_type <= casez_tmp_84;
+          queue_7_inst_alu_op <= casez_tmp_84;
         end
         else begin
           queue_7_inst_prj <= 7'h0;
@@ -1794,7 +1794,7 @@ module Order_Issue_Queue(
           queue_7_inst_prd <= 7'h0;
           queue_7_inst_imm <= 32'h0;
           queue_7_inst_rob_index <= 6'h0;
-          queue_7_inst_mem_type <= 5'h0;
+          queue_7_inst_alu_op <= 5'h0;
         end
         queue_7_inst_rd_valid <= casez_tmp_76 & casez_tmp_80;
         queue_7_prj_waked <= casez_tmp_85;
@@ -1814,7 +1814,7 @@ module Order_Issue_Queue(
   assign io_insts_issue_inst_prd = queue_0_inst_prd;
   assign io_insts_issue_inst_imm = queue_0_inst_imm;
   assign io_insts_issue_inst_rob_index = queue_0_inst_rob_index;
-  assign io_insts_issue_inst_mem_type = queue_0_inst_mem_type;
+  assign io_insts_issue_inst_alu_op = queue_0_inst_alu_op;
   assign io_issue_req = (|tail) & queue_0_prj_waked & queue_0_prk_waked;
   assign io_prd_queue_0 =
     queue_next_0_inst_rd_valid & (|_tail_pop_T)

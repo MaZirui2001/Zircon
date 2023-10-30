@@ -18,13 +18,13 @@ object PD_Pack {
 }
 
 class Prev_Decode_IO extends Bundle {
-    val insts_pack_IF   = Input(Vec(4, new inst_pack_IF_t))
+    val insts_pack_IF       = Input(Vec(4, new inst_pack_IF_t))
     
-    val insts_pack_PD   = Output(Vec(4, new inst_pack_IF_t))
-    val pred_fix        = Output(Bool())
-    val pred_fix_target = Output(UInt(32.W))
-    val pred_fix_is_bl = Output(Bool())
-    val pred_fix_pc_plus_4 = Output(UInt(32.W))
+    val insts_pack_PD       = Output(Vec(4, new inst_pack_IF_t))
+    val pred_fix            = Output(Bool())
+    val pred_fix_target     = Output(UInt(32.W))
+    val pred_fix_is_bl      = Output(Bool())
+    val pred_fix_pc_plus_4  = Output(UInt(32.W))
 }
 import PD_Pack._
 class Prev_Decode extends RawModule {
@@ -37,8 +37,8 @@ class Prev_Decode extends RawModule {
     inst_pack_pd := io.insts_pack_IF
     val inst = VecInit(io.insts_pack_IF.map(_.inst))
 
-    val pred_fix = VecInit(Seq.tabulate(4)(i => io.insts_pack_IF(i).inst_valid && 
-                    !io.insts_pack_IF(i).predict_jump && inst_pack_pd(i).predict_jump))
+    val need_fix = VecInit(Seq.fill(4)(false.B))
+    val pred_fix = VecInit(Seq.tabulate(4)(i => io.insts_pack_IF(i).inst_valid && need_fix(i)))
     io.pred_fix := pred_fix.asUInt.orR
 
     val pred_index = PriorityEncoder(pred_fix)
@@ -66,15 +66,26 @@ class Prev_Decode extends RawModule {
     io.pred_fix_pc_plus_4 := pred_fix_pc_plus_4(pred_index)
     
     for(i <- 0 until 4){
-        when(!io.insts_pack_IF(i).pred_valid && io.insts_pack_IF(i).inst_valid){
+        when(io.insts_pack_IF(i).inst_valid){
             switch(jump_type(i)){
                 is(YES_JUMP){
                     inst_pack_pd(i).predict_jump := true.B
                     inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
+                    need_fix(i) := !io.insts_pack_IF(i).predict_jump || inst_pack_pd(i).pred_npc =/= io.insts_pack_IF(i).pred_npc
                 }
                 is(MAY_JUMP){
-                    inst_pack_pd(i).predict_jump := inst(i)(25)
-                    inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                    when(!io.insts_pack_IF(i).pred_valid){
+                        need_fix(i) := inst(i)(25)
+                        inst_pack_pd(i).predict_jump := inst(i)(25)
+                        inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                    }.otherwise{
+                        when(io.insts_pack_IF(i).predict_jump){
+                            need_fix(i) := inst_pack_pd(i).pred_npc =/= io.insts_pack_IF(i).pred_npc
+                            inst_pack_pd(i).predict_jump := io.insts_pack_IF(i).predict_jump
+                            inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W))
+                        }
+
+                    }
                 }
             }
         }

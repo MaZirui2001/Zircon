@@ -1,6 +1,7 @@
 import chisel3._
 import chisel3.util._
 import Inst_Pack._
+import Control_Signal._
 
 // LUT: 1036, FF: 780
 object Issue_Queue_Pack{
@@ -96,8 +97,27 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
 
     // output
     io.insts_issue := queue
+    
     for(i <- 0 until n){
-        io.issue_req(i) := i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked
+        if(inst_pack_t.isInstanceOf[inst_pack_DP_LS_t]){
+            if(i == 0){
+                io.issue_req(i) := i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked
+            }
+            else{
+                val mem_type = queue(i).inst.asInstanceOf[inst_pack_DP_LS_t].mem_type
+                when(mem_type =/= NO_MEM && mem_type(4) === 0.U){
+                    io.issue_req(i) := false.B
+                }.otherwise{
+                    val mem_type_ahead = VecInit(queue.map(_.inst.asInstanceOf[inst_pack_DP_LS_t].mem_type).take(i))
+                    val store_ahead = VecInit(Seq.tabulate(i)(j => mem_type_ahead(j) =/= NO_MEM && mem_type_ahead(j)(4) === 0.U)).reduce(_||_)
+                    io.issue_req(i) := (i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked) && !store_ahead
+                }
+            }
+        }
+        else {
+            io.issue_req(i) := i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked
+        }
+        
     }
 
 }

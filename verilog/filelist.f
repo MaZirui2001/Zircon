@@ -17,9 +17,10 @@ Unorder_Issue_Queue.sv
 Unorder_Select.sv
 Unorder_Issue_Queue_1.sv
 Unorder_Select_1.sv
+Unorder_Issue_Queue_2.sv
+Unorder_Select_2.sv
 Order_Issue_Queue.sv
 Order_Select.sv
-Order_Issue_Queue_1.sv
 IS_RF_Reg.sv
 IS_RF_Reg_1.sv
 IS_RF_Reg_2.sv

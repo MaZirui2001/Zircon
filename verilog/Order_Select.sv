@@ -6,7 +6,7 @@ module Order_Select(
   input  [6:0]  io_insts_issue_inst_prd,
   input  [31:0] io_insts_issue_inst_imm,
   input  [5:0]  io_insts_issue_inst_rob_index,
-  input  [4:0]  io_insts_issue_inst_mem_type,
+  input  [4:0]  io_insts_issue_inst_alu_op,
   input         io_issue_req,
                 io_stall,
   output        io_issue_ack,
@@ -17,7 +17,7 @@ module Order_Select(
   output [6:0]  io_inst_issue_inst_prd,
   output [31:0] io_inst_issue_inst_imm,
   output [5:0]  io_inst_issue_inst_rob_index,
-  output [4:0]  io_inst_issue_inst_mem_type,
+  output [4:0]  io_inst_issue_inst_alu_op,
   output        io_inst_issue_valid
 );
 
@@ -33,8 +33,8 @@ module Order_Select(
   assign io_inst_issue_inst_imm = _io_issue_ack_output ? io_insts_issue_inst_imm : 32'h0;
   assign io_inst_issue_inst_rob_index =
     _io_issue_ack_output ? io_insts_issue_inst_rob_index : 6'h0;
-  assign io_inst_issue_inst_mem_type =
-    _io_issue_ack_output ? io_insts_issue_inst_mem_type : 5'h0;
+  assign io_inst_issue_inst_alu_op =
+    _io_issue_ack_output ? io_insts_issue_inst_alu_op : 5'h0;
   assign io_inst_issue_valid = _io_issue_ack_output;
 endmodule
 

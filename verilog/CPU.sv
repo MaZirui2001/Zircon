@@ -341,7 +341,7 @@ module CPU(
   wire [6:0]  _sel4_io_inst_issue_inst_prd;
   wire [31:0] _sel4_io_inst_issue_inst_imm;
   wire [5:0]  _sel4_io_inst_issue_inst_rob_index;
-  wire [4:0]  _sel4_io_inst_issue_inst_mem_type;
+  wire [4:0]  _sel4_io_inst_issue_inst_alu_op;
   wire        _sel4_io_inst_issue_valid;
   wire [6:0]  _iq4_io_insts_issue_inst_prj;
   wire [6:0]  _iq4_io_insts_issue_inst_prk;
@@ -361,7 +361,14 @@ module CPU(
   wire [6:0]  _iq4_io_prd_queue_7;
   wire [6:0]  _iq4_io_prd_queue_8;
   wire        _iq4_io_full;
-  wire        _sel3_io_issue_ack;
+  wire        _sel3_io_issue_ack_0;
+  wire        _sel3_io_issue_ack_1;
+  wire        _sel3_io_issue_ack_2;
+  wire        _sel3_io_issue_ack_3;
+  wire        _sel3_io_issue_ack_4;
+  wire        _sel3_io_issue_ack_5;
+  wire        _sel3_io_issue_ack_6;
+  wire        _sel3_io_issue_ack_7;
   wire [6:0]  _sel3_io_wake_preg;
   wire [6:0]  _sel3_io_inst_issue_inst_prj;
   wire [6:0]  _sel3_io_inst_issue_inst_prk;
@@ -371,14 +378,70 @@ module CPU(
   wire [5:0]  _sel3_io_inst_issue_inst_rob_index;
   wire [4:0]  _sel3_io_inst_issue_inst_mem_type;
   wire        _sel3_io_inst_issue_valid;
-  wire [6:0]  _iq3_io_insts_issue_inst_prj;
-  wire [6:0]  _iq3_io_insts_issue_inst_prk;
-  wire        _iq3_io_insts_issue_inst_rd_valid;
-  wire [6:0]  _iq3_io_insts_issue_inst_prd;
-  wire [31:0] _iq3_io_insts_issue_inst_imm;
-  wire [5:0]  _iq3_io_insts_issue_inst_rob_index;
-  wire [4:0]  _iq3_io_insts_issue_inst_mem_type;
-  wire        _iq3_io_issue_req;
+  wire [6:0]  _iq3_io_insts_issue_0_inst_prj;
+  wire [6:0]  _iq3_io_insts_issue_0_inst_prk;
+  wire        _iq3_io_insts_issue_0_inst_rd_valid;
+  wire [6:0]  _iq3_io_insts_issue_0_inst_prd;
+  wire [31:0] _iq3_io_insts_issue_0_inst_imm;
+  wire [5:0]  _iq3_io_insts_issue_0_inst_rob_index;
+  wire [4:0]  _iq3_io_insts_issue_0_inst_mem_type;
+  wire [6:0]  _iq3_io_insts_issue_1_inst_prj;
+  wire [6:0]  _iq3_io_insts_issue_1_inst_prk;
+  wire        _iq3_io_insts_issue_1_inst_rd_valid;
+  wire [6:0]  _iq3_io_insts_issue_1_inst_prd;
+  wire [31:0] _iq3_io_insts_issue_1_inst_imm;
+  wire [5:0]  _iq3_io_insts_issue_1_inst_rob_index;
+  wire [4:0]  _iq3_io_insts_issue_1_inst_mem_type;
+  wire [6:0]  _iq3_io_insts_issue_2_inst_prj;
+  wire [6:0]  _iq3_io_insts_issue_2_inst_prk;
+  wire        _iq3_io_insts_issue_2_inst_rd_valid;
+  wire [6:0]  _iq3_io_insts_issue_2_inst_prd;
+  wire [31:0] _iq3_io_insts_issue_2_inst_imm;
+  wire [5:0]  _iq3_io_insts_issue_2_inst_rob_index;
+  wire [4:0]  _iq3_io_insts_issue_2_inst_mem_type;
+  wire [6:0]  _iq3_io_insts_issue_3_inst_prj;
+  wire [6:0]  _iq3_io_insts_issue_3_inst_prk;
+  wire        _iq3_io_insts_issue_3_inst_rd_valid;
+  wire [6:0]  _iq3_io_insts_issue_3_inst_prd;
+  wire [31:0] _iq3_io_insts_issue_3_inst_imm;
+  wire [5:0]  _iq3_io_insts_issue_3_inst_rob_index;
+  wire [4:0]  _iq3_io_insts_issue_3_inst_mem_type;
+  wire [6:0]  _iq3_io_insts_issue_4_inst_prj;
+  wire [6:0]  _iq3_io_insts_issue_4_inst_prk;
+  wire        _iq3_io_insts_issue_4_inst_rd_valid;
+  wire [6:0]  _iq3_io_insts_issue_4_inst_prd;
+  wire [31:0] _iq3_io_insts_issue_4_inst_imm;
+  wire [5:0]  _iq3_io_insts_issue_4_inst_rob_index;
+  wire [4:0]  _iq3_io_insts_issue_4_inst_mem_type;
+  wire [6:0]  _iq3_io_insts_issue_5_inst_prj;
+  wire [6:0]  _iq3_io_insts_issue_5_inst_prk;
+  wire        _iq3_io_insts_issue_5_inst_rd_valid;
+  wire [6:0]  _iq3_io_insts_issue_5_inst_prd;
+  wire [31:0] _iq3_io_insts_issue_5_inst_imm;
+  wire [5:0]  _iq3_io_insts_issue_5_inst_rob_index;
+  wire [4:0]  _iq3_io_insts_issue_5_inst_mem_type;
+  wire [6:0]  _iq3_io_insts_issue_6_inst_prj;
+  wire [6:0]  _iq3_io_insts_issue_6_inst_prk;
+  wire        _iq3_io_insts_issue_6_inst_rd_valid;
+  wire [6:0]  _iq3_io_insts_issue_6_inst_prd;
+  wire [31:0] _iq3_io_insts_issue_6_inst_imm;
+  wire [5:0]  _iq3_io_insts_issue_6_inst_rob_index;
+  wire [4:0]  _iq3_io_insts_issue_6_inst_mem_type;
+  wire [6:0]  _iq3_io_insts_issue_7_inst_prj;
+  wire [6:0]  _iq3_io_insts_issue_7_inst_prk;
+  wire        _iq3_io_insts_issue_7_inst_rd_valid;
+  wire [6:0]  _iq3_io_insts_issue_7_inst_prd;
+  wire [31:0] _iq3_io_insts_issue_7_inst_imm;
+  wire [5:0]  _iq3_io_insts_issue_7_inst_rob_index;
+  wire [4:0]  _iq3_io_insts_issue_7_inst_mem_type;
+  wire        _iq3_io_issue_req_0;
+  wire        _iq3_io_issue_req_1;
+  wire        _iq3_io_issue_req_2;
+  wire        _iq3_io_issue_req_3;
+  wire        _iq3_io_issue_req_4;
+  wire        _iq3_io_issue_req_5;
+  wire        _iq3_io_issue_req_6;
+  wire        _iq3_io_issue_req_7;
   wire [6:0]  _iq3_io_prd_queue_0;
   wire [6:0]  _iq3_io_prd_queue_1;
   wire [6:0]  _iq3_io_prd_queue_2;
@@ -2672,102 +2735,236 @@ module CPU(
     .io_inst_issue_inst_pred_npc        (_sel2_io_inst_issue_inst_pred_npc),
     .io_inst_issue_valid                (_sel2_io_inst_issue_valid)
   );
-  Order_Issue_Queue iq3 (
-    .clock                         (clock),
-    .reset                         (reset),
-    .io_insts_disp_index_0         (_dp_io_insts_disp_index_2_0),
-    .io_insts_disp_index_1         (_dp_io_insts_disp_index_2_1),
-    .io_insts_disp_index_2         (_dp_io_insts_disp_index_2_2),
-    .io_insts_disp_index_3         (_dp_io_insts_disp_index_2_3),
-    .io_insts_disp_valid_0         (_dp_io_insts_disp_valid_2_0),
-    .io_insts_disp_valid_1         (_dp_io_insts_disp_valid_2_1),
-    .io_insts_disp_valid_2         (_dp_io_insts_disp_valid_2_2),
-    .io_insts_disp_valid_3         (_dp_io_insts_disp_valid_2_3),
-    .io_insts_dispatch_0_prj       (_rn_dp_reg_io_insts_pack_DP_0_prj),
-    .io_insts_dispatch_0_prk       (_rn_dp_reg_io_insts_pack_DP_0_prk),
-    .io_insts_dispatch_0_rd_valid  (_rn_dp_reg_io_insts_pack_DP_0_rd_valid),
-    .io_insts_dispatch_0_prd       (_rn_dp_reg_io_insts_pack_DP_0_prd),
-    .io_insts_dispatch_0_imm       (_rn_dp_reg_io_insts_pack_DP_0_imm),
-    .io_insts_dispatch_0_rob_index (_rn_dp_reg_io_insts_pack_DP_0_rob_index),
-    .io_insts_dispatch_0_mem_type  (_rn_dp_reg_io_insts_pack_DP_0_mem_type),
-    .io_insts_dispatch_1_prj       (_rn_dp_reg_io_insts_pack_DP_1_prj),
-    .io_insts_dispatch_1_prk       (_rn_dp_reg_io_insts_pack_DP_1_prk),
-    .io_insts_dispatch_1_rd_valid  (_rn_dp_reg_io_insts_pack_DP_1_rd_valid),
-    .io_insts_dispatch_1_prd       (_rn_dp_reg_io_insts_pack_DP_1_prd),
-    .io_insts_dispatch_1_imm       (_rn_dp_reg_io_insts_pack_DP_1_imm),
-    .io_insts_dispatch_1_rob_index (_rn_dp_reg_io_insts_pack_DP_1_rob_index),
-    .io_insts_dispatch_1_mem_type  (_rn_dp_reg_io_insts_pack_DP_1_mem_type),
-    .io_insts_dispatch_2_prj       (_rn_dp_reg_io_insts_pack_DP_2_prj),
-    .io_insts_dispatch_2_prk       (_rn_dp_reg_io_insts_pack_DP_2_prk),
-    .io_insts_dispatch_2_rd_valid  (_rn_dp_reg_io_insts_pack_DP_2_rd_valid),
-    .io_insts_dispatch_2_prd       (_rn_dp_reg_io_insts_pack_DP_2_prd),
-    .io_insts_dispatch_2_imm       (_rn_dp_reg_io_insts_pack_DP_2_imm),
-    .io_insts_dispatch_2_rob_index (_rn_dp_reg_io_insts_pack_DP_2_rob_index),
-    .io_insts_dispatch_2_mem_type  (_rn_dp_reg_io_insts_pack_DP_2_mem_type),
-    .io_insts_dispatch_3_prj       (_rn_dp_reg_io_insts_pack_DP_3_prj),
-    .io_insts_dispatch_3_prk       (_rn_dp_reg_io_insts_pack_DP_3_prk),
-    .io_insts_dispatch_3_rd_valid  (_rn_dp_reg_io_insts_pack_DP_3_rd_valid),
-    .io_insts_dispatch_3_prd       (_rn_dp_reg_io_insts_pack_DP_3_prd),
-    .io_insts_dispatch_3_imm       (_rn_dp_reg_io_insts_pack_DP_3_imm),
-    .io_insts_dispatch_3_rob_index (_rn_dp_reg_io_insts_pack_DP_3_rob_index),
-    .io_insts_dispatch_3_mem_type  (_rn_dp_reg_io_insts_pack_DP_3_mem_type),
-    .io_insert_num                 (_dp_io_insert_num_2),
-    .io_prj_ready_0                (_dp_io_prj_ready_0),
-    .io_prj_ready_1                (_dp_io_prj_ready_1),
-    .io_prj_ready_2                (_dp_io_prj_ready_2),
-    .io_prj_ready_3                (_dp_io_prj_ready_3),
-    .io_prk_ready_0                (_dp_io_prk_ready_0),
-    .io_prk_ready_1                (_dp_io_prk_ready_1),
-    .io_prk_ready_2                (_dp_io_prk_ready_2),
-    .io_prk_ready_3                (_dp_io_prk_ready_3),
-    .io_wake_preg_0                (r_8),
-    .io_wake_preg_1                (r_9),
-    .io_wake_preg_2                (r_10),
-    .io_wake_preg_3                (r_11),
-    .io_issue_ack                  (_sel3_io_issue_ack),
-    .io_stall                      (stall_by_iq),
-    .io_flush                      (_rob_io_predict_fail_cmt),
-    .io_insts_issue_inst_prj       (_iq3_io_insts_issue_inst_prj),
-    .io_insts_issue_inst_prk       (_iq3_io_insts_issue_inst_prk),
-    .io_insts_issue_inst_rd_valid  (_iq3_io_insts_issue_inst_rd_valid),
-    .io_insts_issue_inst_prd       (_iq3_io_insts_issue_inst_prd),
-    .io_insts_issue_inst_imm       (_iq3_io_insts_issue_inst_imm),
-    .io_insts_issue_inst_rob_index (_iq3_io_insts_issue_inst_rob_index),
-    .io_insts_issue_inst_mem_type  (_iq3_io_insts_issue_inst_mem_type),
-    .io_issue_req                  (_iq3_io_issue_req),
-    .io_prd_queue_0                (_iq3_io_prd_queue_0),
-    .io_prd_queue_1                (_iq3_io_prd_queue_1),
-    .io_prd_queue_2                (_iq3_io_prd_queue_2),
-    .io_prd_queue_3                (_iq3_io_prd_queue_3),
-    .io_prd_queue_4                (_iq3_io_prd_queue_4),
-    .io_prd_queue_5                (_iq3_io_prd_queue_5),
-    .io_prd_queue_6                (_iq3_io_prd_queue_6),
-    .io_prd_queue_7                (_iq3_io_prd_queue_7),
-    .io_prd_queue_8                (_iq3_io_prd_queue_8),
-    .io_full                       (_iq3_io_full)
+  Unorder_Issue_Queue_2 iq3 (
+    .clock                           (clock),
+    .reset                           (reset),
+    .io_insts_disp_index_0           (_dp_io_insts_disp_index_2_0),
+    .io_insts_disp_index_1           (_dp_io_insts_disp_index_2_1),
+    .io_insts_disp_index_2           (_dp_io_insts_disp_index_2_2),
+    .io_insts_disp_index_3           (_dp_io_insts_disp_index_2_3),
+    .io_insts_disp_valid_0           (_dp_io_insts_disp_valid_2_0),
+    .io_insts_disp_valid_1           (_dp_io_insts_disp_valid_2_1),
+    .io_insts_disp_valid_2           (_dp_io_insts_disp_valid_2_2),
+    .io_insts_disp_valid_3           (_dp_io_insts_disp_valid_2_3),
+    .io_insts_dispatch_0_prj         (_rn_dp_reg_io_insts_pack_DP_0_prj),
+    .io_insts_dispatch_0_prk         (_rn_dp_reg_io_insts_pack_DP_0_prk),
+    .io_insts_dispatch_0_rd_valid    (_rn_dp_reg_io_insts_pack_DP_0_rd_valid),
+    .io_insts_dispatch_0_prd         (_rn_dp_reg_io_insts_pack_DP_0_prd),
+    .io_insts_dispatch_0_imm         (_rn_dp_reg_io_insts_pack_DP_0_imm),
+    .io_insts_dispatch_0_rob_index   (_rn_dp_reg_io_insts_pack_DP_0_rob_index),
+    .io_insts_dispatch_0_mem_type    (_rn_dp_reg_io_insts_pack_DP_0_mem_type),
+    .io_insts_dispatch_1_prj         (_rn_dp_reg_io_insts_pack_DP_1_prj),
+    .io_insts_dispatch_1_prk         (_rn_dp_reg_io_insts_pack_DP_1_prk),
+    .io_insts_dispatch_1_rd_valid    (_rn_dp_reg_io_insts_pack_DP_1_rd_valid),
+    .io_insts_dispatch_1_prd         (_rn_dp_reg_io_insts_pack_DP_1_prd),
+    .io_insts_dispatch_1_imm         (_rn_dp_reg_io_insts_pack_DP_1_imm),
+    .io_insts_dispatch_1_rob_index   (_rn_dp_reg_io_insts_pack_DP_1_rob_index),
+    .io_insts_dispatch_1_mem_type    (_rn_dp_reg_io_insts_pack_DP_1_mem_type),
+    .io_insts_dispatch_2_prj         (_rn_dp_reg_io_insts_pack_DP_2_prj),
+    .io_insts_dispatch_2_prk         (_rn_dp_reg_io_insts_pack_DP_2_prk),
+    .io_insts_dispatch_2_rd_valid    (_rn_dp_reg_io_insts_pack_DP_2_rd_valid),
+    .io_insts_dispatch_2_prd         (_rn_dp_reg_io_insts_pack_DP_2_prd),
+    .io_insts_dispatch_2_imm         (_rn_dp_reg_io_insts_pack_DP_2_imm),
+    .io_insts_dispatch_2_rob_index   (_rn_dp_reg_io_insts_pack_DP_2_rob_index),
+    .io_insts_dispatch_2_mem_type    (_rn_dp_reg_io_insts_pack_DP_2_mem_type),
+    .io_insts_dispatch_3_prj         (_rn_dp_reg_io_insts_pack_DP_3_prj),
+    .io_insts_dispatch_3_prk         (_rn_dp_reg_io_insts_pack_DP_3_prk),
+    .io_insts_dispatch_3_rd_valid    (_rn_dp_reg_io_insts_pack_DP_3_rd_valid),
+    .io_insts_dispatch_3_prd         (_rn_dp_reg_io_insts_pack_DP_3_prd),
+    .io_insts_dispatch_3_imm         (_rn_dp_reg_io_insts_pack_DP_3_imm),
+    .io_insts_dispatch_3_rob_index   (_rn_dp_reg_io_insts_pack_DP_3_rob_index),
+    .io_insts_dispatch_3_mem_type    (_rn_dp_reg_io_insts_pack_DP_3_mem_type),
+    .io_insert_num                   (_dp_io_insert_num_2),
+    .io_prj_ready_0                  (_dp_io_prj_ready_0),
+    .io_prj_ready_1                  (_dp_io_prj_ready_1),
+    .io_prj_ready_2                  (_dp_io_prj_ready_2),
+    .io_prj_ready_3                  (_dp_io_prj_ready_3),
+    .io_prk_ready_0                  (_dp_io_prk_ready_0),
+    .io_prk_ready_1                  (_dp_io_prk_ready_1),
+    .io_prk_ready_2                  (_dp_io_prk_ready_2),
+    .io_prk_ready_3                  (_dp_io_prk_ready_3),
+    .io_wake_preg_0                  (r_8),
+    .io_wake_preg_1                  (r_9),
+    .io_wake_preg_2                  (r_10),
+    .io_wake_preg_3                  (r_11),
+    .io_issue_ack_0                  (_sel3_io_issue_ack_0),
+    .io_issue_ack_1                  (_sel3_io_issue_ack_1),
+    .io_issue_ack_2                  (_sel3_io_issue_ack_2),
+    .io_issue_ack_3                  (_sel3_io_issue_ack_3),
+    .io_issue_ack_4                  (_sel3_io_issue_ack_4),
+    .io_issue_ack_5                  (_sel3_io_issue_ack_5),
+    .io_issue_ack_6                  (_sel3_io_issue_ack_6),
+    .io_issue_ack_7                  (_sel3_io_issue_ack_7),
+    .io_stall                        (stall_by_iq),
+    .io_flush                        (_rob_io_predict_fail_cmt),
+    .io_insts_issue_0_inst_prj       (_iq3_io_insts_issue_0_inst_prj),
+    .io_insts_issue_0_inst_prk       (_iq3_io_insts_issue_0_inst_prk),
+    .io_insts_issue_0_inst_rd_valid  (_iq3_io_insts_issue_0_inst_rd_valid),
+    .io_insts_issue_0_inst_prd       (_iq3_io_insts_issue_0_inst_prd),
+    .io_insts_issue_0_inst_imm       (_iq3_io_insts_issue_0_inst_imm),
+    .io_insts_issue_0_inst_rob_index (_iq3_io_insts_issue_0_inst_rob_index),
+    .io_insts_issue_0_inst_mem_type  (_iq3_io_insts_issue_0_inst_mem_type),
+    .io_insts_issue_1_inst_prj       (_iq3_io_insts_issue_1_inst_prj),
+    .io_insts_issue_1_inst_prk       (_iq3_io_insts_issue_1_inst_prk),
+    .io_insts_issue_1_inst_rd_valid  (_iq3_io_insts_issue_1_inst_rd_valid),
+    .io_insts_issue_1_inst_prd       (_iq3_io_insts_issue_1_inst_prd),
+    .io_insts_issue_1_inst_imm       (_iq3_io_insts_issue_1_inst_imm),
+    .io_insts_issue_1_inst_rob_index (_iq3_io_insts_issue_1_inst_rob_index),
+    .io_insts_issue_1_inst_mem_type  (_iq3_io_insts_issue_1_inst_mem_type),
+    .io_insts_issue_2_inst_prj       (_iq3_io_insts_issue_2_inst_prj),
+    .io_insts_issue_2_inst_prk       (_iq3_io_insts_issue_2_inst_prk),
+    .io_insts_issue_2_inst_rd_valid  (_iq3_io_insts_issue_2_inst_rd_valid),
+    .io_insts_issue_2_inst_prd       (_iq3_io_insts_issue_2_inst_prd),
+    .io_insts_issue_2_inst_imm       (_iq3_io_insts_issue_2_inst_imm),
+    .io_insts_issue_2_inst_rob_index (_iq3_io_insts_issue_2_inst_rob_index),
+    .io_insts_issue_2_inst_mem_type  (_iq3_io_insts_issue_2_inst_mem_type),
+    .io_insts_issue_3_inst_prj       (_iq3_io_insts_issue_3_inst_prj),
+    .io_insts_issue_3_inst_prk       (_iq3_io_insts_issue_3_inst_prk),
+    .io_insts_issue_3_inst_rd_valid  (_iq3_io_insts_issue_3_inst_rd_valid),
+    .io_insts_issue_3_inst_prd       (_iq3_io_insts_issue_3_inst_prd),
+    .io_insts_issue_3_inst_imm       (_iq3_io_insts_issue_3_inst_imm),
+    .io_insts_issue_3_inst_rob_index (_iq3_io_insts_issue_3_inst_rob_index),
+    .io_insts_issue_3_inst_mem_type  (_iq3_io_insts_issue_3_inst_mem_type),
+    .io_insts_issue_4_inst_prj       (_iq3_io_insts_issue_4_inst_prj),
+    .io_insts_issue_4_inst_prk       (_iq3_io_insts_issue_4_inst_prk),
+    .io_insts_issue_4_inst_rd_valid  (_iq3_io_insts_issue_4_inst_rd_valid),
+    .io_insts_issue_4_inst_prd       (_iq3_io_insts_issue_4_inst_prd),
+    .io_insts_issue_4_inst_imm       (_iq3_io_insts_issue_4_inst_imm),
+    .io_insts_issue_4_inst_rob_index (_iq3_io_insts_issue_4_inst_rob_index),
+    .io_insts_issue_4_inst_mem_type  (_iq3_io_insts_issue_4_inst_mem_type),
+    .io_insts_issue_5_inst_prj       (_iq3_io_insts_issue_5_inst_prj),
+    .io_insts_issue_5_inst_prk       (_iq3_io_insts_issue_5_inst_prk),
+    .io_insts_issue_5_inst_rd_valid  (_iq3_io_insts_issue_5_inst_rd_valid),
+    .io_insts_issue_5_inst_prd       (_iq3_io_insts_issue_5_inst_prd),
+    .io_insts_issue_5_inst_imm       (_iq3_io_insts_issue_5_inst_imm),
+    .io_insts_issue_5_inst_rob_index (_iq3_io_insts_issue_5_inst_rob_index),
+    .io_insts_issue_5_inst_mem_type  (_iq3_io_insts_issue_5_inst_mem_type),
+    .io_insts_issue_6_inst_prj       (_iq3_io_insts_issue_6_inst_prj),
+    .io_insts_issue_6_inst_prk       (_iq3_io_insts_issue_6_inst_prk),
+    .io_insts_issue_6_inst_rd_valid  (_iq3_io_insts_issue_6_inst_rd_valid),
+    .io_insts_issue_6_inst_prd       (_iq3_io_insts_issue_6_inst_prd),
+    .io_insts_issue_6_inst_imm       (_iq3_io_insts_issue_6_inst_imm),
+    .io_insts_issue_6_inst_rob_index (_iq3_io_insts_issue_6_inst_rob_index),
+    .io_insts_issue_6_inst_mem_type  (_iq3_io_insts_issue_6_inst_mem_type),
+    .io_insts_issue_7_inst_prj       (_iq3_io_insts_issue_7_inst_prj),
+    .io_insts_issue_7_inst_prk       (_iq3_io_insts_issue_7_inst_prk),
+    .io_insts_issue_7_inst_rd_valid  (_iq3_io_insts_issue_7_inst_rd_valid),
+    .io_insts_issue_7_inst_prd       (_iq3_io_insts_issue_7_inst_prd),
+    .io_insts_issue_7_inst_imm       (_iq3_io_insts_issue_7_inst_imm),
+    .io_insts_issue_7_inst_rob_index (_iq3_io_insts_issue_7_inst_rob_index),
+    .io_insts_issue_7_inst_mem_type  (_iq3_io_insts_issue_7_inst_mem_type),
+    .io_issue_req_0                  (_iq3_io_issue_req_0),
+    .io_issue_req_1                  (_iq3_io_issue_req_1),
+    .io_issue_req_2                  (_iq3_io_issue_req_2),
+    .io_issue_req_3                  (_iq3_io_issue_req_3),
+    .io_issue_req_4                  (_iq3_io_issue_req_4),
+    .io_issue_req_5                  (_iq3_io_issue_req_5),
+    .io_issue_req_6                  (_iq3_io_issue_req_6),
+    .io_issue_req_7                  (_iq3_io_issue_req_7),
+    .io_prd_queue_0                  (_iq3_io_prd_queue_0),
+    .io_prd_queue_1                  (_iq3_io_prd_queue_1),
+    .io_prd_queue_2                  (_iq3_io_prd_queue_2),
+    .io_prd_queue_3                  (_iq3_io_prd_queue_3),
+    .io_prd_queue_4                  (_iq3_io_prd_queue_4),
+    .io_prd_queue_5                  (_iq3_io_prd_queue_5),
+    .io_prd_queue_6                  (_iq3_io_prd_queue_6),
+    .io_prd_queue_7                  (_iq3_io_prd_queue_7),
+    .io_prd_queue_8                  (_iq3_io_prd_queue_8),
+    .io_full                         (_iq3_io_full)
   );
-  Order_Select sel3 (
-    .io_insts_issue_inst_prj       (_iq3_io_insts_issue_inst_prj),
-    .io_insts_issue_inst_prk       (_iq3_io_insts_issue_inst_prk),
-    .io_insts_issue_inst_rd_valid  (_iq3_io_insts_issue_inst_rd_valid),
-    .io_insts_issue_inst_prd       (_iq3_io_insts_issue_inst_prd),
-    .io_insts_issue_inst_imm       (_iq3_io_insts_issue_inst_imm),
-    .io_insts_issue_inst_rob_index (_iq3_io_insts_issue_inst_rob_index),
-    .io_insts_issue_inst_mem_type  (_iq3_io_insts_issue_inst_mem_type),
-    .io_issue_req                  (_iq3_io_issue_req),
-    .io_stall                      (~_iq3_io_issue_req | _sb_io_full),
-    .io_issue_ack                  (_sel3_io_issue_ack),
-    .io_wake_preg                  (_sel3_io_wake_preg),
-    .io_inst_issue_inst_prj        (_sel3_io_inst_issue_inst_prj),
-    .io_inst_issue_inst_prk        (_sel3_io_inst_issue_inst_prk),
-    .io_inst_issue_inst_rd_valid   (_sel3_io_inst_issue_inst_rd_valid),
-    .io_inst_issue_inst_prd        (_sel3_io_inst_issue_inst_prd),
-    .io_inst_issue_inst_imm        (_sel3_io_inst_issue_inst_imm),
-    .io_inst_issue_inst_rob_index  (_sel3_io_inst_issue_inst_rob_index),
-    .io_inst_issue_inst_mem_type   (_sel3_io_inst_issue_inst_mem_type),
-    .io_inst_issue_valid           (_sel3_io_inst_issue_valid)
+  Unorder_Select_2 sel3 (
+    .io_insts_issue_0_inst_prj       (_iq3_io_insts_issue_0_inst_prj),
+    .io_insts_issue_0_inst_prk       (_iq3_io_insts_issue_0_inst_prk),
+    .io_insts_issue_0_inst_rd_valid  (_iq3_io_insts_issue_0_inst_rd_valid),
+    .io_insts_issue_0_inst_prd       (_iq3_io_insts_issue_0_inst_prd),
+    .io_insts_issue_0_inst_imm       (_iq3_io_insts_issue_0_inst_imm),
+    .io_insts_issue_0_inst_rob_index (_iq3_io_insts_issue_0_inst_rob_index),
+    .io_insts_issue_0_inst_mem_type  (_iq3_io_insts_issue_0_inst_mem_type),
+    .io_insts_issue_1_inst_prj       (_iq3_io_insts_issue_1_inst_prj),
+    .io_insts_issue_1_inst_prk       (_iq3_io_insts_issue_1_inst_prk),
+    .io_insts_issue_1_inst_rd_valid  (_iq3_io_insts_issue_1_inst_rd_valid),
+    .io_insts_issue_1_inst_prd       (_iq3_io_insts_issue_1_inst_prd),
+    .io_insts_issue_1_inst_imm       (_iq3_io_insts_issue_1_inst_imm),
+    .io_insts_issue_1_inst_rob_index (_iq3_io_insts_issue_1_inst_rob_index),
+    .io_insts_issue_1_inst_mem_type  (_iq3_io_insts_issue_1_inst_mem_type),
+    .io_insts_issue_2_inst_prj       (_iq3_io_insts_issue_2_inst_prj),
+    .io_insts_issue_2_inst_prk       (_iq3_io_insts_issue_2_inst_prk),
+    .io_insts_issue_2_inst_rd_valid  (_iq3_io_insts_issue_2_inst_rd_valid),
+    .io_insts_issue_2_inst_prd       (_iq3_io_insts_issue_2_inst_prd),
+    .io_insts_issue_2_inst_imm       (_iq3_io_insts_issue_2_inst_imm),
+    .io_insts_issue_2_inst_rob_index (_iq3_io_insts_issue_2_inst_rob_index),
+    .io_insts_issue_2_inst_mem_type  (_iq3_io_insts_issue_2_inst_mem_type),
+    .io_insts_issue_3_inst_prj       (_iq3_io_insts_issue_3_inst_prj),
+    .io_insts_issue_3_inst_prk       (_iq3_io_insts_issue_3_inst_prk),
+    .io_insts_issue_3_inst_rd_valid  (_iq3_io_insts_issue_3_inst_rd_valid),
+    .io_insts_issue_3_inst_prd       (_iq3_io_insts_issue_3_inst_prd),
+    .io_insts_issue_3_inst_imm       (_iq3_io_insts_issue_3_inst_imm),
+    .io_insts_issue_3_inst_rob_index (_iq3_io_insts_issue_3_inst_rob_index),
+    .io_insts_issue_3_inst_mem_type  (_iq3_io_insts_issue_3_inst_mem_type),
+    .io_insts_issue_4_inst_prj       (_iq3_io_insts_issue_4_inst_prj),
+    .io_insts_issue_4_inst_prk       (_iq3_io_insts_issue_4_inst_prk),
+    .io_insts_issue_4_inst_rd_valid  (_iq3_io_insts_issue_4_inst_rd_valid),
+    .io_insts_issue_4_inst_prd       (_iq3_io_insts_issue_4_inst_prd),
+    .io_insts_issue_4_inst_imm       (_iq3_io_insts_issue_4_inst_imm),
+    .io_insts_issue_4_inst_rob_index (_iq3_io_insts_issue_4_inst_rob_index),
+    .io_insts_issue_4_inst_mem_type  (_iq3_io_insts_issue_4_inst_mem_type),
+    .io_insts_issue_5_inst_prj       (_iq3_io_insts_issue_5_inst_prj),
+    .io_insts_issue_5_inst_prk       (_iq3_io_insts_issue_5_inst_prk),
+    .io_insts_issue_5_inst_rd_valid  (_iq3_io_insts_issue_5_inst_rd_valid),
+    .io_insts_issue_5_inst_prd       (_iq3_io_insts_issue_5_inst_prd),
+    .io_insts_issue_5_inst_imm       (_iq3_io_insts_issue_5_inst_imm),
+    .io_insts_issue_5_inst_rob_index (_iq3_io_insts_issue_5_inst_rob_index),
+    .io_insts_issue_5_inst_mem_type  (_iq3_io_insts_issue_5_inst_mem_type),
+    .io_insts_issue_6_inst_prj       (_iq3_io_insts_issue_6_inst_prj),
+    .io_insts_issue_6_inst_prk       (_iq3_io_insts_issue_6_inst_prk),
+    .io_insts_issue_6_inst_rd_valid  (_iq3_io_insts_issue_6_inst_rd_valid),
+    .io_insts_issue_6_inst_prd       (_iq3_io_insts_issue_6_inst_prd),
+    .io_insts_issue_6_inst_imm       (_iq3_io_insts_issue_6_inst_imm),
+    .io_insts_issue_6_inst_rob_index (_iq3_io_insts_issue_6_inst_rob_index),
+    .io_insts_issue_6_inst_mem_type  (_iq3_io_insts_issue_6_inst_mem_type),
+    .io_insts_issue_7_inst_prj       (_iq3_io_insts_issue_7_inst_prj),
+    .io_insts_issue_7_inst_prk       (_iq3_io_insts_issue_7_inst_prk),
+    .io_insts_issue_7_inst_rd_valid  (_iq3_io_insts_issue_7_inst_rd_valid),
+    .io_insts_issue_7_inst_prd       (_iq3_io_insts_issue_7_inst_prd),
+    .io_insts_issue_7_inst_imm       (_iq3_io_insts_issue_7_inst_imm),
+    .io_insts_issue_7_inst_rob_index (_iq3_io_insts_issue_7_inst_rob_index),
+    .io_insts_issue_7_inst_mem_type  (_iq3_io_insts_issue_7_inst_mem_type),
+    .io_issue_req_0                  (_iq3_io_issue_req_0),
+    .io_issue_req_1                  (_iq3_io_issue_req_1),
+    .io_issue_req_2                  (_iq3_io_issue_req_2),
+    .io_issue_req_3                  (_iq3_io_issue_req_3),
+    .io_issue_req_4                  (_iq3_io_issue_req_4),
+    .io_issue_req_5                  (_iq3_io_issue_req_5),
+    .io_issue_req_6                  (_iq3_io_issue_req_6),
+    .io_issue_req_7                  (_iq3_io_issue_req_7),
+    .io_stall
+      ({_iq3_io_issue_req_7,
+        _iq3_io_issue_req_6,
+        _iq3_io_issue_req_5,
+        _iq3_io_issue_req_4,
+        _iq3_io_issue_req_3,
+        _iq3_io_issue_req_2,
+        _iq3_io_issue_req_1,
+        _iq3_io_issue_req_0} == 8'h0 | _sb_io_full),
+    .io_issue_ack_0                  (_sel3_io_issue_ack_0),
+    .io_issue_ack_1                  (_sel3_io_issue_ack_1),
+    .io_issue_ack_2                  (_sel3_io_issue_ack_2),
+    .io_issue_ack_3                  (_sel3_io_issue_ack_3),
+    .io_issue_ack_4                  (_sel3_io_issue_ack_4),
+    .io_issue_ack_5                  (_sel3_io_issue_ack_5),
+    .io_issue_ack_6                  (_sel3_io_issue_ack_6),
+    .io_issue_ack_7                  (_sel3_io_issue_ack_7),
+    .io_wake_preg                    (_sel3_io_wake_preg),
+    .io_inst_issue_inst_prj          (_sel3_io_inst_issue_inst_prj),
+    .io_inst_issue_inst_prk          (_sel3_io_inst_issue_inst_prk),
+    .io_inst_issue_inst_rd_valid     (_sel3_io_inst_issue_inst_rd_valid),
+    .io_inst_issue_inst_prd          (_sel3_io_inst_issue_inst_prd),
+    .io_inst_issue_inst_imm          (_sel3_io_inst_issue_inst_imm),
+    .io_inst_issue_inst_rob_index    (_sel3_io_inst_issue_inst_rob_index),
+    .io_inst_issue_inst_mem_type     (_sel3_io_inst_issue_inst_mem_type),
+    .io_inst_issue_valid             (_sel3_io_inst_issue_valid)
   );
-  Order_Issue_Queue_1 iq4 (
+  Order_Issue_Queue iq4 (
     .clock                         (clock),
     .reset                         (reset),
     .io_insts_disp_index_0         (_dp_io_insts_disp_index_3_0),
@@ -2848,7 +3045,7 @@ module CPU(
     .io_insts_issue_inst_prd       (_iq4_io_insts_issue_inst_prd),
     .io_insts_issue_inst_imm       (_iq4_io_insts_issue_inst_imm),
     .io_insts_issue_inst_rob_index (_iq4_io_insts_issue_inst_rob_index),
-    .io_insts_issue_inst_mem_type  (_iq4_io_insts_issue_inst_alu_op),
+    .io_insts_issue_inst_alu_op    (_iq4_io_insts_issue_inst_alu_op),
     .io_issue_req                  (_iq4_io_issue_req),
     .io_stall                      (~_iq4_io_issue_req),
     .io_issue_ack                  (_sel4_io_issue_ack),
@@ -2859,7 +3056,7 @@ module CPU(
     .io_inst_issue_inst_prd        (_sel4_io_inst_issue_inst_prd),
     .io_inst_issue_inst_imm        (_sel4_io_inst_issue_inst_imm),
     .io_inst_issue_inst_rob_index  (_sel4_io_inst_issue_inst_rob_index),
-    .io_inst_issue_inst_mem_type   (_sel4_io_inst_issue_inst_mem_type),
+    .io_inst_issue_inst_alu_op     (_sel4_io_inst_issue_inst_alu_op),
     .io_inst_issue_valid           (_sel4_io_inst_issue_valid)
   );
   IS_RF_Reg ir_reg1 (
@@ -2953,7 +3150,7 @@ module CPU(
     .io_inst_pack_IS_prd        (_sel4_io_inst_issue_inst_prd),
     .io_inst_pack_IS_imm        (_sel4_io_inst_issue_inst_imm),
     .io_inst_pack_IS_rob_index  (_sel4_io_inst_issue_inst_rob_index),
-    .io_inst_pack_IS_mem_type   (_sel4_io_inst_issue_inst_mem_type),
+    .io_inst_pack_IS_mem_type   (_sel4_io_inst_issue_inst_alu_op),
     .io_inst_pack_IS_inst_valid (_sel4_io_inst_issue_valid),
     .io_inst_pack_RF_prj        (_ir_reg4_io_inst_pack_RF_prj),
     .io_inst_pack_RF_prk        (_ir_reg4_io_inst_pack_RF_prk),
