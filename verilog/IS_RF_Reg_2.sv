@@ -9,16 +9,16 @@ module IS_RF_Reg_2(
   input  [6:0]  io_inst_pack_IS_prd,
   input  [31:0] io_inst_pack_IS_imm,
   input  [5:0]  io_inst_pack_IS_rob_index,
-  input         io_inst_pack_IS_inst_valid,
   input  [4:0]  io_inst_pack_IS_mem_type,
+  input         io_inst_pack_IS_inst_valid,
   output [6:0]  io_inst_pack_RF_prj,
                 io_inst_pack_RF_prk,
   output        io_inst_pack_RF_rd_valid,
   output [6:0]  io_inst_pack_RF_prd,
   output [31:0] io_inst_pack_RF_imm,
   output [5:0]  io_inst_pack_RF_rob_index,
-  output        io_inst_pack_RF_inst_valid,
-  output [4:0]  io_inst_pack_RF_mem_type
+  output [4:0]  io_inst_pack_RF_mem_type,
+  output        io_inst_pack_RF_inst_valid
 );
 
   reg [6:0]  inst_pack_reg_prj;
@@ -27,8 +27,8 @@ module IS_RF_Reg_2(
   reg [6:0]  inst_pack_reg_prd;
   reg [31:0] inst_pack_reg_imm;
   reg [5:0]  inst_pack_reg_rob_index;
-  reg        inst_pack_reg_inst_valid;
   reg [4:0]  inst_pack_reg_mem_type;
+  reg        inst_pack_reg_inst_valid;
   always @(posedge clock) begin
     if (reset) begin
       inst_pack_reg_prj <= 7'h0;
@@ -37,8 +37,8 @@ module IS_RF_Reg_2(
       inst_pack_reg_prd <= 7'h0;
       inst_pack_reg_imm <= 32'h0;
       inst_pack_reg_rob_index <= 6'h0;
-      inst_pack_reg_inst_valid <= 1'h0;
       inst_pack_reg_mem_type <= 5'h0;
+      inst_pack_reg_inst_valid <= 1'h0;
     end
     else begin
       if (io_flush) begin
@@ -67,7 +67,7 @@ module IS_RF_Reg_2(
   assign io_inst_pack_RF_prd = inst_pack_reg_prd;
   assign io_inst_pack_RF_imm = inst_pack_reg_imm;
   assign io_inst_pack_RF_rob_index = inst_pack_reg_rob_index;
-  assign io_inst_pack_RF_inst_valid = inst_pack_reg_inst_valid;
   assign io_inst_pack_RF_mem_type = inst_pack_reg_mem_type;
+  assign io_inst_pack_RF_inst_valid = inst_pack_reg_inst_valid;
 endmodule
 

@@ -101,18 +101,18 @@ class CPU(RESET_VEC: Int) extends Module {
     val iq4             = Module(new Order_Issue_Queue(8, new inst_pack_DP_MD_t))
     val sel4            = Module(new Order_Select(8, new inst_pack_DP_MD_t))
 
-    val rob             = Module(new ROB(48))
-    val is_rf_reg1      = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
-    val is_rf_reg2      = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
-    val is_rf_reg3      = Module(new IS_RF_Reg(new inst_pack_IS_LS_t))
-    val is_rf_reg4      = Module(new IS_RF_Reg(new inst_pack_IS_MD_t))
+    
+    val ir_reg1         = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
+    val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
+    val ir_reg3         = Module(new IS_RF_Reg(new inst_pack_IS_LS_t))
+    val ir_reg4         = Module(new IS_RF_Reg(new inst_pack_IS_MD_t))
 
     val rf              = Module(new Physical_Regfile)
 
-    val rf_ex_reg1      = Module(new RF_EX_Reg(new inst_pack_IS_FU1_t))
-    val rf_ex_reg2      = Module(new RF_EX_Reg(new inst_pack_IS_FU2_t))
-    val rf_ex_reg3      = Module(new RF_EX_Reg(new inst_pack_IS_LS_t))
-    val rf_ex_reg4      = Module(new RF_EX_Reg(new inst_pack_IS_MD_t))
+    val re_reg1         = Module(new RF_EX_Reg(new inst_pack_IS_FU1_t))
+    val re_reg2         = Module(new RF_EX_Reg(new inst_pack_IS_FU2_t))
+    val re_reg3         = Module(new RF_EX_Reg(new inst_pack_IS_LS_t))
+    val re_reg4         = Module(new RF_EX_Reg(new inst_pack_IS_MD_t))
 
     val alu1            = Module(new ALU)
     val fu1_bypass      = Module(new Bypass)
@@ -133,7 +133,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val fu3_ex_wb_reg   = Module(new LS_EX2_WB_Reg)
     val fu4_ex_wb_reg   = Module(new MD_EX_WB_Reg)
 
-
+    val rob             = Module(new ROB(48))
     val arat            = Module(new Arch_Rat)
 
     val stall_by_iq = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
@@ -192,8 +192,8 @@ class CPU(RESET_VEC: Int) extends Module {
     id_rn_reg.io.flush          := rob.io.predict_fail_cmt
     id_rn_reg.io.stall          := rob.io.full || reg_rename.io.free_list_empty || stall_by_iq
     id_rn_reg.io.insts_pack_ID  := VecInit(Seq.tabulate(4)(i => inst_pack_ID_gen(inst_queue.io.insts_pack_id(i), inst_queue.io.insts_valid_decode(i), inst_decode(i).rj, inst_decode(i).rj_valid, inst_decode(i).rk, inst_decode(i).rk_valid, 
-                                                                            inst_decode(i).rd, inst_decode(i).rd_valid, inst_decode(i).imm, inst_decode(i).alu_op, inst_decode(i).alu_rs1_sel, inst_decode(i).alu_rs2_sel, 
-                                                                            inst_decode(i).br_type, inst_decode(i).mem_type, inst_decode(i).fu_id, inst_decode(i).inst_exist)))
+                                                                                inst_decode(i).rd, inst_decode(i).rd_valid, inst_decode(i).imm, inst_decode(i).alu_op, inst_decode(i).alu_rs1_sel, inst_decode(i).alu_rs2_sel, 
+                                                                                inst_decode(i).br_type, inst_decode(i).mem_type, inst_decode(i).fu_id, inst_decode(i).inst_exist)))
     // Reg Rename
     reg_rename.io.rj                := id_rn_reg.io.insts_pack_RN.map(_.rj)
     reg_rename.io.rk                := id_rn_reg.io.insts_pack_RN.map(_.rk)
@@ -216,7 +216,7 @@ class CPU(RESET_VEC: Int) extends Module {
     dp.io.inst_packs            := rn_dp_reg.io.insts_pack_DP
     dp.io.prd_queue             := VecInit( VecInit(iq1.io.prd_queue :+ 0.U(7.W)), 
                                             VecInit(iq2.io.prd_queue :+ 0.U(7.W)), 
-                                            VecInit(iq3.io.prd_queue :+ Mux(rf_ex_reg3.io.inst_pack_RF.rd_valid, rf_ex_reg3.io.inst_pack_RF.prd, 0.U)), 
+                                            VecInit(iq3.io.prd_queue :+ Mux(re_reg3.io.inst_pack_RF.rd_valid, re_reg3.io.inst_pack_RF.prd, 0.U)), 
                                             VecInit(iq4.io.prd_queue :+ 0.U(7.W)))
     dp.io.elem_num              := VecInit(iq1.io.elem_num, iq2.io.elem_num)
 
@@ -288,109 +288,109 @@ class CPU(RESET_VEC: Int) extends Module {
     iq4.io.wake_preg            := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), sel4.io.wake_preg)
 
     // IS-EX SegReg
-    is_rf_reg1.io.flush         := rob.io.predict_fail_cmt
-    is_rf_reg1.io.stall         := false.B
-    is_rf_reg1.io.inst_pack_IS  := inst_pack_IS_FU1_gen(sel1.io.inst_issue.inst, sel1.io.inst_issue_valid)
+    ir_reg1.io.flush         := rob.io.predict_fail_cmt
+    ir_reg1.io.stall         := false.B
+    ir_reg1.io.inst_pack_IS  := inst_pack_IS_FU1_gen(sel1.io.inst_issue.inst, sel1.io.inst_issue_valid)
 
-    is_rf_reg2.io.flush         := rob.io.predict_fail_cmt
-    is_rf_reg2.io.stall         := false.B
-    is_rf_reg2.io.inst_pack_IS  := inst_pack_IS_FU2_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
+    ir_reg2.io.flush         := rob.io.predict_fail_cmt
+    ir_reg2.io.stall         := false.B
+    ir_reg2.io.inst_pack_IS  := inst_pack_IS_FU2_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
 
-    is_rf_reg3.io.flush         := rob.io.predict_fail_cmt
-    is_rf_reg3.io.stall         := false.B
-    is_rf_reg3.io.inst_pack_IS  := inst_pack_IS_LS_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
+    ir_reg3.io.flush         := rob.io.predict_fail_cmt
+    ir_reg3.io.stall         := false.B
+    ir_reg3.io.inst_pack_IS  := inst_pack_IS_LS_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
 
-    is_rf_reg4.io.flush         := rob.io.predict_fail_cmt
-    is_rf_reg4.io.stall         := false.B
-    is_rf_reg4.io.inst_pack_IS  := inst_pack_IS_MD_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid)
+    ir_reg4.io.flush         := rob.io.predict_fail_cmt
+    ir_reg4.io.stall         := false.B
+    ir_reg4.io.inst_pack_IS  := inst_pack_IS_MD_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid)
 
     // RF stage
-    rf.io.prj       := VecInit(is_rf_reg1.io.inst_pack_RF.prj, is_rf_reg2.io.inst_pack_RF.prj, is_rf_reg3.io.inst_pack_RF.prj, is_rf_reg4.io.inst_pack_RF.prj)
-    rf.io.prk       := VecInit(is_rf_reg1.io.inst_pack_RF.prk, is_rf_reg2.io.inst_pack_RF.prk, is_rf_reg3.io.inst_pack_RF.prk, is_rf_reg4.io.inst_pack_RF.prk)
+    rf.io.prj       := VecInit(ir_reg1.io.inst_pack_RF.prj, ir_reg2.io.inst_pack_RF.prj, ir_reg3.io.inst_pack_RF.prj, ir_reg4.io.inst_pack_RF.prj)
+    rf.io.prk       := VecInit(ir_reg1.io.inst_pack_RF.prk, ir_reg2.io.inst_pack_RF.prk, ir_reg3.io.inst_pack_RF.prk, ir_reg4.io.inst_pack_RF.prk)
     rf.io.wdata     := VecInit(fu1_ex_wb_reg.io.alu_out_WB, fu2_ex_wb_reg.io.alu_out_WB, fu3_ex_wb_reg.io.mem_rdata_WB, fu4_ex_wb_reg.io.md_out_WB)
     rf.io.rf_we     := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.rd_valid, fu2_ex_wb_reg.io.inst_pack_WB.rd_valid, fu3_ex_wb_reg.io.inst_pack_WB.rd_valid, fu4_ex_wb_reg.io.inst_pack_WB.rd_valid)
     rf.io.prd       := VecInit(fu1_ex_wb_reg.io.inst_pack_WB.prd, fu2_ex_wb_reg.io.inst_pack_WB.prd, fu3_ex_wb_reg.io.inst_pack_WB.prd, fu4_ex_wb_reg.io.inst_pack_WB.prd)
 
     // RF-EX SegReg
-    rf_ex_reg1.io.flush         := rob.io.predict_fail_cmt
-    rf_ex_reg1.io.stall         := false.B
-    rf_ex_reg1.io.inst_pack_RF  := is_rf_reg1.io.inst_pack_RF
-    rf_ex_reg1.io.src1_RF       := rf.io.prj_data(0)
-    rf_ex_reg1.io.src2_RF       := rf.io.prk_data(0)
+    re_reg1.io.flush         := rob.io.predict_fail_cmt
+    re_reg1.io.stall         := false.B
+    re_reg1.io.inst_pack_RF  := ir_reg1.io.inst_pack_RF
+    re_reg1.io.src1_RF       := rf.io.prj_data(0)
+    re_reg1.io.src2_RF       := rf.io.prk_data(0)
 
-    rf_ex_reg2.io.flush         := rob.io.predict_fail_cmt
-    rf_ex_reg2.io.stall         := false.B
-    rf_ex_reg2.io.inst_pack_RF  := is_rf_reg2.io.inst_pack_RF
-    rf_ex_reg2.io.src1_RF       := rf.io.prj_data(1)
-    rf_ex_reg2.io.src2_RF       := rf.io.prk_data(1)
+    re_reg2.io.flush         := rob.io.predict_fail_cmt
+    re_reg2.io.stall         := false.B
+    re_reg2.io.inst_pack_RF  := ir_reg2.io.inst_pack_RF
+    re_reg2.io.src1_RF       := rf.io.prj_data(1)
+    re_reg2.io.src2_RF       := rf.io.prk_data(1)
 
-    rf_ex_reg3.io.flush         := rob.io.predict_fail_cmt
-    rf_ex_reg3.io.stall         := false.B
-    rf_ex_reg3.io.inst_pack_RF  := is_rf_reg3.io.inst_pack_RF
-    rf_ex_reg3.io.src1_RF       := rf.io.prj_data(2)
-    rf_ex_reg3.io.src2_RF       := rf.io.prk_data(2)
+    re_reg3.io.flush         := rob.io.predict_fail_cmt
+    re_reg3.io.stall         := false.B
+    re_reg3.io.inst_pack_RF  := ir_reg3.io.inst_pack_RF
+    re_reg3.io.src1_RF       := rf.io.prj_data(2)
+    re_reg3.io.src2_RF       := rf.io.prk_data(2)
 
-    rf_ex_reg4.io.flush         := rob.io.predict_fail_cmt
-    rf_ex_reg4.io.stall         := false.B
-    rf_ex_reg4.io.inst_pack_RF  := is_rf_reg4.io.inst_pack_RF
-    rf_ex_reg4.io.src1_RF       := rf.io.prj_data(3)
-    rf_ex_reg4.io.src2_RF       := rf.io.prk_data(3)
+    re_reg4.io.flush         := rob.io.predict_fail_cmt
+    re_reg4.io.stall         := false.B
+    re_reg4.io.inst_pack_RF  := ir_reg4.io.inst_pack_RF
+    re_reg4.io.src1_RF       := rf.io.prj_data(3)
+    re_reg4.io.src2_RF       := rf.io.prk_data(3)
 
     // EX stage
     // 1. arith common fu
-    alu1.io.alu_op := rf_ex_reg1.io.inst_pack_EX.alu_op
-    alu1.io.src1 := MuxLookup(rf_ex_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
-        RS1_REG -> Mux(fu1_bypass.io.forward_prj_en, fu1_bypass.io.forward_prj_data, rf_ex_reg1.io.src1_EX),
-        RS1_PC -> rf_ex_reg1.io.inst_pack_EX.pc,
+    alu1.io.alu_op := re_reg1.io.inst_pack_EX.alu_op
+    alu1.io.src1 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
+        RS1_REG -> Mux(fu1_bypass.io.forward_prj_en, fu1_bypass.io.forward_prj_data, re_reg1.io.src1_EX),
+        RS1_PC -> re_reg1.io.inst_pack_EX.pc,
         RS1_ZERO -> 0.U)
     )
-    alu1.io.src2 := MuxLookup(rf_ex_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
-        RS2_REG -> Mux(fu1_bypass.io.forward_prk_en, fu1_bypass.io.forward_prk_data, rf_ex_reg1.io.src2_EX),
-        RS2_IMM -> rf_ex_reg1.io.inst_pack_EX.imm,
+    alu1.io.src2 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
+        RS2_REG -> Mux(fu1_bypass.io.forward_prk_en, fu1_bypass.io.forward_prk_data, re_reg1.io.src2_EX),
+        RS2_IMM -> re_reg1.io.inst_pack_EX.imm,
         RS2_FOUR -> 4.U)
     )
 
     fu1_bypass.io.prd_wb        := fu1_ex_wb_reg.io.inst_pack_WB.prd
-    fu1_bypass.io.prj_ex        := rf_ex_reg1.io.inst_pack_EX.prj
-    fu1_bypass.io.prk_ex        := rf_ex_reg1.io.inst_pack_EX.prk
+    fu1_bypass.io.prj_ex        := re_reg1.io.inst_pack_EX.prj
+    fu1_bypass.io.prk_ex        := re_reg1.io.inst_pack_EX.prk
     fu1_bypass.io.prf_wdata_wb  := fu1_ex_wb_reg.io.alu_out_WB
     fu1_bypass.io.rd_valid_wb   := fu1_ex_wb_reg.io.inst_pack_WB.rd_valid
     
     fu1_ex_wb_reg.io.flush          := rob.io.predict_fail_cmt
     fu1_ex_wb_reg.io.stall          := false.B
-    fu1_ex_wb_reg.io.inst_pack_EX   := rf_ex_reg1.io.inst_pack_EX
+    fu1_ex_wb_reg.io.inst_pack_EX   := re_reg1.io.inst_pack_EX
     fu1_ex_wb_reg.io.alu_out_EX     := alu1.io.alu_out
 
     // 2. arith-branch fu
-    alu2.io.alu_op := rf_ex_reg2.io.inst_pack_EX.alu_op
-    alu2.io.src1 := MuxLookup(rf_ex_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
-        RS1_REG -> Mux(fu2_bypass.io.forward_prj_en, fu2_bypass.io.forward_prj_data, rf_ex_reg2.io.src1_EX),
-        RS1_PC -> rf_ex_reg2.io.inst_pack_EX.pc,
+    alu2.io.alu_op := re_reg2.io.inst_pack_EX.alu_op
+    alu2.io.src1 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
+        RS1_REG -> Mux(fu2_bypass.io.forward_prj_en, fu2_bypass.io.forward_prj_data, re_reg2.io.src1_EX),
+        RS1_PC -> re_reg2.io.inst_pack_EX.pc,
         RS1_ZERO -> 0.U)
     )
-    alu2.io.src2 := MuxLookup(rf_ex_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
-        RS2_REG -> Mux(fu2_bypass.io.forward_prk_en, fu2_bypass.io.forward_prk_data, rf_ex_reg2.io.src2_EX),
-        RS2_IMM -> rf_ex_reg2.io.inst_pack_EX.imm,
+    alu2.io.src2 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
+        RS2_REG -> Mux(fu2_bypass.io.forward_prk_en, fu2_bypass.io.forward_prk_data, re_reg2.io.src2_EX),
+        RS2_IMM -> re_reg2.io.inst_pack_EX.imm,
         RS2_FOUR -> 4.U)
     )
 
-    br.io.br_type       := rf_ex_reg2.io.inst_pack_EX.br_type
-    br.io.src1          := Mux(fu2_bypass.io.forward_prj_en, fu2_bypass.io.forward_prj_data, rf_ex_reg2.io.src1_EX)
-    br.io.src2          := Mux(fu2_bypass.io.forward_prk_en, fu2_bypass.io.forward_prk_data, rf_ex_reg2.io.src2_EX)
-    br.io.pc_ex         := rf_ex_reg2.io.inst_pack_EX.pc
-    br.io.imm_ex        := rf_ex_reg2.io.inst_pack_EX.imm
-    br.io.predict_jump  := rf_ex_reg2.io.inst_pack_EX.predict_jump
-    br.io.pred_npc      := rf_ex_reg2.io.inst_pack_EX.pred_npc
+    br.io.br_type       := re_reg2.io.inst_pack_EX.br_type
+    br.io.src1          := Mux(fu2_bypass.io.forward_prj_en, fu2_bypass.io.forward_prj_data, re_reg2.io.src1_EX)
+    br.io.src2          := Mux(fu2_bypass.io.forward_prk_en, fu2_bypass.io.forward_prk_data, re_reg2.io.src2_EX)
+    br.io.pc_ex         := re_reg2.io.inst_pack_EX.pc
+    br.io.imm_ex        := re_reg2.io.inst_pack_EX.imm
+    br.io.predict_jump  := re_reg2.io.inst_pack_EX.predict_jump
+    br.io.pred_npc      := re_reg2.io.inst_pack_EX.pred_npc
 
     fu2_bypass.io.prd_wb        := fu2_ex_wb_reg.io.inst_pack_WB.prd
-    fu2_bypass.io.prj_ex        := rf_ex_reg2.io.inst_pack_EX.prj
-    fu2_bypass.io.prk_ex        := rf_ex_reg2.io.inst_pack_EX.prk
+    fu2_bypass.io.prj_ex        := re_reg2.io.inst_pack_EX.prj
+    fu2_bypass.io.prk_ex        := re_reg2.io.inst_pack_EX.prk
     fu2_bypass.io.prf_wdata_wb  := fu2_ex_wb_reg.io.alu_out_WB
     fu2_bypass.io.rd_valid_wb   := fu2_ex_wb_reg.io.inst_pack_WB.rd_valid
 
     fu2_ex_wb_reg.io.flush              := rob.io.predict_fail_cmt
     fu2_ex_wb_reg.io.stall              := false.B
-    fu2_ex_wb_reg.io.inst_pack_EX       := rf_ex_reg2.io.inst_pack_EX
+    fu2_ex_wb_reg.io.inst_pack_EX       := re_reg2.io.inst_pack_EX
     fu2_ex_wb_reg.io.alu_out_EX         := alu2.io.alu_out
     fu2_ex_wb_reg.io.predict_fail_EX    := br.io.predict_fail
     fu2_ex_wb_reg.io.branch_target_EX   := br.io.branch_target
@@ -399,13 +399,13 @@ class CPU(RESET_VEC: Int) extends Module {
     // 3. load-store fu, include agu and cache
     ls_ex1_ex2_reg.io.flush             := rob.io.predict_fail_cmt
     ls_ex1_ex2_reg.io.stall             := false.B
-    ls_ex1_ex2_reg.io.inst_pack_EX1     := rf_ex_reg3.io.inst_pack_EX
-    ls_ex1_ex2_reg.io.mem_addr_EX1      := Mux(fu3_bypass.io.forward_prj_en, fu3_bypass.io.forward_prj_data, rf_ex_reg3.io.src1_EX) + rf_ex_reg3.io.inst_pack_EX.imm
-    ls_ex1_ex2_reg.io.mem_wdata_EX1     := Mux(fu3_bypass.io.forward_prk_en, fu3_bypass.io.forward_prk_data, rf_ex_reg3.io.src2_EX)
+    ls_ex1_ex2_reg.io.inst_pack_EX1     := re_reg3.io.inst_pack_EX
+    ls_ex1_ex2_reg.io.mem_addr_EX1      := Mux(fu3_bypass.io.forward_prj_en, fu3_bypass.io.forward_prj_data, re_reg3.io.src1_EX) + re_reg3.io.inst_pack_EX.imm
+    ls_ex1_ex2_reg.io.mem_wdata_EX1     := Mux(fu3_bypass.io.forward_prk_en, fu3_bypass.io.forward_prk_data, re_reg3.io.src2_EX)
 
     fu3_bypass.io.prd_wb        := fu3_ex_wb_reg.io.inst_pack_WB.prd
-    fu3_bypass.io.prj_ex        := rf_ex_reg3.io.inst_pack_EX.prj
-    fu3_bypass.io.prk_ex        := rf_ex_reg3.io.inst_pack_EX.prk
+    fu3_bypass.io.prj_ex        := re_reg3.io.inst_pack_EX.prj
+    fu3_bypass.io.prk_ex        := re_reg3.io.inst_pack_EX.prk
     fu3_bypass.io.prf_wdata_wb  := fu3_ex_wb_reg.io.mem_rdata_WB
     fu3_bypass.io.rd_valid_wb   := fu3_ex_wb_reg.io.inst_pack_WB.rd_valid
 
@@ -440,18 +440,18 @@ class CPU(RESET_VEC: Int) extends Module {
     fu3_ex_wb_reg.io.is_ucread_EX2  := ls_ex1_ex2_reg.io.mem_addr_EX2(31, 28) === 0xa.U
 
     // 4. multiply-divide fu
-    mdu.io.md_op    := rf_ex_reg4.io.inst_pack_EX.alu_op
-    mdu.io.src1     := Mux(fu4_bypass.io.forward_prj_en, fu4_bypass.io.forward_prj_data, rf_ex_reg4.io.src1_EX)
-    mdu.io.src2     := Mux(fu4_bypass.io.forward_prk_en, fu4_bypass.io.forward_prk_data, rf_ex_reg4.io.src2_EX)
+    mdu.io.md_op    := re_reg4.io.inst_pack_EX.alu_op
+    mdu.io.src1     := Mux(fu4_bypass.io.forward_prj_en, fu4_bypass.io.forward_prj_data, re_reg4.io.src1_EX)
+    mdu.io.src2     := Mux(fu4_bypass.io.forward_prk_en, fu4_bypass.io.forward_prk_data, re_reg4.io.src2_EX)
 
     fu4_ex_wb_reg.io.flush          := rob.io.predict_fail_cmt
     fu4_ex_wb_reg.io.stall          := false.B
-    fu4_ex_wb_reg.io.inst_pack_EX   := rf_ex_reg4.io.inst_pack_EX
+    fu4_ex_wb_reg.io.inst_pack_EX   := re_reg4.io.inst_pack_EX
     fu4_ex_wb_reg.io.md_out_EX      := mdu.io.md_out
 
     fu4_bypass.io.prd_wb        := fu4_ex_wb_reg.io.inst_pack_WB.prd
-    fu4_bypass.io.prj_ex        := rf_ex_reg4.io.inst_pack_EX.prj
-    fu4_bypass.io.prk_ex        := rf_ex_reg4.io.inst_pack_EX.prk
+    fu4_bypass.io.prj_ex        := re_reg4.io.inst_pack_EX.prj
+    fu4_bypass.io.prk_ex        := re_reg4.io.inst_pack_EX.prk
     fu4_bypass.io.prf_wdata_wb  := fu4_ex_wb_reg.io.md_out_WB
     fu4_bypass.io.rd_valid_wb   := fu4_ex_wb_reg.io.inst_pack_WB.rd_valid
 
@@ -479,13 +479,13 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.is_ucread_wb         := VecInit(false.B, false.B, fu3_ex_wb_reg.io.is_ucread_WB, false.B)
     
     // Commit stage
-    arat.io.cmt_en          := rob.io.cmt_en
-    arat.io.prd_cmt         := rob.io.prd_cmt
-    arat.io.pprd_cmt        := rob.io.pprd_cmt
-    arat.io.rd_valid_cmt    := rob.io.rd_valid_cmt
-    arat.io.predict_fail    := rob.io.predict_fail_cmt
-    arat.io.br_type_pred_cmt := rob.io.br_type_pred_cmt
-    arat.io.ras_update_en_cmt := rob.io.ras_update_en_cmt
+    arat.io.cmt_en              := rob.io.cmt_en
+    arat.io.prd_cmt             := rob.io.prd_cmt
+    arat.io.pprd_cmt            := rob.io.pprd_cmt
+    arat.io.rd_valid_cmt        := rob.io.rd_valid_cmt
+    arat.io.predict_fail        := rob.io.predict_fail_cmt
+    arat.io.br_type_pred_cmt    := rob.io.br_type_pred_cmt
+    arat.io.ras_update_en_cmt   := rob.io.ras_update_en_cmt
 
     io.commit_en1           := rob.io.cmt_en(0)
     io.commit_rd1           := rob.io.rd_cmt(0)

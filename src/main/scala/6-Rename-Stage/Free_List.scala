@@ -24,11 +24,11 @@ class Free_List extends Module{
             }
         }
     }
-    val head = RegInit(VecInit(1.U(5.W), 1.U(5.W), 1.U(5.W), 1.U(5.W)))
+    val head = RegInit(VecInit(Seq.fill(4)(1.U(5.W))))
     val tail = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
     val tail_sel = RegInit(0.U(2.W))
 
-    io.empty := (head(0) === tail(0)) | (head(1) === tail(1)) | (head(2) === tail(2)) | (head(3) === tail(3))
+    io.empty := VecInit(head.zip(tail).map{case(h, t) => (h === t)}).reduce(_||_)
 
     for(i <- 0 until 4){
         when(io.predict_fail){

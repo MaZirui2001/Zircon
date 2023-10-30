@@ -6,15 +6,15 @@ module LS_EX1_EX2_Reg(
                 io_inst_pack_EX1_rd_valid,
   input  [6:0]  io_inst_pack_EX1_prd,
   input  [5:0]  io_inst_pack_EX1_rob_index,
-  input         io_inst_pack_EX1_inst_valid,
   input  [4:0]  io_inst_pack_EX1_mem_type,
+  input         io_inst_pack_EX1_inst_valid,
   input  [31:0] io_mem_addr_EX1,
                 io_mem_wdata_EX1,
   output        io_inst_pack_EX2_rd_valid,
   output [6:0]  io_inst_pack_EX2_prd,
   output [5:0]  io_inst_pack_EX2_rob_index,
-  output        io_inst_pack_EX2_inst_valid,
   output [4:0]  io_inst_pack_EX2_mem_type,
+  output        io_inst_pack_EX2_inst_valid,
   output [31:0] io_mem_addr_EX2,
                 io_mem_wdata_EX2
 );
@@ -22,8 +22,8 @@ module LS_EX1_EX2_Reg(
   reg        inst_pack_reg_rd_valid;
   reg [6:0]  inst_pack_reg_prd;
   reg [5:0]  inst_pack_reg_rob_index;
-  reg        inst_pack_reg_inst_valid;
   reg [4:0]  inst_pack_reg_mem_type;
+  reg        inst_pack_reg_inst_valid;
   reg [31:0] mem_addr_reg;
   reg [31:0] mem_wdata_reg;
   always @(posedge clock) begin
@@ -31,8 +31,8 @@ module LS_EX1_EX2_Reg(
       inst_pack_reg_rd_valid <= 1'h0;
       inst_pack_reg_prd <= 7'h0;
       inst_pack_reg_rob_index <= 6'h0;
-      inst_pack_reg_inst_valid <= 1'h0;
       inst_pack_reg_mem_type <= 5'h0;
+      inst_pack_reg_inst_valid <= 1'h0;
       mem_addr_reg <= 32'h0;
       mem_wdata_reg <= 32'h0;
     end
@@ -58,8 +58,8 @@ module LS_EX1_EX2_Reg(
   assign io_inst_pack_EX2_rd_valid = inst_pack_reg_rd_valid;
   assign io_inst_pack_EX2_prd = inst_pack_reg_prd;
   assign io_inst_pack_EX2_rob_index = inst_pack_reg_rob_index;
-  assign io_inst_pack_EX2_inst_valid = inst_pack_reg_inst_valid;
   assign io_inst_pack_EX2_mem_type = inst_pack_reg_mem_type;
+  assign io_inst_pack_EX2_inst_valid = inst_pack_reg_inst_valid;
   assign io_mem_addr_EX2 = mem_addr_reg;
   assign io_mem_wdata_EX2 = mem_wdata_reg;
 endmodule

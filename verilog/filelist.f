@@ -20,7 +20,6 @@ Unorder_Select_1.sv
 Order_Issue_Queue.sv
 Order_Select.sv
 Order_Issue_Queue_1.sv
-ROB.sv
 IS_RF_Reg.sv
 IS_RF_Reg_1.sv
 IS_RF_Reg_2.sv
@@ -38,6 +37,7 @@ FU1_EX_WB_Reg.sv
 FU2_EX_WB_Reg.sv
 LS_EX2_WB_Reg.sv
 MD_EX_WB_Reg.sv
+ROB.sv
 Arch_Rat.sv
 CPU.sv
 ./xilinx_simple_dual_port_1_clock_ram.sv

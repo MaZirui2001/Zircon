@@ -150,6 +150,36 @@ module CPU(
   wire [4:0]  _arat_io_head_arch_2;
   wire [4:0]  _arat_io_head_arch_3;
   wire [3:0]  _arat_io_top_arch;
+  wire [5:0]  _rob_io_rob_index_rn_0;
+  wire [5:0]  _rob_io_rob_index_rn_1;
+  wire [5:0]  _rob_io_rob_index_rn_2;
+  wire [5:0]  _rob_io_rob_index_rn_3;
+  wire        _rob_io_full;
+  wire        _rob_io_cmt_en_0;
+  wire        _rob_io_cmt_en_1;
+  wire        _rob_io_cmt_en_2;
+  wire        _rob_io_cmt_en_3;
+  wire [6:0]  _rob_io_prd_cmt_0;
+  wire [6:0]  _rob_io_prd_cmt_1;
+  wire [6:0]  _rob_io_prd_cmt_2;
+  wire [6:0]  _rob_io_prd_cmt_3;
+  wire        _rob_io_rd_valid_cmt_0;
+  wire        _rob_io_rd_valid_cmt_1;
+  wire        _rob_io_rd_valid_cmt_2;
+  wire        _rob_io_rd_valid_cmt_3;
+  wire [6:0]  _rob_io_pprd_cmt_0;
+  wire [6:0]  _rob_io_pprd_cmt_1;
+  wire [6:0]  _rob_io_pprd_cmt_2;
+  wire [6:0]  _rob_io_pprd_cmt_3;
+  wire [1:0]  _rob_io_is_store_num_cmt;
+  wire        _rob_io_predict_fail_cmt;
+  wire [31:0] _rob_io_branch_target_cmt;
+  wire        _rob_io_pred_update_en_cmt;
+  wire        _rob_io_ras_update_en_cmt;
+  wire [31:0] _rob_io_pred_branch_target_cmt;
+  wire [31:0] _rob_io_pred_pc_cmt;
+  wire        _rob_io_pred_real_jump_cmt;
+  wire [1:0]  _rob_io_br_type_pred_cmt;
   wire        _fu4_ex_wb_reg_io_inst_pack_WB_rd_valid;
   wire [6:0]  _fu4_ex_wb_reg_io_inst_pack_WB_prd;
   wire [5:0]  _fu4_ex_wb_reg_io_inst_pack_WB_rob_index;
@@ -185,8 +215,8 @@ module CPU(
   wire        _ls_ex1_ex2_reg_io_inst_pack_EX2_rd_valid;
   wire [6:0]  _ls_ex1_ex2_reg_io_inst_pack_EX2_prd;
   wire [5:0]  _ls_ex1_ex2_reg_io_inst_pack_EX2_rob_index;
-  wire        _ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid;
   wire [4:0]  _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type;
+  wire        _ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid;
   wire [31:0] _ls_ex1_ex2_reg_io_mem_addr_EX2;
   wire [31:0] _ls_ex1_ex2_reg_io_mem_wdata_EX2;
   wire        _fu3_bypass_io_forward_prj_en;
@@ -206,54 +236,54 @@ module CPU(
   wire [31:0] _fu1_bypass_io_forward_prj_data;
   wire [31:0] _fu1_bypass_io_forward_prk_data;
   wire [31:0] _alu1_io_alu_out;
-  wire [6:0]  _rf_ex_reg4_io_inst_pack_EX_prj;
-  wire [6:0]  _rf_ex_reg4_io_inst_pack_EX_prk;
-  wire        _rf_ex_reg4_io_inst_pack_EX_rd_valid;
-  wire [6:0]  _rf_ex_reg4_io_inst_pack_EX_prd;
-  wire [5:0]  _rf_ex_reg4_io_inst_pack_EX_rob_index;
-  wire        _rf_ex_reg4_io_inst_pack_EX_inst_valid;
-  wire [4:0]  _rf_ex_reg4_io_inst_pack_EX_mem_type;
-  wire [31:0] _rf_ex_reg4_io_src1_EX;
-  wire [31:0] _rf_ex_reg4_io_src2_EX;
-  wire [6:0]  _rf_ex_reg3_io_inst_pack_EX_prj;
-  wire [6:0]  _rf_ex_reg3_io_inst_pack_EX_prk;
-  wire        _rf_ex_reg3_io_inst_pack_EX_rd_valid;
-  wire [6:0]  _rf_ex_reg3_io_inst_pack_EX_prd;
-  wire [31:0] _rf_ex_reg3_io_inst_pack_EX_imm;
-  wire [5:0]  _rf_ex_reg3_io_inst_pack_EX_rob_index;
-  wire        _rf_ex_reg3_io_inst_pack_EX_inst_valid;
-  wire [4:0]  _rf_ex_reg3_io_inst_pack_EX_mem_type;
-  wire [31:0] _rf_ex_reg3_io_src1_EX;
-  wire [31:0] _rf_ex_reg3_io_src2_EX;
-  wire [6:0]  _rf_ex_reg2_io_inst_pack_EX_prj;
-  wire [6:0]  _rf_ex_reg2_io_inst_pack_EX_prk;
-  wire        _rf_ex_reg2_io_inst_pack_EX_rd_valid;
-  wire [6:0]  _rf_ex_reg2_io_inst_pack_EX_prd;
-  wire [31:0] _rf_ex_reg2_io_inst_pack_EX_imm;
-  wire [5:0]  _rf_ex_reg2_io_inst_pack_EX_rob_index;
-  wire        _rf_ex_reg2_io_inst_pack_EX_inst_valid;
-  wire [4:0]  _rf_ex_reg2_io_inst_pack_EX_alu_op;
-  wire [1:0]  _rf_ex_reg2_io_inst_pack_EX_alu_rs1_sel;
-  wire [1:0]  _rf_ex_reg2_io_inst_pack_EX_alu_rs2_sel;
-  wire [31:0] _rf_ex_reg2_io_inst_pack_EX_pc;
-  wire [3:0]  _rf_ex_reg2_io_inst_pack_EX_br_type;
-  wire        _rf_ex_reg2_io_inst_pack_EX_predict_jump;
-  wire [31:0] _rf_ex_reg2_io_inst_pack_EX_pred_npc;
-  wire [31:0] _rf_ex_reg2_io_src1_EX;
-  wire [31:0] _rf_ex_reg2_io_src2_EX;
-  wire [6:0]  _rf_ex_reg1_io_inst_pack_EX_prj;
-  wire [6:0]  _rf_ex_reg1_io_inst_pack_EX_prk;
-  wire        _rf_ex_reg1_io_inst_pack_EX_rd_valid;
-  wire [6:0]  _rf_ex_reg1_io_inst_pack_EX_prd;
-  wire [31:0] _rf_ex_reg1_io_inst_pack_EX_imm;
-  wire [5:0]  _rf_ex_reg1_io_inst_pack_EX_rob_index;
-  wire        _rf_ex_reg1_io_inst_pack_EX_inst_valid;
-  wire [4:0]  _rf_ex_reg1_io_inst_pack_EX_alu_op;
-  wire [1:0]  _rf_ex_reg1_io_inst_pack_EX_alu_rs1_sel;
-  wire [1:0]  _rf_ex_reg1_io_inst_pack_EX_alu_rs2_sel;
-  wire [31:0] _rf_ex_reg1_io_inst_pack_EX_pc;
-  wire [31:0] _rf_ex_reg1_io_src1_EX;
-  wire [31:0] _rf_ex_reg1_io_src2_EX;
+  wire [6:0]  _re_reg4_io_inst_pack_EX_prj;
+  wire [6:0]  _re_reg4_io_inst_pack_EX_prk;
+  wire        _re_reg4_io_inst_pack_EX_rd_valid;
+  wire [6:0]  _re_reg4_io_inst_pack_EX_prd;
+  wire [5:0]  _re_reg4_io_inst_pack_EX_rob_index;
+  wire [4:0]  _re_reg4_io_inst_pack_EX_mem_type;
+  wire        _re_reg4_io_inst_pack_EX_inst_valid;
+  wire [31:0] _re_reg4_io_src1_EX;
+  wire [31:0] _re_reg4_io_src2_EX;
+  wire [6:0]  _re_reg3_io_inst_pack_EX_prj;
+  wire [6:0]  _re_reg3_io_inst_pack_EX_prk;
+  wire        _re_reg3_io_inst_pack_EX_rd_valid;
+  wire [6:0]  _re_reg3_io_inst_pack_EX_prd;
+  wire [31:0] _re_reg3_io_inst_pack_EX_imm;
+  wire [5:0]  _re_reg3_io_inst_pack_EX_rob_index;
+  wire [4:0]  _re_reg3_io_inst_pack_EX_mem_type;
+  wire        _re_reg3_io_inst_pack_EX_inst_valid;
+  wire [31:0] _re_reg3_io_src1_EX;
+  wire [31:0] _re_reg3_io_src2_EX;
+  wire [6:0]  _re_reg2_io_inst_pack_EX_prj;
+  wire [6:0]  _re_reg2_io_inst_pack_EX_prk;
+  wire        _re_reg2_io_inst_pack_EX_rd_valid;
+  wire [6:0]  _re_reg2_io_inst_pack_EX_prd;
+  wire [31:0] _re_reg2_io_inst_pack_EX_imm;
+  wire [5:0]  _re_reg2_io_inst_pack_EX_rob_index;
+  wire [4:0]  _re_reg2_io_inst_pack_EX_alu_op;
+  wire [1:0]  _re_reg2_io_inst_pack_EX_alu_rs1_sel;
+  wire [1:0]  _re_reg2_io_inst_pack_EX_alu_rs2_sel;
+  wire [31:0] _re_reg2_io_inst_pack_EX_pc;
+  wire [3:0]  _re_reg2_io_inst_pack_EX_br_type;
+  wire        _re_reg2_io_inst_pack_EX_predict_jump;
+  wire [31:0] _re_reg2_io_inst_pack_EX_pred_npc;
+  wire        _re_reg2_io_inst_pack_EX_inst_valid;
+  wire [31:0] _re_reg2_io_src1_EX;
+  wire [31:0] _re_reg2_io_src2_EX;
+  wire [6:0]  _re_reg1_io_inst_pack_EX_prj;
+  wire [6:0]  _re_reg1_io_inst_pack_EX_prk;
+  wire        _re_reg1_io_inst_pack_EX_rd_valid;
+  wire [6:0]  _re_reg1_io_inst_pack_EX_prd;
+  wire [31:0] _re_reg1_io_inst_pack_EX_imm;
+  wire [5:0]  _re_reg1_io_inst_pack_EX_rob_index;
+  wire [4:0]  _re_reg1_io_inst_pack_EX_alu_op;
+  wire [1:0]  _re_reg1_io_inst_pack_EX_alu_rs1_sel;
+  wire [1:0]  _re_reg1_io_inst_pack_EX_alu_rs2_sel;
+  wire [31:0] _re_reg1_io_inst_pack_EX_pc;
+  wire        _re_reg1_io_inst_pack_EX_inst_valid;
+  wire [31:0] _re_reg1_io_src1_EX;
+  wire [31:0] _re_reg1_io_src2_EX;
   wire [31:0] _rf_io_prj_data_0;
   wire [31:0] _rf_io_prj_data_1;
   wire [31:0] _rf_io_prj_data_2;
@@ -262,77 +292,47 @@ module CPU(
   wire [31:0] _rf_io_prk_data_1;
   wire [31:0] _rf_io_prk_data_2;
   wire [31:0] _rf_io_prk_data_3;
-  wire [6:0]  _is_rf_reg4_io_inst_pack_RF_prj;
-  wire [6:0]  _is_rf_reg4_io_inst_pack_RF_prk;
-  wire        _is_rf_reg4_io_inst_pack_RF_rd_valid;
-  wire [6:0]  _is_rf_reg4_io_inst_pack_RF_prd;
-  wire [31:0] _is_rf_reg4_io_inst_pack_RF_imm;
-  wire [5:0]  _is_rf_reg4_io_inst_pack_RF_rob_index;
-  wire        _is_rf_reg4_io_inst_pack_RF_inst_valid;
-  wire [4:0]  _is_rf_reg4_io_inst_pack_RF_mem_type;
-  wire [6:0]  _is_rf_reg3_io_inst_pack_RF_prj;
-  wire [6:0]  _is_rf_reg3_io_inst_pack_RF_prk;
-  wire        _is_rf_reg3_io_inst_pack_RF_rd_valid;
-  wire [6:0]  _is_rf_reg3_io_inst_pack_RF_prd;
-  wire [31:0] _is_rf_reg3_io_inst_pack_RF_imm;
-  wire [5:0]  _is_rf_reg3_io_inst_pack_RF_rob_index;
-  wire        _is_rf_reg3_io_inst_pack_RF_inst_valid;
-  wire [4:0]  _is_rf_reg3_io_inst_pack_RF_mem_type;
-  wire [6:0]  _is_rf_reg2_io_inst_pack_RF_prj;
-  wire [6:0]  _is_rf_reg2_io_inst_pack_RF_prk;
-  wire        _is_rf_reg2_io_inst_pack_RF_rd_valid;
-  wire [6:0]  _is_rf_reg2_io_inst_pack_RF_prd;
-  wire [31:0] _is_rf_reg2_io_inst_pack_RF_imm;
-  wire [5:0]  _is_rf_reg2_io_inst_pack_RF_rob_index;
-  wire        _is_rf_reg2_io_inst_pack_RF_inst_valid;
-  wire [4:0]  _is_rf_reg2_io_inst_pack_RF_alu_op;
-  wire [1:0]  _is_rf_reg2_io_inst_pack_RF_alu_rs1_sel;
-  wire [1:0]  _is_rf_reg2_io_inst_pack_RF_alu_rs2_sel;
-  wire [31:0] _is_rf_reg2_io_inst_pack_RF_pc;
-  wire [3:0]  _is_rf_reg2_io_inst_pack_RF_br_type;
-  wire        _is_rf_reg2_io_inst_pack_RF_predict_jump;
-  wire [31:0] _is_rf_reg2_io_inst_pack_RF_pred_npc;
-  wire [6:0]  _is_rf_reg1_io_inst_pack_RF_prj;
-  wire [6:0]  _is_rf_reg1_io_inst_pack_RF_prk;
-  wire        _is_rf_reg1_io_inst_pack_RF_rd_valid;
-  wire [6:0]  _is_rf_reg1_io_inst_pack_RF_prd;
-  wire [31:0] _is_rf_reg1_io_inst_pack_RF_imm;
-  wire [5:0]  _is_rf_reg1_io_inst_pack_RF_rob_index;
-  wire        _is_rf_reg1_io_inst_pack_RF_inst_valid;
-  wire [4:0]  _is_rf_reg1_io_inst_pack_RF_alu_op;
-  wire [1:0]  _is_rf_reg1_io_inst_pack_RF_alu_rs1_sel;
-  wire [1:0]  _is_rf_reg1_io_inst_pack_RF_alu_rs2_sel;
-  wire [31:0] _is_rf_reg1_io_inst_pack_RF_pc;
-  wire [5:0]  _rob_io_rob_index_rn_0;
-  wire [5:0]  _rob_io_rob_index_rn_1;
-  wire [5:0]  _rob_io_rob_index_rn_2;
-  wire [5:0]  _rob_io_rob_index_rn_3;
-  wire        _rob_io_full;
-  wire        _rob_io_cmt_en_0;
-  wire        _rob_io_cmt_en_1;
-  wire        _rob_io_cmt_en_2;
-  wire        _rob_io_cmt_en_3;
-  wire [6:0]  _rob_io_prd_cmt_0;
-  wire [6:0]  _rob_io_prd_cmt_1;
-  wire [6:0]  _rob_io_prd_cmt_2;
-  wire [6:0]  _rob_io_prd_cmt_3;
-  wire        _rob_io_rd_valid_cmt_0;
-  wire        _rob_io_rd_valid_cmt_1;
-  wire        _rob_io_rd_valid_cmt_2;
-  wire        _rob_io_rd_valid_cmt_3;
-  wire [6:0]  _rob_io_pprd_cmt_0;
-  wire [6:0]  _rob_io_pprd_cmt_1;
-  wire [6:0]  _rob_io_pprd_cmt_2;
-  wire [6:0]  _rob_io_pprd_cmt_3;
-  wire [1:0]  _rob_io_is_store_num_cmt;
-  wire        _rob_io_predict_fail_cmt;
-  wire [31:0] _rob_io_branch_target_cmt;
-  wire        _rob_io_pred_update_en_cmt;
-  wire        _rob_io_ras_update_en_cmt;
-  wire [31:0] _rob_io_pred_branch_target_cmt;
-  wire [31:0] _rob_io_pred_pc_cmt;
-  wire        _rob_io_pred_real_jump_cmt;
-  wire [1:0]  _rob_io_br_type_pred_cmt;
+  wire [6:0]  _ir_reg4_io_inst_pack_RF_prj;
+  wire [6:0]  _ir_reg4_io_inst_pack_RF_prk;
+  wire        _ir_reg4_io_inst_pack_RF_rd_valid;
+  wire [6:0]  _ir_reg4_io_inst_pack_RF_prd;
+  wire [31:0] _ir_reg4_io_inst_pack_RF_imm;
+  wire [5:0]  _ir_reg4_io_inst_pack_RF_rob_index;
+  wire [4:0]  _ir_reg4_io_inst_pack_RF_mem_type;
+  wire        _ir_reg4_io_inst_pack_RF_inst_valid;
+  wire [6:0]  _ir_reg3_io_inst_pack_RF_prj;
+  wire [6:0]  _ir_reg3_io_inst_pack_RF_prk;
+  wire        _ir_reg3_io_inst_pack_RF_rd_valid;
+  wire [6:0]  _ir_reg3_io_inst_pack_RF_prd;
+  wire [31:0] _ir_reg3_io_inst_pack_RF_imm;
+  wire [5:0]  _ir_reg3_io_inst_pack_RF_rob_index;
+  wire [4:0]  _ir_reg3_io_inst_pack_RF_mem_type;
+  wire        _ir_reg3_io_inst_pack_RF_inst_valid;
+  wire [6:0]  _ir_reg2_io_inst_pack_RF_prj;
+  wire [6:0]  _ir_reg2_io_inst_pack_RF_prk;
+  wire        _ir_reg2_io_inst_pack_RF_rd_valid;
+  wire [6:0]  _ir_reg2_io_inst_pack_RF_prd;
+  wire [31:0] _ir_reg2_io_inst_pack_RF_imm;
+  wire [5:0]  _ir_reg2_io_inst_pack_RF_rob_index;
+  wire [4:0]  _ir_reg2_io_inst_pack_RF_alu_op;
+  wire [1:0]  _ir_reg2_io_inst_pack_RF_alu_rs1_sel;
+  wire [1:0]  _ir_reg2_io_inst_pack_RF_alu_rs2_sel;
+  wire [31:0] _ir_reg2_io_inst_pack_RF_pc;
+  wire [3:0]  _ir_reg2_io_inst_pack_RF_br_type;
+  wire        _ir_reg2_io_inst_pack_RF_predict_jump;
+  wire [31:0] _ir_reg2_io_inst_pack_RF_pred_npc;
+  wire        _ir_reg2_io_inst_pack_RF_inst_valid;
+  wire [6:0]  _ir_reg1_io_inst_pack_RF_prj;
+  wire [6:0]  _ir_reg1_io_inst_pack_RF_prk;
+  wire        _ir_reg1_io_inst_pack_RF_rd_valid;
+  wire [6:0]  _ir_reg1_io_inst_pack_RF_prd;
+  wire [31:0] _ir_reg1_io_inst_pack_RF_imm;
+  wire [5:0]  _ir_reg1_io_inst_pack_RF_rob_index;
+  wire [4:0]  _ir_reg1_io_inst_pack_RF_alu_op;
+  wire [1:0]  _ir_reg1_io_inst_pack_RF_alu_rs1_sel;
+  wire [1:0]  _ir_reg1_io_inst_pack_RF_alu_rs2_sel;
+  wire [31:0] _ir_reg1_io_inst_pack_RF_pc;
+  wire        _ir_reg1_io_inst_pack_RF_inst_valid;
   wire        _sel4_io_issue_ack;
   wire [6:0]  _sel4_io_wake_preg;
   wire [6:0]  _sel4_io_inst_issue_inst_prj;
@@ -1047,14 +1047,14 @@ module CPU(
   reg  [6:0]  r_14;
   reg  [6:0]  r_15;
   always_comb begin
-    casez (_rf_ex_reg1_io_inst_pack_EX_alu_rs1_sel)
+    casez (_re_reg1_io_inst_pack_EX_alu_rs1_sel)
       2'b00:
         casez_tmp =
           _fu1_bypass_io_forward_prj_en
             ? _fu1_bypass_io_forward_prj_data
-            : _rf_ex_reg1_io_src1_EX;
+            : _re_reg1_io_src1_EX;
       2'b01:
-        casez_tmp = _rf_ex_reg1_io_inst_pack_EX_pc;
+        casez_tmp = _re_reg1_io_inst_pack_EX_pc;
       2'b10:
         casez_tmp = 32'h0;
       default:
@@ -1062,14 +1062,14 @@ module CPU(
     endcase
   end // always_comb
   always_comb begin
-    casez (_rf_ex_reg1_io_inst_pack_EX_alu_rs2_sel)
+    casez (_re_reg1_io_inst_pack_EX_alu_rs2_sel)
       2'b00:
         casez_tmp_0 =
           _fu1_bypass_io_forward_prk_en
             ? _fu1_bypass_io_forward_prk_data
-            : _rf_ex_reg1_io_src2_EX;
+            : _re_reg1_io_src2_EX;
       2'b01:
-        casez_tmp_0 = _rf_ex_reg1_io_inst_pack_EX_imm;
+        casez_tmp_0 = _re_reg1_io_inst_pack_EX_imm;
       2'b10:
         casez_tmp_0 = 32'h4;
       default:
@@ -1077,15 +1077,13 @@ module CPU(
     endcase
   end // always_comb
   wire [31:0] _br_io_src1_T =
-    _fu2_bypass_io_forward_prj_en
-      ? _fu2_bypass_io_forward_prj_data
-      : _rf_ex_reg2_io_src1_EX;
+    _fu2_bypass_io_forward_prj_en ? _fu2_bypass_io_forward_prj_data : _re_reg2_io_src1_EX;
   always_comb begin
-    casez (_rf_ex_reg2_io_inst_pack_EX_alu_rs1_sel)
+    casez (_re_reg2_io_inst_pack_EX_alu_rs1_sel)
       2'b00:
         casez_tmp_1 = _br_io_src1_T;
       2'b01:
-        casez_tmp_1 = _rf_ex_reg2_io_inst_pack_EX_pc;
+        casez_tmp_1 = _re_reg2_io_inst_pack_EX_pc;
       2'b10:
         casez_tmp_1 = 32'h0;
       default:
@@ -1093,15 +1091,13 @@ module CPU(
     endcase
   end // always_comb
   wire [31:0] _br_io_src2_T =
-    _fu2_bypass_io_forward_prk_en
-      ? _fu2_bypass_io_forward_prk_data
-      : _rf_ex_reg2_io_src2_EX;
+    _fu2_bypass_io_forward_prk_en ? _fu2_bypass_io_forward_prk_data : _re_reg2_io_src2_EX;
   always_comb begin
-    casez (_rf_ex_reg2_io_inst_pack_EX_alu_rs2_sel)
+    casez (_re_reg2_io_inst_pack_EX_alu_rs2_sel)
       2'b00:
         casez_tmp_2 = _br_io_src2_T;
       2'b01:
-        casez_tmp_2 = _rf_ex_reg2_io_inst_pack_EX_imm;
+        casez_tmp_2 = _re_reg2_io_inst_pack_EX_imm;
       2'b10:
         casez_tmp_2 = 32'h4;
       default:
@@ -1922,7 +1918,7 @@ module CPU(
     .io_prd_queue_2_7           (_iq3_io_prd_queue_7),
     .io_prd_queue_2_8           (_iq3_io_prd_queue_8),
     .io_prd_queue_2_9
-      (_is_rf_reg3_io_inst_pack_RF_rd_valid ? _is_rf_reg3_io_inst_pack_RF_prd : 7'h0),
+      (_ir_reg3_io_inst_pack_RF_rd_valid ? _ir_reg3_io_inst_pack_RF_prd : 7'h0),
     .io_prd_queue_3_0           (_iq4_io_prd_queue_0),
     .io_prd_queue_3_1           (_iq4_io_prd_queue_1),
     .io_prd_queue_3_2           (_iq4_io_prd_queue_2),
@@ -2866,6 +2862,461 @@ module CPU(
     .io_inst_issue_inst_mem_type   (_sel4_io_inst_issue_inst_mem_type),
     .io_inst_issue_valid           (_sel4_io_inst_issue_valid)
   );
+  IS_RF_Reg ir_reg1 (
+    .clock                       (clock),
+    .reset                       (reset),
+    .io_flush                    (_rob_io_predict_fail_cmt),
+    .io_inst_pack_IS_prj         (_sel1_io_inst_issue_inst_prj),
+    .io_inst_pack_IS_prk         (_sel1_io_inst_issue_inst_prk),
+    .io_inst_pack_IS_rd_valid    (_sel1_io_inst_issue_inst_rd_valid),
+    .io_inst_pack_IS_prd         (_sel1_io_inst_issue_inst_prd),
+    .io_inst_pack_IS_imm         (_sel1_io_inst_issue_inst_imm),
+    .io_inst_pack_IS_rob_index   (_sel1_io_inst_issue_inst_rob_index),
+    .io_inst_pack_IS_alu_op      (_sel1_io_inst_issue_inst_alu_op),
+    .io_inst_pack_IS_alu_rs1_sel (_sel1_io_inst_issue_inst_alu_rs1_sel),
+    .io_inst_pack_IS_alu_rs2_sel (_sel1_io_inst_issue_inst_alu_rs2_sel),
+    .io_inst_pack_IS_pc          (_sel1_io_inst_issue_inst_pc),
+    .io_inst_pack_IS_inst_valid  (_sel1_io_inst_issue_valid),
+    .io_inst_pack_RF_prj         (_ir_reg1_io_inst_pack_RF_prj),
+    .io_inst_pack_RF_prk         (_ir_reg1_io_inst_pack_RF_prk),
+    .io_inst_pack_RF_rd_valid    (_ir_reg1_io_inst_pack_RF_rd_valid),
+    .io_inst_pack_RF_prd         (_ir_reg1_io_inst_pack_RF_prd),
+    .io_inst_pack_RF_imm         (_ir_reg1_io_inst_pack_RF_imm),
+    .io_inst_pack_RF_rob_index   (_ir_reg1_io_inst_pack_RF_rob_index),
+    .io_inst_pack_RF_alu_op      (_ir_reg1_io_inst_pack_RF_alu_op),
+    .io_inst_pack_RF_alu_rs1_sel (_ir_reg1_io_inst_pack_RF_alu_rs1_sel),
+    .io_inst_pack_RF_alu_rs2_sel (_ir_reg1_io_inst_pack_RF_alu_rs2_sel),
+    .io_inst_pack_RF_pc          (_ir_reg1_io_inst_pack_RF_pc),
+    .io_inst_pack_RF_inst_valid  (_ir_reg1_io_inst_pack_RF_inst_valid)
+  );
+  IS_RF_Reg_1 ir_reg2 (
+    .clock                        (clock),
+    .reset                        (reset),
+    .io_flush                     (_rob_io_predict_fail_cmt),
+    .io_inst_pack_IS_prj          (_sel2_io_inst_issue_inst_prj),
+    .io_inst_pack_IS_prk          (_sel2_io_inst_issue_inst_prk),
+    .io_inst_pack_IS_rd_valid     (_sel2_io_inst_issue_inst_rd_valid),
+    .io_inst_pack_IS_prd          (_sel2_io_inst_issue_inst_prd),
+    .io_inst_pack_IS_imm          (_sel2_io_inst_issue_inst_imm),
+    .io_inst_pack_IS_rob_index    (_sel2_io_inst_issue_inst_rob_index),
+    .io_inst_pack_IS_alu_op       (_sel2_io_inst_issue_inst_alu_op),
+    .io_inst_pack_IS_alu_rs1_sel  (_sel2_io_inst_issue_inst_alu_rs1_sel),
+    .io_inst_pack_IS_alu_rs2_sel  (_sel2_io_inst_issue_inst_alu_rs2_sel),
+    .io_inst_pack_IS_pc           (_sel2_io_inst_issue_inst_pc),
+    .io_inst_pack_IS_br_type      (_sel2_io_inst_issue_inst_br_type),
+    .io_inst_pack_IS_predict_jump (_sel2_io_inst_issue_inst_predict_jump),
+    .io_inst_pack_IS_pred_npc     (_sel2_io_inst_issue_inst_pred_npc),
+    .io_inst_pack_IS_inst_valid   (_sel2_io_inst_issue_valid),
+    .io_inst_pack_RF_prj          (_ir_reg2_io_inst_pack_RF_prj),
+    .io_inst_pack_RF_prk          (_ir_reg2_io_inst_pack_RF_prk),
+    .io_inst_pack_RF_rd_valid     (_ir_reg2_io_inst_pack_RF_rd_valid),
+    .io_inst_pack_RF_prd          (_ir_reg2_io_inst_pack_RF_prd),
+    .io_inst_pack_RF_imm          (_ir_reg2_io_inst_pack_RF_imm),
+    .io_inst_pack_RF_rob_index    (_ir_reg2_io_inst_pack_RF_rob_index),
+    .io_inst_pack_RF_alu_op       (_ir_reg2_io_inst_pack_RF_alu_op),
+    .io_inst_pack_RF_alu_rs1_sel  (_ir_reg2_io_inst_pack_RF_alu_rs1_sel),
+    .io_inst_pack_RF_alu_rs2_sel  (_ir_reg2_io_inst_pack_RF_alu_rs2_sel),
+    .io_inst_pack_RF_pc           (_ir_reg2_io_inst_pack_RF_pc),
+    .io_inst_pack_RF_br_type      (_ir_reg2_io_inst_pack_RF_br_type),
+    .io_inst_pack_RF_predict_jump (_ir_reg2_io_inst_pack_RF_predict_jump),
+    .io_inst_pack_RF_pred_npc     (_ir_reg2_io_inst_pack_RF_pred_npc),
+    .io_inst_pack_RF_inst_valid   (_ir_reg2_io_inst_pack_RF_inst_valid)
+  );
+  IS_RF_Reg_2 ir_reg3 (
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_flush                   (_rob_io_predict_fail_cmt),
+    .io_inst_pack_IS_prj        (_sel3_io_inst_issue_inst_prj),
+    .io_inst_pack_IS_prk        (_sel3_io_inst_issue_inst_prk),
+    .io_inst_pack_IS_rd_valid   (_sel3_io_inst_issue_inst_rd_valid),
+    .io_inst_pack_IS_prd        (_sel3_io_inst_issue_inst_prd),
+    .io_inst_pack_IS_imm        (_sel3_io_inst_issue_inst_imm),
+    .io_inst_pack_IS_rob_index  (_sel3_io_inst_issue_inst_rob_index),
+    .io_inst_pack_IS_mem_type   (_sel3_io_inst_issue_inst_mem_type),
+    .io_inst_pack_IS_inst_valid (_sel3_io_inst_issue_valid),
+    .io_inst_pack_RF_prj        (_ir_reg3_io_inst_pack_RF_prj),
+    .io_inst_pack_RF_prk        (_ir_reg3_io_inst_pack_RF_prk),
+    .io_inst_pack_RF_rd_valid   (_ir_reg3_io_inst_pack_RF_rd_valid),
+    .io_inst_pack_RF_prd        (_ir_reg3_io_inst_pack_RF_prd),
+    .io_inst_pack_RF_imm        (_ir_reg3_io_inst_pack_RF_imm),
+    .io_inst_pack_RF_rob_index  (_ir_reg3_io_inst_pack_RF_rob_index),
+    .io_inst_pack_RF_mem_type   (_ir_reg3_io_inst_pack_RF_mem_type),
+    .io_inst_pack_RF_inst_valid (_ir_reg3_io_inst_pack_RF_inst_valid)
+  );
+  IS_RF_Reg_2 ir_reg4 (
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_flush                   (_rob_io_predict_fail_cmt),
+    .io_inst_pack_IS_prj        (_sel4_io_inst_issue_inst_prj),
+    .io_inst_pack_IS_prk        (_sel4_io_inst_issue_inst_prk),
+    .io_inst_pack_IS_rd_valid   (_sel4_io_inst_issue_inst_rd_valid),
+    .io_inst_pack_IS_prd        (_sel4_io_inst_issue_inst_prd),
+    .io_inst_pack_IS_imm        (_sel4_io_inst_issue_inst_imm),
+    .io_inst_pack_IS_rob_index  (_sel4_io_inst_issue_inst_rob_index),
+    .io_inst_pack_IS_mem_type   (_sel4_io_inst_issue_inst_mem_type),
+    .io_inst_pack_IS_inst_valid (_sel4_io_inst_issue_valid),
+    .io_inst_pack_RF_prj        (_ir_reg4_io_inst_pack_RF_prj),
+    .io_inst_pack_RF_prk        (_ir_reg4_io_inst_pack_RF_prk),
+    .io_inst_pack_RF_rd_valid   (_ir_reg4_io_inst_pack_RF_rd_valid),
+    .io_inst_pack_RF_prd        (_ir_reg4_io_inst_pack_RF_prd),
+    .io_inst_pack_RF_imm        (_ir_reg4_io_inst_pack_RF_imm),
+    .io_inst_pack_RF_rob_index  (_ir_reg4_io_inst_pack_RF_rob_index),
+    .io_inst_pack_RF_mem_type   (_ir_reg4_io_inst_pack_RF_mem_type),
+    .io_inst_pack_RF_inst_valid (_ir_reg4_io_inst_pack_RF_inst_valid)
+  );
+  Physical_Regfile rf (
+    .clock         (clock),
+    .reset         (reset),
+    .io_prj_0      (_ir_reg1_io_inst_pack_RF_prj),
+    .io_prj_1      (_ir_reg2_io_inst_pack_RF_prj),
+    .io_prj_2      (_ir_reg3_io_inst_pack_RF_prj),
+    .io_prj_3      (_ir_reg4_io_inst_pack_RF_prj),
+    .io_prk_0      (_ir_reg1_io_inst_pack_RF_prk),
+    .io_prk_1      (_ir_reg2_io_inst_pack_RF_prk),
+    .io_prk_2      (_ir_reg3_io_inst_pack_RF_prk),
+    .io_prk_3      (_ir_reg4_io_inst_pack_RF_prk),
+    .io_prd_0      (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_prd_1      (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_prd_2      (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_prd_3      (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_wdata_0    (_fu1_ex_wb_reg_io_alu_out_WB),
+    .io_wdata_1    (_fu2_ex_wb_reg_io_alu_out_WB),
+    .io_wdata_2    (_fu3_ex_wb_reg_io_mem_rdata_WB),
+    .io_wdata_3    (_fu4_ex_wb_reg_io_md_out_WB),
+    .io_rf_we_0    (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_rf_we_1    (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_rf_we_2    (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_rf_we_3    (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_prj_data_0 (_rf_io_prj_data_0),
+    .io_prj_data_1 (_rf_io_prj_data_1),
+    .io_prj_data_2 (_rf_io_prj_data_2),
+    .io_prj_data_3 (_rf_io_prj_data_3),
+    .io_prk_data_0 (_rf_io_prk_data_0),
+    .io_prk_data_1 (_rf_io_prk_data_1),
+    .io_prk_data_2 (_rf_io_prk_data_2),
+    .io_prk_data_3 (_rf_io_prk_data_3)
+  );
+  RF_EX_Reg re_reg1 (
+    .clock                       (clock),
+    .reset                       (reset),
+    .io_flush                    (_rob_io_predict_fail_cmt),
+    .io_inst_pack_RF_prj         (_ir_reg1_io_inst_pack_RF_prj),
+    .io_inst_pack_RF_prk         (_ir_reg1_io_inst_pack_RF_prk),
+    .io_inst_pack_RF_rd_valid    (_ir_reg1_io_inst_pack_RF_rd_valid),
+    .io_inst_pack_RF_prd         (_ir_reg1_io_inst_pack_RF_prd),
+    .io_inst_pack_RF_imm         (_ir_reg1_io_inst_pack_RF_imm),
+    .io_inst_pack_RF_rob_index   (_ir_reg1_io_inst_pack_RF_rob_index),
+    .io_inst_pack_RF_alu_op      (_ir_reg1_io_inst_pack_RF_alu_op),
+    .io_inst_pack_RF_alu_rs1_sel (_ir_reg1_io_inst_pack_RF_alu_rs1_sel),
+    .io_inst_pack_RF_alu_rs2_sel (_ir_reg1_io_inst_pack_RF_alu_rs2_sel),
+    .io_inst_pack_RF_pc          (_ir_reg1_io_inst_pack_RF_pc),
+    .io_inst_pack_RF_inst_valid  (_ir_reg1_io_inst_pack_RF_inst_valid),
+    .io_src1_RF                  (_rf_io_prj_data_0),
+    .io_src2_RF                  (_rf_io_prk_data_0),
+    .io_inst_pack_EX_prj         (_re_reg1_io_inst_pack_EX_prj),
+    .io_inst_pack_EX_prk         (_re_reg1_io_inst_pack_EX_prk),
+    .io_inst_pack_EX_rd_valid    (_re_reg1_io_inst_pack_EX_rd_valid),
+    .io_inst_pack_EX_prd         (_re_reg1_io_inst_pack_EX_prd),
+    .io_inst_pack_EX_imm         (_re_reg1_io_inst_pack_EX_imm),
+    .io_inst_pack_EX_rob_index   (_re_reg1_io_inst_pack_EX_rob_index),
+    .io_inst_pack_EX_alu_op      (_re_reg1_io_inst_pack_EX_alu_op),
+    .io_inst_pack_EX_alu_rs1_sel (_re_reg1_io_inst_pack_EX_alu_rs1_sel),
+    .io_inst_pack_EX_alu_rs2_sel (_re_reg1_io_inst_pack_EX_alu_rs2_sel),
+    .io_inst_pack_EX_pc          (_re_reg1_io_inst_pack_EX_pc),
+    .io_inst_pack_EX_inst_valid  (_re_reg1_io_inst_pack_EX_inst_valid),
+    .io_src1_EX                  (_re_reg1_io_src1_EX),
+    .io_src2_EX                  (_re_reg1_io_src2_EX)
+  );
+  RF_EX_Reg_1 re_reg2 (
+    .clock                        (clock),
+    .reset                        (reset),
+    .io_flush                     (_rob_io_predict_fail_cmt),
+    .io_inst_pack_RF_prj          (_ir_reg2_io_inst_pack_RF_prj),
+    .io_inst_pack_RF_prk          (_ir_reg2_io_inst_pack_RF_prk),
+    .io_inst_pack_RF_rd_valid     (_ir_reg2_io_inst_pack_RF_rd_valid),
+    .io_inst_pack_RF_prd          (_ir_reg2_io_inst_pack_RF_prd),
+    .io_inst_pack_RF_imm          (_ir_reg2_io_inst_pack_RF_imm),
+    .io_inst_pack_RF_rob_index    (_ir_reg2_io_inst_pack_RF_rob_index),
+    .io_inst_pack_RF_alu_op       (_ir_reg2_io_inst_pack_RF_alu_op),
+    .io_inst_pack_RF_alu_rs1_sel  (_ir_reg2_io_inst_pack_RF_alu_rs1_sel),
+    .io_inst_pack_RF_alu_rs2_sel  (_ir_reg2_io_inst_pack_RF_alu_rs2_sel),
+    .io_inst_pack_RF_pc           (_ir_reg2_io_inst_pack_RF_pc),
+    .io_inst_pack_RF_br_type      (_ir_reg2_io_inst_pack_RF_br_type),
+    .io_inst_pack_RF_predict_jump (_ir_reg2_io_inst_pack_RF_predict_jump),
+    .io_inst_pack_RF_pred_npc     (_ir_reg2_io_inst_pack_RF_pred_npc),
+    .io_inst_pack_RF_inst_valid   (_ir_reg2_io_inst_pack_RF_inst_valid),
+    .io_src1_RF                   (_rf_io_prj_data_1),
+    .io_src2_RF                   (_rf_io_prk_data_1),
+    .io_inst_pack_EX_prj          (_re_reg2_io_inst_pack_EX_prj),
+    .io_inst_pack_EX_prk          (_re_reg2_io_inst_pack_EX_prk),
+    .io_inst_pack_EX_rd_valid     (_re_reg2_io_inst_pack_EX_rd_valid),
+    .io_inst_pack_EX_prd          (_re_reg2_io_inst_pack_EX_prd),
+    .io_inst_pack_EX_imm          (_re_reg2_io_inst_pack_EX_imm),
+    .io_inst_pack_EX_rob_index    (_re_reg2_io_inst_pack_EX_rob_index),
+    .io_inst_pack_EX_alu_op       (_re_reg2_io_inst_pack_EX_alu_op),
+    .io_inst_pack_EX_alu_rs1_sel  (_re_reg2_io_inst_pack_EX_alu_rs1_sel),
+    .io_inst_pack_EX_alu_rs2_sel  (_re_reg2_io_inst_pack_EX_alu_rs2_sel),
+    .io_inst_pack_EX_pc           (_re_reg2_io_inst_pack_EX_pc),
+    .io_inst_pack_EX_br_type      (_re_reg2_io_inst_pack_EX_br_type),
+    .io_inst_pack_EX_predict_jump (_re_reg2_io_inst_pack_EX_predict_jump),
+    .io_inst_pack_EX_pred_npc     (_re_reg2_io_inst_pack_EX_pred_npc),
+    .io_inst_pack_EX_inst_valid   (_re_reg2_io_inst_pack_EX_inst_valid),
+    .io_src1_EX                   (_re_reg2_io_src1_EX),
+    .io_src2_EX                   (_re_reg2_io_src2_EX)
+  );
+  RF_EX_Reg_2 re_reg3 (
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_flush                   (_rob_io_predict_fail_cmt),
+    .io_inst_pack_RF_prj        (_ir_reg3_io_inst_pack_RF_prj),
+    .io_inst_pack_RF_prk        (_ir_reg3_io_inst_pack_RF_prk),
+    .io_inst_pack_RF_rd_valid   (_ir_reg3_io_inst_pack_RF_rd_valid),
+    .io_inst_pack_RF_prd        (_ir_reg3_io_inst_pack_RF_prd),
+    .io_inst_pack_RF_imm        (_ir_reg3_io_inst_pack_RF_imm),
+    .io_inst_pack_RF_rob_index  (_ir_reg3_io_inst_pack_RF_rob_index),
+    .io_inst_pack_RF_mem_type   (_ir_reg3_io_inst_pack_RF_mem_type),
+    .io_inst_pack_RF_inst_valid (_ir_reg3_io_inst_pack_RF_inst_valid),
+    .io_src1_RF                 (_rf_io_prj_data_2),
+    .io_src2_RF                 (_rf_io_prk_data_2),
+    .io_inst_pack_EX_prj        (_re_reg3_io_inst_pack_EX_prj),
+    .io_inst_pack_EX_prk        (_re_reg3_io_inst_pack_EX_prk),
+    .io_inst_pack_EX_rd_valid   (_re_reg3_io_inst_pack_EX_rd_valid),
+    .io_inst_pack_EX_prd        (_re_reg3_io_inst_pack_EX_prd),
+    .io_inst_pack_EX_imm        (_re_reg3_io_inst_pack_EX_imm),
+    .io_inst_pack_EX_rob_index  (_re_reg3_io_inst_pack_EX_rob_index),
+    .io_inst_pack_EX_mem_type   (_re_reg3_io_inst_pack_EX_mem_type),
+    .io_inst_pack_EX_inst_valid (_re_reg3_io_inst_pack_EX_inst_valid),
+    .io_src1_EX                 (_re_reg3_io_src1_EX),
+    .io_src2_EX                 (_re_reg3_io_src2_EX)
+  );
+  RF_EX_Reg_2 re_reg4 (
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_flush                   (_rob_io_predict_fail_cmt),
+    .io_inst_pack_RF_prj        (_ir_reg4_io_inst_pack_RF_prj),
+    .io_inst_pack_RF_prk        (_ir_reg4_io_inst_pack_RF_prk),
+    .io_inst_pack_RF_rd_valid   (_ir_reg4_io_inst_pack_RF_rd_valid),
+    .io_inst_pack_RF_prd        (_ir_reg4_io_inst_pack_RF_prd),
+    .io_inst_pack_RF_imm        (_ir_reg4_io_inst_pack_RF_imm),
+    .io_inst_pack_RF_rob_index  (_ir_reg4_io_inst_pack_RF_rob_index),
+    .io_inst_pack_RF_mem_type   (_ir_reg4_io_inst_pack_RF_mem_type),
+    .io_inst_pack_RF_inst_valid (_ir_reg4_io_inst_pack_RF_inst_valid),
+    .io_src1_RF                 (_rf_io_prj_data_3),
+    .io_src2_RF                 (_rf_io_prk_data_3),
+    .io_inst_pack_EX_prj        (_re_reg4_io_inst_pack_EX_prj),
+    .io_inst_pack_EX_prk        (_re_reg4_io_inst_pack_EX_prk),
+    .io_inst_pack_EX_rd_valid   (_re_reg4_io_inst_pack_EX_rd_valid),
+    .io_inst_pack_EX_prd        (_re_reg4_io_inst_pack_EX_prd),
+    .io_inst_pack_EX_imm        (/* unused */),
+    .io_inst_pack_EX_rob_index  (_re_reg4_io_inst_pack_EX_rob_index),
+    .io_inst_pack_EX_mem_type   (_re_reg4_io_inst_pack_EX_mem_type),
+    .io_inst_pack_EX_inst_valid (_re_reg4_io_inst_pack_EX_inst_valid),
+    .io_src1_EX                 (_re_reg4_io_src1_EX),
+    .io_src2_EX                 (_re_reg4_io_src2_EX)
+  );
+  ALU alu1 (
+    .io_src1    (casez_tmp),
+    .io_src2    (casez_tmp_0),
+    .io_alu_op  (_re_reg1_io_inst_pack_EX_alu_op[3:0]),
+    .io_alu_out (_alu1_io_alu_out)
+  );
+  Bypass fu1_bypass (
+    .io_prd_wb           (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_prj_ex           (_re_reg1_io_inst_pack_EX_prj),
+    .io_prk_ex           (_re_reg1_io_inst_pack_EX_prk),
+    .io_prf_wdata_wb     (_fu1_ex_wb_reg_io_alu_out_WB),
+    .io_rd_valid_wb      (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en   (_fu1_bypass_io_forward_prj_en),
+    .io_forward_prk_en   (_fu1_bypass_io_forward_prk_en),
+    .io_forward_prj_data (_fu1_bypass_io_forward_prj_data),
+    .io_forward_prk_data (_fu1_bypass_io_forward_prk_data)
+  );
+  ALU alu2 (
+    .io_src1    (casez_tmp_1),
+    .io_src2    (casez_tmp_2),
+    .io_alu_op  (_re_reg2_io_inst_pack_EX_alu_op[3:0]),
+    .io_alu_out (_alu2_io_alu_out)
+  );
+  Branch br (
+    .io_br_type       (_re_reg2_io_inst_pack_EX_br_type),
+    .io_src1          (_br_io_src1_T),
+    .io_src2          (_br_io_src2_T),
+    .io_pc_ex         (_re_reg2_io_inst_pack_EX_pc),
+    .io_imm_ex        (_re_reg2_io_inst_pack_EX_imm),
+    .io_predict_jump  (_re_reg2_io_inst_pack_EX_predict_jump),
+    .io_pred_npc      (_re_reg2_io_inst_pack_EX_pred_npc),
+    .io_real_jump     (_br_io_real_jump),
+    .io_predict_fail  (_br_io_predict_fail),
+    .io_branch_target (_br_io_branch_target)
+  );
+  Bypass fu2_bypass (
+    .io_prd_wb           (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_prj_ex           (_re_reg2_io_inst_pack_EX_prj),
+    .io_prk_ex           (_re_reg2_io_inst_pack_EX_prk),
+    .io_prf_wdata_wb     (_fu2_ex_wb_reg_io_alu_out_WB),
+    .io_rd_valid_wb      (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en   (_fu2_bypass_io_forward_prj_en),
+    .io_forward_prk_en   (_fu2_bypass_io_forward_prk_en),
+    .io_forward_prj_data (_fu2_bypass_io_forward_prj_data),
+    .io_forward_prk_data (_fu2_bypass_io_forward_prk_data)
+  );
+  Bypass fu3_bypass (
+    .io_prd_wb           (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_prj_ex           (_re_reg3_io_inst_pack_EX_prj),
+    .io_prk_ex           (_re_reg3_io_inst_pack_EX_prk),
+    .io_prf_wdata_wb     (_fu3_ex_wb_reg_io_mem_rdata_WB),
+    .io_rd_valid_wb      (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en   (_fu3_bypass_io_forward_prj_en),
+    .io_forward_prk_en   (_fu3_bypass_io_forward_prk_en),
+    .io_forward_prj_data (_fu3_bypass_io_forward_prj_data),
+    .io_forward_prk_data (_fu3_bypass_io_forward_prk_data)
+  );
+  LS_EX1_EX2_Reg ls_ex1_ex2_reg (
+    .clock                       (clock),
+    .reset                       (reset),
+    .io_flush                    (_rob_io_predict_fail_cmt),
+    .io_inst_pack_EX1_rd_valid   (_re_reg3_io_inst_pack_EX_rd_valid),
+    .io_inst_pack_EX1_prd        (_re_reg3_io_inst_pack_EX_prd),
+    .io_inst_pack_EX1_rob_index  (_re_reg3_io_inst_pack_EX_rob_index),
+    .io_inst_pack_EX1_mem_type   (_re_reg3_io_inst_pack_EX_mem_type),
+    .io_inst_pack_EX1_inst_valid (_re_reg3_io_inst_pack_EX_inst_valid),
+    .io_mem_addr_EX1
+      ((_fu3_bypass_io_forward_prj_en
+          ? _fu3_bypass_io_forward_prj_data
+          : _re_reg3_io_src1_EX) + _re_reg3_io_inst_pack_EX_imm),
+    .io_mem_wdata_EX1
+      (_fu3_bypass_io_forward_prk_en
+         ? _fu3_bypass_io_forward_prk_data
+         : _re_reg3_io_src2_EX),
+    .io_inst_pack_EX2_rd_valid   (_ls_ex1_ex2_reg_io_inst_pack_EX2_rd_valid),
+    .io_inst_pack_EX2_prd        (_ls_ex1_ex2_reg_io_inst_pack_EX2_prd),
+    .io_inst_pack_EX2_rob_index  (_ls_ex1_ex2_reg_io_inst_pack_EX2_rob_index),
+    .io_inst_pack_EX2_mem_type   (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type),
+    .io_inst_pack_EX2_inst_valid (_ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid),
+    .io_mem_addr_EX2             (_ls_ex1_ex2_reg_io_mem_addr_EX2),
+    .io_mem_wdata_EX2            (_ls_ex1_ex2_reg_io_mem_wdata_EX2)
+  );
+  MDU mdu (
+    .io_src1
+      (_fu4_bypass_io_forward_prj_en
+         ? _fu4_bypass_io_forward_prj_data
+         : _re_reg4_io_src1_EX),
+    .io_src2
+      (_fu4_bypass_io_forward_prk_en
+         ? _fu4_bypass_io_forward_prk_data
+         : _re_reg4_io_src2_EX),
+    .io_md_op  (_re_reg4_io_inst_pack_EX_mem_type),
+    .io_md_out (_mdu_io_md_out)
+  );
+  SB sb (
+    .clock               (clock),
+    .reset               (reset),
+    .io_is_store_ex
+      (~(_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type[4])
+       & (|_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type)),
+    .io_addr_ex          (_ls_ex1_ex2_reg_io_mem_addr_EX2),
+    .io_st_data_ex       (_ls_ex1_ex2_reg_io_mem_wdata_EX2),
+    .io_st_wlen_ex       (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type[2:0]),
+    .io_is_store_num_cmt (_rob_io_is_store_num_cmt),
+    .io_flush            (_rob_io_predict_fail_cmt),
+    .io_full             (_sb_io_full),
+    .io_is_store_cmt     (io_mem_is_store_cmt),
+    .io_st_addr_cmt      (io_mem_waddr_cmt),
+    .io_st_data_cmt      (io_mem_wdata_cmt),
+    .io_st_wlen_cmt      (io_mem_wlen_cmt),
+    .io_ld_data_ex       (_sb_io_ld_data_ex),
+    .io_ld_hit           (_sb_io_ld_hit)
+  );
+  Bypass fu4_bypass (
+    .io_prd_wb           (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_prj_ex           (_re_reg4_io_inst_pack_EX_prj),
+    .io_prk_ex           (_re_reg4_io_inst_pack_EX_prk),
+    .io_prf_wdata_wb     (_fu4_ex_wb_reg_io_md_out_WB),
+    .io_rd_valid_wb      (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en   (_fu4_bypass_io_forward_prj_en),
+    .io_forward_prk_en   (_fu4_bypass_io_forward_prk_en),
+    .io_forward_prj_data (_fu4_bypass_io_forward_prj_data),
+    .io_forward_prk_data (_fu4_bypass_io_forward_prk_data)
+  );
+  FU1_EX_WB_Reg fu1_ex_wb_reg (
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_flush                   (_rob_io_predict_fail_cmt),
+    .io_inst_pack_EX_rd_valid   (_re_reg1_io_inst_pack_EX_rd_valid),
+    .io_inst_pack_EX_prd        (_re_reg1_io_inst_pack_EX_prd),
+    .io_inst_pack_EX_rob_index  (_re_reg1_io_inst_pack_EX_rob_index),
+    .io_inst_pack_EX_inst_valid (_re_reg1_io_inst_pack_EX_inst_valid),
+    .io_alu_out_EX              (_alu1_io_alu_out),
+    .io_inst_pack_WB_rd_valid   (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_inst_pack_WB_prd        (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_inst_pack_WB_rob_index  (_fu1_ex_wb_reg_io_inst_pack_WB_rob_index),
+    .io_inst_pack_WB_inst_valid (_fu1_ex_wb_reg_io_inst_pack_WB_inst_valid),
+    .io_alu_out_WB              (_fu1_ex_wb_reg_io_alu_out_WB)
+  );
+  FU2_EX_WB_Reg fu2_ex_wb_reg (
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_flush                   (_rob_io_predict_fail_cmt),
+    .io_inst_pack_EX_rd_valid   (_re_reg2_io_inst_pack_EX_rd_valid),
+    .io_inst_pack_EX_prd        (_re_reg2_io_inst_pack_EX_prd),
+    .io_inst_pack_EX_rob_index  (_re_reg2_io_inst_pack_EX_rob_index),
+    .io_inst_pack_EX_inst_valid (_re_reg2_io_inst_pack_EX_inst_valid),
+    .io_alu_out_EX              (_alu2_io_alu_out),
+    .io_predict_fail_EX         (_br_io_predict_fail),
+    .io_branch_target_EX        (_br_io_branch_target),
+    .io_real_jump_EX            (_br_io_real_jump),
+    .io_inst_pack_WB_rd_valid   (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_inst_pack_WB_prd        (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_inst_pack_WB_rob_index  (_fu2_ex_wb_reg_io_inst_pack_WB_rob_index),
+    .io_inst_pack_WB_inst_valid (_fu2_ex_wb_reg_io_inst_pack_WB_inst_valid),
+    .io_alu_out_WB              (_fu2_ex_wb_reg_io_alu_out_WB),
+    .io_predict_fail_WB         (_fu2_ex_wb_reg_io_predict_fail_WB),
+    .io_branch_target_WB        (_fu2_ex_wb_reg_io_branch_target_WB),
+    .io_real_jump_WB            (_fu2_ex_wb_reg_io_real_jump_WB)
+  );
+  LS_EX2_WB_Reg fu3_ex_wb_reg (
+    .clock                       (clock),
+    .reset                       (reset),
+    .io_flush                    (_rob_io_predict_fail_cmt),
+    .io_inst_pack_EX2_rd_valid   (_ls_ex1_ex2_reg_io_inst_pack_EX2_rd_valid),
+    .io_inst_pack_EX2_prd        (_ls_ex1_ex2_reg_io_inst_pack_EX2_prd),
+    .io_inst_pack_EX2_rob_index  (_ls_ex1_ex2_reg_io_inst_pack_EX2_rob_index),
+    .io_inst_pack_EX2_inst_valid (_ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid),
+    .io_mem_rdata_EX2
+      (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h12
+         ? mem_rdata
+         : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h15
+             ? {16'h0, mem_rdata[15:0]}
+             : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h11
+                 ? {{16{mem_rdata[15]}}, mem_rdata[15:0]}
+                 : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h14
+                     ? {24'h0, mem_rdata[7:0]}
+                     : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h10
+                         ? {{24{mem_rdata[7]}}, mem_rdata[7:0]}
+                         : 32'h0),
+    .io_is_ucread_EX2            (_ls_ex1_ex2_reg_io_mem_addr_EX2[31:28] == 4'hA),
+    .io_inst_pack_WB_rd_valid    (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_inst_pack_WB_prd         (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_inst_pack_WB_rob_index   (_fu3_ex_wb_reg_io_inst_pack_WB_rob_index),
+    .io_inst_pack_WB_inst_valid  (_fu3_ex_wb_reg_io_inst_pack_WB_inst_valid),
+    .io_mem_rdata_WB             (_fu3_ex_wb_reg_io_mem_rdata_WB),
+    .io_is_ucread_WB             (_fu3_ex_wb_reg_io_is_ucread_WB)
+  );
+  MD_EX_WB_Reg fu4_ex_wb_reg (
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_flush                   (_rob_io_predict_fail_cmt),
+    .io_inst_pack_EX_rd_valid   (_re_reg4_io_inst_pack_EX_rd_valid),
+    .io_inst_pack_EX_prd        (_re_reg4_io_inst_pack_EX_prd),
+    .io_inst_pack_EX_rob_index  (_re_reg4_io_inst_pack_EX_rob_index),
+    .io_inst_pack_EX_inst_valid (_re_reg4_io_inst_pack_EX_inst_valid),
+    .io_md_out_EX               (_mdu_io_md_out),
+    .io_inst_pack_WB_rd_valid   (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_inst_pack_WB_prd        (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
+    .io_inst_pack_WB_rob_index  (_fu4_ex_wb_reg_io_inst_pack_WB_rob_index),
+    .io_inst_pack_WB_inst_valid (_fu4_ex_wb_reg_io_inst_pack_WB_inst_valid),
+    .io_md_out_WB               (_fu4_ex_wb_reg_io_md_out_WB)
+  );
   ROB rob (
     .clock                     (clock),
     .reset                     (reset),
@@ -3008,461 +3459,6 @@ module CPU(
     .io_is_br_stat_1           (io_commit_is_br2),
     .io_is_br_stat_2           (io_commit_is_br3),
     .io_is_br_stat_3           (io_commit_is_br4)
-  );
-  IS_RF_Reg is_rf_reg1 (
-    .clock                       (clock),
-    .reset                       (reset),
-    .io_flush                    (_rob_io_predict_fail_cmt),
-    .io_inst_pack_IS_prj         (_sel1_io_inst_issue_inst_prj),
-    .io_inst_pack_IS_prk         (_sel1_io_inst_issue_inst_prk),
-    .io_inst_pack_IS_rd_valid    (_sel1_io_inst_issue_inst_rd_valid),
-    .io_inst_pack_IS_prd         (_sel1_io_inst_issue_inst_prd),
-    .io_inst_pack_IS_imm         (_sel1_io_inst_issue_inst_imm),
-    .io_inst_pack_IS_rob_index   (_sel1_io_inst_issue_inst_rob_index),
-    .io_inst_pack_IS_inst_valid  (_sel1_io_inst_issue_valid),
-    .io_inst_pack_IS_alu_op      (_sel1_io_inst_issue_inst_alu_op),
-    .io_inst_pack_IS_alu_rs1_sel (_sel1_io_inst_issue_inst_alu_rs1_sel),
-    .io_inst_pack_IS_alu_rs2_sel (_sel1_io_inst_issue_inst_alu_rs2_sel),
-    .io_inst_pack_IS_pc          (_sel1_io_inst_issue_inst_pc),
-    .io_inst_pack_RF_prj         (_is_rf_reg1_io_inst_pack_RF_prj),
-    .io_inst_pack_RF_prk         (_is_rf_reg1_io_inst_pack_RF_prk),
-    .io_inst_pack_RF_rd_valid    (_is_rf_reg1_io_inst_pack_RF_rd_valid),
-    .io_inst_pack_RF_prd         (_is_rf_reg1_io_inst_pack_RF_prd),
-    .io_inst_pack_RF_imm         (_is_rf_reg1_io_inst_pack_RF_imm),
-    .io_inst_pack_RF_rob_index   (_is_rf_reg1_io_inst_pack_RF_rob_index),
-    .io_inst_pack_RF_inst_valid  (_is_rf_reg1_io_inst_pack_RF_inst_valid),
-    .io_inst_pack_RF_alu_op      (_is_rf_reg1_io_inst_pack_RF_alu_op),
-    .io_inst_pack_RF_alu_rs1_sel (_is_rf_reg1_io_inst_pack_RF_alu_rs1_sel),
-    .io_inst_pack_RF_alu_rs2_sel (_is_rf_reg1_io_inst_pack_RF_alu_rs2_sel),
-    .io_inst_pack_RF_pc          (_is_rf_reg1_io_inst_pack_RF_pc)
-  );
-  IS_RF_Reg_1 is_rf_reg2 (
-    .clock                        (clock),
-    .reset                        (reset),
-    .io_flush                     (_rob_io_predict_fail_cmt),
-    .io_inst_pack_IS_prj          (_sel2_io_inst_issue_inst_prj),
-    .io_inst_pack_IS_prk          (_sel2_io_inst_issue_inst_prk),
-    .io_inst_pack_IS_rd_valid     (_sel2_io_inst_issue_inst_rd_valid),
-    .io_inst_pack_IS_prd          (_sel2_io_inst_issue_inst_prd),
-    .io_inst_pack_IS_imm          (_sel2_io_inst_issue_inst_imm),
-    .io_inst_pack_IS_rob_index    (_sel2_io_inst_issue_inst_rob_index),
-    .io_inst_pack_IS_inst_valid   (_sel2_io_inst_issue_valid),
-    .io_inst_pack_IS_alu_op       (_sel2_io_inst_issue_inst_alu_op),
-    .io_inst_pack_IS_alu_rs1_sel  (_sel2_io_inst_issue_inst_alu_rs1_sel),
-    .io_inst_pack_IS_alu_rs2_sel  (_sel2_io_inst_issue_inst_alu_rs2_sel),
-    .io_inst_pack_IS_pc           (_sel2_io_inst_issue_inst_pc),
-    .io_inst_pack_IS_br_type      (_sel2_io_inst_issue_inst_br_type),
-    .io_inst_pack_IS_predict_jump (_sel2_io_inst_issue_inst_predict_jump),
-    .io_inst_pack_IS_pred_npc     (_sel2_io_inst_issue_inst_pred_npc),
-    .io_inst_pack_RF_prj          (_is_rf_reg2_io_inst_pack_RF_prj),
-    .io_inst_pack_RF_prk          (_is_rf_reg2_io_inst_pack_RF_prk),
-    .io_inst_pack_RF_rd_valid     (_is_rf_reg2_io_inst_pack_RF_rd_valid),
-    .io_inst_pack_RF_prd          (_is_rf_reg2_io_inst_pack_RF_prd),
-    .io_inst_pack_RF_imm          (_is_rf_reg2_io_inst_pack_RF_imm),
-    .io_inst_pack_RF_rob_index    (_is_rf_reg2_io_inst_pack_RF_rob_index),
-    .io_inst_pack_RF_inst_valid   (_is_rf_reg2_io_inst_pack_RF_inst_valid),
-    .io_inst_pack_RF_alu_op       (_is_rf_reg2_io_inst_pack_RF_alu_op),
-    .io_inst_pack_RF_alu_rs1_sel  (_is_rf_reg2_io_inst_pack_RF_alu_rs1_sel),
-    .io_inst_pack_RF_alu_rs2_sel  (_is_rf_reg2_io_inst_pack_RF_alu_rs2_sel),
-    .io_inst_pack_RF_pc           (_is_rf_reg2_io_inst_pack_RF_pc),
-    .io_inst_pack_RF_br_type      (_is_rf_reg2_io_inst_pack_RF_br_type),
-    .io_inst_pack_RF_predict_jump (_is_rf_reg2_io_inst_pack_RF_predict_jump),
-    .io_inst_pack_RF_pred_npc     (_is_rf_reg2_io_inst_pack_RF_pred_npc)
-  );
-  IS_RF_Reg_2 is_rf_reg3 (
-    .clock                      (clock),
-    .reset                      (reset),
-    .io_flush                   (_rob_io_predict_fail_cmt),
-    .io_inst_pack_IS_prj        (_sel3_io_inst_issue_inst_prj),
-    .io_inst_pack_IS_prk        (_sel3_io_inst_issue_inst_prk),
-    .io_inst_pack_IS_rd_valid   (_sel3_io_inst_issue_inst_rd_valid),
-    .io_inst_pack_IS_prd        (_sel3_io_inst_issue_inst_prd),
-    .io_inst_pack_IS_imm        (_sel3_io_inst_issue_inst_imm),
-    .io_inst_pack_IS_rob_index  (_sel3_io_inst_issue_inst_rob_index),
-    .io_inst_pack_IS_inst_valid (_sel3_io_inst_issue_valid),
-    .io_inst_pack_IS_mem_type   (_sel3_io_inst_issue_inst_mem_type),
-    .io_inst_pack_RF_prj        (_is_rf_reg3_io_inst_pack_RF_prj),
-    .io_inst_pack_RF_prk        (_is_rf_reg3_io_inst_pack_RF_prk),
-    .io_inst_pack_RF_rd_valid   (_is_rf_reg3_io_inst_pack_RF_rd_valid),
-    .io_inst_pack_RF_prd        (_is_rf_reg3_io_inst_pack_RF_prd),
-    .io_inst_pack_RF_imm        (_is_rf_reg3_io_inst_pack_RF_imm),
-    .io_inst_pack_RF_rob_index  (_is_rf_reg3_io_inst_pack_RF_rob_index),
-    .io_inst_pack_RF_inst_valid (_is_rf_reg3_io_inst_pack_RF_inst_valid),
-    .io_inst_pack_RF_mem_type   (_is_rf_reg3_io_inst_pack_RF_mem_type)
-  );
-  IS_RF_Reg_2 is_rf_reg4 (
-    .clock                      (clock),
-    .reset                      (reset),
-    .io_flush                   (_rob_io_predict_fail_cmt),
-    .io_inst_pack_IS_prj        (_sel4_io_inst_issue_inst_prj),
-    .io_inst_pack_IS_prk        (_sel4_io_inst_issue_inst_prk),
-    .io_inst_pack_IS_rd_valid   (_sel4_io_inst_issue_inst_rd_valid),
-    .io_inst_pack_IS_prd        (_sel4_io_inst_issue_inst_prd),
-    .io_inst_pack_IS_imm        (_sel4_io_inst_issue_inst_imm),
-    .io_inst_pack_IS_rob_index  (_sel4_io_inst_issue_inst_rob_index),
-    .io_inst_pack_IS_inst_valid (_sel4_io_inst_issue_valid),
-    .io_inst_pack_IS_mem_type   (_sel4_io_inst_issue_inst_mem_type),
-    .io_inst_pack_RF_prj        (_is_rf_reg4_io_inst_pack_RF_prj),
-    .io_inst_pack_RF_prk        (_is_rf_reg4_io_inst_pack_RF_prk),
-    .io_inst_pack_RF_rd_valid   (_is_rf_reg4_io_inst_pack_RF_rd_valid),
-    .io_inst_pack_RF_prd        (_is_rf_reg4_io_inst_pack_RF_prd),
-    .io_inst_pack_RF_imm        (_is_rf_reg4_io_inst_pack_RF_imm),
-    .io_inst_pack_RF_rob_index  (_is_rf_reg4_io_inst_pack_RF_rob_index),
-    .io_inst_pack_RF_inst_valid (_is_rf_reg4_io_inst_pack_RF_inst_valid),
-    .io_inst_pack_RF_mem_type   (_is_rf_reg4_io_inst_pack_RF_mem_type)
-  );
-  Physical_Regfile rf (
-    .clock         (clock),
-    .reset         (reset),
-    .io_prj_0      (_is_rf_reg1_io_inst_pack_RF_prj),
-    .io_prj_1      (_is_rf_reg2_io_inst_pack_RF_prj),
-    .io_prj_2      (_is_rf_reg3_io_inst_pack_RF_prj),
-    .io_prj_3      (_is_rf_reg4_io_inst_pack_RF_prj),
-    .io_prk_0      (_is_rf_reg1_io_inst_pack_RF_prk),
-    .io_prk_1      (_is_rf_reg2_io_inst_pack_RF_prk),
-    .io_prk_2      (_is_rf_reg3_io_inst_pack_RF_prk),
-    .io_prk_3      (_is_rf_reg4_io_inst_pack_RF_prk),
-    .io_prd_0      (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prd_1      (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prd_2      (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prd_3      (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_wdata_0    (_fu1_ex_wb_reg_io_alu_out_WB),
-    .io_wdata_1    (_fu2_ex_wb_reg_io_alu_out_WB),
-    .io_wdata_2    (_fu3_ex_wb_reg_io_mem_rdata_WB),
-    .io_wdata_3    (_fu4_ex_wb_reg_io_md_out_WB),
-    .io_rf_we_0    (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_rf_we_1    (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_rf_we_2    (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_rf_we_3    (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_prj_data_0 (_rf_io_prj_data_0),
-    .io_prj_data_1 (_rf_io_prj_data_1),
-    .io_prj_data_2 (_rf_io_prj_data_2),
-    .io_prj_data_3 (_rf_io_prj_data_3),
-    .io_prk_data_0 (_rf_io_prk_data_0),
-    .io_prk_data_1 (_rf_io_prk_data_1),
-    .io_prk_data_2 (_rf_io_prk_data_2),
-    .io_prk_data_3 (_rf_io_prk_data_3)
-  );
-  RF_EX_Reg rf_ex_reg1 (
-    .clock                       (clock),
-    .reset                       (reset),
-    .io_flush                    (_rob_io_predict_fail_cmt),
-    .io_inst_pack_RF_prj         (_is_rf_reg1_io_inst_pack_RF_prj),
-    .io_inst_pack_RF_prk         (_is_rf_reg1_io_inst_pack_RF_prk),
-    .io_inst_pack_RF_rd_valid    (_is_rf_reg1_io_inst_pack_RF_rd_valid),
-    .io_inst_pack_RF_prd         (_is_rf_reg1_io_inst_pack_RF_prd),
-    .io_inst_pack_RF_imm         (_is_rf_reg1_io_inst_pack_RF_imm),
-    .io_inst_pack_RF_rob_index   (_is_rf_reg1_io_inst_pack_RF_rob_index),
-    .io_inst_pack_RF_inst_valid  (_is_rf_reg1_io_inst_pack_RF_inst_valid),
-    .io_inst_pack_RF_alu_op      (_is_rf_reg1_io_inst_pack_RF_alu_op),
-    .io_inst_pack_RF_alu_rs1_sel (_is_rf_reg1_io_inst_pack_RF_alu_rs1_sel),
-    .io_inst_pack_RF_alu_rs2_sel (_is_rf_reg1_io_inst_pack_RF_alu_rs2_sel),
-    .io_inst_pack_RF_pc          (_is_rf_reg1_io_inst_pack_RF_pc),
-    .io_src1_RF                  (_rf_io_prj_data_0),
-    .io_src2_RF                  (_rf_io_prk_data_0),
-    .io_inst_pack_EX_prj         (_rf_ex_reg1_io_inst_pack_EX_prj),
-    .io_inst_pack_EX_prk         (_rf_ex_reg1_io_inst_pack_EX_prk),
-    .io_inst_pack_EX_rd_valid    (_rf_ex_reg1_io_inst_pack_EX_rd_valid),
-    .io_inst_pack_EX_prd         (_rf_ex_reg1_io_inst_pack_EX_prd),
-    .io_inst_pack_EX_imm         (_rf_ex_reg1_io_inst_pack_EX_imm),
-    .io_inst_pack_EX_rob_index   (_rf_ex_reg1_io_inst_pack_EX_rob_index),
-    .io_inst_pack_EX_inst_valid  (_rf_ex_reg1_io_inst_pack_EX_inst_valid),
-    .io_inst_pack_EX_alu_op      (_rf_ex_reg1_io_inst_pack_EX_alu_op),
-    .io_inst_pack_EX_alu_rs1_sel (_rf_ex_reg1_io_inst_pack_EX_alu_rs1_sel),
-    .io_inst_pack_EX_alu_rs2_sel (_rf_ex_reg1_io_inst_pack_EX_alu_rs2_sel),
-    .io_inst_pack_EX_pc          (_rf_ex_reg1_io_inst_pack_EX_pc),
-    .io_src1_EX                  (_rf_ex_reg1_io_src1_EX),
-    .io_src2_EX                  (_rf_ex_reg1_io_src2_EX)
-  );
-  RF_EX_Reg_1 rf_ex_reg2 (
-    .clock                        (clock),
-    .reset                        (reset),
-    .io_flush                     (_rob_io_predict_fail_cmt),
-    .io_inst_pack_RF_prj          (_is_rf_reg2_io_inst_pack_RF_prj),
-    .io_inst_pack_RF_prk          (_is_rf_reg2_io_inst_pack_RF_prk),
-    .io_inst_pack_RF_rd_valid     (_is_rf_reg2_io_inst_pack_RF_rd_valid),
-    .io_inst_pack_RF_prd          (_is_rf_reg2_io_inst_pack_RF_prd),
-    .io_inst_pack_RF_imm          (_is_rf_reg2_io_inst_pack_RF_imm),
-    .io_inst_pack_RF_rob_index    (_is_rf_reg2_io_inst_pack_RF_rob_index),
-    .io_inst_pack_RF_inst_valid   (_is_rf_reg2_io_inst_pack_RF_inst_valid),
-    .io_inst_pack_RF_alu_op       (_is_rf_reg2_io_inst_pack_RF_alu_op),
-    .io_inst_pack_RF_alu_rs1_sel  (_is_rf_reg2_io_inst_pack_RF_alu_rs1_sel),
-    .io_inst_pack_RF_alu_rs2_sel  (_is_rf_reg2_io_inst_pack_RF_alu_rs2_sel),
-    .io_inst_pack_RF_pc           (_is_rf_reg2_io_inst_pack_RF_pc),
-    .io_inst_pack_RF_br_type      (_is_rf_reg2_io_inst_pack_RF_br_type),
-    .io_inst_pack_RF_predict_jump (_is_rf_reg2_io_inst_pack_RF_predict_jump),
-    .io_inst_pack_RF_pred_npc     (_is_rf_reg2_io_inst_pack_RF_pred_npc),
-    .io_src1_RF                   (_rf_io_prj_data_1),
-    .io_src2_RF                   (_rf_io_prk_data_1),
-    .io_inst_pack_EX_prj          (_rf_ex_reg2_io_inst_pack_EX_prj),
-    .io_inst_pack_EX_prk          (_rf_ex_reg2_io_inst_pack_EX_prk),
-    .io_inst_pack_EX_rd_valid     (_rf_ex_reg2_io_inst_pack_EX_rd_valid),
-    .io_inst_pack_EX_prd          (_rf_ex_reg2_io_inst_pack_EX_prd),
-    .io_inst_pack_EX_imm          (_rf_ex_reg2_io_inst_pack_EX_imm),
-    .io_inst_pack_EX_rob_index    (_rf_ex_reg2_io_inst_pack_EX_rob_index),
-    .io_inst_pack_EX_inst_valid   (_rf_ex_reg2_io_inst_pack_EX_inst_valid),
-    .io_inst_pack_EX_alu_op       (_rf_ex_reg2_io_inst_pack_EX_alu_op),
-    .io_inst_pack_EX_alu_rs1_sel  (_rf_ex_reg2_io_inst_pack_EX_alu_rs1_sel),
-    .io_inst_pack_EX_alu_rs2_sel  (_rf_ex_reg2_io_inst_pack_EX_alu_rs2_sel),
-    .io_inst_pack_EX_pc           (_rf_ex_reg2_io_inst_pack_EX_pc),
-    .io_inst_pack_EX_br_type      (_rf_ex_reg2_io_inst_pack_EX_br_type),
-    .io_inst_pack_EX_predict_jump (_rf_ex_reg2_io_inst_pack_EX_predict_jump),
-    .io_inst_pack_EX_pred_npc     (_rf_ex_reg2_io_inst_pack_EX_pred_npc),
-    .io_src1_EX                   (_rf_ex_reg2_io_src1_EX),
-    .io_src2_EX                   (_rf_ex_reg2_io_src2_EX)
-  );
-  RF_EX_Reg_2 rf_ex_reg3 (
-    .clock                      (clock),
-    .reset                      (reset),
-    .io_flush                   (_rob_io_predict_fail_cmt),
-    .io_inst_pack_RF_prj        (_is_rf_reg3_io_inst_pack_RF_prj),
-    .io_inst_pack_RF_prk        (_is_rf_reg3_io_inst_pack_RF_prk),
-    .io_inst_pack_RF_rd_valid   (_is_rf_reg3_io_inst_pack_RF_rd_valid),
-    .io_inst_pack_RF_prd        (_is_rf_reg3_io_inst_pack_RF_prd),
-    .io_inst_pack_RF_imm        (_is_rf_reg3_io_inst_pack_RF_imm),
-    .io_inst_pack_RF_rob_index  (_is_rf_reg3_io_inst_pack_RF_rob_index),
-    .io_inst_pack_RF_inst_valid (_is_rf_reg3_io_inst_pack_RF_inst_valid),
-    .io_inst_pack_RF_mem_type   (_is_rf_reg3_io_inst_pack_RF_mem_type),
-    .io_src1_RF                 (_rf_io_prj_data_2),
-    .io_src2_RF                 (_rf_io_prk_data_2),
-    .io_inst_pack_EX_prj        (_rf_ex_reg3_io_inst_pack_EX_prj),
-    .io_inst_pack_EX_prk        (_rf_ex_reg3_io_inst_pack_EX_prk),
-    .io_inst_pack_EX_rd_valid   (_rf_ex_reg3_io_inst_pack_EX_rd_valid),
-    .io_inst_pack_EX_prd        (_rf_ex_reg3_io_inst_pack_EX_prd),
-    .io_inst_pack_EX_imm        (_rf_ex_reg3_io_inst_pack_EX_imm),
-    .io_inst_pack_EX_rob_index  (_rf_ex_reg3_io_inst_pack_EX_rob_index),
-    .io_inst_pack_EX_inst_valid (_rf_ex_reg3_io_inst_pack_EX_inst_valid),
-    .io_inst_pack_EX_mem_type   (_rf_ex_reg3_io_inst_pack_EX_mem_type),
-    .io_src1_EX                 (_rf_ex_reg3_io_src1_EX),
-    .io_src2_EX                 (_rf_ex_reg3_io_src2_EX)
-  );
-  RF_EX_Reg_2 rf_ex_reg4 (
-    .clock                      (clock),
-    .reset                      (reset),
-    .io_flush                   (_rob_io_predict_fail_cmt),
-    .io_inst_pack_RF_prj        (_is_rf_reg4_io_inst_pack_RF_prj),
-    .io_inst_pack_RF_prk        (_is_rf_reg4_io_inst_pack_RF_prk),
-    .io_inst_pack_RF_rd_valid   (_is_rf_reg4_io_inst_pack_RF_rd_valid),
-    .io_inst_pack_RF_prd        (_is_rf_reg4_io_inst_pack_RF_prd),
-    .io_inst_pack_RF_imm        (_is_rf_reg4_io_inst_pack_RF_imm),
-    .io_inst_pack_RF_rob_index  (_is_rf_reg4_io_inst_pack_RF_rob_index),
-    .io_inst_pack_RF_inst_valid (_is_rf_reg4_io_inst_pack_RF_inst_valid),
-    .io_inst_pack_RF_mem_type   (_is_rf_reg4_io_inst_pack_RF_mem_type),
-    .io_src1_RF                 (_rf_io_prj_data_3),
-    .io_src2_RF                 (_rf_io_prk_data_3),
-    .io_inst_pack_EX_prj        (_rf_ex_reg4_io_inst_pack_EX_prj),
-    .io_inst_pack_EX_prk        (_rf_ex_reg4_io_inst_pack_EX_prk),
-    .io_inst_pack_EX_rd_valid   (_rf_ex_reg4_io_inst_pack_EX_rd_valid),
-    .io_inst_pack_EX_prd        (_rf_ex_reg4_io_inst_pack_EX_prd),
-    .io_inst_pack_EX_imm        (/* unused */),
-    .io_inst_pack_EX_rob_index  (_rf_ex_reg4_io_inst_pack_EX_rob_index),
-    .io_inst_pack_EX_inst_valid (_rf_ex_reg4_io_inst_pack_EX_inst_valid),
-    .io_inst_pack_EX_mem_type   (_rf_ex_reg4_io_inst_pack_EX_mem_type),
-    .io_src1_EX                 (_rf_ex_reg4_io_src1_EX),
-    .io_src2_EX                 (_rf_ex_reg4_io_src2_EX)
-  );
-  ALU alu1 (
-    .io_src1    (casez_tmp),
-    .io_src2    (casez_tmp_0),
-    .io_alu_op  (_rf_ex_reg1_io_inst_pack_EX_alu_op[3:0]),
-    .io_alu_out (_alu1_io_alu_out)
-  );
-  Bypass fu1_bypass (
-    .io_prd_wb           (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prj_ex           (_rf_ex_reg1_io_inst_pack_EX_prj),
-    .io_prk_ex           (_rf_ex_reg1_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_fu1_ex_wb_reg_io_alu_out_WB),
-    .io_rd_valid_wb      (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_fu1_bypass_io_forward_prj_en),
-    .io_forward_prk_en   (_fu1_bypass_io_forward_prk_en),
-    .io_forward_prj_data (_fu1_bypass_io_forward_prj_data),
-    .io_forward_prk_data (_fu1_bypass_io_forward_prk_data)
-  );
-  ALU alu2 (
-    .io_src1    (casez_tmp_1),
-    .io_src2    (casez_tmp_2),
-    .io_alu_op  (_rf_ex_reg2_io_inst_pack_EX_alu_op[3:0]),
-    .io_alu_out (_alu2_io_alu_out)
-  );
-  Branch br (
-    .io_br_type       (_rf_ex_reg2_io_inst_pack_EX_br_type),
-    .io_src1          (_br_io_src1_T),
-    .io_src2          (_br_io_src2_T),
-    .io_pc_ex         (_rf_ex_reg2_io_inst_pack_EX_pc),
-    .io_imm_ex        (_rf_ex_reg2_io_inst_pack_EX_imm),
-    .io_predict_jump  (_rf_ex_reg2_io_inst_pack_EX_predict_jump),
-    .io_pred_npc      (_rf_ex_reg2_io_inst_pack_EX_pred_npc),
-    .io_real_jump     (_br_io_real_jump),
-    .io_predict_fail  (_br_io_predict_fail),
-    .io_branch_target (_br_io_branch_target)
-  );
-  Bypass fu2_bypass (
-    .io_prd_wb           (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prj_ex           (_rf_ex_reg2_io_inst_pack_EX_prj),
-    .io_prk_ex           (_rf_ex_reg2_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_fu2_ex_wb_reg_io_alu_out_WB),
-    .io_rd_valid_wb      (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_fu2_bypass_io_forward_prj_en),
-    .io_forward_prk_en   (_fu2_bypass_io_forward_prk_en),
-    .io_forward_prj_data (_fu2_bypass_io_forward_prj_data),
-    .io_forward_prk_data (_fu2_bypass_io_forward_prk_data)
-  );
-  Bypass fu3_bypass (
-    .io_prd_wb           (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prj_ex           (_rf_ex_reg3_io_inst_pack_EX_prj),
-    .io_prk_ex           (_rf_ex_reg3_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_fu3_ex_wb_reg_io_mem_rdata_WB),
-    .io_rd_valid_wb      (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_fu3_bypass_io_forward_prj_en),
-    .io_forward_prk_en   (_fu3_bypass_io_forward_prk_en),
-    .io_forward_prj_data (_fu3_bypass_io_forward_prj_data),
-    .io_forward_prk_data (_fu3_bypass_io_forward_prk_data)
-  );
-  LS_EX1_EX2_Reg ls_ex1_ex2_reg (
-    .clock                       (clock),
-    .reset                       (reset),
-    .io_flush                    (_rob_io_predict_fail_cmt),
-    .io_inst_pack_EX1_rd_valid   (_rf_ex_reg3_io_inst_pack_EX_rd_valid),
-    .io_inst_pack_EX1_prd        (_rf_ex_reg3_io_inst_pack_EX_prd),
-    .io_inst_pack_EX1_rob_index  (_rf_ex_reg3_io_inst_pack_EX_rob_index),
-    .io_inst_pack_EX1_inst_valid (_rf_ex_reg3_io_inst_pack_EX_inst_valid),
-    .io_inst_pack_EX1_mem_type   (_rf_ex_reg3_io_inst_pack_EX_mem_type),
-    .io_mem_addr_EX1
-      ((_fu3_bypass_io_forward_prj_en
-          ? _fu3_bypass_io_forward_prj_data
-          : _rf_ex_reg3_io_src1_EX) + _rf_ex_reg3_io_inst_pack_EX_imm),
-    .io_mem_wdata_EX1
-      (_fu3_bypass_io_forward_prk_en
-         ? _fu3_bypass_io_forward_prk_data
-         : _rf_ex_reg3_io_src2_EX),
-    .io_inst_pack_EX2_rd_valid   (_ls_ex1_ex2_reg_io_inst_pack_EX2_rd_valid),
-    .io_inst_pack_EX2_prd        (_ls_ex1_ex2_reg_io_inst_pack_EX2_prd),
-    .io_inst_pack_EX2_rob_index  (_ls_ex1_ex2_reg_io_inst_pack_EX2_rob_index),
-    .io_inst_pack_EX2_inst_valid (_ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid),
-    .io_inst_pack_EX2_mem_type   (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type),
-    .io_mem_addr_EX2             (_ls_ex1_ex2_reg_io_mem_addr_EX2),
-    .io_mem_wdata_EX2            (_ls_ex1_ex2_reg_io_mem_wdata_EX2)
-  );
-  MDU mdu (
-    .io_src1
-      (_fu4_bypass_io_forward_prj_en
-         ? _fu4_bypass_io_forward_prj_data
-         : _rf_ex_reg4_io_src1_EX),
-    .io_src2
-      (_fu4_bypass_io_forward_prk_en
-         ? _fu4_bypass_io_forward_prk_data
-         : _rf_ex_reg4_io_src2_EX),
-    .io_md_op  (_rf_ex_reg4_io_inst_pack_EX_mem_type),
-    .io_md_out (_mdu_io_md_out)
-  );
-  SB sb (
-    .clock               (clock),
-    .reset               (reset),
-    .io_is_store_ex
-      (~(_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type[4])
-       & (|_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type)),
-    .io_addr_ex          (_ls_ex1_ex2_reg_io_mem_addr_EX2),
-    .io_st_data_ex       (_ls_ex1_ex2_reg_io_mem_wdata_EX2),
-    .io_st_wlen_ex       (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type[2:0]),
-    .io_is_store_num_cmt (_rob_io_is_store_num_cmt),
-    .io_flush            (_rob_io_predict_fail_cmt),
-    .io_full             (_sb_io_full),
-    .io_is_store_cmt     (io_mem_is_store_cmt),
-    .io_st_addr_cmt      (io_mem_waddr_cmt),
-    .io_st_data_cmt      (io_mem_wdata_cmt),
-    .io_st_wlen_cmt      (io_mem_wlen_cmt),
-    .io_ld_data_ex       (_sb_io_ld_data_ex),
-    .io_ld_hit           (_sb_io_ld_hit)
-  );
-  Bypass fu4_bypass (
-    .io_prd_wb           (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prj_ex           (_rf_ex_reg4_io_inst_pack_EX_prj),
-    .io_prk_ex           (_rf_ex_reg4_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_fu4_ex_wb_reg_io_md_out_WB),
-    .io_rd_valid_wb      (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_fu4_bypass_io_forward_prj_en),
-    .io_forward_prk_en   (_fu4_bypass_io_forward_prk_en),
-    .io_forward_prj_data (_fu4_bypass_io_forward_prj_data),
-    .io_forward_prk_data (_fu4_bypass_io_forward_prk_data)
-  );
-  FU1_EX_WB_Reg fu1_ex_wb_reg (
-    .clock                      (clock),
-    .reset                      (reset),
-    .io_flush                   (_rob_io_predict_fail_cmt),
-    .io_inst_pack_EX_rd_valid   (_rf_ex_reg1_io_inst_pack_EX_rd_valid),
-    .io_inst_pack_EX_prd        (_rf_ex_reg1_io_inst_pack_EX_prd),
-    .io_inst_pack_EX_rob_index  (_rf_ex_reg1_io_inst_pack_EX_rob_index),
-    .io_inst_pack_EX_inst_valid (_rf_ex_reg1_io_inst_pack_EX_inst_valid),
-    .io_alu_out_EX              (_alu1_io_alu_out),
-    .io_inst_pack_WB_rd_valid   (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_inst_pack_WB_prd        (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_inst_pack_WB_rob_index  (_fu1_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_inst_pack_WB_inst_valid (_fu1_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_alu_out_WB              (_fu1_ex_wb_reg_io_alu_out_WB)
-  );
-  FU2_EX_WB_Reg fu2_ex_wb_reg (
-    .clock                      (clock),
-    .reset                      (reset),
-    .io_flush                   (_rob_io_predict_fail_cmt),
-    .io_inst_pack_EX_rd_valid   (_rf_ex_reg2_io_inst_pack_EX_rd_valid),
-    .io_inst_pack_EX_prd        (_rf_ex_reg2_io_inst_pack_EX_prd),
-    .io_inst_pack_EX_rob_index  (_rf_ex_reg2_io_inst_pack_EX_rob_index),
-    .io_inst_pack_EX_inst_valid (_rf_ex_reg2_io_inst_pack_EX_inst_valid),
-    .io_alu_out_EX              (_alu2_io_alu_out),
-    .io_predict_fail_EX         (_br_io_predict_fail),
-    .io_branch_target_EX        (_br_io_branch_target),
-    .io_real_jump_EX            (_br_io_real_jump),
-    .io_inst_pack_WB_rd_valid   (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_inst_pack_WB_prd        (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_inst_pack_WB_rob_index  (_fu2_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_inst_pack_WB_inst_valid (_fu2_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_alu_out_WB              (_fu2_ex_wb_reg_io_alu_out_WB),
-    .io_predict_fail_WB         (_fu2_ex_wb_reg_io_predict_fail_WB),
-    .io_branch_target_WB        (_fu2_ex_wb_reg_io_branch_target_WB),
-    .io_real_jump_WB            (_fu2_ex_wb_reg_io_real_jump_WB)
-  );
-  LS_EX2_WB_Reg fu3_ex_wb_reg (
-    .clock                       (clock),
-    .reset                       (reset),
-    .io_flush                    (_rob_io_predict_fail_cmt),
-    .io_inst_pack_EX2_rd_valid   (_ls_ex1_ex2_reg_io_inst_pack_EX2_rd_valid),
-    .io_inst_pack_EX2_prd        (_ls_ex1_ex2_reg_io_inst_pack_EX2_prd),
-    .io_inst_pack_EX2_rob_index  (_ls_ex1_ex2_reg_io_inst_pack_EX2_rob_index),
-    .io_inst_pack_EX2_inst_valid (_ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid),
-    .io_mem_rdata_EX2
-      (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h12
-         ? mem_rdata
-         : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h15
-             ? {16'h0, mem_rdata[15:0]}
-             : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h11
-                 ? {{16{mem_rdata[15]}}, mem_rdata[15:0]}
-                 : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h14
-                     ? {24'h0, mem_rdata[7:0]}
-                     : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h10
-                         ? {{24{mem_rdata[7]}}, mem_rdata[7:0]}
-                         : 32'h0),
-    .io_is_ucread_EX2            (_ls_ex1_ex2_reg_io_mem_addr_EX2[31:28] == 4'hA),
-    .io_inst_pack_WB_rd_valid    (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_inst_pack_WB_prd         (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_inst_pack_WB_rob_index   (_fu3_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_inst_pack_WB_inst_valid  (_fu3_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_mem_rdata_WB             (_fu3_ex_wb_reg_io_mem_rdata_WB),
-    .io_is_ucread_WB             (_fu3_ex_wb_reg_io_is_ucread_WB)
-  );
-  MD_EX_WB_Reg fu4_ex_wb_reg (
-    .clock                      (clock),
-    .reset                      (reset),
-    .io_flush                   (_rob_io_predict_fail_cmt),
-    .io_inst_pack_EX_rd_valid   (_rf_ex_reg4_io_inst_pack_EX_rd_valid),
-    .io_inst_pack_EX_prd        (_rf_ex_reg4_io_inst_pack_EX_prd),
-    .io_inst_pack_EX_rob_index  (_rf_ex_reg4_io_inst_pack_EX_rob_index),
-    .io_inst_pack_EX_inst_valid (_rf_ex_reg4_io_inst_pack_EX_inst_valid),
-    .io_md_out_EX               (_mdu_io_md_out),
-    .io_inst_pack_WB_rd_valid   (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_inst_pack_WB_prd        (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_inst_pack_WB_rob_index  (_fu4_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_inst_pack_WB_inst_valid (_fu4_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_md_out_WB               (_fu4_ex_wb_reg_io_md_out_WB)
   );
   Arch_Rat arat (
     .clock                (clock),

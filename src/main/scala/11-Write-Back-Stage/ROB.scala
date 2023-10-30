@@ -155,12 +155,12 @@ class ROB(n: Int) extends Module{
     val is_store_cmt_bit        = VecInit(Seq.tabulate(4)(i => rob_update_items(i).is_store && io.cmt_en(i)))
     io.is_store_num_cmt         := PopCount(is_store_cmt_bit.asUInt)
 
-    io.rd_cmt                   := VecInit(Seq.tabulate(4)(i => rob_update_items(i).rd))
-    io.rd_valid_cmt             := VecInit(Seq.tabulate(4)(i => rob_update_items(i).rd_valid))
-    io.prd_cmt                  := VecInit(Seq.tabulate(4)(i => rob_update_items(i).prd))
-    io.pprd_cmt                 := VecInit(Seq.tabulate(4)(i => rob_update_items(i).pprd))
+    io.rd_cmt                   := rob_update_items.map(_.rd)
+    io.rd_valid_cmt             := rob_update_items.map(_.rd_valid)
+    io.prd_cmt                  := rob_update_items.map(_.prd)
+    io.pprd_cmt                 := rob_update_items.map(_.pprd)
     io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob_update_items(i).real_jump, rob_update_items(i).branch_target, rob_update_items(i).pc+4.U)))
-    io.rf_wdata_cmt             := VecInit(Seq.tabulate(4)(i => rob_update_items(i).rf_wdata))
+    io.rf_wdata_cmt             := rob_update_items.map(_.rf_wdata)
     io.is_ucread_cmt            := VecInit(Seq.tabulate(4)(i => rob_update_items(i).is_ucread && io.cmt_en(i)))
     
     // update ptrs
