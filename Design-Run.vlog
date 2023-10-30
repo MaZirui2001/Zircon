@@ -18,4 +18,4 @@
 2023-10-30 12:44 LUT: 55267 FF: 21458 BRAM: 4 DSP: 8                change LS issue queue to unorder, and fix branch secure
 2023-10-30 15:34 LUT: 53988 FF: 21438 BRAM: 4 DSP: 8                optimize load and store decode logic 
 2023-10-30 16:29 LUT: 53608 FF: 21433 BRAM: 4 DSP: 8                optimize logic in iq 
-2023-10-30 16:37 LUT: 53182 FF: 21433 BRAM: 4 DSP: 8                optimize logic in iq again
+2023-10-30 16:37 LUT: 53183 FF: 21433 BRAM: 4 DSP: 8                optimize logic in iq again

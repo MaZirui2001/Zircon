@@ -37,6 +37,3 @@ class Unorder_Select[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Module
 
 }
 
-// object Unorder_Select extends App {
-//     emitVerilog(new Unorder_Select(8), Array("-td", "build/"))
-// }

@@ -28,6 +28,3 @@ class Order_Select[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Module {
     io.inst_issue_valid := io.issue_ack
 }
 
-// object Order_Select extends App {
-//     emitVerilog(new Order_Select(8), Array("-td", "build/"))
-// }
