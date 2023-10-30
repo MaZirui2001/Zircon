@@ -44,7 +44,7 @@ class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extend
     val issue_req        = Output(Vec(n, Bool()))
 
     // output for dispatch
-    val prd_queue        = Output(Vec(n+1, UInt(7.W)))
+    val prd_queue        = Output(Vec(n, UInt(7.W)))
     val elem_num         = Output(UInt((log2Ceil(n)+1).W))
     val full             = Output(Bool())
  
@@ -66,31 +66,25 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
     io.queue_ready := !full
     io.elem_num := tail_pop
     val insts_dispatch = io.insts_dispatch
-    
+
     val queue_next = Wire(Vec(n, new issue_queue_t(inst_pack_t)))
     
     // issue
     val next_mask = ~(io.issue_ack.asUInt - 1.U)
     tail_pop := tail - io.issue_ack.exists(_ === true.B)
 
-    io.prd_queue := 0.U.asTypeOf(Vec(n+1, UInt(7.W)))
     for(i <- 0 until n){
-        queue_next(i).inst := Mux(i.asUInt < tail_pop, 
-                                    Mux(next_mask(i), if(i == n-1) 0.U.asTypeOf(inst_pack_t) else queue(i+1).inst, queue(i).inst), 
-                                    Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), 
-                                        io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))), 0.U.asTypeOf(inst_pack_t)))
-        queue_next(i).prj_waked := Mux(i.asUInt < tail_pop,
-                                    Mux(next_mask(i), if(i == n-1) false.B else queue(i+1).prj_waked, queue(i).prj_waked), 
-                                    Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), 
-                                        io.prj_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B))
-        queue_next(i).prk_waked := Mux(i.asUInt < tail_pop,
-                                    Mux(next_mask(i), if(i == n-1) false.B else queue(i+1).prk_waked, queue(i).prk_waked), 
-                                    Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), 
-                                        io.prk_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B))
+        when(i.asUInt < tail_pop){
+            queue_next(i).inst := Mux(next_mask(i), if(i == n-1) 0.U.asTypeOf(inst_pack_t) else queue(i+1).inst, queue(i).inst)
+            queue_next(i).prj_waked := Mux(next_mask(i), if(i == n-1) false.B else queue(i+1).prj_waked, queue(i).prj_waked)
+            queue_next(i).prk_waked := Mux(next_mask(i), if(i == n-1) false.B else queue(i+1).prk_waked, queue(i).prk_waked)
+        }.otherwise{
+            queue_next(i).inst := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))), 0.U.asTypeOf(inst_pack_t))
+            queue_next(i).prj_waked := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prj_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
+            queue_next(i).prk_waked := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prk_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
+        }
         io.prd_queue(i) := Mux(queue(i).inst.asInstanceOf[inst_pack_DP_t].rd_valid, queue(i).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
     }
-    io.prd_queue(n) := 0.U
-
     for(i <- 0 until n){
         queue(i).inst := queue_next(i).inst
         queue(i).prj_waked := queue_next(i).prj_waked || Wake_Up(io.wake_preg, queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prj)
@@ -125,6 +119,3 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
 
 }
 
-// object Unorder_Issue_Queue extends App {
-//     emitVerilog(new Unorder_Issue_Queue(8), Array("-td", "build/"))
-// }

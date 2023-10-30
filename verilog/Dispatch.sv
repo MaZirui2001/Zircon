@@ -56,7 +56,7 @@ module Dispatch(
                io_prd_queue_2_5,
                io_prd_queue_2_6,
                io_prd_queue_2_7,
-               io_prd_queue_2_9,
+               io_prd_queue_2_8,
                io_prd_queue_3_0,
                io_prd_queue_3_1,
                io_prd_queue_3_2,
@@ -128,11 +128,9 @@ module Dispatch(
     io_inst_packs_2_fu_id == 2'h0 ? {1'h0, ~_queue_sel_3_T_1} : io_inst_packs_2_fu_id;
   wire [1:0]  queue_sel_3 =
     io_inst_packs_3_fu_id == 2'h0 ? {1'h0, ~_queue_sel_3_T_1} : io_inst_packs_3_fu_id;
-  wire        queue_id_hit_trav_0_0 = ~(|queue_sel_0) & io_inst_packs_0_inst_valid;
+  wire        queue_id_hit_trav_0_0 = queue_sel_0 == 2'h0 & io_inst_packs_0_inst_valid;
   wire        queue_id_hit_trav_1_0 = queue_sel_0 == 2'h1 & io_inst_packs_0_inst_valid;
-  wire        _io_prk_ready_0_prd_ready_2_n_T = queue_sel_0 == 2'h2;
-  wire        queue_id_hit_trav_2_0 =
-    _io_prk_ready_0_prd_ready_2_n_T & io_inst_packs_0_inst_valid;
+  wire        queue_id_hit_trav_2_0 = queue_sel_0 == 2'h2 & io_inst_packs_0_inst_valid;
   wire        queue_id_hit_trav_3_0 = (&queue_sel_0) & io_inst_packs_0_inst_valid;
   wire [1:0]  _GEN = {1'h0, queue_id_hit_trav_0_0};
   wire [2:0]  _io_insert_num_0_output =
@@ -143,11 +141,9 @@ module Dispatch(
       ? {1'h0, _GEN + {1'h0, queue_id_hit_trav_0_1}}
         + {1'h0, {1'h0, queue_id_hit_trav_0_2} + {1'h0, queue_id_hit_trav_0_3}}
       : 3'h0;
-  assign queue_id_hit_trav_0_1 = ~(|queue_sel_1) & io_inst_packs_1_inst_valid;
+  assign queue_id_hit_trav_0_1 = queue_sel_1 == 2'h0 & io_inst_packs_1_inst_valid;
   wire        queue_id_hit_trav_1_1 = queue_sel_1 == 2'h1 & io_inst_packs_1_inst_valid;
-  wire        _io_prk_ready_1_prd_ready_2_n_T = queue_sel_1 == 2'h2;
-  wire        queue_id_hit_trav_2_1 =
-    _io_prk_ready_1_prd_ready_2_n_T & io_inst_packs_1_inst_valid;
+  wire        queue_id_hit_trav_2_1 = queue_sel_1 == 2'h2 & io_inst_packs_1_inst_valid;
   wire        queue_id_hit_trav_3_1 = (&queue_sel_1) & io_inst_packs_1_inst_valid;
   wire [1:0]  _GEN_0 = {1'h0, queue_id_hit_trav_1_0};
   wire [2:0]  _io_insert_num_1_output =
@@ -158,11 +154,9 @@ module Dispatch(
       ? {1'h0, _GEN_0 + {1'h0, queue_id_hit_trav_1_1}}
         + {1'h0, {1'h0, queue_id_hit_trav_1_2} + {1'h0, queue_id_hit_trav_1_3}}
       : 3'h0;
-  assign queue_id_hit_trav_0_2 = ~(|queue_sel_2) & io_inst_packs_2_inst_valid;
+  assign queue_id_hit_trav_0_2 = queue_sel_2 == 2'h0 & io_inst_packs_2_inst_valid;
   assign queue_id_hit_trav_1_2 = queue_sel_2 == 2'h1 & io_inst_packs_2_inst_valid;
-  wire        _io_prk_ready_2_prd_ready_2_n_T = queue_sel_2 == 2'h2;
-  wire        queue_id_hit_trav_2_2 =
-    _io_prk_ready_2_prd_ready_2_n_T & io_inst_packs_2_inst_valid;
+  wire        queue_id_hit_trav_2_2 = queue_sel_2 == 2'h2 & io_inst_packs_2_inst_valid;
   wire        queue_id_hit_trav_3_2 = (&queue_sel_2) & io_inst_packs_2_inst_valid;
   wire [1:0]  _GEN_1 = {1'h0, queue_id_hit_trav_2_0};
   wire [2:0]  _io_insert_num_2_output =
@@ -173,11 +167,9 @@ module Dispatch(
       ? {1'h0, _GEN_1 + {1'h0, queue_id_hit_trav_2_1}}
         + {1'h0, {1'h0, queue_id_hit_trav_2_2} + {1'h0, queue_id_hit_trav_2_3}}
       : 3'h0;
-  assign queue_id_hit_trav_0_3 = ~(|queue_sel_3) & io_inst_packs_3_inst_valid;
+  assign queue_id_hit_trav_0_3 = queue_sel_3 == 2'h0 & io_inst_packs_3_inst_valid;
   assign queue_id_hit_trav_1_3 = queue_sel_3 == 2'h1 & io_inst_packs_3_inst_valid;
-  wire        _io_prk_ready_3_prd_ready_2_n_T = queue_sel_3 == 2'h2;
-  assign queue_id_hit_trav_2_3 =
-    _io_prk_ready_3_prd_ready_2_n_T & io_inst_packs_3_inst_valid;
+  assign queue_id_hit_trav_2_3 = queue_sel_3 == 2'h2 & io_inst_packs_3_inst_valid;
   wire        queue_id_hit_trav_3_3 = (&queue_sel_3) & io_inst_packs_3_inst_valid;
   wire [1:0]  _GEN_2 = {1'h0, queue_id_hit_trav_3_0};
   wire [2:0]  _io_insert_num_3_output =
@@ -188,50 +180,6 @@ module Dispatch(
       ? {1'h0, _GEN_2 + {1'h0, queue_id_hit_trav_3_1}}
         + {1'h0, {1'h0, queue_id_hit_trav_3_2} + {1'h0, queue_id_hit_trav_3_3}}
       : 3'h0;
-  wire [3:0]  io_prj_ready_0_prd_ready_0_n = {3'h4, |queue_sel_0};
-  wire        _GEN_3 = queue_sel_0 != 2'h1;
-  wire [3:0]  io_prj_ready_0_prd_ready_1_n = {3'h4, _GEN_3};
-  wire [3:0]  io_prj_ready_0_prd_ready_2_n =
-    _io_prk_ready_0_prd_ready_2_n_T ? 4'h9 : 4'hA;
-  wire [3:0]  io_prj_ready_0_prd_ready_3_n = {3'h4, ~(&queue_sel_0)};
-  wire [3:0]  io_prk_ready_0_prd_ready_0_n = {3'h4, |queue_sel_0};
-  wire [3:0]  io_prk_ready_0_prd_ready_1_n = {3'h4, _GEN_3};
-  wire [3:0]  io_prk_ready_0_prd_ready_2_n =
-    _io_prk_ready_0_prd_ready_2_n_T ? 4'h9 : 4'hA;
-  wire [3:0]  io_prk_ready_0_prd_ready_3_n = {3'h4, ~(&queue_sel_0)};
-  wire [3:0]  io_prj_ready_1_prd_ready_0_n = {3'h4, |queue_sel_1};
-  wire        _GEN_4 = queue_sel_1 != 2'h1;
-  wire [3:0]  io_prj_ready_1_prd_ready_1_n = {3'h4, _GEN_4};
-  wire [3:0]  io_prj_ready_1_prd_ready_2_n =
-    _io_prk_ready_1_prd_ready_2_n_T ? 4'h9 : 4'hA;
-  wire [3:0]  io_prj_ready_1_prd_ready_3_n = {3'h4, ~(&queue_sel_1)};
-  wire [3:0]  io_prk_ready_1_prd_ready_0_n = {3'h4, |queue_sel_1};
-  wire [3:0]  io_prk_ready_1_prd_ready_1_n = {3'h4, _GEN_4};
-  wire [3:0]  io_prk_ready_1_prd_ready_2_n =
-    _io_prk_ready_1_prd_ready_2_n_T ? 4'h9 : 4'hA;
-  wire [3:0]  io_prk_ready_1_prd_ready_3_n = {3'h4, ~(&queue_sel_1)};
-  wire [3:0]  io_prj_ready_2_prd_ready_0_n = {3'h4, |queue_sel_2};
-  wire        _GEN_5 = queue_sel_2 != 2'h1;
-  wire [3:0]  io_prj_ready_2_prd_ready_1_n = {3'h4, _GEN_5};
-  wire [3:0]  io_prj_ready_2_prd_ready_2_n =
-    _io_prk_ready_2_prd_ready_2_n_T ? 4'h9 : 4'hA;
-  wire [3:0]  io_prj_ready_2_prd_ready_3_n = {3'h4, ~(&queue_sel_2)};
-  wire [3:0]  io_prk_ready_2_prd_ready_0_n = {3'h4, |queue_sel_2};
-  wire [3:0]  io_prk_ready_2_prd_ready_1_n = {3'h4, _GEN_5};
-  wire [3:0]  io_prk_ready_2_prd_ready_2_n =
-    _io_prk_ready_2_prd_ready_2_n_T ? 4'h9 : 4'hA;
-  wire [3:0]  io_prk_ready_2_prd_ready_3_n = {3'h4, ~(&queue_sel_2)};
-  wire [3:0]  io_prj_ready_3_prd_ready_0_n = {3'h4, |queue_sel_3};
-  wire        _GEN_6 = queue_sel_3 != 2'h1;
-  wire [3:0]  io_prj_ready_3_prd_ready_1_n = {3'h4, _GEN_6};
-  wire [3:0]  io_prj_ready_3_prd_ready_2_n =
-    _io_prk_ready_3_prd_ready_2_n_T ? 4'h9 : 4'hA;
-  wire [3:0]  io_prj_ready_3_prd_ready_3_n = {3'h4, ~(&queue_sel_3)};
-  wire [3:0]  io_prk_ready_3_prd_ready_0_n = {3'h4, |queue_sel_3};
-  wire [3:0]  io_prk_ready_3_prd_ready_1_n = {3'h4, _GEN_6};
-  wire [3:0]  io_prk_ready_3_prd_ready_2_n =
-    _io_prk_ready_3_prd_ready_2_n_T ? 4'h9 : 4'hA;
-  wire [3:0]  io_prk_ready_3_prd_ready_3_n = {3'h4, ~(&queue_sel_3)};
   wire [1:0]  next_alloc_index_1_0 =
     queue_id_hit_trav_0_1 ? _GEN + 2'h1 : {1'h0, queue_id_hit_trav_0_0};
   wire [1:0]  next_alloc_index_1_1 =
@@ -248,14 +196,14 @@ module Dispatch(
     queue_id_hit_trav_2_2 ? next_alloc_index_1_2 + 2'h1 : next_alloc_index_1_2;
   wire [1:0]  next_alloc_index_2_3 =
     queue_id_hit_trav_3_2 ? next_alloc_index_1_3 + 2'h1 : next_alloc_index_1_3;
-  wire [10:0] _GEN_7 = 11'h1 << _io_insert_num_0_output;
+  wire [10:0] _GEN_3 = 11'h1 << _io_insert_num_0_output;
+  wire [3:0]  _GEN_4 = _GEN_3[3:0] - 4'h1;
+  wire [10:0] _GEN_5 = 11'h1 << _io_insert_num_1_output;
+  wire [3:0]  _GEN_6 = _GEN_5[3:0] - 4'h1;
+  wire [10:0] _GEN_7 = 11'h1 << _io_insert_num_2_output;
   wire [3:0]  _GEN_8 = _GEN_7[3:0] - 4'h1;
-  wire [10:0] _GEN_9 = 11'h1 << _io_insert_num_1_output;
+  wire [10:0] _GEN_9 = 11'h1 << _io_insert_num_3_output;
   wire [3:0]  _GEN_10 = _GEN_9[3:0] - 4'h1;
-  wire [10:0] _GEN_11 = 11'h1 << _io_insert_num_2_output;
-  wire [3:0]  _GEN_12 = _GEN_11[3:0] - 4'h1;
-  wire [10:0] _GEN_13 = 11'h1 << _io_insert_num_3_output;
-  wire [3:0]  _GEN_14 = _GEN_13[3:0] - 4'h1;
   assign io_insts_disp_index_0_0 =
     queue_id_hit_trav_0_3 & next_alloc_index_2_0 == 2'h0
       ? 2'h3
@@ -336,337 +284,273 @@ module Dispatch(
     queue_id_hit_trav_3_3 & (&next_alloc_index_2_3)
       ? 2'h3
       : {queue_id_hit_trav_3_2 & (&next_alloc_index_1_3), 1'h0};
-  assign io_insts_disp_valid_0_0 = _GEN_8[0];
-  assign io_insts_disp_valid_0_1 = _GEN_8[1];
-  assign io_insts_disp_valid_0_2 = _GEN_8[2];
-  assign io_insts_disp_valid_0_3 = _GEN_8[3];
-  assign io_insts_disp_valid_1_0 = _GEN_10[0];
-  assign io_insts_disp_valid_1_1 = _GEN_10[1];
-  assign io_insts_disp_valid_1_2 = _GEN_10[2];
-  assign io_insts_disp_valid_1_3 = _GEN_10[3];
-  assign io_insts_disp_valid_2_0 = _GEN_12[0];
-  assign io_insts_disp_valid_2_1 = _GEN_12[1];
-  assign io_insts_disp_valid_2_2 = _GEN_12[2];
-  assign io_insts_disp_valid_2_3 = _GEN_12[3];
-  assign io_insts_disp_valid_3_0 = _GEN_14[0];
-  assign io_insts_disp_valid_3_1 = _GEN_14[1];
-  assign io_insts_disp_valid_3_2 = _GEN_14[2];
-  assign io_insts_disp_valid_3_3 = _GEN_14[3];
+  assign io_insts_disp_valid_0_0 = _GEN_4[0];
+  assign io_insts_disp_valid_0_1 = _GEN_4[1];
+  assign io_insts_disp_valid_0_2 = _GEN_4[2];
+  assign io_insts_disp_valid_0_3 = _GEN_4[3];
+  assign io_insts_disp_valid_1_0 = _GEN_6[0];
+  assign io_insts_disp_valid_1_1 = _GEN_6[1];
+  assign io_insts_disp_valid_1_2 = _GEN_6[2];
+  assign io_insts_disp_valid_1_3 = _GEN_6[3];
+  assign io_insts_disp_valid_2_0 = _GEN_8[0];
+  assign io_insts_disp_valid_2_1 = _GEN_8[1];
+  assign io_insts_disp_valid_2_2 = _GEN_8[2];
+  assign io_insts_disp_valid_2_3 = _GEN_8[3];
+  assign io_insts_disp_valid_3_0 = _GEN_10[0];
+  assign io_insts_disp_valid_3_1 = _GEN_10[1];
+  assign io_insts_disp_valid_3_2 = _GEN_10[2];
+  assign io_insts_disp_valid_3_3 = _GEN_10[3];
   assign io_insert_num_0 = _io_insert_num_0_output;
   assign io_insert_num_1 = _io_insert_num_1_output;
   assign io_insert_num_2 = _io_insert_num_2_output;
   assign io_insert_num_3 = _io_insert_num_3_output;
   assign io_prj_ready_0 =
-    ~io_inst_packs_0_rj_valid | ~(|io_inst_packs_0_prj) | ~io_inst_packs_0_prj_raw
+    ~io_inst_packs_0_rj_valid | io_inst_packs_0_prj == 7'h0 | ~io_inst_packs_0_prj_raw
     & ~(io_inst_packs_0_prj == io_prd_queue_0_0 | io_inst_packs_0_prj == io_prd_queue_0_1
-        | io_prj_ready_0_prd_ready_0_n > 4'h2 & io_inst_packs_0_prj == io_prd_queue_0_2
-        | io_inst_packs_0_prj == io_prd_queue_0_3 | io_prj_ready_0_prd_ready_0_n > 4'h4
-        & io_inst_packs_0_prj == io_prd_queue_0_4 | io_prj_ready_0_prd_ready_0_n > 4'h5
-        & io_inst_packs_0_prj == io_prd_queue_0_5 | io_prj_ready_0_prd_ready_0_n > 4'h6
-        & io_inst_packs_0_prj == io_prd_queue_0_6
-        | io_inst_packs_0_prj == io_prd_queue_0_7 | io_prj_ready_0_prd_ready_0_n > 4'h8
-        & ~(|io_inst_packs_0_prj) | io_prj_ready_0_prd_ready_0_n > 4'h9
-        & ~(|io_inst_packs_0_prj))
+        | io_inst_packs_0_prj == io_prd_queue_0_2
+        | io_inst_packs_0_prj == io_prd_queue_0_3
+        | io_inst_packs_0_prj == io_prd_queue_0_4
+        | io_inst_packs_0_prj == io_prd_queue_0_5
+        | io_inst_packs_0_prj == io_prd_queue_0_6
+        | io_inst_packs_0_prj == io_prd_queue_0_7)
     & ~(io_inst_packs_0_prj == io_prd_queue_1_0 | io_inst_packs_0_prj == io_prd_queue_1_1
-        | io_prj_ready_0_prd_ready_1_n > 4'h2 & io_inst_packs_0_prj == io_prd_queue_1_2
-        | io_inst_packs_0_prj == io_prd_queue_1_3 | io_prj_ready_0_prd_ready_1_n > 4'h4
-        & io_inst_packs_0_prj == io_prd_queue_1_4 | io_prj_ready_0_prd_ready_1_n > 4'h5
-        & io_inst_packs_0_prj == io_prd_queue_1_5 | io_prj_ready_0_prd_ready_1_n > 4'h6
-        & io_inst_packs_0_prj == io_prd_queue_1_6
-        | io_inst_packs_0_prj == io_prd_queue_1_7 | io_prj_ready_0_prd_ready_1_n > 4'h8
-        & ~(|io_inst_packs_0_prj) | io_prj_ready_0_prd_ready_1_n > 4'h9
-        & ~(|io_inst_packs_0_prj))
-    & ~(io_inst_packs_0_prj == io_prd_queue_2_0 | (|(io_prj_ready_0_prd_ready_2_n[3:1]))
-        & io_inst_packs_0_prj == io_prd_queue_2_1 | io_prj_ready_0_prd_ready_2_n > 4'h2
-        & io_inst_packs_0_prj == io_prd_queue_2_2 | (|(io_prj_ready_0_prd_ready_2_n[3:2]))
-        & io_inst_packs_0_prj == io_prd_queue_2_3 | io_prj_ready_0_prd_ready_2_n > 4'h4
-        & io_inst_packs_0_prj == io_prd_queue_2_4 | io_prj_ready_0_prd_ready_2_n > 4'h5
-        & io_inst_packs_0_prj == io_prd_queue_2_5 | io_prj_ready_0_prd_ready_2_n > 4'h6
-        & io_inst_packs_0_prj == io_prd_queue_2_6 | io_prj_ready_0_prd_ready_2_n[3]
-        & io_inst_packs_0_prj == io_prd_queue_2_7 | io_prj_ready_0_prd_ready_2_n > 4'h8
-        & ~(|io_inst_packs_0_prj) | io_prj_ready_0_prd_ready_2_n > 4'h9
-        & io_inst_packs_0_prj == io_prd_queue_2_9)
+        | io_inst_packs_0_prj == io_prd_queue_1_2
+        | io_inst_packs_0_prj == io_prd_queue_1_3
+        | io_inst_packs_0_prj == io_prd_queue_1_4
+        | io_inst_packs_0_prj == io_prd_queue_1_5
+        | io_inst_packs_0_prj == io_prd_queue_1_6
+        | io_inst_packs_0_prj == io_prd_queue_1_7)
+    & ~(io_inst_packs_0_prj == io_prd_queue_2_0 | io_inst_packs_0_prj == io_prd_queue_2_1
+        | io_inst_packs_0_prj == io_prd_queue_2_2
+        | io_inst_packs_0_prj == io_prd_queue_2_3
+        | io_inst_packs_0_prj == io_prd_queue_2_4
+        | io_inst_packs_0_prj == io_prd_queue_2_5
+        | io_inst_packs_0_prj == io_prd_queue_2_6
+        | io_inst_packs_0_prj == io_prd_queue_2_7
+        | io_inst_packs_0_prj == io_prd_queue_2_8)
     & ~(io_inst_packs_0_prj == io_prd_queue_3_0 | io_inst_packs_0_prj == io_prd_queue_3_1
-        | io_prj_ready_0_prd_ready_3_n > 4'h2 & io_inst_packs_0_prj == io_prd_queue_3_2
-        | io_inst_packs_0_prj == io_prd_queue_3_3 | io_prj_ready_0_prd_ready_3_n > 4'h4
-        & io_inst_packs_0_prj == io_prd_queue_3_4 | io_prj_ready_0_prd_ready_3_n > 4'h5
-        & io_inst_packs_0_prj == io_prd_queue_3_5 | io_prj_ready_0_prd_ready_3_n > 4'h6
-        & io_inst_packs_0_prj == io_prd_queue_3_6
-        | io_inst_packs_0_prj == io_prd_queue_3_7 | io_prj_ready_0_prd_ready_3_n > 4'h8
-        & ~(|io_inst_packs_0_prj) | io_prj_ready_0_prd_ready_3_n > 4'h9
-        & ~(|io_inst_packs_0_prj));
+        | io_inst_packs_0_prj == io_prd_queue_3_2
+        | io_inst_packs_0_prj == io_prd_queue_3_3
+        | io_inst_packs_0_prj == io_prd_queue_3_4
+        | io_inst_packs_0_prj == io_prd_queue_3_5
+        | io_inst_packs_0_prj == io_prd_queue_3_6
+        | io_inst_packs_0_prj == io_prd_queue_3_7);
   assign io_prj_ready_1 =
-    ~io_inst_packs_1_rj_valid | ~(|io_inst_packs_1_prj) | ~io_inst_packs_1_prj_raw
+    ~io_inst_packs_1_rj_valid | io_inst_packs_1_prj == 7'h0 | ~io_inst_packs_1_prj_raw
     & ~(io_inst_packs_1_prj == io_prd_queue_0_0 | io_inst_packs_1_prj == io_prd_queue_0_1
-        | io_prj_ready_1_prd_ready_0_n > 4'h2 & io_inst_packs_1_prj == io_prd_queue_0_2
-        | io_inst_packs_1_prj == io_prd_queue_0_3 | io_prj_ready_1_prd_ready_0_n > 4'h4
-        & io_inst_packs_1_prj == io_prd_queue_0_4 | io_prj_ready_1_prd_ready_0_n > 4'h5
-        & io_inst_packs_1_prj == io_prd_queue_0_5 | io_prj_ready_1_prd_ready_0_n > 4'h6
-        & io_inst_packs_1_prj == io_prd_queue_0_6
-        | io_inst_packs_1_prj == io_prd_queue_0_7 | io_prj_ready_1_prd_ready_0_n > 4'h8
-        & ~(|io_inst_packs_1_prj) | io_prj_ready_1_prd_ready_0_n > 4'h9
-        & ~(|io_inst_packs_1_prj))
+        | io_inst_packs_1_prj == io_prd_queue_0_2
+        | io_inst_packs_1_prj == io_prd_queue_0_3
+        | io_inst_packs_1_prj == io_prd_queue_0_4
+        | io_inst_packs_1_prj == io_prd_queue_0_5
+        | io_inst_packs_1_prj == io_prd_queue_0_6
+        | io_inst_packs_1_prj == io_prd_queue_0_7)
     & ~(io_inst_packs_1_prj == io_prd_queue_1_0 | io_inst_packs_1_prj == io_prd_queue_1_1
-        | io_prj_ready_1_prd_ready_1_n > 4'h2 & io_inst_packs_1_prj == io_prd_queue_1_2
-        | io_inst_packs_1_prj == io_prd_queue_1_3 | io_prj_ready_1_prd_ready_1_n > 4'h4
-        & io_inst_packs_1_prj == io_prd_queue_1_4 | io_prj_ready_1_prd_ready_1_n > 4'h5
-        & io_inst_packs_1_prj == io_prd_queue_1_5 | io_prj_ready_1_prd_ready_1_n > 4'h6
-        & io_inst_packs_1_prj == io_prd_queue_1_6
-        | io_inst_packs_1_prj == io_prd_queue_1_7 | io_prj_ready_1_prd_ready_1_n > 4'h8
-        & ~(|io_inst_packs_1_prj) | io_prj_ready_1_prd_ready_1_n > 4'h9
-        & ~(|io_inst_packs_1_prj))
-    & ~(io_inst_packs_1_prj == io_prd_queue_2_0 | (|(io_prj_ready_1_prd_ready_2_n[3:1]))
-        & io_inst_packs_1_prj == io_prd_queue_2_1 | io_prj_ready_1_prd_ready_2_n > 4'h2
-        & io_inst_packs_1_prj == io_prd_queue_2_2 | (|(io_prj_ready_1_prd_ready_2_n[3:2]))
-        & io_inst_packs_1_prj == io_prd_queue_2_3 | io_prj_ready_1_prd_ready_2_n > 4'h4
-        & io_inst_packs_1_prj == io_prd_queue_2_4 | io_prj_ready_1_prd_ready_2_n > 4'h5
-        & io_inst_packs_1_prj == io_prd_queue_2_5 | io_prj_ready_1_prd_ready_2_n > 4'h6
-        & io_inst_packs_1_prj == io_prd_queue_2_6 | io_prj_ready_1_prd_ready_2_n[3]
-        & io_inst_packs_1_prj == io_prd_queue_2_7 | io_prj_ready_1_prd_ready_2_n > 4'h8
-        & ~(|io_inst_packs_1_prj) | io_prj_ready_1_prd_ready_2_n > 4'h9
-        & io_inst_packs_1_prj == io_prd_queue_2_9)
+        | io_inst_packs_1_prj == io_prd_queue_1_2
+        | io_inst_packs_1_prj == io_prd_queue_1_3
+        | io_inst_packs_1_prj == io_prd_queue_1_4
+        | io_inst_packs_1_prj == io_prd_queue_1_5
+        | io_inst_packs_1_prj == io_prd_queue_1_6
+        | io_inst_packs_1_prj == io_prd_queue_1_7)
+    & ~(io_inst_packs_1_prj == io_prd_queue_2_0 | io_inst_packs_1_prj == io_prd_queue_2_1
+        | io_inst_packs_1_prj == io_prd_queue_2_2
+        | io_inst_packs_1_prj == io_prd_queue_2_3
+        | io_inst_packs_1_prj == io_prd_queue_2_4
+        | io_inst_packs_1_prj == io_prd_queue_2_5
+        | io_inst_packs_1_prj == io_prd_queue_2_6
+        | io_inst_packs_1_prj == io_prd_queue_2_7
+        | io_inst_packs_1_prj == io_prd_queue_2_8)
     & ~(io_inst_packs_1_prj == io_prd_queue_3_0 | io_inst_packs_1_prj == io_prd_queue_3_1
-        | io_prj_ready_1_prd_ready_3_n > 4'h2 & io_inst_packs_1_prj == io_prd_queue_3_2
-        | io_inst_packs_1_prj == io_prd_queue_3_3 | io_prj_ready_1_prd_ready_3_n > 4'h4
-        & io_inst_packs_1_prj == io_prd_queue_3_4 | io_prj_ready_1_prd_ready_3_n > 4'h5
-        & io_inst_packs_1_prj == io_prd_queue_3_5 | io_prj_ready_1_prd_ready_3_n > 4'h6
-        & io_inst_packs_1_prj == io_prd_queue_3_6
-        | io_inst_packs_1_prj == io_prd_queue_3_7 | io_prj_ready_1_prd_ready_3_n > 4'h8
-        & ~(|io_inst_packs_1_prj) | io_prj_ready_1_prd_ready_3_n > 4'h9
-        & ~(|io_inst_packs_1_prj));
+        | io_inst_packs_1_prj == io_prd_queue_3_2
+        | io_inst_packs_1_prj == io_prd_queue_3_3
+        | io_inst_packs_1_prj == io_prd_queue_3_4
+        | io_inst_packs_1_prj == io_prd_queue_3_5
+        | io_inst_packs_1_prj == io_prd_queue_3_6
+        | io_inst_packs_1_prj == io_prd_queue_3_7);
   assign io_prj_ready_2 =
-    ~io_inst_packs_2_rj_valid | ~(|io_inst_packs_2_prj) | ~io_inst_packs_2_prj_raw
+    ~io_inst_packs_2_rj_valid | io_inst_packs_2_prj == 7'h0 | ~io_inst_packs_2_prj_raw
     & ~(io_inst_packs_2_prj == io_prd_queue_0_0 | io_inst_packs_2_prj == io_prd_queue_0_1
-        | io_prj_ready_2_prd_ready_0_n > 4'h2 & io_inst_packs_2_prj == io_prd_queue_0_2
-        | io_inst_packs_2_prj == io_prd_queue_0_3 | io_prj_ready_2_prd_ready_0_n > 4'h4
-        & io_inst_packs_2_prj == io_prd_queue_0_4 | io_prj_ready_2_prd_ready_0_n > 4'h5
-        & io_inst_packs_2_prj == io_prd_queue_0_5 | io_prj_ready_2_prd_ready_0_n > 4'h6
-        & io_inst_packs_2_prj == io_prd_queue_0_6
-        | io_inst_packs_2_prj == io_prd_queue_0_7 | io_prj_ready_2_prd_ready_0_n > 4'h8
-        & ~(|io_inst_packs_2_prj) | io_prj_ready_2_prd_ready_0_n > 4'h9
-        & ~(|io_inst_packs_2_prj))
+        | io_inst_packs_2_prj == io_prd_queue_0_2
+        | io_inst_packs_2_prj == io_prd_queue_0_3
+        | io_inst_packs_2_prj == io_prd_queue_0_4
+        | io_inst_packs_2_prj == io_prd_queue_0_5
+        | io_inst_packs_2_prj == io_prd_queue_0_6
+        | io_inst_packs_2_prj == io_prd_queue_0_7)
     & ~(io_inst_packs_2_prj == io_prd_queue_1_0 | io_inst_packs_2_prj == io_prd_queue_1_1
-        | io_prj_ready_2_prd_ready_1_n > 4'h2 & io_inst_packs_2_prj == io_prd_queue_1_2
-        | io_inst_packs_2_prj == io_prd_queue_1_3 | io_prj_ready_2_prd_ready_1_n > 4'h4
-        & io_inst_packs_2_prj == io_prd_queue_1_4 | io_prj_ready_2_prd_ready_1_n > 4'h5
-        & io_inst_packs_2_prj == io_prd_queue_1_5 | io_prj_ready_2_prd_ready_1_n > 4'h6
-        & io_inst_packs_2_prj == io_prd_queue_1_6
-        | io_inst_packs_2_prj == io_prd_queue_1_7 | io_prj_ready_2_prd_ready_1_n > 4'h8
-        & ~(|io_inst_packs_2_prj) | io_prj_ready_2_prd_ready_1_n > 4'h9
-        & ~(|io_inst_packs_2_prj))
-    & ~(io_inst_packs_2_prj == io_prd_queue_2_0 | (|(io_prj_ready_2_prd_ready_2_n[3:1]))
-        & io_inst_packs_2_prj == io_prd_queue_2_1 | io_prj_ready_2_prd_ready_2_n > 4'h2
-        & io_inst_packs_2_prj == io_prd_queue_2_2 | (|(io_prj_ready_2_prd_ready_2_n[3:2]))
-        & io_inst_packs_2_prj == io_prd_queue_2_3 | io_prj_ready_2_prd_ready_2_n > 4'h4
-        & io_inst_packs_2_prj == io_prd_queue_2_4 | io_prj_ready_2_prd_ready_2_n > 4'h5
-        & io_inst_packs_2_prj == io_prd_queue_2_5 | io_prj_ready_2_prd_ready_2_n > 4'h6
-        & io_inst_packs_2_prj == io_prd_queue_2_6 | io_prj_ready_2_prd_ready_2_n[3]
-        & io_inst_packs_2_prj == io_prd_queue_2_7 | io_prj_ready_2_prd_ready_2_n > 4'h8
-        & ~(|io_inst_packs_2_prj) | io_prj_ready_2_prd_ready_2_n > 4'h9
-        & io_inst_packs_2_prj == io_prd_queue_2_9)
+        | io_inst_packs_2_prj == io_prd_queue_1_2
+        | io_inst_packs_2_prj == io_prd_queue_1_3
+        | io_inst_packs_2_prj == io_prd_queue_1_4
+        | io_inst_packs_2_prj == io_prd_queue_1_5
+        | io_inst_packs_2_prj == io_prd_queue_1_6
+        | io_inst_packs_2_prj == io_prd_queue_1_7)
+    & ~(io_inst_packs_2_prj == io_prd_queue_2_0 | io_inst_packs_2_prj == io_prd_queue_2_1
+        | io_inst_packs_2_prj == io_prd_queue_2_2
+        | io_inst_packs_2_prj == io_prd_queue_2_3
+        | io_inst_packs_2_prj == io_prd_queue_2_4
+        | io_inst_packs_2_prj == io_prd_queue_2_5
+        | io_inst_packs_2_prj == io_prd_queue_2_6
+        | io_inst_packs_2_prj == io_prd_queue_2_7
+        | io_inst_packs_2_prj == io_prd_queue_2_8)
     & ~(io_inst_packs_2_prj == io_prd_queue_3_0 | io_inst_packs_2_prj == io_prd_queue_3_1
-        | io_prj_ready_2_prd_ready_3_n > 4'h2 & io_inst_packs_2_prj == io_prd_queue_3_2
-        | io_inst_packs_2_prj == io_prd_queue_3_3 | io_prj_ready_2_prd_ready_3_n > 4'h4
-        & io_inst_packs_2_prj == io_prd_queue_3_4 | io_prj_ready_2_prd_ready_3_n > 4'h5
-        & io_inst_packs_2_prj == io_prd_queue_3_5 | io_prj_ready_2_prd_ready_3_n > 4'h6
-        & io_inst_packs_2_prj == io_prd_queue_3_6
-        | io_inst_packs_2_prj == io_prd_queue_3_7 | io_prj_ready_2_prd_ready_3_n > 4'h8
-        & ~(|io_inst_packs_2_prj) | io_prj_ready_2_prd_ready_3_n > 4'h9
-        & ~(|io_inst_packs_2_prj));
+        | io_inst_packs_2_prj == io_prd_queue_3_2
+        | io_inst_packs_2_prj == io_prd_queue_3_3
+        | io_inst_packs_2_prj == io_prd_queue_3_4
+        | io_inst_packs_2_prj == io_prd_queue_3_5
+        | io_inst_packs_2_prj == io_prd_queue_3_6
+        | io_inst_packs_2_prj == io_prd_queue_3_7);
   assign io_prj_ready_3 =
-    ~io_inst_packs_3_rj_valid | ~(|io_inst_packs_3_prj) | ~io_inst_packs_3_prj_raw
+    ~io_inst_packs_3_rj_valid | io_inst_packs_3_prj == 7'h0 | ~io_inst_packs_3_prj_raw
     & ~(io_inst_packs_3_prj == io_prd_queue_0_0 | io_inst_packs_3_prj == io_prd_queue_0_1
-        | io_prj_ready_3_prd_ready_0_n > 4'h2 & io_inst_packs_3_prj == io_prd_queue_0_2
-        | io_inst_packs_3_prj == io_prd_queue_0_3 | io_prj_ready_3_prd_ready_0_n > 4'h4
-        & io_inst_packs_3_prj == io_prd_queue_0_4 | io_prj_ready_3_prd_ready_0_n > 4'h5
-        & io_inst_packs_3_prj == io_prd_queue_0_5 | io_prj_ready_3_prd_ready_0_n > 4'h6
-        & io_inst_packs_3_prj == io_prd_queue_0_6
-        | io_inst_packs_3_prj == io_prd_queue_0_7 | io_prj_ready_3_prd_ready_0_n > 4'h8
-        & ~(|io_inst_packs_3_prj) | io_prj_ready_3_prd_ready_0_n > 4'h9
-        & ~(|io_inst_packs_3_prj))
+        | io_inst_packs_3_prj == io_prd_queue_0_2
+        | io_inst_packs_3_prj == io_prd_queue_0_3
+        | io_inst_packs_3_prj == io_prd_queue_0_4
+        | io_inst_packs_3_prj == io_prd_queue_0_5
+        | io_inst_packs_3_prj == io_prd_queue_0_6
+        | io_inst_packs_3_prj == io_prd_queue_0_7)
     & ~(io_inst_packs_3_prj == io_prd_queue_1_0 | io_inst_packs_3_prj == io_prd_queue_1_1
-        | io_prj_ready_3_prd_ready_1_n > 4'h2 & io_inst_packs_3_prj == io_prd_queue_1_2
-        | io_inst_packs_3_prj == io_prd_queue_1_3 | io_prj_ready_3_prd_ready_1_n > 4'h4
-        & io_inst_packs_3_prj == io_prd_queue_1_4 | io_prj_ready_3_prd_ready_1_n > 4'h5
-        & io_inst_packs_3_prj == io_prd_queue_1_5 | io_prj_ready_3_prd_ready_1_n > 4'h6
-        & io_inst_packs_3_prj == io_prd_queue_1_6
-        | io_inst_packs_3_prj == io_prd_queue_1_7 | io_prj_ready_3_prd_ready_1_n > 4'h8
-        & ~(|io_inst_packs_3_prj) | io_prj_ready_3_prd_ready_1_n > 4'h9
-        & ~(|io_inst_packs_3_prj))
-    & ~(io_inst_packs_3_prj == io_prd_queue_2_0 | (|(io_prj_ready_3_prd_ready_2_n[3:1]))
-        & io_inst_packs_3_prj == io_prd_queue_2_1 | io_prj_ready_3_prd_ready_2_n > 4'h2
-        & io_inst_packs_3_prj == io_prd_queue_2_2 | (|(io_prj_ready_3_prd_ready_2_n[3:2]))
-        & io_inst_packs_3_prj == io_prd_queue_2_3 | io_prj_ready_3_prd_ready_2_n > 4'h4
-        & io_inst_packs_3_prj == io_prd_queue_2_4 | io_prj_ready_3_prd_ready_2_n > 4'h5
-        & io_inst_packs_3_prj == io_prd_queue_2_5 | io_prj_ready_3_prd_ready_2_n > 4'h6
-        & io_inst_packs_3_prj == io_prd_queue_2_6 | io_prj_ready_3_prd_ready_2_n[3]
-        & io_inst_packs_3_prj == io_prd_queue_2_7 | io_prj_ready_3_prd_ready_2_n > 4'h8
-        & ~(|io_inst_packs_3_prj) | io_prj_ready_3_prd_ready_2_n > 4'h9
-        & io_inst_packs_3_prj == io_prd_queue_2_9)
+        | io_inst_packs_3_prj == io_prd_queue_1_2
+        | io_inst_packs_3_prj == io_prd_queue_1_3
+        | io_inst_packs_3_prj == io_prd_queue_1_4
+        | io_inst_packs_3_prj == io_prd_queue_1_5
+        | io_inst_packs_3_prj == io_prd_queue_1_6
+        | io_inst_packs_3_prj == io_prd_queue_1_7)
+    & ~(io_inst_packs_3_prj == io_prd_queue_2_0 | io_inst_packs_3_prj == io_prd_queue_2_1
+        | io_inst_packs_3_prj == io_prd_queue_2_2
+        | io_inst_packs_3_prj == io_prd_queue_2_3
+        | io_inst_packs_3_prj == io_prd_queue_2_4
+        | io_inst_packs_3_prj == io_prd_queue_2_5
+        | io_inst_packs_3_prj == io_prd_queue_2_6
+        | io_inst_packs_3_prj == io_prd_queue_2_7
+        | io_inst_packs_3_prj == io_prd_queue_2_8)
     & ~(io_inst_packs_3_prj == io_prd_queue_3_0 | io_inst_packs_3_prj == io_prd_queue_3_1
-        | io_prj_ready_3_prd_ready_3_n > 4'h2 & io_inst_packs_3_prj == io_prd_queue_3_2
-        | io_inst_packs_3_prj == io_prd_queue_3_3 | io_prj_ready_3_prd_ready_3_n > 4'h4
-        & io_inst_packs_3_prj == io_prd_queue_3_4 | io_prj_ready_3_prd_ready_3_n > 4'h5
-        & io_inst_packs_3_prj == io_prd_queue_3_5 | io_prj_ready_3_prd_ready_3_n > 4'h6
-        & io_inst_packs_3_prj == io_prd_queue_3_6
-        | io_inst_packs_3_prj == io_prd_queue_3_7 | io_prj_ready_3_prd_ready_3_n > 4'h8
-        & ~(|io_inst_packs_3_prj) | io_prj_ready_3_prd_ready_3_n > 4'h9
-        & ~(|io_inst_packs_3_prj));
+        | io_inst_packs_3_prj == io_prd_queue_3_2
+        | io_inst_packs_3_prj == io_prd_queue_3_3
+        | io_inst_packs_3_prj == io_prd_queue_3_4
+        | io_inst_packs_3_prj == io_prd_queue_3_5
+        | io_inst_packs_3_prj == io_prd_queue_3_6
+        | io_inst_packs_3_prj == io_prd_queue_3_7);
   assign io_prk_ready_0 =
-    ~io_inst_packs_0_rk_valid | ~(|io_inst_packs_0_prk) | ~io_inst_packs_0_prk_raw
+    ~io_inst_packs_0_rk_valid | io_inst_packs_0_prk == 7'h0 | ~io_inst_packs_0_prk_raw
     & ~(io_inst_packs_0_prk == io_prd_queue_0_0 | io_inst_packs_0_prk == io_prd_queue_0_1
-        | io_prk_ready_0_prd_ready_0_n > 4'h2 & io_inst_packs_0_prk == io_prd_queue_0_2
-        | io_inst_packs_0_prk == io_prd_queue_0_3 | io_prk_ready_0_prd_ready_0_n > 4'h4
-        & io_inst_packs_0_prk == io_prd_queue_0_4 | io_prk_ready_0_prd_ready_0_n > 4'h5
-        & io_inst_packs_0_prk == io_prd_queue_0_5 | io_prk_ready_0_prd_ready_0_n > 4'h6
-        & io_inst_packs_0_prk == io_prd_queue_0_6
-        | io_inst_packs_0_prk == io_prd_queue_0_7 | io_prk_ready_0_prd_ready_0_n > 4'h8
-        & ~(|io_inst_packs_0_prk) | io_prk_ready_0_prd_ready_0_n > 4'h9
-        & ~(|io_inst_packs_0_prk))
+        | io_inst_packs_0_prk == io_prd_queue_0_2
+        | io_inst_packs_0_prk == io_prd_queue_0_3
+        | io_inst_packs_0_prk == io_prd_queue_0_4
+        | io_inst_packs_0_prk == io_prd_queue_0_5
+        | io_inst_packs_0_prk == io_prd_queue_0_6
+        | io_inst_packs_0_prk == io_prd_queue_0_7)
     & ~(io_inst_packs_0_prk == io_prd_queue_1_0 | io_inst_packs_0_prk == io_prd_queue_1_1
-        | io_prk_ready_0_prd_ready_1_n > 4'h2 & io_inst_packs_0_prk == io_prd_queue_1_2
-        | io_inst_packs_0_prk == io_prd_queue_1_3 | io_prk_ready_0_prd_ready_1_n > 4'h4
-        & io_inst_packs_0_prk == io_prd_queue_1_4 | io_prk_ready_0_prd_ready_1_n > 4'h5
-        & io_inst_packs_0_prk == io_prd_queue_1_5 | io_prk_ready_0_prd_ready_1_n > 4'h6
-        & io_inst_packs_0_prk == io_prd_queue_1_6
-        | io_inst_packs_0_prk == io_prd_queue_1_7 | io_prk_ready_0_prd_ready_1_n > 4'h8
-        & ~(|io_inst_packs_0_prk) | io_prk_ready_0_prd_ready_1_n > 4'h9
-        & ~(|io_inst_packs_0_prk))
-    & ~(io_inst_packs_0_prk == io_prd_queue_2_0 | (|(io_prk_ready_0_prd_ready_2_n[3:1]))
-        & io_inst_packs_0_prk == io_prd_queue_2_1 | io_prk_ready_0_prd_ready_2_n > 4'h2
-        & io_inst_packs_0_prk == io_prd_queue_2_2 | (|(io_prk_ready_0_prd_ready_2_n[3:2]))
-        & io_inst_packs_0_prk == io_prd_queue_2_3 | io_prk_ready_0_prd_ready_2_n > 4'h4
-        & io_inst_packs_0_prk == io_prd_queue_2_4 | io_prk_ready_0_prd_ready_2_n > 4'h5
-        & io_inst_packs_0_prk == io_prd_queue_2_5 | io_prk_ready_0_prd_ready_2_n > 4'h6
-        & io_inst_packs_0_prk == io_prd_queue_2_6 | io_prk_ready_0_prd_ready_2_n[3]
-        & io_inst_packs_0_prk == io_prd_queue_2_7 | io_prk_ready_0_prd_ready_2_n > 4'h8
-        & ~(|io_inst_packs_0_prk) | io_prk_ready_0_prd_ready_2_n > 4'h9
-        & io_inst_packs_0_prk == io_prd_queue_2_9)
+        | io_inst_packs_0_prk == io_prd_queue_1_2
+        | io_inst_packs_0_prk == io_prd_queue_1_3
+        | io_inst_packs_0_prk == io_prd_queue_1_4
+        | io_inst_packs_0_prk == io_prd_queue_1_5
+        | io_inst_packs_0_prk == io_prd_queue_1_6
+        | io_inst_packs_0_prk == io_prd_queue_1_7)
+    & ~(io_inst_packs_0_prk == io_prd_queue_2_0 | io_inst_packs_0_prk == io_prd_queue_2_1
+        | io_inst_packs_0_prk == io_prd_queue_2_2
+        | io_inst_packs_0_prk == io_prd_queue_2_3
+        | io_inst_packs_0_prk == io_prd_queue_2_4
+        | io_inst_packs_0_prk == io_prd_queue_2_5
+        | io_inst_packs_0_prk == io_prd_queue_2_6
+        | io_inst_packs_0_prk == io_prd_queue_2_7
+        | io_inst_packs_0_prk == io_prd_queue_2_8)
     & ~(io_inst_packs_0_prk == io_prd_queue_3_0 | io_inst_packs_0_prk == io_prd_queue_3_1
-        | io_prk_ready_0_prd_ready_3_n > 4'h2 & io_inst_packs_0_prk == io_prd_queue_3_2
-        | io_inst_packs_0_prk == io_prd_queue_3_3 | io_prk_ready_0_prd_ready_3_n > 4'h4
-        & io_inst_packs_0_prk == io_prd_queue_3_4 | io_prk_ready_0_prd_ready_3_n > 4'h5
-        & io_inst_packs_0_prk == io_prd_queue_3_5 | io_prk_ready_0_prd_ready_3_n > 4'h6
-        & io_inst_packs_0_prk == io_prd_queue_3_6
-        | io_inst_packs_0_prk == io_prd_queue_3_7 | io_prk_ready_0_prd_ready_3_n > 4'h8
-        & ~(|io_inst_packs_0_prk) | io_prk_ready_0_prd_ready_3_n > 4'h9
-        & ~(|io_inst_packs_0_prk));
+        | io_inst_packs_0_prk == io_prd_queue_3_2
+        | io_inst_packs_0_prk == io_prd_queue_3_3
+        | io_inst_packs_0_prk == io_prd_queue_3_4
+        | io_inst_packs_0_prk == io_prd_queue_3_5
+        | io_inst_packs_0_prk == io_prd_queue_3_6
+        | io_inst_packs_0_prk == io_prd_queue_3_7);
   assign io_prk_ready_1 =
-    ~io_inst_packs_1_rk_valid | ~(|io_inst_packs_1_prk) | ~io_inst_packs_1_prk_raw
+    ~io_inst_packs_1_rk_valid | io_inst_packs_1_prk == 7'h0 | ~io_inst_packs_1_prk_raw
     & ~(io_inst_packs_1_prk == io_prd_queue_0_0 | io_inst_packs_1_prk == io_prd_queue_0_1
-        | io_prk_ready_1_prd_ready_0_n > 4'h2 & io_inst_packs_1_prk == io_prd_queue_0_2
-        | io_inst_packs_1_prk == io_prd_queue_0_3 | io_prk_ready_1_prd_ready_0_n > 4'h4
-        & io_inst_packs_1_prk == io_prd_queue_0_4 | io_prk_ready_1_prd_ready_0_n > 4'h5
-        & io_inst_packs_1_prk == io_prd_queue_0_5 | io_prk_ready_1_prd_ready_0_n > 4'h6
-        & io_inst_packs_1_prk == io_prd_queue_0_6
-        | io_inst_packs_1_prk == io_prd_queue_0_7 | io_prk_ready_1_prd_ready_0_n > 4'h8
-        & ~(|io_inst_packs_1_prk) | io_prk_ready_1_prd_ready_0_n > 4'h9
-        & ~(|io_inst_packs_1_prk))
+        | io_inst_packs_1_prk == io_prd_queue_0_2
+        | io_inst_packs_1_prk == io_prd_queue_0_3
+        | io_inst_packs_1_prk == io_prd_queue_0_4
+        | io_inst_packs_1_prk == io_prd_queue_0_5
+        | io_inst_packs_1_prk == io_prd_queue_0_6
+        | io_inst_packs_1_prk == io_prd_queue_0_7)
     & ~(io_inst_packs_1_prk == io_prd_queue_1_0 | io_inst_packs_1_prk == io_prd_queue_1_1
-        | io_prk_ready_1_prd_ready_1_n > 4'h2 & io_inst_packs_1_prk == io_prd_queue_1_2
-        | io_inst_packs_1_prk == io_prd_queue_1_3 | io_prk_ready_1_prd_ready_1_n > 4'h4
-        & io_inst_packs_1_prk == io_prd_queue_1_4 | io_prk_ready_1_prd_ready_1_n > 4'h5
-        & io_inst_packs_1_prk == io_prd_queue_1_5 | io_prk_ready_1_prd_ready_1_n > 4'h6
-        & io_inst_packs_1_prk == io_prd_queue_1_6
-        | io_inst_packs_1_prk == io_prd_queue_1_7 | io_prk_ready_1_prd_ready_1_n > 4'h8
-        & ~(|io_inst_packs_1_prk) | io_prk_ready_1_prd_ready_1_n > 4'h9
-        & ~(|io_inst_packs_1_prk))
-    & ~(io_inst_packs_1_prk == io_prd_queue_2_0 | (|(io_prk_ready_1_prd_ready_2_n[3:1]))
-        & io_inst_packs_1_prk == io_prd_queue_2_1 | io_prk_ready_1_prd_ready_2_n > 4'h2
-        & io_inst_packs_1_prk == io_prd_queue_2_2 | (|(io_prk_ready_1_prd_ready_2_n[3:2]))
-        & io_inst_packs_1_prk == io_prd_queue_2_3 | io_prk_ready_1_prd_ready_2_n > 4'h4
-        & io_inst_packs_1_prk == io_prd_queue_2_4 | io_prk_ready_1_prd_ready_2_n > 4'h5
-        & io_inst_packs_1_prk == io_prd_queue_2_5 | io_prk_ready_1_prd_ready_2_n > 4'h6
-        & io_inst_packs_1_prk == io_prd_queue_2_6 | io_prk_ready_1_prd_ready_2_n[3]
-        & io_inst_packs_1_prk == io_prd_queue_2_7 | io_prk_ready_1_prd_ready_2_n > 4'h8
-        & ~(|io_inst_packs_1_prk) | io_prk_ready_1_prd_ready_2_n > 4'h9
-        & io_inst_packs_1_prk == io_prd_queue_2_9)
+        | io_inst_packs_1_prk == io_prd_queue_1_2
+        | io_inst_packs_1_prk == io_prd_queue_1_3
+        | io_inst_packs_1_prk == io_prd_queue_1_4
+        | io_inst_packs_1_prk == io_prd_queue_1_5
+        | io_inst_packs_1_prk == io_prd_queue_1_6
+        | io_inst_packs_1_prk == io_prd_queue_1_7)
+    & ~(io_inst_packs_1_prk == io_prd_queue_2_0 | io_inst_packs_1_prk == io_prd_queue_2_1
+        | io_inst_packs_1_prk == io_prd_queue_2_2
+        | io_inst_packs_1_prk == io_prd_queue_2_3
+        | io_inst_packs_1_prk == io_prd_queue_2_4
+        | io_inst_packs_1_prk == io_prd_queue_2_5
+        | io_inst_packs_1_prk == io_prd_queue_2_6
+        | io_inst_packs_1_prk == io_prd_queue_2_7
+        | io_inst_packs_1_prk == io_prd_queue_2_8)
     & ~(io_inst_packs_1_prk == io_prd_queue_3_0 | io_inst_packs_1_prk == io_prd_queue_3_1
-        | io_prk_ready_1_prd_ready_3_n > 4'h2 & io_inst_packs_1_prk == io_prd_queue_3_2
-        | io_inst_packs_1_prk == io_prd_queue_3_3 | io_prk_ready_1_prd_ready_3_n > 4'h4
-        & io_inst_packs_1_prk == io_prd_queue_3_4 | io_prk_ready_1_prd_ready_3_n > 4'h5
-        & io_inst_packs_1_prk == io_prd_queue_3_5 | io_prk_ready_1_prd_ready_3_n > 4'h6
-        & io_inst_packs_1_prk == io_prd_queue_3_6
-        | io_inst_packs_1_prk == io_prd_queue_3_7 | io_prk_ready_1_prd_ready_3_n > 4'h8
-        & ~(|io_inst_packs_1_prk) | io_prk_ready_1_prd_ready_3_n > 4'h9
-        & ~(|io_inst_packs_1_prk));
+        | io_inst_packs_1_prk == io_prd_queue_3_2
+        | io_inst_packs_1_prk == io_prd_queue_3_3
+        | io_inst_packs_1_prk == io_prd_queue_3_4
+        | io_inst_packs_1_prk == io_prd_queue_3_5
+        | io_inst_packs_1_prk == io_prd_queue_3_6
+        | io_inst_packs_1_prk == io_prd_queue_3_7);
   assign io_prk_ready_2 =
-    ~io_inst_packs_2_rk_valid | ~(|io_inst_packs_2_prk) | ~io_inst_packs_2_prk_raw
+    ~io_inst_packs_2_rk_valid | io_inst_packs_2_prk == 7'h0 | ~io_inst_packs_2_prk_raw
     & ~(io_inst_packs_2_prk == io_prd_queue_0_0 | io_inst_packs_2_prk == io_prd_queue_0_1
-        | io_prk_ready_2_prd_ready_0_n > 4'h2 & io_inst_packs_2_prk == io_prd_queue_0_2
-        | io_inst_packs_2_prk == io_prd_queue_0_3 | io_prk_ready_2_prd_ready_0_n > 4'h4
-        & io_inst_packs_2_prk == io_prd_queue_0_4 | io_prk_ready_2_prd_ready_0_n > 4'h5
-        & io_inst_packs_2_prk == io_prd_queue_0_5 | io_prk_ready_2_prd_ready_0_n > 4'h6
-        & io_inst_packs_2_prk == io_prd_queue_0_6
-        | io_inst_packs_2_prk == io_prd_queue_0_7 | io_prk_ready_2_prd_ready_0_n > 4'h8
-        & ~(|io_inst_packs_2_prk) | io_prk_ready_2_prd_ready_0_n > 4'h9
-        & ~(|io_inst_packs_2_prk))
+        | io_inst_packs_2_prk == io_prd_queue_0_2
+        | io_inst_packs_2_prk == io_prd_queue_0_3
+        | io_inst_packs_2_prk == io_prd_queue_0_4
+        | io_inst_packs_2_prk == io_prd_queue_0_5
+        | io_inst_packs_2_prk == io_prd_queue_0_6
+        | io_inst_packs_2_prk == io_prd_queue_0_7)
     & ~(io_inst_packs_2_prk == io_prd_queue_1_0 | io_inst_packs_2_prk == io_prd_queue_1_1
-        | io_prk_ready_2_prd_ready_1_n > 4'h2 & io_inst_packs_2_prk == io_prd_queue_1_2
-        | io_inst_packs_2_prk == io_prd_queue_1_3 | io_prk_ready_2_prd_ready_1_n > 4'h4
-        & io_inst_packs_2_prk == io_prd_queue_1_4 | io_prk_ready_2_prd_ready_1_n > 4'h5
-        & io_inst_packs_2_prk == io_prd_queue_1_5 | io_prk_ready_2_prd_ready_1_n > 4'h6
-        & io_inst_packs_2_prk == io_prd_queue_1_6
-        | io_inst_packs_2_prk == io_prd_queue_1_7 | io_prk_ready_2_prd_ready_1_n > 4'h8
-        & ~(|io_inst_packs_2_prk) | io_prk_ready_2_prd_ready_1_n > 4'h9
-        & ~(|io_inst_packs_2_prk))
-    & ~(io_inst_packs_2_prk == io_prd_queue_2_0 | (|(io_prk_ready_2_prd_ready_2_n[3:1]))
-        & io_inst_packs_2_prk == io_prd_queue_2_1 | io_prk_ready_2_prd_ready_2_n > 4'h2
-        & io_inst_packs_2_prk == io_prd_queue_2_2 | (|(io_prk_ready_2_prd_ready_2_n[3:2]))
-        & io_inst_packs_2_prk == io_prd_queue_2_3 | io_prk_ready_2_prd_ready_2_n > 4'h4
-        & io_inst_packs_2_prk == io_prd_queue_2_4 | io_prk_ready_2_prd_ready_2_n > 4'h5
-        & io_inst_packs_2_prk == io_prd_queue_2_5 | io_prk_ready_2_prd_ready_2_n > 4'h6
-        & io_inst_packs_2_prk == io_prd_queue_2_6 | io_prk_ready_2_prd_ready_2_n[3]
-        & io_inst_packs_2_prk == io_prd_queue_2_7 | io_prk_ready_2_prd_ready_2_n > 4'h8
-        & ~(|io_inst_packs_2_prk) | io_prk_ready_2_prd_ready_2_n > 4'h9
-        & io_inst_packs_2_prk == io_prd_queue_2_9)
+        | io_inst_packs_2_prk == io_prd_queue_1_2
+        | io_inst_packs_2_prk == io_prd_queue_1_3
+        | io_inst_packs_2_prk == io_prd_queue_1_4
+        | io_inst_packs_2_prk == io_prd_queue_1_5
+        | io_inst_packs_2_prk == io_prd_queue_1_6
+        | io_inst_packs_2_prk == io_prd_queue_1_7)
+    & ~(io_inst_packs_2_prk == io_prd_queue_2_0 | io_inst_packs_2_prk == io_prd_queue_2_1
+        | io_inst_packs_2_prk == io_prd_queue_2_2
+        | io_inst_packs_2_prk == io_prd_queue_2_3
+        | io_inst_packs_2_prk == io_prd_queue_2_4
+        | io_inst_packs_2_prk == io_prd_queue_2_5
+        | io_inst_packs_2_prk == io_prd_queue_2_6
+        | io_inst_packs_2_prk == io_prd_queue_2_7
+        | io_inst_packs_2_prk == io_prd_queue_2_8)
     & ~(io_inst_packs_2_prk == io_prd_queue_3_0 | io_inst_packs_2_prk == io_prd_queue_3_1
-        | io_prk_ready_2_prd_ready_3_n > 4'h2 & io_inst_packs_2_prk == io_prd_queue_3_2
-        | io_inst_packs_2_prk == io_prd_queue_3_3 | io_prk_ready_2_prd_ready_3_n > 4'h4
-        & io_inst_packs_2_prk == io_prd_queue_3_4 | io_prk_ready_2_prd_ready_3_n > 4'h5
-        & io_inst_packs_2_prk == io_prd_queue_3_5 | io_prk_ready_2_prd_ready_3_n > 4'h6
-        & io_inst_packs_2_prk == io_prd_queue_3_6
-        | io_inst_packs_2_prk == io_prd_queue_3_7 | io_prk_ready_2_prd_ready_3_n > 4'h8
-        & ~(|io_inst_packs_2_prk) | io_prk_ready_2_prd_ready_3_n > 4'h9
-        & ~(|io_inst_packs_2_prk));
+        | io_inst_packs_2_prk == io_prd_queue_3_2
+        | io_inst_packs_2_prk == io_prd_queue_3_3
+        | io_inst_packs_2_prk == io_prd_queue_3_4
+        | io_inst_packs_2_prk == io_prd_queue_3_5
+        | io_inst_packs_2_prk == io_prd_queue_3_6
+        | io_inst_packs_2_prk == io_prd_queue_3_7);
   assign io_prk_ready_3 =
-    ~io_inst_packs_3_rk_valid | ~(|io_inst_packs_3_prk) | ~io_inst_packs_3_prk_raw
+    ~io_inst_packs_3_rk_valid | io_inst_packs_3_prk == 7'h0 | ~io_inst_packs_3_prk_raw
     & ~(io_inst_packs_3_prk == io_prd_queue_0_0 | io_inst_packs_3_prk == io_prd_queue_0_1
-        | io_prk_ready_3_prd_ready_0_n > 4'h2 & io_inst_packs_3_prk == io_prd_queue_0_2
-        | io_inst_packs_3_prk == io_prd_queue_0_3 | io_prk_ready_3_prd_ready_0_n > 4'h4
-        & io_inst_packs_3_prk == io_prd_queue_0_4 | io_prk_ready_3_prd_ready_0_n > 4'h5
-        & io_inst_packs_3_prk == io_prd_queue_0_5 | io_prk_ready_3_prd_ready_0_n > 4'h6
-        & io_inst_packs_3_prk == io_prd_queue_0_6
-        | io_inst_packs_3_prk == io_prd_queue_0_7 | io_prk_ready_3_prd_ready_0_n > 4'h8
-        & ~(|io_inst_packs_3_prk) | io_prk_ready_3_prd_ready_0_n > 4'h9
-        & ~(|io_inst_packs_3_prk))
+        | io_inst_packs_3_prk == io_prd_queue_0_2
+        | io_inst_packs_3_prk == io_prd_queue_0_3
+        | io_inst_packs_3_prk == io_prd_queue_0_4
+        | io_inst_packs_3_prk == io_prd_queue_0_5
+        | io_inst_packs_3_prk == io_prd_queue_0_6
+        | io_inst_packs_3_prk == io_prd_queue_0_7)
     & ~(io_inst_packs_3_prk == io_prd_queue_1_0 | io_inst_packs_3_prk == io_prd_queue_1_1
-        | io_prk_ready_3_prd_ready_1_n > 4'h2 & io_inst_packs_3_prk == io_prd_queue_1_2
-        | io_inst_packs_3_prk == io_prd_queue_1_3 | io_prk_ready_3_prd_ready_1_n > 4'h4
-        & io_inst_packs_3_prk == io_prd_queue_1_4 | io_prk_ready_3_prd_ready_1_n > 4'h5
-        & io_inst_packs_3_prk == io_prd_queue_1_5 | io_prk_ready_3_prd_ready_1_n > 4'h6
-        & io_inst_packs_3_prk == io_prd_queue_1_6
-        | io_inst_packs_3_prk == io_prd_queue_1_7 | io_prk_ready_3_prd_ready_1_n > 4'h8
-        & ~(|io_inst_packs_3_prk) | io_prk_ready_3_prd_ready_1_n > 4'h9
-        & ~(|io_inst_packs_3_prk))
-    & ~(io_inst_packs_3_prk == io_prd_queue_2_0 | (|(io_prk_ready_3_prd_ready_2_n[3:1]))
-        & io_inst_packs_3_prk == io_prd_queue_2_1 | io_prk_ready_3_prd_ready_2_n > 4'h2
-        & io_inst_packs_3_prk == io_prd_queue_2_2 | (|(io_prk_ready_3_prd_ready_2_n[3:2]))
-        & io_inst_packs_3_prk == io_prd_queue_2_3 | io_prk_ready_3_prd_ready_2_n > 4'h4
-        & io_inst_packs_3_prk == io_prd_queue_2_4 | io_prk_ready_3_prd_ready_2_n > 4'h5
-        & io_inst_packs_3_prk == io_prd_queue_2_5 | io_prk_ready_3_prd_ready_2_n > 4'h6
-        & io_inst_packs_3_prk == io_prd_queue_2_6 | io_prk_ready_3_prd_ready_2_n[3]
-        & io_inst_packs_3_prk == io_prd_queue_2_7 | io_prk_ready_3_prd_ready_2_n > 4'h8
-        & ~(|io_inst_packs_3_prk) | io_prk_ready_3_prd_ready_2_n > 4'h9
-        & io_inst_packs_3_prk == io_prd_queue_2_9)
+        | io_inst_packs_3_prk == io_prd_queue_1_2
+        | io_inst_packs_3_prk == io_prd_queue_1_3
+        | io_inst_packs_3_prk == io_prd_queue_1_4
+        | io_inst_packs_3_prk == io_prd_queue_1_5
+        | io_inst_packs_3_prk == io_prd_queue_1_6
+        | io_inst_packs_3_prk == io_prd_queue_1_7)
+    & ~(io_inst_packs_3_prk == io_prd_queue_2_0 | io_inst_packs_3_prk == io_prd_queue_2_1
+        | io_inst_packs_3_prk == io_prd_queue_2_2
+        | io_inst_packs_3_prk == io_prd_queue_2_3
+        | io_inst_packs_3_prk == io_prd_queue_2_4
+        | io_inst_packs_3_prk == io_prd_queue_2_5
+        | io_inst_packs_3_prk == io_prd_queue_2_6
+        | io_inst_packs_3_prk == io_prd_queue_2_7
+        | io_inst_packs_3_prk == io_prd_queue_2_8)
     & ~(io_inst_packs_3_prk == io_prd_queue_3_0 | io_inst_packs_3_prk == io_prd_queue_3_1
-        | io_prk_ready_3_prd_ready_3_n > 4'h2 & io_inst_packs_3_prk == io_prd_queue_3_2
-        | io_inst_packs_3_prk == io_prd_queue_3_3 | io_prk_ready_3_prd_ready_3_n > 4'h4
-        & io_inst_packs_3_prk == io_prd_queue_3_4 | io_prk_ready_3_prd_ready_3_n > 4'h5
-        & io_inst_packs_3_prk == io_prd_queue_3_5 | io_prk_ready_3_prd_ready_3_n > 4'h6
-        & io_inst_packs_3_prk == io_prd_queue_3_6
-        | io_inst_packs_3_prk == io_prd_queue_3_7 | io_prk_ready_3_prd_ready_3_n > 4'h8
-        & ~(|io_inst_packs_3_prk) | io_prk_ready_3_prd_ready_3_n > 4'h9
-        & ~(|io_inst_packs_3_prk));
+        | io_inst_packs_3_prk == io_prd_queue_3_2
+        | io_inst_packs_3_prk == io_prd_queue_3_3
+        | io_inst_packs_3_prk == io_prd_queue_3_4
+        | io_inst_packs_3_prk == io_prd_queue_3_5
+        | io_inst_packs_3_prk == io_prd_queue_3_6
+        | io_inst_packs_3_prk == io_prd_queue_3_7);
 endmodule
 

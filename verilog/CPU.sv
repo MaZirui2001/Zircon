@@ -2021,7 +2021,7 @@ module CPU(
     .io_prd_queue_2_5           (_iq3_io_prd_queue_5),
     .io_prd_queue_2_6           (_iq3_io_prd_queue_6),
     .io_prd_queue_2_7           (_iq3_io_prd_queue_7),
-    .io_prd_queue_2_9
+    .io_prd_queue_2_8
       (_ir_reg3_io_inst_pack_RF_rd_valid ? _ir_reg3_io_inst_pack_RF_prd : 7'h0),
     .io_prd_queue_3_0           (_iq4_io_prd_queue_0),
     .io_prd_queue_3_1           (_iq4_io_prd_queue_1),

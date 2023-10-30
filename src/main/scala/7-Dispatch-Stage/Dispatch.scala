@@ -6,22 +6,15 @@ import Control_Signal._
 // LUT: 2377
 object Dispatch_Func{
     def Dispatch_Ready_Generate(pr: UInt, prd_queue: Vec[UInt], queue_sel: UInt, index: UInt): Bool = {
-        val prd_hit = Wire(Vec(10, Bool()))
-        prd_hit := 0.U.asTypeOf(Vec(10, Bool()))
-        val equal = MuxLookup(index, 0.U)(Seq(
+        val prd_hit = Wire(Vec(9, Bool()))
+        prd_hit := 0.U.asTypeOf(Vec(9, Bool()))
+        val n = MuxLookup(index, 0.U)(Seq(
             0.U -> 8.U,
             1.U -> 8.U,
             2.U -> 9.U,
             3.U -> 8.U
         ))
-        val neq = MuxLookup(index, 0.U)(Seq(
-            0.U -> 9.U,
-            1.U -> 9.U,
-            2.U -> 10.U,
-            3.U -> 9.U
-        ))
-        val n = Mux(queue_sel === index, equal, neq)
-        for(i <- 0 until 10){
+        for(i <- 0 until 9){
             when(i.U < n) {
                 prd_hit(i) := pr === prd_queue(i)
             }
@@ -41,7 +34,7 @@ class Dispatch_IO(n: Int) extends Bundle{
     val inst_packs          = Input(Vec(4, new inst_pack_RN_t))
 
     // index of rd in the issue queue
-    val prd_queue           = Input(Vec(4, Vec(n+2, UInt(7.W))))
+    val prd_queue           = Input(Vec(4, Vec(n+1, UInt(7.W))))
     val elem_num            = Input(Vec(2, UInt((log2Ceil(n)+1).W)))
 
     // output for each issue queue

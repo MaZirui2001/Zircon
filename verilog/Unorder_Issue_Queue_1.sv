@@ -473,9 +473,9 @@ module Unorder_Issue_Queue_1(
     - {3'h0,
        io_issue_ack_0 | io_issue_ack_1 | io_issue_ack_2 | io_issue_ack_3 | io_issue_ack_4
          | io_issue_ack_5 | io_issue_ack_6 | io_issue_ack_7};
-  wire [1:0]  _queue_next_0_inst_T_5 = 2'h0 - _tail_pop_T_16[1:0];
+  wire [1:0]  _queue_next_0_inst_T_4 = 2'h0 - _tail_pop_T_16[1:0];
   always_comb begin
-    casez (_queue_next_0_inst_T_5)
+    casez (_queue_next_0_inst_T_4)
       2'b00:
         casez_tmp = io_insts_disp_valid_0;
       2'b01:
@@ -487,7 +487,7 @@ module Unorder_Issue_Queue_1(
     endcase
   end // always_comb
   always_comb begin
-    casez (_queue_next_0_inst_T_5)
+    casez (_queue_next_0_inst_T_4)
       2'b00:
         casez_tmp_0 = io_insts_disp_index_0;
       2'b01:
@@ -678,9 +678,9 @@ module Unorder_Issue_Queue_1(
         casez_tmp_15 = io_prk_ready_3;
     endcase
   end // always_comb
-  wire [1:0]  _queue_next_1_prk_waked_T_6 = 2'h1 - _tail_pop_T_16[1:0];
+  wire [1:0]  _queue_next_1_prk_waked_T_5 = 2'h1 - _tail_pop_T_16[1:0];
   always_comb begin
-    casez (_queue_next_1_prk_waked_T_6)
+    casez (_queue_next_1_prk_waked_T_5)
       2'b00:
         casez_tmp_16 = io_insts_disp_valid_0;
       2'b01:
@@ -692,7 +692,7 @@ module Unorder_Issue_Queue_1(
     endcase
   end // always_comb
   always_comb begin
-    casez (_queue_next_1_prk_waked_T_6)
+    casez (_queue_next_1_prk_waked_T_5)
       2'b00:
         casez_tmp_17 = io_insts_disp_index_0;
       2'b01:
@@ -883,9 +883,9 @@ module Unorder_Issue_Queue_1(
         casez_tmp_32 = io_prk_ready_3;
     endcase
   end // always_comb
-  wire [1:0]  _queue_next_2_prk_waked_T_6 = 2'h2 - _tail_pop_T_16[1:0];
+  wire [1:0]  _queue_next_2_prk_waked_T_5 = 2'h2 - _tail_pop_T_16[1:0];
   always_comb begin
-    casez (_queue_next_2_prk_waked_T_6)
+    casez (_queue_next_2_prk_waked_T_5)
       2'b00:
         casez_tmp_33 = io_insts_disp_valid_0;
       2'b01:
@@ -897,7 +897,7 @@ module Unorder_Issue_Queue_1(
     endcase
   end // always_comb
   always_comb begin
-    casez (_queue_next_2_prk_waked_T_6)
+    casez (_queue_next_2_prk_waked_T_5)
       2'b00:
         casez_tmp_34 = io_insts_disp_index_0;
       2'b01:
@@ -1088,9 +1088,9 @@ module Unorder_Issue_Queue_1(
         casez_tmp_49 = io_prk_ready_3;
     endcase
   end // always_comb
-  wire [1:0]  _queue_next_3_prk_waked_T_6 = 2'h3 - _tail_pop_T_16[1:0];
+  wire [1:0]  _queue_next_3_prk_waked_T_5 = 2'h3 - _tail_pop_T_16[1:0];
   always_comb begin
-    casez (_queue_next_3_prk_waked_T_6)
+    casez (_queue_next_3_prk_waked_T_5)
       2'b00:
         casez_tmp_50 = io_insts_disp_valid_0;
       2'b01:
@@ -1102,7 +1102,7 @@ module Unorder_Issue_Queue_1(
     endcase
   end // always_comb
   always_comb begin
-    casez (_queue_next_3_prk_waked_T_6)
+    casez (_queue_next_3_prk_waked_T_5)
       2'b00:
         casez_tmp_51 = io_insts_disp_index_0;
       2'b01:
@@ -1293,9 +1293,9 @@ module Unorder_Issue_Queue_1(
         casez_tmp_66 = io_prk_ready_3;
     endcase
   end // always_comb
-  wire [1:0]  _queue_next_4_prk_waked_T_6 = 2'h0 - _tail_pop_T_16[1:0];
+  wire [1:0]  _queue_next_4_prk_waked_T_5 = 2'h0 - _tail_pop_T_16[1:0];
   always_comb begin
-    casez (_queue_next_4_prk_waked_T_6)
+    casez (_queue_next_4_prk_waked_T_5)
       2'b00:
         casez_tmp_67 = io_insts_disp_valid_0;
       2'b01:
@@ -1307,7 +1307,7 @@ module Unorder_Issue_Queue_1(
     endcase
   end // always_comb
   always_comb begin
-    casez (_queue_next_4_prk_waked_T_6)
+    casez (_queue_next_4_prk_waked_T_5)
       2'b00:
         casez_tmp_68 = io_insts_disp_index_0;
       2'b01:
@@ -1498,9 +1498,9 @@ module Unorder_Issue_Queue_1(
         casez_tmp_83 = io_prk_ready_3;
     endcase
   end // always_comb
-  wire [1:0]  _queue_next_5_prk_waked_T_6 = 2'h1 - _tail_pop_T_16[1:0];
+  wire [1:0]  _queue_next_5_prk_waked_T_5 = 2'h1 - _tail_pop_T_16[1:0];
   always_comb begin
-    casez (_queue_next_5_prk_waked_T_6)
+    casez (_queue_next_5_prk_waked_T_5)
       2'b00:
         casez_tmp_84 = io_insts_disp_valid_0;
       2'b01:
@@ -1512,7 +1512,7 @@ module Unorder_Issue_Queue_1(
     endcase
   end // always_comb
   always_comb begin
-    casez (_queue_next_5_prk_waked_T_6)
+    casez (_queue_next_5_prk_waked_T_5)
       2'b00:
         casez_tmp_85 = io_insts_disp_index_0;
       2'b01:
@@ -1703,9 +1703,9 @@ module Unorder_Issue_Queue_1(
         casez_tmp_100 = io_prk_ready_3;
     endcase
   end // always_comb
-  wire [1:0]  _queue_next_6_prk_waked_T_6 = 2'h2 - _tail_pop_T_16[1:0];
+  wire [1:0]  _queue_next_6_prk_waked_T_5 = 2'h2 - _tail_pop_T_16[1:0];
   always_comb begin
-    casez (_queue_next_6_prk_waked_T_6)
+    casez (_queue_next_6_prk_waked_T_5)
       2'b00:
         casez_tmp_101 = io_insts_disp_valid_0;
       2'b01:
@@ -1717,7 +1717,7 @@ module Unorder_Issue_Queue_1(
     endcase
   end // always_comb
   always_comb begin
-    casez (_queue_next_6_prk_waked_T_6)
+    casez (_queue_next_6_prk_waked_T_5)
       2'b00:
         casez_tmp_102 = io_insts_disp_index_0;
       2'b01:
@@ -1908,9 +1908,9 @@ module Unorder_Issue_Queue_1(
         casez_tmp_117 = io_prk_ready_3;
     endcase
   end // always_comb
-  wire [1:0]  _queue_next_7_prk_waked_T_6 = 2'h3 - _tail_pop_T_16[1:0];
+  wire [1:0]  _queue_next_7_prk_waked_T_5 = 2'h3 - _tail_pop_T_16[1:0];
   always_comb begin
-    casez (_queue_next_7_prk_waked_T_6)
+    casez (_queue_next_7_prk_waked_T_5)
       2'b00:
         casez_tmp_118 = io_insts_disp_valid_0;
       2'b01:
@@ -1922,7 +1922,7 @@ module Unorder_Issue_Queue_1(
     endcase
   end // always_comb
   always_comb begin
-    casez (_queue_next_7_prk_waked_T_6)
+    casez (_queue_next_7_prk_waked_T_5)
       2'b00:
         casez_tmp_119 = io_insts_disp_index_0;
       2'b01:
@@ -2138,13 +2138,13 @@ module Unorder_Issue_Queue_1(
     (|(_tail_pop_T_16[3:1]))
       ? (next_mask[1] ? queue_2_inst_prk : queue_1_inst_prk)
       : casez_tmp_16 ? casez_tmp_19 : 7'h0;
-  wire        _queue_next_2_prk_waked_T = _tail_pop_T_16 > 4'h2;
+  wire        _GEN = _tail_pop_T_16 > 4'h2;
   wire [6:0]  queue_next_2_inst_prj =
-    _queue_next_2_prk_waked_T
+    _GEN
       ? (next_mask[2] ? queue_3_inst_prj : queue_2_inst_prj)
       : casez_tmp_33 ? casez_tmp_35 : 7'h0;
   wire [6:0]  queue_next_2_inst_prk =
-    _queue_next_2_prk_waked_T
+    _GEN
       ? (next_mask[2] ? queue_3_inst_prk : queue_2_inst_prk)
       : casez_tmp_33 ? casez_tmp_36 : 7'h0;
   wire [6:0]  queue_next_3_inst_prj =
@@ -2155,31 +2155,31 @@ module Unorder_Issue_Queue_1(
     (|(_tail_pop_T_16[3:2]))
       ? (next_mask[3] ? queue_4_inst_prk : queue_3_inst_prk)
       : casez_tmp_50 ? casez_tmp_53 : 7'h0;
-  wire        _queue_next_4_prk_waked_T = _tail_pop_T_16 > 4'h4;
+  wire        _GEN_0 = _tail_pop_T_16 > 4'h4;
   wire [6:0]  queue_next_4_inst_prj =
-    _queue_next_4_prk_waked_T
+    _GEN_0
       ? (next_mask[4] ? queue_5_inst_prj : queue_4_inst_prj)
       : casez_tmp_67 ? casez_tmp_69 : 7'h0;
   wire [6:0]  queue_next_4_inst_prk =
-    _queue_next_4_prk_waked_T
+    _GEN_0
       ? (next_mask[4] ? queue_5_inst_prk : queue_4_inst_prk)
       : casez_tmp_67 ? casez_tmp_70 : 7'h0;
-  wire        _queue_next_5_prk_waked_T = _tail_pop_T_16 > 4'h5;
+  wire        _GEN_1 = _tail_pop_T_16 > 4'h5;
   wire [6:0]  queue_next_5_inst_prj =
-    _queue_next_5_prk_waked_T
+    _GEN_1
       ? (next_mask[5] ? queue_6_inst_prj : queue_5_inst_prj)
       : casez_tmp_84 ? casez_tmp_86 : 7'h0;
   wire [6:0]  queue_next_5_inst_prk =
-    _queue_next_5_prk_waked_T
+    _GEN_1
       ? (next_mask[5] ? queue_6_inst_prk : queue_5_inst_prk)
       : casez_tmp_84 ? casez_tmp_87 : 7'h0;
-  wire        _queue_next_6_prk_waked_T = _tail_pop_T_16 > 4'h6;
+  wire        _GEN_2 = _tail_pop_T_16 > 4'h6;
   wire [6:0]  queue_next_6_inst_prj =
-    _queue_next_6_prk_waked_T
+    _GEN_2
       ? (next_mask[6] ? queue_7_inst_prj : queue_6_inst_prj)
       : casez_tmp_101 ? casez_tmp_103 : 7'h0;
   wire [6:0]  queue_next_6_inst_prk =
-    _queue_next_6_prk_waked_T
+    _GEN_2
       ? (next_mask[6] ? queue_7_inst_prk : queue_6_inst_prk)
       : casez_tmp_101 ? casez_tmp_104 : 7'h0;
   wire [6:0]  queue_next_7_inst_prj =
@@ -2441,7 +2441,7 @@ module Unorder_Issue_Queue_1(
              queue_next_1_inst_prk == io_wake_preg_2,
              queue_next_1_inst_prk == io_wake_preg_1,
              queue_next_1_inst_prk == io_wake_preg_0});
-      if (_queue_next_2_prk_waked_T) begin
+      if (_GEN) begin
         if (next_mask[2]) begin
           queue_2_inst_prj <= queue_3_inst_prj;
           queue_2_inst_prk <= queue_3_inst_prk;
@@ -2489,7 +2489,7 @@ module Unorder_Issue_Queue_1(
         queue_2_inst_predict_jump <= casez_tmp_33 & casez_tmp_46;
       end
       queue_2_prj_waked <=
-        (_queue_next_2_prk_waked_T
+        (_GEN
            ? (next_mask[2] ? queue_3_prj_waked : queue_2_prj_waked)
            : casez_tmp_33 & casez_tmp_48)
         | (|{queue_next_2_inst_prj == io_wake_preg_3,
@@ -2497,7 +2497,7 @@ module Unorder_Issue_Queue_1(
              queue_next_2_inst_prj == io_wake_preg_1,
              queue_next_2_inst_prj == io_wake_preg_0});
       queue_2_prk_waked <=
-        (_queue_next_2_prk_waked_T
+        (_GEN
            ? (next_mask[2] ? queue_3_prk_waked : queue_2_prk_waked)
            : casez_tmp_33 & casez_tmp_49)
         | (|{queue_next_2_inst_prk == io_wake_preg_3,
@@ -2567,7 +2567,7 @@ module Unorder_Issue_Queue_1(
              queue_next_3_inst_prk == io_wake_preg_2,
              queue_next_3_inst_prk == io_wake_preg_1,
              queue_next_3_inst_prk == io_wake_preg_0});
-      if (_queue_next_4_prk_waked_T) begin
+      if (_GEN_0) begin
         if (next_mask[4]) begin
           queue_4_inst_prj <= queue_5_inst_prj;
           queue_4_inst_prk <= queue_5_inst_prk;
@@ -2615,7 +2615,7 @@ module Unorder_Issue_Queue_1(
         queue_4_inst_predict_jump <= casez_tmp_67 & casez_tmp_80;
       end
       queue_4_prj_waked <=
-        (_queue_next_4_prk_waked_T
+        (_GEN_0
            ? (next_mask[4] ? queue_5_prj_waked : queue_4_prj_waked)
            : casez_tmp_67 & casez_tmp_82)
         | (|{queue_next_4_inst_prj == io_wake_preg_3,
@@ -2623,14 +2623,14 @@ module Unorder_Issue_Queue_1(
              queue_next_4_inst_prj == io_wake_preg_1,
              queue_next_4_inst_prj == io_wake_preg_0});
       queue_4_prk_waked <=
-        (_queue_next_4_prk_waked_T
+        (_GEN_0
            ? (next_mask[4] ? queue_5_prk_waked : queue_4_prk_waked)
            : casez_tmp_67 & casez_tmp_83)
         | (|{queue_next_4_inst_prk == io_wake_preg_3,
              queue_next_4_inst_prk == io_wake_preg_2,
              queue_next_4_inst_prk == io_wake_preg_1,
              queue_next_4_inst_prk == io_wake_preg_0});
-      if (_queue_next_5_prk_waked_T) begin
+      if (_GEN_1) begin
         if (next_mask[5]) begin
           queue_5_inst_prj <= queue_6_inst_prj;
           queue_5_inst_prk <= queue_6_inst_prk;
@@ -2678,7 +2678,7 @@ module Unorder_Issue_Queue_1(
         queue_5_inst_predict_jump <= casez_tmp_84 & casez_tmp_97;
       end
       queue_5_prj_waked <=
-        (_queue_next_5_prk_waked_T
+        (_GEN_1
            ? (next_mask[5] ? queue_6_prj_waked : queue_5_prj_waked)
            : casez_tmp_84 & casez_tmp_99)
         | (|{queue_next_5_inst_prj == io_wake_preg_3,
@@ -2686,14 +2686,14 @@ module Unorder_Issue_Queue_1(
              queue_next_5_inst_prj == io_wake_preg_1,
              queue_next_5_inst_prj == io_wake_preg_0});
       queue_5_prk_waked <=
-        (_queue_next_5_prk_waked_T
+        (_GEN_1
            ? (next_mask[5] ? queue_6_prk_waked : queue_5_prk_waked)
            : casez_tmp_84 & casez_tmp_100)
         | (|{queue_next_5_inst_prk == io_wake_preg_3,
              queue_next_5_inst_prk == io_wake_preg_2,
              queue_next_5_inst_prk == io_wake_preg_1,
              queue_next_5_inst_prk == io_wake_preg_0});
-      if (_queue_next_6_prk_waked_T) begin
+      if (_GEN_2) begin
         if (next_mask[6]) begin
           queue_6_inst_prj <= queue_7_inst_prj;
           queue_6_inst_prk <= queue_7_inst_prk;
@@ -2741,7 +2741,7 @@ module Unorder_Issue_Queue_1(
         queue_6_inst_predict_jump <= casez_tmp_101 & casez_tmp_114;
       end
       queue_6_prj_waked <=
-        (_queue_next_6_prk_waked_T
+        (_GEN_2
            ? (next_mask[6] ? queue_7_prj_waked : queue_6_prj_waked)
            : casez_tmp_101 & casez_tmp_116)
         | (|{queue_next_6_inst_prj == io_wake_preg_3,
@@ -2749,7 +2749,7 @@ module Unorder_Issue_Queue_1(
              queue_next_6_inst_prj == io_wake_preg_1,
              queue_next_6_inst_prj == io_wake_preg_0});
       queue_6_prk_waked <=
-        (_queue_next_6_prk_waked_T
+        (_GEN_2
            ? (next_mask[6] ? queue_7_prk_waked : queue_6_prk_waked)
            : casez_tmp_101 & casez_tmp_117)
         | (|{queue_next_6_inst_prk == io_wake_preg_3,
