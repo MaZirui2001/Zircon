@@ -17,6 +17,13 @@
 	"settings": {
 		"files.watcherExclude": {
 			"**/target": true
+		},
+		"files.associations": {
+			"*.vlog": "log",
+			"map": "cpp",
+			"iostream": "cpp",
+			"cstring": "cpp",
+			"iomanip": "cpp"
 		}
 	}
 }
