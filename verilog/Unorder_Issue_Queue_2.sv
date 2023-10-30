@@ -1992,54 +1992,31 @@ module Unorder_Issue_Queue_2(
   assign io_insts_issue_7_inst_mem_type = queue_7_inst_mem_type;
   assign io_issue_req_0 = (|tail) & queue_0_prj_waked & queue_0_prk_waked;
   assign io_issue_req_1 =
-    ~((|queue_1_inst_mem_type) & ~(queue_1_inst_mem_type[4])) & (|(tail[3:1]))
-    & queue_1_prj_waked & queue_1_prk_waked
-    & ~((|queue_0_inst_mem_type) & ~(queue_0_inst_mem_type[4]));
+    ~(queue_1_inst_mem_type[4]) & (|(tail[3:1])) & queue_1_prj_waked & queue_1_prk_waked
+    & ~(queue_0_inst_mem_type[4]);
   assign io_issue_req_2 =
-    ~((|queue_2_inst_mem_type) & ~(queue_2_inst_mem_type[4])) & tail > 4'h2
-    & queue_2_prj_waked & queue_2_prk_waked
-    & ~((|queue_0_inst_mem_type) & ~(queue_0_inst_mem_type[4]) | (|queue_1_inst_mem_type)
-        & ~(queue_1_inst_mem_type[4]));
+    ~(queue_2_inst_mem_type[4]) & tail > 4'h2 & queue_2_prj_waked & queue_2_prk_waked
+    & ~(queue_0_inst_mem_type[4] | queue_1_inst_mem_type[4]);
   assign io_issue_req_3 =
-    ~((|queue_3_inst_mem_type) & ~(queue_3_inst_mem_type[4])) & (|(tail[3:2]))
-    & queue_3_prj_waked & queue_3_prk_waked
-    & ~((|queue_0_inst_mem_type) & ~(queue_0_inst_mem_type[4]) | (|queue_1_inst_mem_type)
-        & ~(queue_1_inst_mem_type[4]) | (|queue_2_inst_mem_type)
-        & ~(queue_2_inst_mem_type[4]));
+    ~(queue_3_inst_mem_type[4]) & (|(tail[3:2])) & queue_3_prj_waked & queue_3_prk_waked
+    & ~(queue_0_inst_mem_type[4] | queue_1_inst_mem_type[4] | queue_2_inst_mem_type[4]);
   assign io_issue_req_4 =
-    ~((|queue_4_inst_mem_type) & ~(queue_4_inst_mem_type[4])) & tail > 4'h4
-    & queue_4_prj_waked & queue_4_prk_waked
-    & ~((|queue_0_inst_mem_type) & ~(queue_0_inst_mem_type[4]) | (|queue_1_inst_mem_type)
-        & ~(queue_1_inst_mem_type[4]) | (|queue_2_inst_mem_type)
-        & ~(queue_2_inst_mem_type[4]) | (|queue_3_inst_mem_type)
-        & ~(queue_3_inst_mem_type[4]));
+    ~(queue_4_inst_mem_type[4]) & tail > 4'h4 & queue_4_prj_waked & queue_4_prk_waked
+    & ~(queue_0_inst_mem_type[4] | queue_1_inst_mem_type[4] | queue_2_inst_mem_type[4]
+        | queue_3_inst_mem_type[4]);
   assign io_issue_req_5 =
-    ~((|queue_5_inst_mem_type) & ~(queue_5_inst_mem_type[4])) & tail > 4'h5
-    & queue_5_prj_waked & queue_5_prk_waked
-    & ~((|queue_0_inst_mem_type) & ~(queue_0_inst_mem_type[4]) | (|queue_1_inst_mem_type)
-        & ~(queue_1_inst_mem_type[4]) | (|queue_2_inst_mem_type)
-        & ~(queue_2_inst_mem_type[4]) | (|queue_3_inst_mem_type)
-        & ~(queue_3_inst_mem_type[4]) | (|queue_4_inst_mem_type)
-        & ~(queue_4_inst_mem_type[4]));
+    ~(queue_5_inst_mem_type[4]) & tail > 4'h5 & queue_5_prj_waked & queue_5_prk_waked
+    & ~(queue_0_inst_mem_type[4] | queue_1_inst_mem_type[4] | queue_2_inst_mem_type[4]
+        | queue_3_inst_mem_type[4] | queue_4_inst_mem_type[4]);
   assign io_issue_req_6 =
-    ~((|queue_6_inst_mem_type) & ~(queue_6_inst_mem_type[4])) & tail > 4'h6
-    & queue_6_prj_waked & queue_6_prk_waked
-    & ~((|queue_0_inst_mem_type) & ~(queue_0_inst_mem_type[4]) | (|queue_1_inst_mem_type)
-        & ~(queue_1_inst_mem_type[4]) | (|queue_2_inst_mem_type)
-        & ~(queue_2_inst_mem_type[4]) | (|queue_3_inst_mem_type)
-        & ~(queue_3_inst_mem_type[4]) | (|queue_4_inst_mem_type)
-        & ~(queue_4_inst_mem_type[4]) | (|queue_5_inst_mem_type)
-        & ~(queue_5_inst_mem_type[4]));
+    ~(queue_6_inst_mem_type[4]) & tail > 4'h6 & queue_6_prj_waked & queue_6_prk_waked
+    & ~(queue_0_inst_mem_type[4] | queue_1_inst_mem_type[4] | queue_2_inst_mem_type[4]
+        | queue_3_inst_mem_type[4] | queue_4_inst_mem_type[4] | queue_5_inst_mem_type[4]);
   assign io_issue_req_7 =
-    ~((|queue_7_inst_mem_type) & ~(queue_7_inst_mem_type[4])) & tail[3]
-    & queue_7_prj_waked & queue_7_prk_waked
-    & ~((|queue_0_inst_mem_type) & ~(queue_0_inst_mem_type[4]) | (|queue_1_inst_mem_type)
-        & ~(queue_1_inst_mem_type[4]) | (|queue_2_inst_mem_type)
-        & ~(queue_2_inst_mem_type[4]) | (|queue_3_inst_mem_type)
-        & ~(queue_3_inst_mem_type[4]) | (|queue_4_inst_mem_type)
-        & ~(queue_4_inst_mem_type[4]) | (|queue_5_inst_mem_type)
-        & ~(queue_5_inst_mem_type[4]) | (|queue_6_inst_mem_type)
-        & ~(queue_6_inst_mem_type[4]));
+    ~(queue_7_inst_mem_type[4]) & tail[3] & queue_7_prj_waked & queue_7_prk_waked
+    & ~(queue_0_inst_mem_type[4] | queue_1_inst_mem_type[4] | queue_2_inst_mem_type[4]
+        | queue_3_inst_mem_type[4] | queue_4_inst_mem_type[4] | queue_5_inst_mem_type[4]
+        | queue_6_inst_mem_type[4]);
   assign io_prd_queue_0 =
     queue_next_0_inst_rd_valid & (|_tail_pop_T_16)
       ? (next_mask[0] ? queue_1_inst_prd : queue_0_inst_prd)

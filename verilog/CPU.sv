@@ -184,61 +184,61 @@ module CPU(
   wire [31:0] _rob_io_pred_pc_cmt;
   wire        _rob_io_pred_real_jump_cmt;
   wire [1:0]  _rob_io_br_type_pred_cmt;
-  wire        _fu4_ex_wb_reg_io_inst_pack_WB_rd_valid;
-  wire [6:0]  _fu4_ex_wb_reg_io_inst_pack_WB_prd;
-  wire [5:0]  _fu4_ex_wb_reg_io_inst_pack_WB_rob_index;
-  wire        _fu4_ex_wb_reg_io_inst_pack_WB_inst_valid;
-  wire [31:0] _fu4_ex_wb_reg_io_md_out_WB;
-  wire        _fu4_bypass_io_forward_prj_en;
-  wire        _fu4_bypass_io_forward_prk_en;
-  wire [31:0] _fu4_bypass_io_forward_prj_data;
-  wire [31:0] _fu4_bypass_io_forward_prk_data;
+  wire        _ew_reg4_io_inst_pack_WB_rd_valid;
+  wire [6:0]  _ew_reg4_io_inst_pack_WB_prd;
+  wire [5:0]  _ew_reg4_io_inst_pack_WB_rob_index;
+  wire        _ew_reg4_io_inst_pack_WB_inst_valid;
+  wire [31:0] _ew_reg4_io_md_out_WB;
+  wire        _bypass4_io_forward_prj_en;
+  wire        _bypass4_io_forward_prk_en;
+  wire [31:0] _bypass4_io_forward_prj_data;
+  wire [31:0] _bypass4_io_forward_prk_data;
   wire [31:0] _mdu_io_md_out;
-  wire        _fu3_ex_wb_reg_io_inst_pack_WB_rd_valid;
-  wire [6:0]  _fu3_ex_wb_reg_io_inst_pack_WB_prd;
-  wire [5:0]  _fu3_ex_wb_reg_io_inst_pack_WB_rob_index;
-  wire        _fu3_ex_wb_reg_io_inst_pack_WB_inst_valid;
-  wire [31:0] _fu3_ex_wb_reg_io_mem_rdata_WB;
-  wire        _fu3_ex_wb_reg_io_is_ucread_WB;
+  wire        _ew_reg3_io_inst_pack_WB_rd_valid;
+  wire [6:0]  _ew_reg3_io_inst_pack_WB_prd;
+  wire [5:0]  _ew_reg3_io_inst_pack_WB_rob_index;
+  wire        _ew_reg3_io_inst_pack_WB_inst_valid;
+  wire [31:0] _ew_reg3_io_mem_rdata_WB;
+  wire        _ew_reg3_io_is_ucread_WB;
   wire        _sb_io_full;
   wire [31:0] _sb_io_ld_data_ex;
   wire        _sb_io_ld_hit;
-  wire        _ls_ex1_ex2_reg_io_inst_pack_EX2_rd_valid;
-  wire [6:0]  _ls_ex1_ex2_reg_io_inst_pack_EX2_prd;
-  wire [5:0]  _ls_ex1_ex2_reg_io_inst_pack_EX2_rob_index;
-  wire [4:0]  _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type;
-  wire        _ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid;
-  wire [31:0] _ls_ex1_ex2_reg_io_mem_addr_EX2;
-  wire [31:0] _ls_ex1_ex2_reg_io_mem_wdata_EX2;
-  wire        _fu3_bypass_io_forward_prj_en;
-  wire        _fu3_bypass_io_forward_prk_en;
-  wire [31:0] _fu3_bypass_io_forward_prj_data;
-  wire [31:0] _fu3_bypass_io_forward_prk_data;
-  wire        _fu2_ex_wb_reg_io_inst_pack_WB_rd_valid;
-  wire [6:0]  _fu2_ex_wb_reg_io_inst_pack_WB_prd;
-  wire [5:0]  _fu2_ex_wb_reg_io_inst_pack_WB_rob_index;
-  wire        _fu2_ex_wb_reg_io_inst_pack_WB_inst_valid;
-  wire [31:0] _fu2_ex_wb_reg_io_alu_out_WB;
-  wire        _fu2_ex_wb_reg_io_predict_fail_WB;
-  wire [31:0] _fu2_ex_wb_reg_io_branch_target_WB;
-  wire        _fu2_ex_wb_reg_io_real_jump_WB;
-  wire        _fu2_bypass_io_forward_prj_en;
-  wire        _fu2_bypass_io_forward_prk_en;
-  wire [31:0] _fu2_bypass_io_forward_prj_data;
-  wire [31:0] _fu2_bypass_io_forward_prk_data;
+  wire        _ls_ex_reg_io_inst_pack_EX2_rd_valid;
+  wire [6:0]  _ls_ex_reg_io_inst_pack_EX2_prd;
+  wire [5:0]  _ls_ex_reg_io_inst_pack_EX2_rob_index;
+  wire [4:0]  _ls_ex_reg_io_inst_pack_EX2_mem_type;
+  wire        _ls_ex_reg_io_inst_pack_EX2_inst_valid;
+  wire [31:0] _ls_ex_reg_io_mem_addr_EX2;
+  wire [31:0] _ls_ex_reg_io_mem_wdata_EX2;
+  wire        _bypass3_io_forward_prj_en;
+  wire        _bypass3_io_forward_prk_en;
+  wire [31:0] _bypass3_io_forward_prj_data;
+  wire [31:0] _bypass3_io_forward_prk_data;
+  wire        _ew_reg2_io_inst_pack_WB_rd_valid;
+  wire [6:0]  _ew_reg2_io_inst_pack_WB_prd;
+  wire [5:0]  _ew_reg2_io_inst_pack_WB_rob_index;
+  wire        _ew_reg2_io_inst_pack_WB_inst_valid;
+  wire [31:0] _ew_reg2_io_alu_out_WB;
+  wire        _ew_reg2_io_predict_fail_WB;
+  wire [31:0] _ew_reg2_io_branch_target_WB;
+  wire        _ew_reg2_io_real_jump_WB;
+  wire        _bypass2_io_forward_prj_en;
+  wire        _bypass2_io_forward_prk_en;
+  wire [31:0] _bypass2_io_forward_prj_data;
+  wire [31:0] _bypass2_io_forward_prk_data;
   wire        _br_io_real_jump;
   wire        _br_io_predict_fail;
   wire [31:0] _br_io_branch_target;
   wire [31:0] _alu2_io_alu_out;
-  wire        _fu1_ex_wb_reg_io_inst_pack_WB_rd_valid;
-  wire [6:0]  _fu1_ex_wb_reg_io_inst_pack_WB_prd;
-  wire [5:0]  _fu1_ex_wb_reg_io_inst_pack_WB_rob_index;
-  wire        _fu1_ex_wb_reg_io_inst_pack_WB_inst_valid;
-  wire [31:0] _fu1_ex_wb_reg_io_alu_out_WB;
-  wire        _fu1_bypass_io_forward_prj_en;
-  wire        _fu1_bypass_io_forward_prk_en;
-  wire [31:0] _fu1_bypass_io_forward_prj_data;
-  wire [31:0] _fu1_bypass_io_forward_prk_data;
+  wire        _ew_reg1_io_inst_pack_WB_rd_valid;
+  wire [6:0]  _ew_reg1_io_inst_pack_WB_prd;
+  wire [5:0]  _ew_reg1_io_inst_pack_WB_rob_index;
+  wire        _ew_reg1_io_inst_pack_WB_inst_valid;
+  wire [31:0] _ew_reg1_io_alu_out_WB;
+  wire        _bypass1_io_forward_prj_en;
+  wire        _bypass1_io_forward_prk_en;
+  wire [31:0] _bypass1_io_forward_prj_data;
+  wire [31:0] _bypass1_io_forward_prk_data;
   wire [31:0] _alu1_io_alu_out;
   wire [6:0]  _re_reg4_io_inst_pack_EX_prj;
   wire [6:0]  _re_reg4_io_inst_pack_EX_prk;
@@ -1117,9 +1117,7 @@ module CPU(
     casez (_re_reg1_io_inst_pack_EX_alu_rs1_sel)
       2'b00:
         casez_tmp =
-          _fu1_bypass_io_forward_prj_en
-            ? _fu1_bypass_io_forward_prj_data
-            : _re_reg1_io_src1_EX;
+          _bypass1_io_forward_prj_en ? _bypass1_io_forward_prj_data : _re_reg1_io_src1_EX;
       2'b01:
         casez_tmp = _re_reg1_io_inst_pack_EX_pc;
       2'b10:
@@ -1132,9 +1130,7 @@ module CPU(
     casez (_re_reg1_io_inst_pack_EX_alu_rs2_sel)
       2'b00:
         casez_tmp_0 =
-          _fu1_bypass_io_forward_prk_en
-            ? _fu1_bypass_io_forward_prk_data
-            : _re_reg1_io_src2_EX;
+          _bypass1_io_forward_prk_en ? _bypass1_io_forward_prk_data : _re_reg1_io_src2_EX;
       2'b01:
         casez_tmp_0 = _re_reg1_io_inst_pack_EX_imm;
       2'b10:
@@ -1144,7 +1140,7 @@ module CPU(
     endcase
   end // always_comb
   wire [31:0] _br_io_src1_T =
-    _fu2_bypass_io_forward_prj_en ? _fu2_bypass_io_forward_prj_data : _re_reg2_io_src1_EX;
+    _bypass2_io_forward_prj_en ? _bypass2_io_forward_prj_data : _re_reg2_io_src1_EX;
   always_comb begin
     casez (_re_reg2_io_inst_pack_EX_alu_rs1_sel)
       2'b00:
@@ -1158,7 +1154,7 @@ module CPU(
     endcase
   end // always_comb
   wire [31:0] _br_io_src2_T =
-    _fu2_bypass_io_forward_prk_en ? _fu2_bypass_io_forward_prk_data : _re_reg2_io_src2_EX;
+    _bypass2_io_forward_prk_en ? _bypass2_io_forward_prk_data : _re_reg2_io_src2_EX;
   always_comb begin
     casez (_re_reg2_io_inst_pack_EX_alu_rs2_sel)
       2'b00:
@@ -3176,18 +3172,18 @@ module CPU(
     .io_prk_1      (_ir_reg2_io_inst_pack_RF_prk),
     .io_prk_2      (_ir_reg3_io_inst_pack_RF_prk),
     .io_prk_3      (_ir_reg4_io_inst_pack_RF_prk),
-    .io_prd_0      (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prd_1      (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prd_2      (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_prd_3      (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_wdata_0    (_fu1_ex_wb_reg_io_alu_out_WB),
-    .io_wdata_1    (_fu2_ex_wb_reg_io_alu_out_WB),
-    .io_wdata_2    (_fu3_ex_wb_reg_io_mem_rdata_WB),
-    .io_wdata_3    (_fu4_ex_wb_reg_io_md_out_WB),
-    .io_rf_we_0    (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_rf_we_1    (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_rf_we_2    (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_rf_we_3    (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
+    .io_prd_0      (_ew_reg1_io_inst_pack_WB_prd),
+    .io_prd_1      (_ew_reg2_io_inst_pack_WB_prd),
+    .io_prd_2      (_ew_reg3_io_inst_pack_WB_prd),
+    .io_prd_3      (_ew_reg4_io_inst_pack_WB_prd),
+    .io_wdata_0    (_ew_reg1_io_alu_out_WB),
+    .io_wdata_1    (_ew_reg2_io_alu_out_WB),
+    .io_wdata_2    (_ew_reg3_io_mem_rdata_WB),
+    .io_wdata_3    (_ew_reg4_io_md_out_WB),
+    .io_rf_we_0    (_ew_reg1_io_inst_pack_WB_rd_valid),
+    .io_rf_we_1    (_ew_reg2_io_inst_pack_WB_rd_valid),
+    .io_rf_we_2    (_ew_reg3_io_inst_pack_WB_rd_valid),
+    .io_rf_we_3    (_ew_reg4_io_inst_pack_WB_rd_valid),
     .io_prj_data_0 (_rf_io_prj_data_0),
     .io_prj_data_1 (_rf_io_prj_data_1),
     .io_prj_data_2 (_rf_io_prj_data_2),
@@ -3321,18 +3317,18 @@ module CPU(
     .io_alu_op  (_re_reg1_io_inst_pack_EX_alu_op[3:0]),
     .io_alu_out (_alu1_io_alu_out)
   );
-  Bypass fu1_bypass (
-    .io_prd_wb           (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
+  Bypass bypass1 (
+    .io_prd_wb           (_ew_reg1_io_inst_pack_WB_prd),
     .io_prj_ex           (_re_reg1_io_inst_pack_EX_prj),
     .io_prk_ex           (_re_reg1_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_fu1_ex_wb_reg_io_alu_out_WB),
-    .io_rd_valid_wb      (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_fu1_bypass_io_forward_prj_en),
-    .io_forward_prk_en   (_fu1_bypass_io_forward_prk_en),
-    .io_forward_prj_data (_fu1_bypass_io_forward_prj_data),
-    .io_forward_prk_data (_fu1_bypass_io_forward_prk_data)
+    .io_prf_wdata_wb     (_ew_reg1_io_alu_out_WB),
+    .io_rd_valid_wb      (_ew_reg1_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en   (_bypass1_io_forward_prj_en),
+    .io_forward_prk_en   (_bypass1_io_forward_prk_en),
+    .io_forward_prj_data (_bypass1_io_forward_prj_data),
+    .io_forward_prk_data (_bypass1_io_forward_prk_data)
   );
-  FU1_EX_WB_Reg fu1_ex_wb_reg (
+  FU1_EX_WB_Reg ew_reg1 (
     .clock                      (clock),
     .reset                      (reset),
     .io_flush                   (_rob_io_predict_fail_cmt),
@@ -3341,11 +3337,11 @@ module CPU(
     .io_inst_pack_EX_rob_index  (_re_reg1_io_inst_pack_EX_rob_index),
     .io_inst_pack_EX_inst_valid (_re_reg1_io_inst_pack_EX_inst_valid),
     .io_alu_out_EX              (_alu1_io_alu_out),
-    .io_inst_pack_WB_rd_valid   (_fu1_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_inst_pack_WB_prd        (_fu1_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_inst_pack_WB_rob_index  (_fu1_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_inst_pack_WB_inst_valid (_fu1_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_alu_out_WB              (_fu1_ex_wb_reg_io_alu_out_WB)
+    .io_inst_pack_WB_rd_valid   (_ew_reg1_io_inst_pack_WB_rd_valid),
+    .io_inst_pack_WB_prd        (_ew_reg1_io_inst_pack_WB_prd),
+    .io_inst_pack_WB_rob_index  (_ew_reg1_io_inst_pack_WB_rob_index),
+    .io_inst_pack_WB_inst_valid (_ew_reg1_io_inst_pack_WB_inst_valid),
+    .io_alu_out_WB              (_ew_reg1_io_alu_out_WB)
   );
   ALU alu2 (
     .io_src1    (casez_tmp_1),
@@ -3365,18 +3361,18 @@ module CPU(
     .io_predict_fail  (_br_io_predict_fail),
     .io_branch_target (_br_io_branch_target)
   );
-  Bypass fu2_bypass (
-    .io_prd_wb           (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
+  Bypass bypass2 (
+    .io_prd_wb           (_ew_reg2_io_inst_pack_WB_prd),
     .io_prj_ex           (_re_reg2_io_inst_pack_EX_prj),
     .io_prk_ex           (_re_reg2_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_fu2_ex_wb_reg_io_alu_out_WB),
-    .io_rd_valid_wb      (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_fu2_bypass_io_forward_prj_en),
-    .io_forward_prk_en   (_fu2_bypass_io_forward_prk_en),
-    .io_forward_prj_data (_fu2_bypass_io_forward_prj_data),
-    .io_forward_prk_data (_fu2_bypass_io_forward_prk_data)
+    .io_prf_wdata_wb     (_ew_reg2_io_alu_out_WB),
+    .io_rd_valid_wb      (_ew_reg2_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en   (_bypass2_io_forward_prj_en),
+    .io_forward_prk_en   (_bypass2_io_forward_prk_en),
+    .io_forward_prj_data (_bypass2_io_forward_prj_data),
+    .io_forward_prk_data (_bypass2_io_forward_prk_data)
   );
-  FU2_EX_WB_Reg fu2_ex_wb_reg (
+  FU2_EX_WB_Reg ew_reg2 (
     .clock                      (clock),
     .reset                      (reset),
     .io_flush                   (_rob_io_predict_fail_cmt),
@@ -3388,27 +3384,27 @@ module CPU(
     .io_predict_fail_EX         (_br_io_predict_fail),
     .io_branch_target_EX        (_br_io_branch_target),
     .io_real_jump_EX            (_br_io_real_jump),
-    .io_inst_pack_WB_rd_valid   (_fu2_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_inst_pack_WB_prd        (_fu2_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_inst_pack_WB_rob_index  (_fu2_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_inst_pack_WB_inst_valid (_fu2_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_alu_out_WB              (_fu2_ex_wb_reg_io_alu_out_WB),
-    .io_predict_fail_WB         (_fu2_ex_wb_reg_io_predict_fail_WB),
-    .io_branch_target_WB        (_fu2_ex_wb_reg_io_branch_target_WB),
-    .io_real_jump_WB            (_fu2_ex_wb_reg_io_real_jump_WB)
+    .io_inst_pack_WB_rd_valid   (_ew_reg2_io_inst_pack_WB_rd_valid),
+    .io_inst_pack_WB_prd        (_ew_reg2_io_inst_pack_WB_prd),
+    .io_inst_pack_WB_rob_index  (_ew_reg2_io_inst_pack_WB_rob_index),
+    .io_inst_pack_WB_inst_valid (_ew_reg2_io_inst_pack_WB_inst_valid),
+    .io_alu_out_WB              (_ew_reg2_io_alu_out_WB),
+    .io_predict_fail_WB         (_ew_reg2_io_predict_fail_WB),
+    .io_branch_target_WB        (_ew_reg2_io_branch_target_WB),
+    .io_real_jump_WB            (_ew_reg2_io_real_jump_WB)
   );
-  Bypass fu3_bypass (
-    .io_prd_wb           (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
+  Bypass bypass3 (
+    .io_prd_wb           (_ew_reg3_io_inst_pack_WB_prd),
     .io_prj_ex           (_re_reg3_io_inst_pack_EX_prj),
     .io_prk_ex           (_re_reg3_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_fu3_ex_wb_reg_io_mem_rdata_WB),
-    .io_rd_valid_wb      (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_fu3_bypass_io_forward_prj_en),
-    .io_forward_prk_en   (_fu3_bypass_io_forward_prk_en),
-    .io_forward_prj_data (_fu3_bypass_io_forward_prj_data),
-    .io_forward_prk_data (_fu3_bypass_io_forward_prk_data)
+    .io_prf_wdata_wb     (_ew_reg3_io_mem_rdata_WB),
+    .io_rd_valid_wb      (_ew_reg3_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en   (_bypass3_io_forward_prj_en),
+    .io_forward_prk_en   (_bypass3_io_forward_prk_en),
+    .io_forward_prj_data (_bypass3_io_forward_prj_data),
+    .io_forward_prk_data (_bypass3_io_forward_prk_data)
   );
-  LS_EX1_EX2_Reg ls_ex1_ex2_reg (
+  LS_EX1_EX2_Reg ls_ex_reg (
     .clock                       (clock),
     .reset                       (reset),
     .io_flush                    (_rob_io_predict_fail_cmt),
@@ -3418,30 +3414,25 @@ module CPU(
     .io_inst_pack_EX1_mem_type   (_re_reg3_io_inst_pack_EX_mem_type),
     .io_inst_pack_EX1_inst_valid (_re_reg3_io_inst_pack_EX_inst_valid),
     .io_mem_addr_EX1
-      ((_fu3_bypass_io_forward_prj_en
-          ? _fu3_bypass_io_forward_prj_data
-          : _re_reg3_io_src1_EX) + _re_reg3_io_inst_pack_EX_imm),
+      ((_bypass3_io_forward_prj_en ? _bypass3_io_forward_prj_data : _re_reg3_io_src1_EX)
+       + _re_reg3_io_inst_pack_EX_imm),
     .io_mem_wdata_EX1
-      (_fu3_bypass_io_forward_prk_en
-         ? _fu3_bypass_io_forward_prk_data
-         : _re_reg3_io_src2_EX),
-    .io_inst_pack_EX2_rd_valid   (_ls_ex1_ex2_reg_io_inst_pack_EX2_rd_valid),
-    .io_inst_pack_EX2_prd        (_ls_ex1_ex2_reg_io_inst_pack_EX2_prd),
-    .io_inst_pack_EX2_rob_index  (_ls_ex1_ex2_reg_io_inst_pack_EX2_rob_index),
-    .io_inst_pack_EX2_mem_type   (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type),
-    .io_inst_pack_EX2_inst_valid (_ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid),
-    .io_mem_addr_EX2             (_ls_ex1_ex2_reg_io_mem_addr_EX2),
-    .io_mem_wdata_EX2            (_ls_ex1_ex2_reg_io_mem_wdata_EX2)
+      (_bypass3_io_forward_prk_en ? _bypass3_io_forward_prk_data : _re_reg3_io_src2_EX),
+    .io_inst_pack_EX2_rd_valid   (_ls_ex_reg_io_inst_pack_EX2_rd_valid),
+    .io_inst_pack_EX2_prd        (_ls_ex_reg_io_inst_pack_EX2_prd),
+    .io_inst_pack_EX2_rob_index  (_ls_ex_reg_io_inst_pack_EX2_rob_index),
+    .io_inst_pack_EX2_mem_type   (_ls_ex_reg_io_inst_pack_EX2_mem_type),
+    .io_inst_pack_EX2_inst_valid (_ls_ex_reg_io_inst_pack_EX2_inst_valid),
+    .io_mem_addr_EX2             (_ls_ex_reg_io_mem_addr_EX2),
+    .io_mem_wdata_EX2            (_ls_ex_reg_io_mem_wdata_EX2)
   );
   SB sb (
     .clock               (clock),
     .reset               (reset),
-    .io_is_store_ex
-      (~(_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type[4])
-       & (|_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type)),
-    .io_addr_ex          (_ls_ex1_ex2_reg_io_mem_addr_EX2),
-    .io_st_data_ex       (_ls_ex1_ex2_reg_io_mem_wdata_EX2),
-    .io_st_wlen_ex       (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type[2:0]),
+    .io_is_store_ex      (_ls_ex_reg_io_inst_pack_EX2_mem_type[4]),
+    .io_addr_ex          (_ls_ex_reg_io_mem_addr_EX2),
+    .io_st_data_ex       (_ls_ex_reg_io_mem_wdata_EX2),
+    .io_st_wlen_ex       (_ls_ex_reg_io_inst_pack_EX2_mem_type[2:0]),
     .io_is_store_num_cmt (_rob_io_is_store_num_cmt),
     .io_flush            (_rob_io_predict_fail_cmt),
     .io_full             (_sb_io_full),
@@ -3452,58 +3443,54 @@ module CPU(
     .io_ld_data_ex       (_sb_io_ld_data_ex),
     .io_ld_hit           (_sb_io_ld_hit)
   );
-  LS_EX2_WB_Reg fu3_ex_wb_reg (
+  LS_EX2_WB_Reg ew_reg3 (
     .clock                       (clock),
     .reset                       (reset),
     .io_flush                    (_rob_io_predict_fail_cmt),
-    .io_inst_pack_EX2_rd_valid   (_ls_ex1_ex2_reg_io_inst_pack_EX2_rd_valid),
-    .io_inst_pack_EX2_prd        (_ls_ex1_ex2_reg_io_inst_pack_EX2_prd),
-    .io_inst_pack_EX2_rob_index  (_ls_ex1_ex2_reg_io_inst_pack_EX2_rob_index),
-    .io_inst_pack_EX2_inst_valid (_ls_ex1_ex2_reg_io_inst_pack_EX2_inst_valid),
+    .io_inst_pack_EX2_rd_valid   (_ls_ex_reg_io_inst_pack_EX2_rd_valid),
+    .io_inst_pack_EX2_prd        (_ls_ex_reg_io_inst_pack_EX2_prd),
+    .io_inst_pack_EX2_rob_index  (_ls_ex_reg_io_inst_pack_EX2_rob_index),
+    .io_inst_pack_EX2_inst_valid (_ls_ex_reg_io_inst_pack_EX2_inst_valid),
     .io_mem_rdata_EX2
-      (_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h12
+      (_ls_ex_reg_io_inst_pack_EX2_mem_type == 5'hA
          ? mem_rdata
-         : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h15
+         : _ls_ex_reg_io_inst_pack_EX2_mem_type == 5'hD
              ? {16'h0, mem_rdata[15:0]}
-             : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h11
+             : _ls_ex_reg_io_inst_pack_EX2_mem_type == 5'h9
                  ? {{16{mem_rdata[15]}}, mem_rdata[15:0]}
-                 : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h14
+                 : _ls_ex_reg_io_inst_pack_EX2_mem_type == 5'hC
                      ? {24'h0, mem_rdata[7:0]}
-                     : _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type == 5'h10
+                     : _ls_ex_reg_io_inst_pack_EX2_mem_type == 5'h8
                          ? {{24{mem_rdata[7]}}, mem_rdata[7:0]}
                          : 32'h0),
-    .io_is_ucread_EX2            (_ls_ex1_ex2_reg_io_mem_addr_EX2[31:28] == 4'hA),
-    .io_inst_pack_WB_rd_valid    (_fu3_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_inst_pack_WB_prd         (_fu3_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_inst_pack_WB_rob_index   (_fu3_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_inst_pack_WB_inst_valid  (_fu3_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_mem_rdata_WB             (_fu3_ex_wb_reg_io_mem_rdata_WB),
-    .io_is_ucread_WB             (_fu3_ex_wb_reg_io_is_ucread_WB)
+    .io_is_ucread_EX2            (_ls_ex_reg_io_mem_addr_EX2[31:28] == 4'hA),
+    .io_inst_pack_WB_rd_valid    (_ew_reg3_io_inst_pack_WB_rd_valid),
+    .io_inst_pack_WB_prd         (_ew_reg3_io_inst_pack_WB_prd),
+    .io_inst_pack_WB_rob_index   (_ew_reg3_io_inst_pack_WB_rob_index),
+    .io_inst_pack_WB_inst_valid  (_ew_reg3_io_inst_pack_WB_inst_valid),
+    .io_mem_rdata_WB             (_ew_reg3_io_mem_rdata_WB),
+    .io_is_ucread_WB             (_ew_reg3_io_is_ucread_WB)
   );
   MDU mdu (
     .io_src1
-      (_fu4_bypass_io_forward_prj_en
-         ? _fu4_bypass_io_forward_prj_data
-         : _re_reg4_io_src1_EX),
+      (_bypass4_io_forward_prj_en ? _bypass4_io_forward_prj_data : _re_reg4_io_src1_EX),
     .io_src2
-      (_fu4_bypass_io_forward_prk_en
-         ? _fu4_bypass_io_forward_prk_data
-         : _re_reg4_io_src2_EX),
+      (_bypass4_io_forward_prk_en ? _bypass4_io_forward_prk_data : _re_reg4_io_src2_EX),
     .io_md_op  (_re_reg4_io_inst_pack_EX_mem_type),
     .io_md_out (_mdu_io_md_out)
   );
-  Bypass fu4_bypass (
-    .io_prd_wb           (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
+  Bypass bypass4 (
+    .io_prd_wb           (_ew_reg4_io_inst_pack_WB_prd),
     .io_prj_ex           (_re_reg4_io_inst_pack_EX_prj),
     .io_prk_ex           (_re_reg4_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_fu4_ex_wb_reg_io_md_out_WB),
-    .io_rd_valid_wb      (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_fu4_bypass_io_forward_prj_en),
-    .io_forward_prk_en   (_fu4_bypass_io_forward_prk_en),
-    .io_forward_prj_data (_fu4_bypass_io_forward_prj_data),
-    .io_forward_prk_data (_fu4_bypass_io_forward_prk_data)
+    .io_prf_wdata_wb     (_ew_reg4_io_md_out_WB),
+    .io_rd_valid_wb      (_ew_reg4_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en   (_bypass4_io_forward_prj_en),
+    .io_forward_prk_en   (_bypass4_io_forward_prk_en),
+    .io_forward_prj_data (_bypass4_io_forward_prj_data),
+    .io_forward_prk_data (_bypass4_io_forward_prk_data)
   );
-  MD_EX_WB_Reg fu4_ex_wb_reg (
+  MD_EX_WB_Reg ew_reg4 (
     .clock                      (clock),
     .reset                      (reset),
     .io_flush                   (_rob_io_predict_fail_cmt),
@@ -3512,11 +3499,11 @@ module CPU(
     .io_inst_pack_EX_rob_index  (_re_reg4_io_inst_pack_EX_rob_index),
     .io_inst_pack_EX_inst_valid (_re_reg4_io_inst_pack_EX_inst_valid),
     .io_md_out_EX               (_mdu_io_md_out),
-    .io_inst_pack_WB_rd_valid   (_fu4_ex_wb_reg_io_inst_pack_WB_rd_valid),
-    .io_inst_pack_WB_prd        (_fu4_ex_wb_reg_io_inst_pack_WB_prd),
-    .io_inst_pack_WB_rob_index  (_fu4_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_inst_pack_WB_inst_valid (_fu4_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_md_out_WB               (_fu4_ex_wb_reg_io_md_out_WB)
+    .io_inst_pack_WB_rd_valid   (_ew_reg4_io_inst_pack_WB_rd_valid),
+    .io_inst_pack_WB_prd        (_ew_reg4_io_inst_pack_WB_prd),
+    .io_inst_pack_WB_rob_index  (_ew_reg4_io_inst_pack_WB_rob_index),
+    .io_inst_pack_WB_inst_valid (_ew_reg4_io_inst_pack_WB_inst_valid),
+    .io_md_out_WB               (_ew_reg4_io_md_out_WB)
   );
   ROB rob (
     .clock                     (clock),
@@ -3545,18 +3532,10 @@ module CPU(
     .io_pc_rn_1                (_dr_reg_io_insts_pack_RN_1_pc),
     .io_pc_rn_2                (_dr_reg_io_insts_pack_RN_2_pc),
     .io_pc_rn_3                (_dr_reg_io_insts_pack_RN_3_pc),
-    .io_is_store_rn_0
-      ((|_dr_reg_io_insts_pack_RN_0_mem_type)
-       & ~(_dr_reg_io_insts_pack_RN_0_mem_type[4])),
-    .io_is_store_rn_1
-      ((|_dr_reg_io_insts_pack_RN_1_mem_type)
-       & ~(_dr_reg_io_insts_pack_RN_1_mem_type[4])),
-    .io_is_store_rn_2
-      ((|_dr_reg_io_insts_pack_RN_2_mem_type)
-       & ~(_dr_reg_io_insts_pack_RN_2_mem_type[4])),
-    .io_is_store_rn_3
-      ((|_dr_reg_io_insts_pack_RN_3_mem_type)
-       & ~(_dr_reg_io_insts_pack_RN_3_mem_type[4])),
+    .io_is_store_rn_0          (_dr_reg_io_insts_pack_RN_0_mem_type[4]),
+    .io_is_store_rn_1          (_dr_reg_io_insts_pack_RN_1_mem_type[4]),
+    .io_is_store_rn_2          (_dr_reg_io_insts_pack_RN_2_mem_type[4]),
+    .io_is_store_rn_3          (_dr_reg_io_insts_pack_RN_3_mem_type[4]),
     .io_br_type_pred_rn_0
       (_dr_reg_io_insts_pack_RN_0_br_type == 4'h0
          ? 2'h3
@@ -3586,22 +3565,22 @@ module CPU(
              ? 2'h1
              : {_dr_reg_io_insts_pack_RN_3_br_type == 4'h3, 1'h0}),
     .io_stall                  (_dr_reg_io_stall_T_1),
-    .io_inst_valid_wb_0        (_fu1_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_inst_valid_wb_1        (_fu2_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_inst_valid_wb_2        (_fu3_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_inst_valid_wb_3        (_fu4_ex_wb_reg_io_inst_pack_WB_inst_valid),
-    .io_rob_index_wb_0         (_fu1_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_rob_index_wb_1         (_fu2_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_rob_index_wb_2         (_fu3_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_rob_index_wb_3         (_fu4_ex_wb_reg_io_inst_pack_WB_rob_index),
-    .io_is_ucread_wb_2         (_fu3_ex_wb_reg_io_is_ucread_WB),
-    .io_predict_fail_wb_1      (_fu2_ex_wb_reg_io_predict_fail_WB),
-    .io_real_jump_wb_1         (_fu2_ex_wb_reg_io_real_jump_WB),
-    .io_branch_target_wb_1     (_fu2_ex_wb_reg_io_branch_target_WB),
-    .io_rf_wdata_wb_0          (_fu1_ex_wb_reg_io_alu_out_WB),
-    .io_rf_wdata_wb_1          (_fu2_ex_wb_reg_io_alu_out_WB),
-    .io_rf_wdata_wb_2          (_fu3_ex_wb_reg_io_mem_rdata_WB),
-    .io_rf_wdata_wb_3          (_fu4_ex_wb_reg_io_md_out_WB),
+    .io_inst_valid_wb_0        (_ew_reg1_io_inst_pack_WB_inst_valid),
+    .io_inst_valid_wb_1        (_ew_reg2_io_inst_pack_WB_inst_valid),
+    .io_inst_valid_wb_2        (_ew_reg3_io_inst_pack_WB_inst_valid),
+    .io_inst_valid_wb_3        (_ew_reg4_io_inst_pack_WB_inst_valid),
+    .io_rob_index_wb_0         (_ew_reg1_io_inst_pack_WB_rob_index),
+    .io_rob_index_wb_1         (_ew_reg2_io_inst_pack_WB_rob_index),
+    .io_rob_index_wb_2         (_ew_reg3_io_inst_pack_WB_rob_index),
+    .io_rob_index_wb_3         (_ew_reg4_io_inst_pack_WB_rob_index),
+    .io_is_ucread_wb_2         (_ew_reg3_io_is_ucread_WB),
+    .io_predict_fail_wb_1      (_ew_reg2_io_predict_fail_WB),
+    .io_real_jump_wb_1         (_ew_reg2_io_real_jump_WB),
+    .io_branch_target_wb_1     (_ew_reg2_io_branch_target_WB),
+    .io_rf_wdata_wb_0          (_ew_reg1_io_alu_out_WB),
+    .io_rf_wdata_wb_1          (_ew_reg2_io_alu_out_WB),
+    .io_rf_wdata_wb_2          (_ew_reg3_io_mem_rdata_WB),
+    .io_rf_wdata_wb_3          (_ew_reg4_io_md_out_WB),
     .io_rob_index_rn_0         (_rob_io_rob_index_rn_0),
     .io_rob_index_rn_1         (_rob_io_rob_index_rn_1),
     .io_rob_index_rn_2         (_rob_io_rob_index_rn_2),
@@ -3770,11 +3749,9 @@ module CPU(
     .io_top_arch          (_arat_io_top_arch)
   );
   assign io_pc_IF = _pc_io_pc_IF;
-  assign io_mem_raddr_ex = _ls_ex1_ex2_reg_io_mem_addr_EX2;
-  assign io_mem_is_load_ex =
-    _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type[4]
-    & (|_ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type);
-  assign io_mem_rlen_ex = _ls_ex1_ex2_reg_io_inst_pack_EX2_mem_type[2:0];
+  assign io_mem_raddr_ex = _ls_ex_reg_io_mem_addr_EX2;
+  assign io_mem_is_load_ex = _ls_ex_reg_io_inst_pack_EX2_mem_type[3];
+  assign io_mem_rlen_ex = _ls_ex_reg_io_inst_pack_EX2_mem_type[2:0];
   assign io_commit_en1 = _rob_io_cmt_en_0;
   assign io_commit_prd1 = _rob_io_prd_cmt_0;
   assign io_commit_rd_valid1 = _rob_io_rd_valid_cmt_0;

@@ -105,11 +105,11 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
             }
             else{
                 val mem_type = queue(i).inst.asInstanceOf[inst_pack_DP_LS_t].mem_type
-                when(mem_type =/= NO_MEM && mem_type(4) === 0.U){
+                when(mem_type(4) === 1.U){
                     io.issue_req(i) := false.B
                 }.otherwise{
                     val mem_type_ahead = VecInit(queue.map(_.inst.asInstanceOf[inst_pack_DP_LS_t].mem_type).take(i))
-                    val store_ahead = VecInit(Seq.tabulate(i)(j => mem_type_ahead(j) =/= NO_MEM && mem_type_ahead(j)(4) === 0.U)).reduce(_||_)
+                    val store_ahead = VecInit(Seq.tabulate(i)(j => mem_type_ahead(j)(4))).reduce(_||_)
                     io.issue_req(i) := (i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked) && !store_ahead
                 }
             }

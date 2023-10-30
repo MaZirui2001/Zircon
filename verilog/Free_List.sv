@@ -461,20 +461,20 @@ module Free_List(
   wire [4:0] _head_2_T_3 = head_2 + {4'h0, io_rd_valid_2};
   wire [4:0] _head_3_T_3 = head_3 + {4'h0, io_rd_valid_3};
   wire [4:0] _GEN = {4'h0, io_commit_pprd_valid_0};
-  wire       _tail_T_4 = casez_tmp + _GEN > 5'h13;
+  wire       _tail_T_4 = casez_tmp + _GEN == 5'h14;
   wire [4:0] _tail_T_7 = casez_tmp + _GEN;
   wire [1:0] _GEN_0 = {1'h0, io_commit_en_0};
   wire [1:0] _GEN_1 = {1'h0, io_commit_en_1};
   wire [1:0] _GEN_2 = {1'h0, io_commit_en_2};
   wire [1:0] _GEN_3 = {1'h0, io_commit_en_3};
   wire [4:0] _GEN_4 = {4'h0, io_commit_pprd_valid_1};
-  wire       _tail_T_14 = casez_tmp_0 + _GEN_4 > 5'h13;
+  wire       _tail_T_14 = casez_tmp_0 + _GEN_4 == 5'h14;
   wire [4:0] _tail_T_17 = casez_tmp_0 + _GEN_4;
   wire [4:0] _GEN_5 = {4'h0, io_commit_pprd_valid_2};
-  wire       _tail_T_24 = casez_tmp_1 + _GEN_5 > 5'h13;
+  wire       _tail_T_24 = casez_tmp_1 + _GEN_5 == 5'h14;
   wire [4:0] _tail_T_27 = casez_tmp_1 + _GEN_5;
   wire [4:0] _GEN_6 = {4'h0, io_commit_pprd_valid_3};
-  wire       _tail_T_34 = casez_tmp_2 + _GEN_6 > 5'h13;
+  wire       _tail_T_34 = casez_tmp_2 + _GEN_6 == 5'h14;
   wire [4:0] _tail_T_37 = casez_tmp_2 + _GEN_6;
   wire       _GEN_7 = tail_sel == 2'h0;
   wire       _GEN_8 = tail_sel == 2'h1;
@@ -1389,25 +1389,25 @@ module Free_List(
       end
       else begin
         if (~_io_empty_output & io_rename_en_0) begin
-          if (_head_0_T_3 > 5'h13)
+          if (_head_0_T_3 == 5'h14)
             head_0 <= 5'h0;
           else
             head_0 <= _head_0_T_3;
         end
         if (~_io_empty_output & io_rename_en_1) begin
-          if (_head_1_T_3 > 5'h13)
+          if (_head_1_T_3 == 5'h14)
             head_1 <= 5'h0;
           else
             head_1 <= _head_1_T_3;
         end
         if (~_io_empty_output & io_rename_en_2) begin
-          if (_head_2_T_3 > 5'h13)
+          if (_head_2_T_3 == 5'h14)
             head_2 <= 5'h0;
           else
             head_2 <= _head_2_T_3;
         end
         if (~_io_empty_output & io_rename_en_3) begin
-          if (_head_3_T_3 > 5'h13)
+          if (_head_3_T_3 == 5'h14)
             head_3 <= 5'h0;
           else
             head_3 <= _head_3_T_3;

@@ -34,10 +34,10 @@ class Free_List extends Module{
         when(io.predict_fail){
             head(i) := io.head_arch(i)
         }.elsewhen(!io.empty && io.rename_en(i)){
-            head(i) := Mux(head(i) + io.rd_valid(i) >= 20.U, 0.U, head(i) + io.rd_valid(i))
+            head(i) := Mux(head(i) + io.rd_valid(i) === 20.U, 0.U, head(i) + io.rd_valid(i))
         }
         when(io.commit_en(i)){
-            tail(tail_sel+i.U) := Mux(tail(tail_sel+i.U) + io.commit_pprd_valid(i) >= 20.U, 0.U, tail(tail_sel+i.U) + io.commit_pprd_valid(i))
+            tail(tail_sel+i.U) := Mux(tail(tail_sel+i.U) + io.commit_pprd_valid(i) === 20.U, 0.U, tail(tail_sel+i.U) + io.commit_pprd_valid(i))
             when(io.commit_pprd_valid(i)){
                 free_list(tail_sel+i.U)(tail(tail_sel+i.U)) := io.commit_pprd(i)
             }

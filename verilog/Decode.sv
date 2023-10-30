@@ -236,18 +236,18 @@ module Decode(
     | _ctrl_T_27 | _ctrl_T_29 | _ctrl_T_31 | _ctrl_T_33 | _ctrl_T_35 | _GEN_14
       ? 5'h0
       : _ctrl_T_59
-          ? 5'h10
+          ? 5'h8
           : _ctrl_T_61
-              ? 5'h11
+              ? 5'h9
               : _ctrl_T_63
-                  ? 5'h12
+                  ? 5'hA
                   : _ctrl_T_65
-                      ? 5'h8
+                      ? 5'h10
                       : _ctrl_T_67
-                          ? 5'h9
+                          ? 5'h11
                           : _ctrl_T_69
-                              ? 5'hA
-                              : _ctrl_T_71 ? 5'h14 : _ctrl_T_73 ? 5'h15 : 5'h0;
+                              ? 5'h12
+                              : _ctrl_T_71 ? 5'hC : _ctrl_T_73 ? 5'hD : 5'h0;
   assign io_fu_id =
     _ctrl_T_1 | _ctrl_T_3 | _ctrl_T_5 | _ctrl_T_7 | _ctrl_T_9 | _ctrl_T_11 | _ctrl_T_13
     | _ctrl_T_15 | _ctrl_T_17 | _ctrl_T_19 | _ctrl_T_21
