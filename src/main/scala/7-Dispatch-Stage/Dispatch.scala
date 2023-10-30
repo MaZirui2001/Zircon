@@ -19,14 +19,14 @@ object Dispatch_Func{
                 prd_hit(i) := pr === prd_queue(i)
             }
         }
-        !(prd_hit.exists(_ === true.B))
+        !(prd_hit.reduce(_ || _))
     }
     def Ready_Generate(pr: UInt, prd_queue: Vec[Vec[UInt]], queue_sel: UInt): Bool = {
         val prd_ready = Wire(Vec(4, Bool()))
         for(i <- 0 until 4){
             prd_ready(i) := Dispatch_Ready_Generate(pr, prd_queue(i), queue_sel, i.U(2.W))
         }
-        prd_ready.forall(_ === true.B)
+        prd_ready.reduce(_ && _)
     }
 
 }

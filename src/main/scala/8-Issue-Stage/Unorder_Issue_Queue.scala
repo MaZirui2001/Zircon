@@ -102,7 +102,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
             }
             else{
                 val mem_type = queue(i).inst.asInstanceOf[inst_pack_DP_LS_t].mem_type
-                when(mem_type(4) === 1.U){
+                when(mem_type(4)){
                     io.issue_req(i) := false.B
                 }.otherwise{
                     val mem_type_ahead = VecInit(queue.map(_.inst.asInstanceOf[inst_pack_DP_LS_t].mem_type).take(i))
