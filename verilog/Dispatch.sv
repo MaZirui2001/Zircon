@@ -40,7 +40,6 @@ module Dispatch(
                io_prd_queue_0_5,
                io_prd_queue_0_6,
                io_prd_queue_0_7,
-               io_prd_queue_0_8,
                io_prd_queue_1_0,
                io_prd_queue_1_1,
                io_prd_queue_1_2,
@@ -49,7 +48,6 @@ module Dispatch(
                io_prd_queue_1_5,
                io_prd_queue_1_6,
                io_prd_queue_1_7,
-               io_prd_queue_1_8,
                io_prd_queue_2_0,
                io_prd_queue_2_1,
                io_prd_queue_2_2,
@@ -58,7 +56,6 @@ module Dispatch(
                io_prd_queue_2_5,
                io_prd_queue_2_6,
                io_prd_queue_2_7,
-               io_prd_queue_2_8,
                io_prd_queue_2_9,
                io_prd_queue_3_0,
                io_prd_queue_3_1,
@@ -68,7 +65,6 @@ module Dispatch(
                io_prd_queue_3_5,
                io_prd_queue_3_6,
                io_prd_queue_3_7,
-               io_prd_queue_3_8,
   input  [3:0] io_elem_num_0,
                io_elem_num_1,
   output [1:0] io_insts_disp_index_0_0,
@@ -369,7 +365,7 @@ module Dispatch(
         & io_inst_packs_0_prj == io_prd_queue_0_5 | io_prj_ready_0_prd_ready_0_n > 4'h6
         & io_inst_packs_0_prj == io_prd_queue_0_6
         | io_inst_packs_0_prj == io_prd_queue_0_7 | io_prj_ready_0_prd_ready_0_n > 4'h8
-        & io_inst_packs_0_prj == io_prd_queue_0_8 | io_prj_ready_0_prd_ready_0_n > 4'h9
+        & ~(|io_inst_packs_0_prj) | io_prj_ready_0_prd_ready_0_n > 4'h9
         & ~(|io_inst_packs_0_prj))
     & ~(io_inst_packs_0_prj == io_prd_queue_1_0 | io_inst_packs_0_prj == io_prd_queue_1_1
         | io_prj_ready_0_prd_ready_1_n > 4'h2 & io_inst_packs_0_prj == io_prd_queue_1_2
@@ -378,7 +374,7 @@ module Dispatch(
         & io_inst_packs_0_prj == io_prd_queue_1_5 | io_prj_ready_0_prd_ready_1_n > 4'h6
         & io_inst_packs_0_prj == io_prd_queue_1_6
         | io_inst_packs_0_prj == io_prd_queue_1_7 | io_prj_ready_0_prd_ready_1_n > 4'h8
-        & io_inst_packs_0_prj == io_prd_queue_1_8 | io_prj_ready_0_prd_ready_1_n > 4'h9
+        & ~(|io_inst_packs_0_prj) | io_prj_ready_0_prd_ready_1_n > 4'h9
         & ~(|io_inst_packs_0_prj))
     & ~(io_inst_packs_0_prj == io_prd_queue_2_0 | (|(io_prj_ready_0_prd_ready_2_n[3:1]))
         & io_inst_packs_0_prj == io_prd_queue_2_1 | io_prj_ready_0_prd_ready_2_n > 4'h2
@@ -388,7 +384,7 @@ module Dispatch(
         & io_inst_packs_0_prj == io_prd_queue_2_5 | io_prj_ready_0_prd_ready_2_n > 4'h6
         & io_inst_packs_0_prj == io_prd_queue_2_6 | io_prj_ready_0_prd_ready_2_n[3]
         & io_inst_packs_0_prj == io_prd_queue_2_7 | io_prj_ready_0_prd_ready_2_n > 4'h8
-        & io_inst_packs_0_prj == io_prd_queue_2_8 | io_prj_ready_0_prd_ready_2_n > 4'h9
+        & ~(|io_inst_packs_0_prj) | io_prj_ready_0_prd_ready_2_n > 4'h9
         & io_inst_packs_0_prj == io_prd_queue_2_9)
     & ~(io_inst_packs_0_prj == io_prd_queue_3_0 | io_inst_packs_0_prj == io_prd_queue_3_1
         | io_prj_ready_0_prd_ready_3_n > 4'h2 & io_inst_packs_0_prj == io_prd_queue_3_2
@@ -397,7 +393,7 @@ module Dispatch(
         & io_inst_packs_0_prj == io_prd_queue_3_5 | io_prj_ready_0_prd_ready_3_n > 4'h6
         & io_inst_packs_0_prj == io_prd_queue_3_6
         | io_inst_packs_0_prj == io_prd_queue_3_7 | io_prj_ready_0_prd_ready_3_n > 4'h8
-        & io_inst_packs_0_prj == io_prd_queue_3_8 | io_prj_ready_0_prd_ready_3_n > 4'h9
+        & ~(|io_inst_packs_0_prj) | io_prj_ready_0_prd_ready_3_n > 4'h9
         & ~(|io_inst_packs_0_prj));
   assign io_prj_ready_1 =
     ~io_inst_packs_1_rj_valid | ~(|io_inst_packs_1_prj) | ~io_inst_packs_1_prj_raw
@@ -408,7 +404,7 @@ module Dispatch(
         & io_inst_packs_1_prj == io_prd_queue_0_5 | io_prj_ready_1_prd_ready_0_n > 4'h6
         & io_inst_packs_1_prj == io_prd_queue_0_6
         | io_inst_packs_1_prj == io_prd_queue_0_7 | io_prj_ready_1_prd_ready_0_n > 4'h8
-        & io_inst_packs_1_prj == io_prd_queue_0_8 | io_prj_ready_1_prd_ready_0_n > 4'h9
+        & ~(|io_inst_packs_1_prj) | io_prj_ready_1_prd_ready_0_n > 4'h9
         & ~(|io_inst_packs_1_prj))
     & ~(io_inst_packs_1_prj == io_prd_queue_1_0 | io_inst_packs_1_prj == io_prd_queue_1_1
         | io_prj_ready_1_prd_ready_1_n > 4'h2 & io_inst_packs_1_prj == io_prd_queue_1_2
@@ -417,7 +413,7 @@ module Dispatch(
         & io_inst_packs_1_prj == io_prd_queue_1_5 | io_prj_ready_1_prd_ready_1_n > 4'h6
         & io_inst_packs_1_prj == io_prd_queue_1_6
         | io_inst_packs_1_prj == io_prd_queue_1_7 | io_prj_ready_1_prd_ready_1_n > 4'h8
-        & io_inst_packs_1_prj == io_prd_queue_1_8 | io_prj_ready_1_prd_ready_1_n > 4'h9
+        & ~(|io_inst_packs_1_prj) | io_prj_ready_1_prd_ready_1_n > 4'h9
         & ~(|io_inst_packs_1_prj))
     & ~(io_inst_packs_1_prj == io_prd_queue_2_0 | (|(io_prj_ready_1_prd_ready_2_n[3:1]))
         & io_inst_packs_1_prj == io_prd_queue_2_1 | io_prj_ready_1_prd_ready_2_n > 4'h2
@@ -427,7 +423,7 @@ module Dispatch(
         & io_inst_packs_1_prj == io_prd_queue_2_5 | io_prj_ready_1_prd_ready_2_n > 4'h6
         & io_inst_packs_1_prj == io_prd_queue_2_6 | io_prj_ready_1_prd_ready_2_n[3]
         & io_inst_packs_1_prj == io_prd_queue_2_7 | io_prj_ready_1_prd_ready_2_n > 4'h8
-        & io_inst_packs_1_prj == io_prd_queue_2_8 | io_prj_ready_1_prd_ready_2_n > 4'h9
+        & ~(|io_inst_packs_1_prj) | io_prj_ready_1_prd_ready_2_n > 4'h9
         & io_inst_packs_1_prj == io_prd_queue_2_9)
     & ~(io_inst_packs_1_prj == io_prd_queue_3_0 | io_inst_packs_1_prj == io_prd_queue_3_1
         | io_prj_ready_1_prd_ready_3_n > 4'h2 & io_inst_packs_1_prj == io_prd_queue_3_2
@@ -436,7 +432,7 @@ module Dispatch(
         & io_inst_packs_1_prj == io_prd_queue_3_5 | io_prj_ready_1_prd_ready_3_n > 4'h6
         & io_inst_packs_1_prj == io_prd_queue_3_6
         | io_inst_packs_1_prj == io_prd_queue_3_7 | io_prj_ready_1_prd_ready_3_n > 4'h8
-        & io_inst_packs_1_prj == io_prd_queue_3_8 | io_prj_ready_1_prd_ready_3_n > 4'h9
+        & ~(|io_inst_packs_1_prj) | io_prj_ready_1_prd_ready_3_n > 4'h9
         & ~(|io_inst_packs_1_prj));
   assign io_prj_ready_2 =
     ~io_inst_packs_2_rj_valid | ~(|io_inst_packs_2_prj) | ~io_inst_packs_2_prj_raw
@@ -447,7 +443,7 @@ module Dispatch(
         & io_inst_packs_2_prj == io_prd_queue_0_5 | io_prj_ready_2_prd_ready_0_n > 4'h6
         & io_inst_packs_2_prj == io_prd_queue_0_6
         | io_inst_packs_2_prj == io_prd_queue_0_7 | io_prj_ready_2_prd_ready_0_n > 4'h8
-        & io_inst_packs_2_prj == io_prd_queue_0_8 | io_prj_ready_2_prd_ready_0_n > 4'h9
+        & ~(|io_inst_packs_2_prj) | io_prj_ready_2_prd_ready_0_n > 4'h9
         & ~(|io_inst_packs_2_prj))
     & ~(io_inst_packs_2_prj == io_prd_queue_1_0 | io_inst_packs_2_prj == io_prd_queue_1_1
         | io_prj_ready_2_prd_ready_1_n > 4'h2 & io_inst_packs_2_prj == io_prd_queue_1_2
@@ -456,7 +452,7 @@ module Dispatch(
         & io_inst_packs_2_prj == io_prd_queue_1_5 | io_prj_ready_2_prd_ready_1_n > 4'h6
         & io_inst_packs_2_prj == io_prd_queue_1_6
         | io_inst_packs_2_prj == io_prd_queue_1_7 | io_prj_ready_2_prd_ready_1_n > 4'h8
-        & io_inst_packs_2_prj == io_prd_queue_1_8 | io_prj_ready_2_prd_ready_1_n > 4'h9
+        & ~(|io_inst_packs_2_prj) | io_prj_ready_2_prd_ready_1_n > 4'h9
         & ~(|io_inst_packs_2_prj))
     & ~(io_inst_packs_2_prj == io_prd_queue_2_0 | (|(io_prj_ready_2_prd_ready_2_n[3:1]))
         & io_inst_packs_2_prj == io_prd_queue_2_1 | io_prj_ready_2_prd_ready_2_n > 4'h2
@@ -466,7 +462,7 @@ module Dispatch(
         & io_inst_packs_2_prj == io_prd_queue_2_5 | io_prj_ready_2_prd_ready_2_n > 4'h6
         & io_inst_packs_2_prj == io_prd_queue_2_6 | io_prj_ready_2_prd_ready_2_n[3]
         & io_inst_packs_2_prj == io_prd_queue_2_7 | io_prj_ready_2_prd_ready_2_n > 4'h8
-        & io_inst_packs_2_prj == io_prd_queue_2_8 | io_prj_ready_2_prd_ready_2_n > 4'h9
+        & ~(|io_inst_packs_2_prj) | io_prj_ready_2_prd_ready_2_n > 4'h9
         & io_inst_packs_2_prj == io_prd_queue_2_9)
     & ~(io_inst_packs_2_prj == io_prd_queue_3_0 | io_inst_packs_2_prj == io_prd_queue_3_1
         | io_prj_ready_2_prd_ready_3_n > 4'h2 & io_inst_packs_2_prj == io_prd_queue_3_2
@@ -475,7 +471,7 @@ module Dispatch(
         & io_inst_packs_2_prj == io_prd_queue_3_5 | io_prj_ready_2_prd_ready_3_n > 4'h6
         & io_inst_packs_2_prj == io_prd_queue_3_6
         | io_inst_packs_2_prj == io_prd_queue_3_7 | io_prj_ready_2_prd_ready_3_n > 4'h8
-        & io_inst_packs_2_prj == io_prd_queue_3_8 | io_prj_ready_2_prd_ready_3_n > 4'h9
+        & ~(|io_inst_packs_2_prj) | io_prj_ready_2_prd_ready_3_n > 4'h9
         & ~(|io_inst_packs_2_prj));
   assign io_prj_ready_3 =
     ~io_inst_packs_3_rj_valid | ~(|io_inst_packs_3_prj) | ~io_inst_packs_3_prj_raw
@@ -486,7 +482,7 @@ module Dispatch(
         & io_inst_packs_3_prj == io_prd_queue_0_5 | io_prj_ready_3_prd_ready_0_n > 4'h6
         & io_inst_packs_3_prj == io_prd_queue_0_6
         | io_inst_packs_3_prj == io_prd_queue_0_7 | io_prj_ready_3_prd_ready_0_n > 4'h8
-        & io_inst_packs_3_prj == io_prd_queue_0_8 | io_prj_ready_3_prd_ready_0_n > 4'h9
+        & ~(|io_inst_packs_3_prj) | io_prj_ready_3_prd_ready_0_n > 4'h9
         & ~(|io_inst_packs_3_prj))
     & ~(io_inst_packs_3_prj == io_prd_queue_1_0 | io_inst_packs_3_prj == io_prd_queue_1_1
         | io_prj_ready_3_prd_ready_1_n > 4'h2 & io_inst_packs_3_prj == io_prd_queue_1_2
@@ -495,7 +491,7 @@ module Dispatch(
         & io_inst_packs_3_prj == io_prd_queue_1_5 | io_prj_ready_3_prd_ready_1_n > 4'h6
         & io_inst_packs_3_prj == io_prd_queue_1_6
         | io_inst_packs_3_prj == io_prd_queue_1_7 | io_prj_ready_3_prd_ready_1_n > 4'h8
-        & io_inst_packs_3_prj == io_prd_queue_1_8 | io_prj_ready_3_prd_ready_1_n > 4'h9
+        & ~(|io_inst_packs_3_prj) | io_prj_ready_3_prd_ready_1_n > 4'h9
         & ~(|io_inst_packs_3_prj))
     & ~(io_inst_packs_3_prj == io_prd_queue_2_0 | (|(io_prj_ready_3_prd_ready_2_n[3:1]))
         & io_inst_packs_3_prj == io_prd_queue_2_1 | io_prj_ready_3_prd_ready_2_n > 4'h2
@@ -505,7 +501,7 @@ module Dispatch(
         & io_inst_packs_3_prj == io_prd_queue_2_5 | io_prj_ready_3_prd_ready_2_n > 4'h6
         & io_inst_packs_3_prj == io_prd_queue_2_6 | io_prj_ready_3_prd_ready_2_n[3]
         & io_inst_packs_3_prj == io_prd_queue_2_7 | io_prj_ready_3_prd_ready_2_n > 4'h8
-        & io_inst_packs_3_prj == io_prd_queue_2_8 | io_prj_ready_3_prd_ready_2_n > 4'h9
+        & ~(|io_inst_packs_3_prj) | io_prj_ready_3_prd_ready_2_n > 4'h9
         & io_inst_packs_3_prj == io_prd_queue_2_9)
     & ~(io_inst_packs_3_prj == io_prd_queue_3_0 | io_inst_packs_3_prj == io_prd_queue_3_1
         | io_prj_ready_3_prd_ready_3_n > 4'h2 & io_inst_packs_3_prj == io_prd_queue_3_2
@@ -514,7 +510,7 @@ module Dispatch(
         & io_inst_packs_3_prj == io_prd_queue_3_5 | io_prj_ready_3_prd_ready_3_n > 4'h6
         & io_inst_packs_3_prj == io_prd_queue_3_6
         | io_inst_packs_3_prj == io_prd_queue_3_7 | io_prj_ready_3_prd_ready_3_n > 4'h8
-        & io_inst_packs_3_prj == io_prd_queue_3_8 | io_prj_ready_3_prd_ready_3_n > 4'h9
+        & ~(|io_inst_packs_3_prj) | io_prj_ready_3_prd_ready_3_n > 4'h9
         & ~(|io_inst_packs_3_prj));
   assign io_prk_ready_0 =
     ~io_inst_packs_0_rk_valid | ~(|io_inst_packs_0_prk) | ~io_inst_packs_0_prk_raw
@@ -525,7 +521,7 @@ module Dispatch(
         & io_inst_packs_0_prk == io_prd_queue_0_5 | io_prk_ready_0_prd_ready_0_n > 4'h6
         & io_inst_packs_0_prk == io_prd_queue_0_6
         | io_inst_packs_0_prk == io_prd_queue_0_7 | io_prk_ready_0_prd_ready_0_n > 4'h8
-        & io_inst_packs_0_prk == io_prd_queue_0_8 | io_prk_ready_0_prd_ready_0_n > 4'h9
+        & ~(|io_inst_packs_0_prk) | io_prk_ready_0_prd_ready_0_n > 4'h9
         & ~(|io_inst_packs_0_prk))
     & ~(io_inst_packs_0_prk == io_prd_queue_1_0 | io_inst_packs_0_prk == io_prd_queue_1_1
         | io_prk_ready_0_prd_ready_1_n > 4'h2 & io_inst_packs_0_prk == io_prd_queue_1_2
@@ -534,7 +530,7 @@ module Dispatch(
         & io_inst_packs_0_prk == io_prd_queue_1_5 | io_prk_ready_0_prd_ready_1_n > 4'h6
         & io_inst_packs_0_prk == io_prd_queue_1_6
         | io_inst_packs_0_prk == io_prd_queue_1_7 | io_prk_ready_0_prd_ready_1_n > 4'h8
-        & io_inst_packs_0_prk == io_prd_queue_1_8 | io_prk_ready_0_prd_ready_1_n > 4'h9
+        & ~(|io_inst_packs_0_prk) | io_prk_ready_0_prd_ready_1_n > 4'h9
         & ~(|io_inst_packs_0_prk))
     & ~(io_inst_packs_0_prk == io_prd_queue_2_0 | (|(io_prk_ready_0_prd_ready_2_n[3:1]))
         & io_inst_packs_0_prk == io_prd_queue_2_1 | io_prk_ready_0_prd_ready_2_n > 4'h2
@@ -544,7 +540,7 @@ module Dispatch(
         & io_inst_packs_0_prk == io_prd_queue_2_5 | io_prk_ready_0_prd_ready_2_n > 4'h6
         & io_inst_packs_0_prk == io_prd_queue_2_6 | io_prk_ready_0_prd_ready_2_n[3]
         & io_inst_packs_0_prk == io_prd_queue_2_7 | io_prk_ready_0_prd_ready_2_n > 4'h8
-        & io_inst_packs_0_prk == io_prd_queue_2_8 | io_prk_ready_0_prd_ready_2_n > 4'h9
+        & ~(|io_inst_packs_0_prk) | io_prk_ready_0_prd_ready_2_n > 4'h9
         & io_inst_packs_0_prk == io_prd_queue_2_9)
     & ~(io_inst_packs_0_prk == io_prd_queue_3_0 | io_inst_packs_0_prk == io_prd_queue_3_1
         | io_prk_ready_0_prd_ready_3_n > 4'h2 & io_inst_packs_0_prk == io_prd_queue_3_2
@@ -553,7 +549,7 @@ module Dispatch(
         & io_inst_packs_0_prk == io_prd_queue_3_5 | io_prk_ready_0_prd_ready_3_n > 4'h6
         & io_inst_packs_0_prk == io_prd_queue_3_6
         | io_inst_packs_0_prk == io_prd_queue_3_7 | io_prk_ready_0_prd_ready_3_n > 4'h8
-        & io_inst_packs_0_prk == io_prd_queue_3_8 | io_prk_ready_0_prd_ready_3_n > 4'h9
+        & ~(|io_inst_packs_0_prk) | io_prk_ready_0_prd_ready_3_n > 4'h9
         & ~(|io_inst_packs_0_prk));
   assign io_prk_ready_1 =
     ~io_inst_packs_1_rk_valid | ~(|io_inst_packs_1_prk) | ~io_inst_packs_1_prk_raw
@@ -564,7 +560,7 @@ module Dispatch(
         & io_inst_packs_1_prk == io_prd_queue_0_5 | io_prk_ready_1_prd_ready_0_n > 4'h6
         & io_inst_packs_1_prk == io_prd_queue_0_6
         | io_inst_packs_1_prk == io_prd_queue_0_7 | io_prk_ready_1_prd_ready_0_n > 4'h8
-        & io_inst_packs_1_prk == io_prd_queue_0_8 | io_prk_ready_1_prd_ready_0_n > 4'h9
+        & ~(|io_inst_packs_1_prk) | io_prk_ready_1_prd_ready_0_n > 4'h9
         & ~(|io_inst_packs_1_prk))
     & ~(io_inst_packs_1_prk == io_prd_queue_1_0 | io_inst_packs_1_prk == io_prd_queue_1_1
         | io_prk_ready_1_prd_ready_1_n > 4'h2 & io_inst_packs_1_prk == io_prd_queue_1_2
@@ -573,7 +569,7 @@ module Dispatch(
         & io_inst_packs_1_prk == io_prd_queue_1_5 | io_prk_ready_1_prd_ready_1_n > 4'h6
         & io_inst_packs_1_prk == io_prd_queue_1_6
         | io_inst_packs_1_prk == io_prd_queue_1_7 | io_prk_ready_1_prd_ready_1_n > 4'h8
-        & io_inst_packs_1_prk == io_prd_queue_1_8 | io_prk_ready_1_prd_ready_1_n > 4'h9
+        & ~(|io_inst_packs_1_prk) | io_prk_ready_1_prd_ready_1_n > 4'h9
         & ~(|io_inst_packs_1_prk))
     & ~(io_inst_packs_1_prk == io_prd_queue_2_0 | (|(io_prk_ready_1_prd_ready_2_n[3:1]))
         & io_inst_packs_1_prk == io_prd_queue_2_1 | io_prk_ready_1_prd_ready_2_n > 4'h2
@@ -583,7 +579,7 @@ module Dispatch(
         & io_inst_packs_1_prk == io_prd_queue_2_5 | io_prk_ready_1_prd_ready_2_n > 4'h6
         & io_inst_packs_1_prk == io_prd_queue_2_6 | io_prk_ready_1_prd_ready_2_n[3]
         & io_inst_packs_1_prk == io_prd_queue_2_7 | io_prk_ready_1_prd_ready_2_n > 4'h8
-        & io_inst_packs_1_prk == io_prd_queue_2_8 | io_prk_ready_1_prd_ready_2_n > 4'h9
+        & ~(|io_inst_packs_1_prk) | io_prk_ready_1_prd_ready_2_n > 4'h9
         & io_inst_packs_1_prk == io_prd_queue_2_9)
     & ~(io_inst_packs_1_prk == io_prd_queue_3_0 | io_inst_packs_1_prk == io_prd_queue_3_1
         | io_prk_ready_1_prd_ready_3_n > 4'h2 & io_inst_packs_1_prk == io_prd_queue_3_2
@@ -592,7 +588,7 @@ module Dispatch(
         & io_inst_packs_1_prk == io_prd_queue_3_5 | io_prk_ready_1_prd_ready_3_n > 4'h6
         & io_inst_packs_1_prk == io_prd_queue_3_6
         | io_inst_packs_1_prk == io_prd_queue_3_7 | io_prk_ready_1_prd_ready_3_n > 4'h8
-        & io_inst_packs_1_prk == io_prd_queue_3_8 | io_prk_ready_1_prd_ready_3_n > 4'h9
+        & ~(|io_inst_packs_1_prk) | io_prk_ready_1_prd_ready_3_n > 4'h9
         & ~(|io_inst_packs_1_prk));
   assign io_prk_ready_2 =
     ~io_inst_packs_2_rk_valid | ~(|io_inst_packs_2_prk) | ~io_inst_packs_2_prk_raw
@@ -603,7 +599,7 @@ module Dispatch(
         & io_inst_packs_2_prk == io_prd_queue_0_5 | io_prk_ready_2_prd_ready_0_n > 4'h6
         & io_inst_packs_2_prk == io_prd_queue_0_6
         | io_inst_packs_2_prk == io_prd_queue_0_7 | io_prk_ready_2_prd_ready_0_n > 4'h8
-        & io_inst_packs_2_prk == io_prd_queue_0_8 | io_prk_ready_2_prd_ready_0_n > 4'h9
+        & ~(|io_inst_packs_2_prk) | io_prk_ready_2_prd_ready_0_n > 4'h9
         & ~(|io_inst_packs_2_prk))
     & ~(io_inst_packs_2_prk == io_prd_queue_1_0 | io_inst_packs_2_prk == io_prd_queue_1_1
         | io_prk_ready_2_prd_ready_1_n > 4'h2 & io_inst_packs_2_prk == io_prd_queue_1_2
@@ -612,7 +608,7 @@ module Dispatch(
         & io_inst_packs_2_prk == io_prd_queue_1_5 | io_prk_ready_2_prd_ready_1_n > 4'h6
         & io_inst_packs_2_prk == io_prd_queue_1_6
         | io_inst_packs_2_prk == io_prd_queue_1_7 | io_prk_ready_2_prd_ready_1_n > 4'h8
-        & io_inst_packs_2_prk == io_prd_queue_1_8 | io_prk_ready_2_prd_ready_1_n > 4'h9
+        & ~(|io_inst_packs_2_prk) | io_prk_ready_2_prd_ready_1_n > 4'h9
         & ~(|io_inst_packs_2_prk))
     & ~(io_inst_packs_2_prk == io_prd_queue_2_0 | (|(io_prk_ready_2_prd_ready_2_n[3:1]))
         & io_inst_packs_2_prk == io_prd_queue_2_1 | io_prk_ready_2_prd_ready_2_n > 4'h2
@@ -622,7 +618,7 @@ module Dispatch(
         & io_inst_packs_2_prk == io_prd_queue_2_5 | io_prk_ready_2_prd_ready_2_n > 4'h6
         & io_inst_packs_2_prk == io_prd_queue_2_6 | io_prk_ready_2_prd_ready_2_n[3]
         & io_inst_packs_2_prk == io_prd_queue_2_7 | io_prk_ready_2_prd_ready_2_n > 4'h8
-        & io_inst_packs_2_prk == io_prd_queue_2_8 | io_prk_ready_2_prd_ready_2_n > 4'h9
+        & ~(|io_inst_packs_2_prk) | io_prk_ready_2_prd_ready_2_n > 4'h9
         & io_inst_packs_2_prk == io_prd_queue_2_9)
     & ~(io_inst_packs_2_prk == io_prd_queue_3_0 | io_inst_packs_2_prk == io_prd_queue_3_1
         | io_prk_ready_2_prd_ready_3_n > 4'h2 & io_inst_packs_2_prk == io_prd_queue_3_2
@@ -631,7 +627,7 @@ module Dispatch(
         & io_inst_packs_2_prk == io_prd_queue_3_5 | io_prk_ready_2_prd_ready_3_n > 4'h6
         & io_inst_packs_2_prk == io_prd_queue_3_6
         | io_inst_packs_2_prk == io_prd_queue_3_7 | io_prk_ready_2_prd_ready_3_n > 4'h8
-        & io_inst_packs_2_prk == io_prd_queue_3_8 | io_prk_ready_2_prd_ready_3_n > 4'h9
+        & ~(|io_inst_packs_2_prk) | io_prk_ready_2_prd_ready_3_n > 4'h9
         & ~(|io_inst_packs_2_prk));
   assign io_prk_ready_3 =
     ~io_inst_packs_3_rk_valid | ~(|io_inst_packs_3_prk) | ~io_inst_packs_3_prk_raw
@@ -642,7 +638,7 @@ module Dispatch(
         & io_inst_packs_3_prk == io_prd_queue_0_5 | io_prk_ready_3_prd_ready_0_n > 4'h6
         & io_inst_packs_3_prk == io_prd_queue_0_6
         | io_inst_packs_3_prk == io_prd_queue_0_7 | io_prk_ready_3_prd_ready_0_n > 4'h8
-        & io_inst_packs_3_prk == io_prd_queue_0_8 | io_prk_ready_3_prd_ready_0_n > 4'h9
+        & ~(|io_inst_packs_3_prk) | io_prk_ready_3_prd_ready_0_n > 4'h9
         & ~(|io_inst_packs_3_prk))
     & ~(io_inst_packs_3_prk == io_prd_queue_1_0 | io_inst_packs_3_prk == io_prd_queue_1_1
         | io_prk_ready_3_prd_ready_1_n > 4'h2 & io_inst_packs_3_prk == io_prd_queue_1_2
@@ -651,7 +647,7 @@ module Dispatch(
         & io_inst_packs_3_prk == io_prd_queue_1_5 | io_prk_ready_3_prd_ready_1_n > 4'h6
         & io_inst_packs_3_prk == io_prd_queue_1_6
         | io_inst_packs_3_prk == io_prd_queue_1_7 | io_prk_ready_3_prd_ready_1_n > 4'h8
-        & io_inst_packs_3_prk == io_prd_queue_1_8 | io_prk_ready_3_prd_ready_1_n > 4'h9
+        & ~(|io_inst_packs_3_prk) | io_prk_ready_3_prd_ready_1_n > 4'h9
         & ~(|io_inst_packs_3_prk))
     & ~(io_inst_packs_3_prk == io_prd_queue_2_0 | (|(io_prk_ready_3_prd_ready_2_n[3:1]))
         & io_inst_packs_3_prk == io_prd_queue_2_1 | io_prk_ready_3_prd_ready_2_n > 4'h2
@@ -661,7 +657,7 @@ module Dispatch(
         & io_inst_packs_3_prk == io_prd_queue_2_5 | io_prk_ready_3_prd_ready_2_n > 4'h6
         & io_inst_packs_3_prk == io_prd_queue_2_6 | io_prk_ready_3_prd_ready_2_n[3]
         & io_inst_packs_3_prk == io_prd_queue_2_7 | io_prk_ready_3_prd_ready_2_n > 4'h8
-        & io_inst_packs_3_prk == io_prd_queue_2_8 | io_prk_ready_3_prd_ready_2_n > 4'h9
+        & ~(|io_inst_packs_3_prk) | io_prk_ready_3_prd_ready_2_n > 4'h9
         & io_inst_packs_3_prk == io_prd_queue_2_9)
     & ~(io_inst_packs_3_prk == io_prd_queue_3_0 | io_inst_packs_3_prk == io_prd_queue_3_1
         | io_prk_ready_3_prd_ready_3_n > 4'h2 & io_inst_packs_3_prk == io_prd_queue_3_2
@@ -670,7 +666,7 @@ module Dispatch(
         & io_inst_packs_3_prk == io_prd_queue_3_5 | io_prk_ready_3_prd_ready_3_n > 4'h6
         & io_inst_packs_3_prk == io_prd_queue_3_6
         | io_inst_packs_3_prk == io_prd_queue_3_7 | io_prk_ready_3_prd_ready_3_n > 4'h8
-        & io_inst_packs_3_prk == io_prd_queue_3_8 | io_prk_ready_3_prd_ready_3_n > 4'h9
+        & ~(|io_inst_packs_3_prk) | io_prk_ready_3_prd_ready_3_n > 4'h9
         & ~(|io_inst_packs_3_prk));
 endmodule
 

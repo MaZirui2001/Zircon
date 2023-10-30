@@ -330,7 +330,6 @@ module CPU(
   wire [6:0]  _iq4_io_prd_queue_5;
   wire [6:0]  _iq4_io_prd_queue_6;
   wire [6:0]  _iq4_io_prd_queue_7;
-  wire [6:0]  _iq4_io_prd_queue_8;
   wire        _iq4_io_full;
   wire [6:0]  _ir_reg3_io_inst_pack_RF_prj;
   wire [6:0]  _ir_reg3_io_inst_pack_RF_prk;
@@ -429,7 +428,6 @@ module CPU(
   wire [6:0]  _iq3_io_prd_queue_5;
   wire [6:0]  _iq3_io_prd_queue_6;
   wire [6:0]  _iq3_io_prd_queue_7;
-  wire [6:0]  _iq3_io_prd_queue_8;
   wire        _iq3_io_full;
   wire [6:0]  _ir_reg2_io_inst_pack_RF_prj;
   wire [6:0]  _ir_reg2_io_inst_pack_RF_prk;
@@ -588,7 +586,6 @@ module CPU(
   wire [6:0]  _iq2_io_prd_queue_5;
   wire [6:0]  _iq2_io_prd_queue_6;
   wire [6:0]  _iq2_io_prd_queue_7;
-  wire [6:0]  _iq2_io_prd_queue_8;
   wire [3:0]  _iq2_io_elem_num;
   wire        _iq2_io_full;
   wire [6:0]  _ir_reg1_io_inst_pack_RF_prj;
@@ -718,7 +715,6 @@ module CPU(
   wire [6:0]  _iq1_io_prd_queue_5;
   wire [6:0]  _iq1_io_prd_queue_6;
   wire [6:0]  _iq1_io_prd_queue_7;
-  wire [6:0]  _iq1_io_prd_queue_8;
   wire [3:0]  _iq1_io_elem_num;
   wire        _iq1_io_full;
   wire [1:0]  _dp_io_insts_disp_index_0_0;
@@ -2009,7 +2005,6 @@ module CPU(
     .io_prd_queue_0_5           (_iq1_io_prd_queue_5),
     .io_prd_queue_0_6           (_iq1_io_prd_queue_6),
     .io_prd_queue_0_7           (_iq1_io_prd_queue_7),
-    .io_prd_queue_0_8           (_iq1_io_prd_queue_8),
     .io_prd_queue_1_0           (_iq2_io_prd_queue_0),
     .io_prd_queue_1_1           (_iq2_io_prd_queue_1),
     .io_prd_queue_1_2           (_iq2_io_prd_queue_2),
@@ -2018,7 +2013,6 @@ module CPU(
     .io_prd_queue_1_5           (_iq2_io_prd_queue_5),
     .io_prd_queue_1_6           (_iq2_io_prd_queue_6),
     .io_prd_queue_1_7           (_iq2_io_prd_queue_7),
-    .io_prd_queue_1_8           (_iq2_io_prd_queue_8),
     .io_prd_queue_2_0           (_iq3_io_prd_queue_0),
     .io_prd_queue_2_1           (_iq3_io_prd_queue_1),
     .io_prd_queue_2_2           (_iq3_io_prd_queue_2),
@@ -2027,7 +2021,6 @@ module CPU(
     .io_prd_queue_2_5           (_iq3_io_prd_queue_5),
     .io_prd_queue_2_6           (_iq3_io_prd_queue_6),
     .io_prd_queue_2_7           (_iq3_io_prd_queue_7),
-    .io_prd_queue_2_8           (_iq3_io_prd_queue_8),
     .io_prd_queue_2_9
       (_ir_reg3_io_inst_pack_RF_rd_valid ? _ir_reg3_io_inst_pack_RF_prd : 7'h0),
     .io_prd_queue_3_0           (_iq4_io_prd_queue_0),
@@ -2038,7 +2031,6 @@ module CPU(
     .io_prd_queue_3_5           (_iq4_io_prd_queue_5),
     .io_prd_queue_3_6           (_iq4_io_prd_queue_6),
     .io_prd_queue_3_7           (_iq4_io_prd_queue_7),
-    .io_prd_queue_3_8           (_iq4_io_prd_queue_8),
     .io_elem_num_0              (_iq1_io_elem_num),
     .io_elem_num_1              (_iq2_io_elem_num),
     .io_insts_disp_index_0_0    (_dp_io_insts_disp_index_0_0),
@@ -2256,7 +2248,6 @@ module CPU(
     .io_prd_queue_5                    (_iq1_io_prd_queue_5),
     .io_prd_queue_6                    (_iq1_io_prd_queue_6),
     .io_prd_queue_7                    (_iq1_io_prd_queue_7),
-    .io_prd_queue_8                    (_iq1_io_prd_queue_8),
     .io_elem_num                       (_iq1_io_elem_num),
     .io_full                           (_iq1_io_full)
   );
@@ -2612,7 +2603,6 @@ module CPU(
     .io_prd_queue_5                     (_iq2_io_prd_queue_5),
     .io_prd_queue_6                     (_iq2_io_prd_queue_6),
     .io_prd_queue_7                     (_iq2_io_prd_queue_7),
-    .io_prd_queue_8                     (_iq2_io_prd_queue_8),
     .io_elem_num                        (_iq2_io_elem_num),
     .io_full                            (_iq2_io_full)
   );
@@ -2929,7 +2919,6 @@ module CPU(
     .io_prd_queue_5                  (_iq3_io_prd_queue_5),
     .io_prd_queue_6                  (_iq3_io_prd_queue_6),
     .io_prd_queue_7                  (_iq3_io_prd_queue_7),
-    .io_prd_queue_8                  (_iq3_io_prd_queue_8),
     .io_full                         (_iq3_io_full)
   );
   Unorder_Select_2 sel3 (
@@ -3116,7 +3105,6 @@ module CPU(
     .io_prd_queue_5                (_iq4_io_prd_queue_5),
     .io_prd_queue_6                (_iq4_io_prd_queue_6),
     .io_prd_queue_7                (_iq4_io_prd_queue_7),
-    .io_prd_queue_8                (_iq4_io_prd_queue_8),
     .io_full                       (_iq4_io_full)
   );
   Order_Select sel4 (

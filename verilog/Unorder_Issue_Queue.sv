@@ -169,126 +169,123 @@ module Unorder_Issue_Queue(
                 io_prd_queue_5,
                 io_prd_queue_6,
                 io_prd_queue_7,
-                io_prd_queue_8,
   output [3:0]  io_elem_num,
   output        io_full
 );
 
   wire [3:0]  _tail_pop_T_16;
   reg         casez_tmp;
-  reg  [6:0]  casez_tmp_0;
-  reg         casez_tmp_1;
-  reg  [1:0]  casez_tmp_2;
-  reg  [6:0]  casez_tmp_3;
+  reg  [1:0]  casez_tmp_0;
+  reg  [6:0]  casez_tmp_1;
+  reg  [6:0]  casez_tmp_2;
+  reg         casez_tmp_3;
   reg  [6:0]  casez_tmp_4;
-  reg         casez_tmp_5;
-  reg  [6:0]  casez_tmp_6;
-  reg  [31:0] casez_tmp_7;
-  reg  [5:0]  casez_tmp_8;
-  reg  [4:0]  casez_tmp_9;
-  reg  [1:0]  casez_tmp_10;
-  reg  [1:0]  casez_tmp_11;
-  reg  [31:0] casez_tmp_12;
+  reg  [31:0] casez_tmp_5;
+  reg  [5:0]  casez_tmp_6;
+  reg  [4:0]  casez_tmp_7;
+  reg  [1:0]  casez_tmp_8;
+  reg  [1:0]  casez_tmp_9;
+  reg  [31:0] casez_tmp_10;
+  reg         casez_tmp_11;
+  reg         casez_tmp_12;
   reg         casez_tmp_13;
-  reg         casez_tmp_14;
-  reg         casez_tmp_15;
-  reg  [1:0]  casez_tmp_16;
-  reg  [6:0]  casez_tmp_17;
+  reg  [1:0]  casez_tmp_14;
+  reg  [6:0]  casez_tmp_15;
+  reg  [6:0]  casez_tmp_16;
+  reg         casez_tmp_17;
   reg  [6:0]  casez_tmp_18;
-  reg         casez_tmp_19;
-  reg  [6:0]  casez_tmp_20;
-  reg  [31:0] casez_tmp_21;
-  reg  [5:0]  casez_tmp_22;
-  reg  [4:0]  casez_tmp_23;
-  reg  [1:0]  casez_tmp_24;
-  reg  [1:0]  casez_tmp_25;
-  reg  [31:0] casez_tmp_26;
+  reg  [31:0] casez_tmp_19;
+  reg  [5:0]  casez_tmp_20;
+  reg  [4:0]  casez_tmp_21;
+  reg  [1:0]  casez_tmp_22;
+  reg  [1:0]  casez_tmp_23;
+  reg  [31:0] casez_tmp_24;
+  reg         casez_tmp_25;
+  reg         casez_tmp_26;
   reg         casez_tmp_27;
-  reg         casez_tmp_28;
-  reg         casez_tmp_29;
-  reg  [1:0]  casez_tmp_30;
-  reg  [6:0]  casez_tmp_31;
+  reg  [1:0]  casez_tmp_28;
+  reg  [6:0]  casez_tmp_29;
+  reg  [6:0]  casez_tmp_30;
+  reg         casez_tmp_31;
   reg  [6:0]  casez_tmp_32;
-  reg         casez_tmp_33;
-  reg  [6:0]  casez_tmp_34;
-  reg  [31:0] casez_tmp_35;
-  reg  [5:0]  casez_tmp_36;
-  reg  [4:0]  casez_tmp_37;
-  reg  [1:0]  casez_tmp_38;
-  reg  [1:0]  casez_tmp_39;
-  reg  [31:0] casez_tmp_40;
+  reg  [31:0] casez_tmp_33;
+  reg  [5:0]  casez_tmp_34;
+  reg  [4:0]  casez_tmp_35;
+  reg  [1:0]  casez_tmp_36;
+  reg  [1:0]  casez_tmp_37;
+  reg  [31:0] casez_tmp_38;
+  reg         casez_tmp_39;
+  reg         casez_tmp_40;
   reg         casez_tmp_41;
-  reg         casez_tmp_42;
-  reg         casez_tmp_43;
-  reg  [1:0]  casez_tmp_44;
-  reg  [6:0]  casez_tmp_45;
+  reg  [1:0]  casez_tmp_42;
+  reg  [6:0]  casez_tmp_43;
+  reg  [6:0]  casez_tmp_44;
+  reg         casez_tmp_45;
   reg  [6:0]  casez_tmp_46;
-  reg         casez_tmp_47;
-  reg  [6:0]  casez_tmp_48;
-  reg  [31:0] casez_tmp_49;
-  reg  [5:0]  casez_tmp_50;
-  reg  [4:0]  casez_tmp_51;
-  reg  [1:0]  casez_tmp_52;
-  reg  [1:0]  casez_tmp_53;
-  reg  [31:0] casez_tmp_54;
+  reg  [31:0] casez_tmp_47;
+  reg  [5:0]  casez_tmp_48;
+  reg  [4:0]  casez_tmp_49;
+  reg  [1:0]  casez_tmp_50;
+  reg  [1:0]  casez_tmp_51;
+  reg  [31:0] casez_tmp_52;
+  reg         casez_tmp_53;
+  reg         casez_tmp_54;
   reg         casez_tmp_55;
-  reg         casez_tmp_56;
-  reg         casez_tmp_57;
-  reg  [1:0]  casez_tmp_58;
-  reg  [6:0]  casez_tmp_59;
+  reg  [1:0]  casez_tmp_56;
+  reg  [6:0]  casez_tmp_57;
+  reg  [6:0]  casez_tmp_58;
+  reg         casez_tmp_59;
   reg  [6:0]  casez_tmp_60;
-  reg         casez_tmp_61;
-  reg  [6:0]  casez_tmp_62;
-  reg  [31:0] casez_tmp_63;
-  reg  [5:0]  casez_tmp_64;
-  reg  [4:0]  casez_tmp_65;
-  reg  [1:0]  casez_tmp_66;
-  reg  [1:0]  casez_tmp_67;
-  reg  [31:0] casez_tmp_68;
+  reg  [31:0] casez_tmp_61;
+  reg  [5:0]  casez_tmp_62;
+  reg  [4:0]  casez_tmp_63;
+  reg  [1:0]  casez_tmp_64;
+  reg  [1:0]  casez_tmp_65;
+  reg  [31:0] casez_tmp_66;
+  reg         casez_tmp_67;
+  reg         casez_tmp_68;
   reg         casez_tmp_69;
-  reg         casez_tmp_70;
-  reg         casez_tmp_71;
-  reg  [1:0]  casez_tmp_72;
-  reg  [6:0]  casez_tmp_73;
+  reg  [1:0]  casez_tmp_70;
+  reg  [6:0]  casez_tmp_71;
+  reg  [6:0]  casez_tmp_72;
+  reg         casez_tmp_73;
   reg  [6:0]  casez_tmp_74;
-  reg         casez_tmp_75;
-  reg  [6:0]  casez_tmp_76;
-  reg  [31:0] casez_tmp_77;
-  reg  [5:0]  casez_tmp_78;
-  reg  [4:0]  casez_tmp_79;
-  reg  [1:0]  casez_tmp_80;
-  reg  [1:0]  casez_tmp_81;
-  reg  [31:0] casez_tmp_82;
+  reg  [31:0] casez_tmp_75;
+  reg  [5:0]  casez_tmp_76;
+  reg  [4:0]  casez_tmp_77;
+  reg  [1:0]  casez_tmp_78;
+  reg  [1:0]  casez_tmp_79;
+  reg  [31:0] casez_tmp_80;
+  reg         casez_tmp_81;
+  reg         casez_tmp_82;
   reg         casez_tmp_83;
-  reg         casez_tmp_84;
-  reg         casez_tmp_85;
-  reg  [1:0]  casez_tmp_86;
-  reg  [6:0]  casez_tmp_87;
+  reg  [1:0]  casez_tmp_84;
+  reg  [6:0]  casez_tmp_85;
+  reg  [6:0]  casez_tmp_86;
+  reg         casez_tmp_87;
   reg  [6:0]  casez_tmp_88;
-  reg         casez_tmp_89;
-  reg  [6:0]  casez_tmp_90;
-  reg  [31:0] casez_tmp_91;
-  reg  [5:0]  casez_tmp_92;
-  reg  [4:0]  casez_tmp_93;
-  reg  [1:0]  casez_tmp_94;
-  reg  [1:0]  casez_tmp_95;
-  reg  [31:0] casez_tmp_96;
+  reg  [31:0] casez_tmp_89;
+  reg  [5:0]  casez_tmp_90;
+  reg  [4:0]  casez_tmp_91;
+  reg  [1:0]  casez_tmp_92;
+  reg  [1:0]  casez_tmp_93;
+  reg  [31:0] casez_tmp_94;
+  reg         casez_tmp_95;
+  reg         casez_tmp_96;
   reg         casez_tmp_97;
-  reg         casez_tmp_98;
-  reg         casez_tmp_99;
-  reg  [1:0]  casez_tmp_100;
-  reg  [6:0]  casez_tmp_101;
+  reg  [1:0]  casez_tmp_98;
+  reg  [6:0]  casez_tmp_99;
+  reg  [6:0]  casez_tmp_100;
+  reg         casez_tmp_101;
   reg  [6:0]  casez_tmp_102;
-  reg         casez_tmp_103;
-  reg  [6:0]  casez_tmp_104;
-  reg  [31:0] casez_tmp_105;
-  reg  [5:0]  casez_tmp_106;
-  reg  [4:0]  casez_tmp_107;
-  reg  [1:0]  casez_tmp_108;
-  reg  [1:0]  casez_tmp_109;
-  reg  [31:0] casez_tmp_110;
-  reg         casez_tmp_111;
-  reg         casez_tmp_112;
+  reg  [31:0] casez_tmp_103;
+  reg  [5:0]  casez_tmp_104;
+  reg  [4:0]  casez_tmp_105;
+  reg  [1:0]  casez_tmp_106;
+  reg  [1:0]  casez_tmp_107;
+  reg  [31:0] casez_tmp_108;
+  reg         casez_tmp_109;
+  reg         casez_tmp_110;
   reg  [6:0]  queue_0_inst_prj;
   reg  [6:0]  queue_0_inst_prk;
   reg         queue_0_inst_rd_valid;
@@ -387,6 +384,1363 @@ module Unorder_Issue_Queue(
   reg         queue_7_prk_waked;
   reg  [3:0]  tail;
   wire        full = _tail_pop_T_16 >= 4'h8 - {1'h0, io_insert_num};
+  assign _tail_pop_T_16 =
+    tail
+    - {3'h0,
+       io_issue_ack_0 | io_issue_ack_1 | io_issue_ack_2 | io_issue_ack_3 | io_issue_ack_4
+         | io_issue_ack_5 | io_issue_ack_6 | io_issue_ack_7};
+  wire [1:0]  _queue_next_0_inst_T_5 = 2'h0 - _tail_pop_T_16[1:0];
+  always_comb begin
+    casez (_queue_next_0_inst_T_5)
+      2'b00:
+        casez_tmp = io_insts_disp_valid_0;
+      2'b01:
+        casez_tmp = io_insts_disp_valid_1;
+      2'b10:
+        casez_tmp = io_insts_disp_valid_2;
+      default:
+        casez_tmp = io_insts_disp_valid_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (_queue_next_0_inst_T_5)
+      2'b00:
+        casez_tmp_0 = io_insts_disp_index_0;
+      2'b01:
+        casez_tmp_0 = io_insts_disp_index_1;
+      2'b10:
+        casez_tmp_0 = io_insts_disp_index_2;
+      default:
+        casez_tmp_0 = io_insts_disp_index_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_1 = io_insts_dispatch_0_prj;
+      2'b01:
+        casez_tmp_1 = io_insts_dispatch_1_prj;
+      2'b10:
+        casez_tmp_1 = io_insts_dispatch_2_prj;
+      default:
+        casez_tmp_1 = io_insts_dispatch_3_prj;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_2 = io_insts_dispatch_0_prk;
+      2'b01:
+        casez_tmp_2 = io_insts_dispatch_1_prk;
+      2'b10:
+        casez_tmp_2 = io_insts_dispatch_2_prk;
+      default:
+        casez_tmp_2 = io_insts_dispatch_3_prk;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_3 = io_insts_dispatch_0_rd_valid;
+      2'b01:
+        casez_tmp_3 = io_insts_dispatch_1_rd_valid;
+      2'b10:
+        casez_tmp_3 = io_insts_dispatch_2_rd_valid;
+      default:
+        casez_tmp_3 = io_insts_dispatch_3_rd_valid;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_4 = io_insts_dispatch_0_prd;
+      2'b01:
+        casez_tmp_4 = io_insts_dispatch_1_prd;
+      2'b10:
+        casez_tmp_4 = io_insts_dispatch_2_prd;
+      default:
+        casez_tmp_4 = io_insts_dispatch_3_prd;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_5 = io_insts_dispatch_0_imm;
+      2'b01:
+        casez_tmp_5 = io_insts_dispatch_1_imm;
+      2'b10:
+        casez_tmp_5 = io_insts_dispatch_2_imm;
+      default:
+        casez_tmp_5 = io_insts_dispatch_3_imm;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_6 = io_insts_dispatch_0_rob_index;
+      2'b01:
+        casez_tmp_6 = io_insts_dispatch_1_rob_index;
+      2'b10:
+        casez_tmp_6 = io_insts_dispatch_2_rob_index;
+      default:
+        casez_tmp_6 = io_insts_dispatch_3_rob_index;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_7 = io_insts_dispatch_0_alu_op;
+      2'b01:
+        casez_tmp_7 = io_insts_dispatch_1_alu_op;
+      2'b10:
+        casez_tmp_7 = io_insts_dispatch_2_alu_op;
+      default:
+        casez_tmp_7 = io_insts_dispatch_3_alu_op;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_8 = io_insts_dispatch_0_alu_rs1_sel;
+      2'b01:
+        casez_tmp_8 = io_insts_dispatch_1_alu_rs1_sel;
+      2'b10:
+        casez_tmp_8 = io_insts_dispatch_2_alu_rs1_sel;
+      default:
+        casez_tmp_8 = io_insts_dispatch_3_alu_rs1_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_9 = io_insts_dispatch_0_alu_rs2_sel;
+      2'b01:
+        casez_tmp_9 = io_insts_dispatch_1_alu_rs2_sel;
+      2'b10:
+        casez_tmp_9 = io_insts_dispatch_2_alu_rs2_sel;
+      default:
+        casez_tmp_9 = io_insts_dispatch_3_alu_rs2_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_10 = io_insts_dispatch_0_pc;
+      2'b01:
+        casez_tmp_10 = io_insts_dispatch_1_pc;
+      2'b10:
+        casez_tmp_10 = io_insts_dispatch_2_pc;
+      default:
+        casez_tmp_10 = io_insts_dispatch_3_pc;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_11 = io_prj_ready_0;
+      2'b01:
+        casez_tmp_11 = io_prj_ready_1;
+      2'b10:
+        casez_tmp_11 = io_prj_ready_2;
+      default:
+        casez_tmp_11 = io_prj_ready_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_0)
+      2'b00:
+        casez_tmp_12 = io_prk_ready_0;
+      2'b01:
+        casez_tmp_12 = io_prk_ready_1;
+      2'b10:
+        casez_tmp_12 = io_prk_ready_2;
+      default:
+        casez_tmp_12 = io_prk_ready_3;
+    endcase
+  end // always_comb
+  wire [1:0]  _queue_next_1_prk_waked_T_6 = 2'h1 - _tail_pop_T_16[1:0];
+  always_comb begin
+    casez (_queue_next_1_prk_waked_T_6)
+      2'b00:
+        casez_tmp_13 = io_insts_disp_valid_0;
+      2'b01:
+        casez_tmp_13 = io_insts_disp_valid_1;
+      2'b10:
+        casez_tmp_13 = io_insts_disp_valid_2;
+      default:
+        casez_tmp_13 = io_insts_disp_valid_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (_queue_next_1_prk_waked_T_6)
+      2'b00:
+        casez_tmp_14 = io_insts_disp_index_0;
+      2'b01:
+        casez_tmp_14 = io_insts_disp_index_1;
+      2'b10:
+        casez_tmp_14 = io_insts_disp_index_2;
+      default:
+        casez_tmp_14 = io_insts_disp_index_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_15 = io_insts_dispatch_0_prj;
+      2'b01:
+        casez_tmp_15 = io_insts_dispatch_1_prj;
+      2'b10:
+        casez_tmp_15 = io_insts_dispatch_2_prj;
+      default:
+        casez_tmp_15 = io_insts_dispatch_3_prj;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_16 = io_insts_dispatch_0_prk;
+      2'b01:
+        casez_tmp_16 = io_insts_dispatch_1_prk;
+      2'b10:
+        casez_tmp_16 = io_insts_dispatch_2_prk;
+      default:
+        casez_tmp_16 = io_insts_dispatch_3_prk;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_17 = io_insts_dispatch_0_rd_valid;
+      2'b01:
+        casez_tmp_17 = io_insts_dispatch_1_rd_valid;
+      2'b10:
+        casez_tmp_17 = io_insts_dispatch_2_rd_valid;
+      default:
+        casez_tmp_17 = io_insts_dispatch_3_rd_valid;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_18 = io_insts_dispatch_0_prd;
+      2'b01:
+        casez_tmp_18 = io_insts_dispatch_1_prd;
+      2'b10:
+        casez_tmp_18 = io_insts_dispatch_2_prd;
+      default:
+        casez_tmp_18 = io_insts_dispatch_3_prd;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_19 = io_insts_dispatch_0_imm;
+      2'b01:
+        casez_tmp_19 = io_insts_dispatch_1_imm;
+      2'b10:
+        casez_tmp_19 = io_insts_dispatch_2_imm;
+      default:
+        casez_tmp_19 = io_insts_dispatch_3_imm;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_20 = io_insts_dispatch_0_rob_index;
+      2'b01:
+        casez_tmp_20 = io_insts_dispatch_1_rob_index;
+      2'b10:
+        casez_tmp_20 = io_insts_dispatch_2_rob_index;
+      default:
+        casez_tmp_20 = io_insts_dispatch_3_rob_index;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_21 = io_insts_dispatch_0_alu_op;
+      2'b01:
+        casez_tmp_21 = io_insts_dispatch_1_alu_op;
+      2'b10:
+        casez_tmp_21 = io_insts_dispatch_2_alu_op;
+      default:
+        casez_tmp_21 = io_insts_dispatch_3_alu_op;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_22 = io_insts_dispatch_0_alu_rs1_sel;
+      2'b01:
+        casez_tmp_22 = io_insts_dispatch_1_alu_rs1_sel;
+      2'b10:
+        casez_tmp_22 = io_insts_dispatch_2_alu_rs1_sel;
+      default:
+        casez_tmp_22 = io_insts_dispatch_3_alu_rs1_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_23 = io_insts_dispatch_0_alu_rs2_sel;
+      2'b01:
+        casez_tmp_23 = io_insts_dispatch_1_alu_rs2_sel;
+      2'b10:
+        casez_tmp_23 = io_insts_dispatch_2_alu_rs2_sel;
+      default:
+        casez_tmp_23 = io_insts_dispatch_3_alu_rs2_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_24 = io_insts_dispatch_0_pc;
+      2'b01:
+        casez_tmp_24 = io_insts_dispatch_1_pc;
+      2'b10:
+        casez_tmp_24 = io_insts_dispatch_2_pc;
+      default:
+        casez_tmp_24 = io_insts_dispatch_3_pc;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_25 = io_prj_ready_0;
+      2'b01:
+        casez_tmp_25 = io_prj_ready_1;
+      2'b10:
+        casez_tmp_25 = io_prj_ready_2;
+      default:
+        casez_tmp_25 = io_prj_ready_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_14)
+      2'b00:
+        casez_tmp_26 = io_prk_ready_0;
+      2'b01:
+        casez_tmp_26 = io_prk_ready_1;
+      2'b10:
+        casez_tmp_26 = io_prk_ready_2;
+      default:
+        casez_tmp_26 = io_prk_ready_3;
+    endcase
+  end // always_comb
+  wire [1:0]  _queue_next_2_prk_waked_T_6 = 2'h2 - _tail_pop_T_16[1:0];
+  always_comb begin
+    casez (_queue_next_2_prk_waked_T_6)
+      2'b00:
+        casez_tmp_27 = io_insts_disp_valid_0;
+      2'b01:
+        casez_tmp_27 = io_insts_disp_valid_1;
+      2'b10:
+        casez_tmp_27 = io_insts_disp_valid_2;
+      default:
+        casez_tmp_27 = io_insts_disp_valid_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (_queue_next_2_prk_waked_T_6)
+      2'b00:
+        casez_tmp_28 = io_insts_disp_index_0;
+      2'b01:
+        casez_tmp_28 = io_insts_disp_index_1;
+      2'b10:
+        casez_tmp_28 = io_insts_disp_index_2;
+      default:
+        casez_tmp_28 = io_insts_disp_index_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_29 = io_insts_dispatch_0_prj;
+      2'b01:
+        casez_tmp_29 = io_insts_dispatch_1_prj;
+      2'b10:
+        casez_tmp_29 = io_insts_dispatch_2_prj;
+      default:
+        casez_tmp_29 = io_insts_dispatch_3_prj;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_30 = io_insts_dispatch_0_prk;
+      2'b01:
+        casez_tmp_30 = io_insts_dispatch_1_prk;
+      2'b10:
+        casez_tmp_30 = io_insts_dispatch_2_prk;
+      default:
+        casez_tmp_30 = io_insts_dispatch_3_prk;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_31 = io_insts_dispatch_0_rd_valid;
+      2'b01:
+        casez_tmp_31 = io_insts_dispatch_1_rd_valid;
+      2'b10:
+        casez_tmp_31 = io_insts_dispatch_2_rd_valid;
+      default:
+        casez_tmp_31 = io_insts_dispatch_3_rd_valid;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_32 = io_insts_dispatch_0_prd;
+      2'b01:
+        casez_tmp_32 = io_insts_dispatch_1_prd;
+      2'b10:
+        casez_tmp_32 = io_insts_dispatch_2_prd;
+      default:
+        casez_tmp_32 = io_insts_dispatch_3_prd;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_33 = io_insts_dispatch_0_imm;
+      2'b01:
+        casez_tmp_33 = io_insts_dispatch_1_imm;
+      2'b10:
+        casez_tmp_33 = io_insts_dispatch_2_imm;
+      default:
+        casez_tmp_33 = io_insts_dispatch_3_imm;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_34 = io_insts_dispatch_0_rob_index;
+      2'b01:
+        casez_tmp_34 = io_insts_dispatch_1_rob_index;
+      2'b10:
+        casez_tmp_34 = io_insts_dispatch_2_rob_index;
+      default:
+        casez_tmp_34 = io_insts_dispatch_3_rob_index;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_35 = io_insts_dispatch_0_alu_op;
+      2'b01:
+        casez_tmp_35 = io_insts_dispatch_1_alu_op;
+      2'b10:
+        casez_tmp_35 = io_insts_dispatch_2_alu_op;
+      default:
+        casez_tmp_35 = io_insts_dispatch_3_alu_op;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_36 = io_insts_dispatch_0_alu_rs1_sel;
+      2'b01:
+        casez_tmp_36 = io_insts_dispatch_1_alu_rs1_sel;
+      2'b10:
+        casez_tmp_36 = io_insts_dispatch_2_alu_rs1_sel;
+      default:
+        casez_tmp_36 = io_insts_dispatch_3_alu_rs1_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_37 = io_insts_dispatch_0_alu_rs2_sel;
+      2'b01:
+        casez_tmp_37 = io_insts_dispatch_1_alu_rs2_sel;
+      2'b10:
+        casez_tmp_37 = io_insts_dispatch_2_alu_rs2_sel;
+      default:
+        casez_tmp_37 = io_insts_dispatch_3_alu_rs2_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_38 = io_insts_dispatch_0_pc;
+      2'b01:
+        casez_tmp_38 = io_insts_dispatch_1_pc;
+      2'b10:
+        casez_tmp_38 = io_insts_dispatch_2_pc;
+      default:
+        casez_tmp_38 = io_insts_dispatch_3_pc;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_39 = io_prj_ready_0;
+      2'b01:
+        casez_tmp_39 = io_prj_ready_1;
+      2'b10:
+        casez_tmp_39 = io_prj_ready_2;
+      default:
+        casez_tmp_39 = io_prj_ready_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_28)
+      2'b00:
+        casez_tmp_40 = io_prk_ready_0;
+      2'b01:
+        casez_tmp_40 = io_prk_ready_1;
+      2'b10:
+        casez_tmp_40 = io_prk_ready_2;
+      default:
+        casez_tmp_40 = io_prk_ready_3;
+    endcase
+  end // always_comb
+  wire [1:0]  _queue_next_3_prk_waked_T_6 = 2'h3 - _tail_pop_T_16[1:0];
+  always_comb begin
+    casez (_queue_next_3_prk_waked_T_6)
+      2'b00:
+        casez_tmp_41 = io_insts_disp_valid_0;
+      2'b01:
+        casez_tmp_41 = io_insts_disp_valid_1;
+      2'b10:
+        casez_tmp_41 = io_insts_disp_valid_2;
+      default:
+        casez_tmp_41 = io_insts_disp_valid_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (_queue_next_3_prk_waked_T_6)
+      2'b00:
+        casez_tmp_42 = io_insts_disp_index_0;
+      2'b01:
+        casez_tmp_42 = io_insts_disp_index_1;
+      2'b10:
+        casez_tmp_42 = io_insts_disp_index_2;
+      default:
+        casez_tmp_42 = io_insts_disp_index_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_43 = io_insts_dispatch_0_prj;
+      2'b01:
+        casez_tmp_43 = io_insts_dispatch_1_prj;
+      2'b10:
+        casez_tmp_43 = io_insts_dispatch_2_prj;
+      default:
+        casez_tmp_43 = io_insts_dispatch_3_prj;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_44 = io_insts_dispatch_0_prk;
+      2'b01:
+        casez_tmp_44 = io_insts_dispatch_1_prk;
+      2'b10:
+        casez_tmp_44 = io_insts_dispatch_2_prk;
+      default:
+        casez_tmp_44 = io_insts_dispatch_3_prk;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_45 = io_insts_dispatch_0_rd_valid;
+      2'b01:
+        casez_tmp_45 = io_insts_dispatch_1_rd_valid;
+      2'b10:
+        casez_tmp_45 = io_insts_dispatch_2_rd_valid;
+      default:
+        casez_tmp_45 = io_insts_dispatch_3_rd_valid;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_46 = io_insts_dispatch_0_prd;
+      2'b01:
+        casez_tmp_46 = io_insts_dispatch_1_prd;
+      2'b10:
+        casez_tmp_46 = io_insts_dispatch_2_prd;
+      default:
+        casez_tmp_46 = io_insts_dispatch_3_prd;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_47 = io_insts_dispatch_0_imm;
+      2'b01:
+        casez_tmp_47 = io_insts_dispatch_1_imm;
+      2'b10:
+        casez_tmp_47 = io_insts_dispatch_2_imm;
+      default:
+        casez_tmp_47 = io_insts_dispatch_3_imm;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_48 = io_insts_dispatch_0_rob_index;
+      2'b01:
+        casez_tmp_48 = io_insts_dispatch_1_rob_index;
+      2'b10:
+        casez_tmp_48 = io_insts_dispatch_2_rob_index;
+      default:
+        casez_tmp_48 = io_insts_dispatch_3_rob_index;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_49 = io_insts_dispatch_0_alu_op;
+      2'b01:
+        casez_tmp_49 = io_insts_dispatch_1_alu_op;
+      2'b10:
+        casez_tmp_49 = io_insts_dispatch_2_alu_op;
+      default:
+        casez_tmp_49 = io_insts_dispatch_3_alu_op;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_50 = io_insts_dispatch_0_alu_rs1_sel;
+      2'b01:
+        casez_tmp_50 = io_insts_dispatch_1_alu_rs1_sel;
+      2'b10:
+        casez_tmp_50 = io_insts_dispatch_2_alu_rs1_sel;
+      default:
+        casez_tmp_50 = io_insts_dispatch_3_alu_rs1_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_51 = io_insts_dispatch_0_alu_rs2_sel;
+      2'b01:
+        casez_tmp_51 = io_insts_dispatch_1_alu_rs2_sel;
+      2'b10:
+        casez_tmp_51 = io_insts_dispatch_2_alu_rs2_sel;
+      default:
+        casez_tmp_51 = io_insts_dispatch_3_alu_rs2_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_52 = io_insts_dispatch_0_pc;
+      2'b01:
+        casez_tmp_52 = io_insts_dispatch_1_pc;
+      2'b10:
+        casez_tmp_52 = io_insts_dispatch_2_pc;
+      default:
+        casez_tmp_52 = io_insts_dispatch_3_pc;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_53 = io_prj_ready_0;
+      2'b01:
+        casez_tmp_53 = io_prj_ready_1;
+      2'b10:
+        casez_tmp_53 = io_prj_ready_2;
+      default:
+        casez_tmp_53 = io_prj_ready_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_42)
+      2'b00:
+        casez_tmp_54 = io_prk_ready_0;
+      2'b01:
+        casez_tmp_54 = io_prk_ready_1;
+      2'b10:
+        casez_tmp_54 = io_prk_ready_2;
+      default:
+        casez_tmp_54 = io_prk_ready_3;
+    endcase
+  end // always_comb
+  wire [1:0]  _queue_next_4_prk_waked_T_6 = 2'h0 - _tail_pop_T_16[1:0];
+  always_comb begin
+    casez (_queue_next_4_prk_waked_T_6)
+      2'b00:
+        casez_tmp_55 = io_insts_disp_valid_0;
+      2'b01:
+        casez_tmp_55 = io_insts_disp_valid_1;
+      2'b10:
+        casez_tmp_55 = io_insts_disp_valid_2;
+      default:
+        casez_tmp_55 = io_insts_disp_valid_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (_queue_next_4_prk_waked_T_6)
+      2'b00:
+        casez_tmp_56 = io_insts_disp_index_0;
+      2'b01:
+        casez_tmp_56 = io_insts_disp_index_1;
+      2'b10:
+        casez_tmp_56 = io_insts_disp_index_2;
+      default:
+        casez_tmp_56 = io_insts_disp_index_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_57 = io_insts_dispatch_0_prj;
+      2'b01:
+        casez_tmp_57 = io_insts_dispatch_1_prj;
+      2'b10:
+        casez_tmp_57 = io_insts_dispatch_2_prj;
+      default:
+        casez_tmp_57 = io_insts_dispatch_3_prj;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_58 = io_insts_dispatch_0_prk;
+      2'b01:
+        casez_tmp_58 = io_insts_dispatch_1_prk;
+      2'b10:
+        casez_tmp_58 = io_insts_dispatch_2_prk;
+      default:
+        casez_tmp_58 = io_insts_dispatch_3_prk;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_59 = io_insts_dispatch_0_rd_valid;
+      2'b01:
+        casez_tmp_59 = io_insts_dispatch_1_rd_valid;
+      2'b10:
+        casez_tmp_59 = io_insts_dispatch_2_rd_valid;
+      default:
+        casez_tmp_59 = io_insts_dispatch_3_rd_valid;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_60 = io_insts_dispatch_0_prd;
+      2'b01:
+        casez_tmp_60 = io_insts_dispatch_1_prd;
+      2'b10:
+        casez_tmp_60 = io_insts_dispatch_2_prd;
+      default:
+        casez_tmp_60 = io_insts_dispatch_3_prd;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_61 = io_insts_dispatch_0_imm;
+      2'b01:
+        casez_tmp_61 = io_insts_dispatch_1_imm;
+      2'b10:
+        casez_tmp_61 = io_insts_dispatch_2_imm;
+      default:
+        casez_tmp_61 = io_insts_dispatch_3_imm;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_62 = io_insts_dispatch_0_rob_index;
+      2'b01:
+        casez_tmp_62 = io_insts_dispatch_1_rob_index;
+      2'b10:
+        casez_tmp_62 = io_insts_dispatch_2_rob_index;
+      default:
+        casez_tmp_62 = io_insts_dispatch_3_rob_index;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_63 = io_insts_dispatch_0_alu_op;
+      2'b01:
+        casez_tmp_63 = io_insts_dispatch_1_alu_op;
+      2'b10:
+        casez_tmp_63 = io_insts_dispatch_2_alu_op;
+      default:
+        casez_tmp_63 = io_insts_dispatch_3_alu_op;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_64 = io_insts_dispatch_0_alu_rs1_sel;
+      2'b01:
+        casez_tmp_64 = io_insts_dispatch_1_alu_rs1_sel;
+      2'b10:
+        casez_tmp_64 = io_insts_dispatch_2_alu_rs1_sel;
+      default:
+        casez_tmp_64 = io_insts_dispatch_3_alu_rs1_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_65 = io_insts_dispatch_0_alu_rs2_sel;
+      2'b01:
+        casez_tmp_65 = io_insts_dispatch_1_alu_rs2_sel;
+      2'b10:
+        casez_tmp_65 = io_insts_dispatch_2_alu_rs2_sel;
+      default:
+        casez_tmp_65 = io_insts_dispatch_3_alu_rs2_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_66 = io_insts_dispatch_0_pc;
+      2'b01:
+        casez_tmp_66 = io_insts_dispatch_1_pc;
+      2'b10:
+        casez_tmp_66 = io_insts_dispatch_2_pc;
+      default:
+        casez_tmp_66 = io_insts_dispatch_3_pc;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_67 = io_prj_ready_0;
+      2'b01:
+        casez_tmp_67 = io_prj_ready_1;
+      2'b10:
+        casez_tmp_67 = io_prj_ready_2;
+      default:
+        casez_tmp_67 = io_prj_ready_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_56)
+      2'b00:
+        casez_tmp_68 = io_prk_ready_0;
+      2'b01:
+        casez_tmp_68 = io_prk_ready_1;
+      2'b10:
+        casez_tmp_68 = io_prk_ready_2;
+      default:
+        casez_tmp_68 = io_prk_ready_3;
+    endcase
+  end // always_comb
+  wire [1:0]  _queue_next_5_prk_waked_T_6 = 2'h1 - _tail_pop_T_16[1:0];
+  always_comb begin
+    casez (_queue_next_5_prk_waked_T_6)
+      2'b00:
+        casez_tmp_69 = io_insts_disp_valid_0;
+      2'b01:
+        casez_tmp_69 = io_insts_disp_valid_1;
+      2'b10:
+        casez_tmp_69 = io_insts_disp_valid_2;
+      default:
+        casez_tmp_69 = io_insts_disp_valid_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (_queue_next_5_prk_waked_T_6)
+      2'b00:
+        casez_tmp_70 = io_insts_disp_index_0;
+      2'b01:
+        casez_tmp_70 = io_insts_disp_index_1;
+      2'b10:
+        casez_tmp_70 = io_insts_disp_index_2;
+      default:
+        casez_tmp_70 = io_insts_disp_index_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_71 = io_insts_dispatch_0_prj;
+      2'b01:
+        casez_tmp_71 = io_insts_dispatch_1_prj;
+      2'b10:
+        casez_tmp_71 = io_insts_dispatch_2_prj;
+      default:
+        casez_tmp_71 = io_insts_dispatch_3_prj;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_72 = io_insts_dispatch_0_prk;
+      2'b01:
+        casez_tmp_72 = io_insts_dispatch_1_prk;
+      2'b10:
+        casez_tmp_72 = io_insts_dispatch_2_prk;
+      default:
+        casez_tmp_72 = io_insts_dispatch_3_prk;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_73 = io_insts_dispatch_0_rd_valid;
+      2'b01:
+        casez_tmp_73 = io_insts_dispatch_1_rd_valid;
+      2'b10:
+        casez_tmp_73 = io_insts_dispatch_2_rd_valid;
+      default:
+        casez_tmp_73 = io_insts_dispatch_3_rd_valid;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_74 = io_insts_dispatch_0_prd;
+      2'b01:
+        casez_tmp_74 = io_insts_dispatch_1_prd;
+      2'b10:
+        casez_tmp_74 = io_insts_dispatch_2_prd;
+      default:
+        casez_tmp_74 = io_insts_dispatch_3_prd;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_75 = io_insts_dispatch_0_imm;
+      2'b01:
+        casez_tmp_75 = io_insts_dispatch_1_imm;
+      2'b10:
+        casez_tmp_75 = io_insts_dispatch_2_imm;
+      default:
+        casez_tmp_75 = io_insts_dispatch_3_imm;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_76 = io_insts_dispatch_0_rob_index;
+      2'b01:
+        casez_tmp_76 = io_insts_dispatch_1_rob_index;
+      2'b10:
+        casez_tmp_76 = io_insts_dispatch_2_rob_index;
+      default:
+        casez_tmp_76 = io_insts_dispatch_3_rob_index;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_77 = io_insts_dispatch_0_alu_op;
+      2'b01:
+        casez_tmp_77 = io_insts_dispatch_1_alu_op;
+      2'b10:
+        casez_tmp_77 = io_insts_dispatch_2_alu_op;
+      default:
+        casez_tmp_77 = io_insts_dispatch_3_alu_op;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_78 = io_insts_dispatch_0_alu_rs1_sel;
+      2'b01:
+        casez_tmp_78 = io_insts_dispatch_1_alu_rs1_sel;
+      2'b10:
+        casez_tmp_78 = io_insts_dispatch_2_alu_rs1_sel;
+      default:
+        casez_tmp_78 = io_insts_dispatch_3_alu_rs1_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_79 = io_insts_dispatch_0_alu_rs2_sel;
+      2'b01:
+        casez_tmp_79 = io_insts_dispatch_1_alu_rs2_sel;
+      2'b10:
+        casez_tmp_79 = io_insts_dispatch_2_alu_rs2_sel;
+      default:
+        casez_tmp_79 = io_insts_dispatch_3_alu_rs2_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_80 = io_insts_dispatch_0_pc;
+      2'b01:
+        casez_tmp_80 = io_insts_dispatch_1_pc;
+      2'b10:
+        casez_tmp_80 = io_insts_dispatch_2_pc;
+      default:
+        casez_tmp_80 = io_insts_dispatch_3_pc;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_81 = io_prj_ready_0;
+      2'b01:
+        casez_tmp_81 = io_prj_ready_1;
+      2'b10:
+        casez_tmp_81 = io_prj_ready_2;
+      default:
+        casez_tmp_81 = io_prj_ready_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_70)
+      2'b00:
+        casez_tmp_82 = io_prk_ready_0;
+      2'b01:
+        casez_tmp_82 = io_prk_ready_1;
+      2'b10:
+        casez_tmp_82 = io_prk_ready_2;
+      default:
+        casez_tmp_82 = io_prk_ready_3;
+    endcase
+  end // always_comb
+  wire [1:0]  _queue_next_6_prk_waked_T_6 = 2'h2 - _tail_pop_T_16[1:0];
+  always_comb begin
+    casez (_queue_next_6_prk_waked_T_6)
+      2'b00:
+        casez_tmp_83 = io_insts_disp_valid_0;
+      2'b01:
+        casez_tmp_83 = io_insts_disp_valid_1;
+      2'b10:
+        casez_tmp_83 = io_insts_disp_valid_2;
+      default:
+        casez_tmp_83 = io_insts_disp_valid_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (_queue_next_6_prk_waked_T_6)
+      2'b00:
+        casez_tmp_84 = io_insts_disp_index_0;
+      2'b01:
+        casez_tmp_84 = io_insts_disp_index_1;
+      2'b10:
+        casez_tmp_84 = io_insts_disp_index_2;
+      default:
+        casez_tmp_84 = io_insts_disp_index_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_85 = io_insts_dispatch_0_prj;
+      2'b01:
+        casez_tmp_85 = io_insts_dispatch_1_prj;
+      2'b10:
+        casez_tmp_85 = io_insts_dispatch_2_prj;
+      default:
+        casez_tmp_85 = io_insts_dispatch_3_prj;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_86 = io_insts_dispatch_0_prk;
+      2'b01:
+        casez_tmp_86 = io_insts_dispatch_1_prk;
+      2'b10:
+        casez_tmp_86 = io_insts_dispatch_2_prk;
+      default:
+        casez_tmp_86 = io_insts_dispatch_3_prk;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_87 = io_insts_dispatch_0_rd_valid;
+      2'b01:
+        casez_tmp_87 = io_insts_dispatch_1_rd_valid;
+      2'b10:
+        casez_tmp_87 = io_insts_dispatch_2_rd_valid;
+      default:
+        casez_tmp_87 = io_insts_dispatch_3_rd_valid;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_88 = io_insts_dispatch_0_prd;
+      2'b01:
+        casez_tmp_88 = io_insts_dispatch_1_prd;
+      2'b10:
+        casez_tmp_88 = io_insts_dispatch_2_prd;
+      default:
+        casez_tmp_88 = io_insts_dispatch_3_prd;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_89 = io_insts_dispatch_0_imm;
+      2'b01:
+        casez_tmp_89 = io_insts_dispatch_1_imm;
+      2'b10:
+        casez_tmp_89 = io_insts_dispatch_2_imm;
+      default:
+        casez_tmp_89 = io_insts_dispatch_3_imm;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_90 = io_insts_dispatch_0_rob_index;
+      2'b01:
+        casez_tmp_90 = io_insts_dispatch_1_rob_index;
+      2'b10:
+        casez_tmp_90 = io_insts_dispatch_2_rob_index;
+      default:
+        casez_tmp_90 = io_insts_dispatch_3_rob_index;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_91 = io_insts_dispatch_0_alu_op;
+      2'b01:
+        casez_tmp_91 = io_insts_dispatch_1_alu_op;
+      2'b10:
+        casez_tmp_91 = io_insts_dispatch_2_alu_op;
+      default:
+        casez_tmp_91 = io_insts_dispatch_3_alu_op;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_92 = io_insts_dispatch_0_alu_rs1_sel;
+      2'b01:
+        casez_tmp_92 = io_insts_dispatch_1_alu_rs1_sel;
+      2'b10:
+        casez_tmp_92 = io_insts_dispatch_2_alu_rs1_sel;
+      default:
+        casez_tmp_92 = io_insts_dispatch_3_alu_rs1_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_93 = io_insts_dispatch_0_alu_rs2_sel;
+      2'b01:
+        casez_tmp_93 = io_insts_dispatch_1_alu_rs2_sel;
+      2'b10:
+        casez_tmp_93 = io_insts_dispatch_2_alu_rs2_sel;
+      default:
+        casez_tmp_93 = io_insts_dispatch_3_alu_rs2_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_94 = io_insts_dispatch_0_pc;
+      2'b01:
+        casez_tmp_94 = io_insts_dispatch_1_pc;
+      2'b10:
+        casez_tmp_94 = io_insts_dispatch_2_pc;
+      default:
+        casez_tmp_94 = io_insts_dispatch_3_pc;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_95 = io_prj_ready_0;
+      2'b01:
+        casez_tmp_95 = io_prj_ready_1;
+      2'b10:
+        casez_tmp_95 = io_prj_ready_2;
+      default:
+        casez_tmp_95 = io_prj_ready_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_84)
+      2'b00:
+        casez_tmp_96 = io_prk_ready_0;
+      2'b01:
+        casez_tmp_96 = io_prk_ready_1;
+      2'b10:
+        casez_tmp_96 = io_prk_ready_2;
+      default:
+        casez_tmp_96 = io_prk_ready_3;
+    endcase
+  end // always_comb
+  wire [1:0]  _queue_next_7_prk_waked_T_6 = 2'h3 - _tail_pop_T_16[1:0];
+  always_comb begin
+    casez (_queue_next_7_prk_waked_T_6)
+      2'b00:
+        casez_tmp_97 = io_insts_disp_valid_0;
+      2'b01:
+        casez_tmp_97 = io_insts_disp_valid_1;
+      2'b10:
+        casez_tmp_97 = io_insts_disp_valid_2;
+      default:
+        casez_tmp_97 = io_insts_disp_valid_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (_queue_next_7_prk_waked_T_6)
+      2'b00:
+        casez_tmp_98 = io_insts_disp_index_0;
+      2'b01:
+        casez_tmp_98 = io_insts_disp_index_1;
+      2'b10:
+        casez_tmp_98 = io_insts_disp_index_2;
+      default:
+        casez_tmp_98 = io_insts_disp_index_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_99 = io_insts_dispatch_0_prj;
+      2'b01:
+        casez_tmp_99 = io_insts_dispatch_1_prj;
+      2'b10:
+        casez_tmp_99 = io_insts_dispatch_2_prj;
+      default:
+        casez_tmp_99 = io_insts_dispatch_3_prj;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_100 = io_insts_dispatch_0_prk;
+      2'b01:
+        casez_tmp_100 = io_insts_dispatch_1_prk;
+      2'b10:
+        casez_tmp_100 = io_insts_dispatch_2_prk;
+      default:
+        casez_tmp_100 = io_insts_dispatch_3_prk;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_101 = io_insts_dispatch_0_rd_valid;
+      2'b01:
+        casez_tmp_101 = io_insts_dispatch_1_rd_valid;
+      2'b10:
+        casez_tmp_101 = io_insts_dispatch_2_rd_valid;
+      default:
+        casez_tmp_101 = io_insts_dispatch_3_rd_valid;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_102 = io_insts_dispatch_0_prd;
+      2'b01:
+        casez_tmp_102 = io_insts_dispatch_1_prd;
+      2'b10:
+        casez_tmp_102 = io_insts_dispatch_2_prd;
+      default:
+        casez_tmp_102 = io_insts_dispatch_3_prd;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_103 = io_insts_dispatch_0_imm;
+      2'b01:
+        casez_tmp_103 = io_insts_dispatch_1_imm;
+      2'b10:
+        casez_tmp_103 = io_insts_dispatch_2_imm;
+      default:
+        casez_tmp_103 = io_insts_dispatch_3_imm;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_104 = io_insts_dispatch_0_rob_index;
+      2'b01:
+        casez_tmp_104 = io_insts_dispatch_1_rob_index;
+      2'b10:
+        casez_tmp_104 = io_insts_dispatch_2_rob_index;
+      default:
+        casez_tmp_104 = io_insts_dispatch_3_rob_index;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_105 = io_insts_dispatch_0_alu_op;
+      2'b01:
+        casez_tmp_105 = io_insts_dispatch_1_alu_op;
+      2'b10:
+        casez_tmp_105 = io_insts_dispatch_2_alu_op;
+      default:
+        casez_tmp_105 = io_insts_dispatch_3_alu_op;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_106 = io_insts_dispatch_0_alu_rs1_sel;
+      2'b01:
+        casez_tmp_106 = io_insts_dispatch_1_alu_rs1_sel;
+      2'b10:
+        casez_tmp_106 = io_insts_dispatch_2_alu_rs1_sel;
+      default:
+        casez_tmp_106 = io_insts_dispatch_3_alu_rs1_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_107 = io_insts_dispatch_0_alu_rs2_sel;
+      2'b01:
+        casez_tmp_107 = io_insts_dispatch_1_alu_rs2_sel;
+      2'b10:
+        casez_tmp_107 = io_insts_dispatch_2_alu_rs2_sel;
+      default:
+        casez_tmp_107 = io_insts_dispatch_3_alu_rs2_sel;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_108 = io_insts_dispatch_0_pc;
+      2'b01:
+        casez_tmp_108 = io_insts_dispatch_1_pc;
+      2'b10:
+        casez_tmp_108 = io_insts_dispatch_2_pc;
+      default:
+        casez_tmp_108 = io_insts_dispatch_3_pc;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_109 = io_prj_ready_0;
+      2'b01:
+        casez_tmp_109 = io_prj_ready_1;
+      2'b10:
+        casez_tmp_109 = io_prj_ready_2;
+      default:
+        casez_tmp_109 = io_prj_ready_3;
+    endcase
+  end // always_comb
+  always_comb begin
+    casez (casez_tmp_98)
+      2'b00:
+        casez_tmp_110 = io_prk_ready_0;
+      2'b01:
+        casez_tmp_110 = io_prk_ready_1;
+      2'b10:
+        casez_tmp_110 = io_prk_ready_2;
+      default:
+        casez_tmp_110 = io_prk_ready_3;
+    endcase
+  end // always_comb
   wire [7:0]  next_mask =
     ~({io_issue_ack_7,
        io_issue_ack_6,
@@ -396,1518 +1750,74 @@ module Unorder_Issue_Queue(
        io_issue_ack_2,
        io_issue_ack_1,
        io_issue_ack_0} - 8'h1);
-  assign _tail_pop_T_16 =
-    tail
-    - {3'h0,
-       io_issue_ack_0 | io_issue_ack_1 | io_issue_ack_2 | io_issue_ack_3 | io_issue_ack_4
-         | io_issue_ack_5 | io_issue_ack_6 | io_issue_ack_7};
-  wire        queue_next_0_inst_rd_valid =
-    (|_tail_pop_T_16) & (next_mask[0] ? queue_1_inst_rd_valid : queue_0_inst_rd_valid);
-  wire        queue_next_1_inst_rd_valid =
+  wire [6:0]  queue_next_0_inst_prj =
+    (|_tail_pop_T_16)
+      ? (next_mask[0] ? queue_1_inst_prj : queue_0_inst_prj)
+      : casez_tmp ? casez_tmp_1 : 7'h0;
+  wire [6:0]  queue_next_0_inst_prk =
+    (|_tail_pop_T_16)
+      ? (next_mask[0] ? queue_1_inst_prk : queue_0_inst_prk)
+      : casez_tmp ? casez_tmp_2 : 7'h0;
+  wire [6:0]  queue_next_1_inst_prj =
     (|(_tail_pop_T_16[3:1]))
-    & (next_mask[1] ? queue_2_inst_rd_valid : queue_1_inst_rd_valid);
-  wire        _queue_2_prk_waked_T = _tail_pop_T_16 > 4'h2;
-  wire        queue_next_2_inst_rd_valid =
-    _queue_2_prk_waked_T & (next_mask[2] ? queue_3_inst_rd_valid : queue_2_inst_rd_valid);
-  wire        queue_next_3_inst_rd_valid =
+      ? (next_mask[1] ? queue_2_inst_prj : queue_1_inst_prj)
+      : casez_tmp_13 ? casez_tmp_15 : 7'h0;
+  wire [6:0]  queue_next_1_inst_prk =
+    (|(_tail_pop_T_16[3:1]))
+      ? (next_mask[1] ? queue_2_inst_prk : queue_1_inst_prk)
+      : casez_tmp_13 ? casez_tmp_16 : 7'h0;
+  wire        _queue_next_2_prk_waked_T = _tail_pop_T_16 > 4'h2;
+  wire [6:0]  queue_next_2_inst_prj =
+    _queue_next_2_prk_waked_T
+      ? (next_mask[2] ? queue_3_inst_prj : queue_2_inst_prj)
+      : casez_tmp_27 ? casez_tmp_29 : 7'h0;
+  wire [6:0]  queue_next_2_inst_prk =
+    _queue_next_2_prk_waked_T
+      ? (next_mask[2] ? queue_3_inst_prk : queue_2_inst_prk)
+      : casez_tmp_27 ? casez_tmp_30 : 7'h0;
+  wire [6:0]  queue_next_3_inst_prj =
     (|(_tail_pop_T_16[3:2]))
-    & (next_mask[3] ? queue_4_inst_rd_valid : queue_3_inst_rd_valid);
-  wire        _queue_4_prk_waked_T = _tail_pop_T_16 > 4'h4;
-  wire        queue_next_4_inst_rd_valid =
-    _queue_4_prk_waked_T & (next_mask[4] ? queue_5_inst_rd_valid : queue_4_inst_rd_valid);
-  wire        _queue_5_prk_waked_T = _tail_pop_T_16 > 4'h5;
-  wire        queue_next_5_inst_rd_valid =
-    _queue_5_prk_waked_T & (next_mask[5] ? queue_6_inst_rd_valid : queue_5_inst_rd_valid);
-  wire        _queue_6_prk_waked_T = _tail_pop_T_16 > 4'h6;
-  wire        queue_next_6_inst_rd_valid =
-    _queue_6_prk_waked_T & (next_mask[6] ? queue_7_inst_rd_valid : queue_6_inst_rd_valid);
-  wire        _GEN = ~(_tail_pop_T_16[3]) | next_mask[7];
-  wire        queue_next_7_inst_rd_valid =
-    _tail_pop_T_16[3] & ~(next_mask[7]) & queue_7_inst_rd_valid;
-  wire [2:0]  _GEN_0 = {io_issue_ack_7, io_issue_ack_6, io_issue_ack_5};
-  wire [2:0]  _GEN_1 = {io_issue_ack_3, io_issue_ack_2, io_issue_ack_1};
-  wire [2:0]  _io_prd_queue_8_T_2 = _GEN_0 | _GEN_1;
-  always_comb begin
-    casez ({|{io_issue_ack_7, io_issue_ack_6, io_issue_ack_5, io_issue_ack_4},
-            |(_io_prd_queue_8_T_2[2:1]),
-            _io_prd_queue_8_T_2[2] | _io_prd_queue_8_T_2[0]})
-      3'b000:
-        casez_tmp = queue_0_inst_rd_valid;
-      3'b001:
-        casez_tmp = queue_1_inst_rd_valid;
-      3'b010:
-        casez_tmp = queue_2_inst_rd_valid;
-      3'b011:
-        casez_tmp = queue_3_inst_rd_valid;
-      3'b100:
-        casez_tmp = queue_4_inst_rd_valid;
-      3'b101:
-        casez_tmp = queue_5_inst_rd_valid;
-      3'b110:
-        casez_tmp = queue_6_inst_rd_valid;
-      default:
-        casez_tmp = queue_7_inst_rd_valid;
-    endcase
-  end // always_comb
-  wire [2:0]  _io_prd_queue_8_T_10 = _GEN_0 | _GEN_1;
-  always_comb begin
-    casez ({|{io_issue_ack_7, io_issue_ack_6, io_issue_ack_5, io_issue_ack_4},
-            |(_io_prd_queue_8_T_10[2:1]),
-            _io_prd_queue_8_T_10[2] | _io_prd_queue_8_T_10[0]})
-      3'b000:
-        casez_tmp_0 = queue_0_inst_prd;
-      3'b001:
-        casez_tmp_0 = queue_1_inst_prd;
-      3'b010:
-        casez_tmp_0 = queue_2_inst_prd;
-      3'b011:
-        casez_tmp_0 = queue_3_inst_prd;
-      3'b100:
-        casez_tmp_0 = queue_4_inst_prd;
-      3'b101:
-        casez_tmp_0 = queue_5_inst_prd;
-      3'b110:
-        casez_tmp_0 = queue_6_inst_prd;
-      default:
-        casez_tmp_0 = queue_7_inst_prd;
-    endcase
-  end // always_comb
-  wire [1:0]  _queue_0_inst_T_3 = 2'h0 - _tail_pop_T_16[1:0];
-  always_comb begin
-    casez (_queue_0_inst_T_3)
-      2'b00:
-        casez_tmp_1 = io_insts_disp_valid_0;
-      2'b01:
-        casez_tmp_1 = io_insts_disp_valid_1;
-      2'b10:
-        casez_tmp_1 = io_insts_disp_valid_2;
-      default:
-        casez_tmp_1 = io_insts_disp_valid_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (_queue_0_inst_T_3)
-      2'b00:
-        casez_tmp_2 = io_insts_disp_index_0;
-      2'b01:
-        casez_tmp_2 = io_insts_disp_index_1;
-      2'b10:
-        casez_tmp_2 = io_insts_disp_index_2;
-      default:
-        casez_tmp_2 = io_insts_disp_index_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_3 = io_insts_dispatch_0_prj;
-      2'b01:
-        casez_tmp_3 = io_insts_dispatch_1_prj;
-      2'b10:
-        casez_tmp_3 = io_insts_dispatch_2_prj;
-      default:
-        casez_tmp_3 = io_insts_dispatch_3_prj;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_4 = io_insts_dispatch_0_prk;
-      2'b01:
-        casez_tmp_4 = io_insts_dispatch_1_prk;
-      2'b10:
-        casez_tmp_4 = io_insts_dispatch_2_prk;
-      default:
-        casez_tmp_4 = io_insts_dispatch_3_prk;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_5 = io_insts_dispatch_0_rd_valid;
-      2'b01:
-        casez_tmp_5 = io_insts_dispatch_1_rd_valid;
-      2'b10:
-        casez_tmp_5 = io_insts_dispatch_2_rd_valid;
-      default:
-        casez_tmp_5 = io_insts_dispatch_3_rd_valid;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_6 = io_insts_dispatch_0_prd;
-      2'b01:
-        casez_tmp_6 = io_insts_dispatch_1_prd;
-      2'b10:
-        casez_tmp_6 = io_insts_dispatch_2_prd;
-      default:
-        casez_tmp_6 = io_insts_dispatch_3_prd;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_7 = io_insts_dispatch_0_imm;
-      2'b01:
-        casez_tmp_7 = io_insts_dispatch_1_imm;
-      2'b10:
-        casez_tmp_7 = io_insts_dispatch_2_imm;
-      default:
-        casez_tmp_7 = io_insts_dispatch_3_imm;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_8 = io_insts_dispatch_0_rob_index;
-      2'b01:
-        casez_tmp_8 = io_insts_dispatch_1_rob_index;
-      2'b10:
-        casez_tmp_8 = io_insts_dispatch_2_rob_index;
-      default:
-        casez_tmp_8 = io_insts_dispatch_3_rob_index;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_9 = io_insts_dispatch_0_alu_op;
-      2'b01:
-        casez_tmp_9 = io_insts_dispatch_1_alu_op;
-      2'b10:
-        casez_tmp_9 = io_insts_dispatch_2_alu_op;
-      default:
-        casez_tmp_9 = io_insts_dispatch_3_alu_op;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_10 = io_insts_dispatch_0_alu_rs1_sel;
-      2'b01:
-        casez_tmp_10 = io_insts_dispatch_1_alu_rs1_sel;
-      2'b10:
-        casez_tmp_10 = io_insts_dispatch_2_alu_rs1_sel;
-      default:
-        casez_tmp_10 = io_insts_dispatch_3_alu_rs1_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_11 = io_insts_dispatch_0_alu_rs2_sel;
-      2'b01:
-        casez_tmp_11 = io_insts_dispatch_1_alu_rs2_sel;
-      2'b10:
-        casez_tmp_11 = io_insts_dispatch_2_alu_rs2_sel;
-      default:
-        casez_tmp_11 = io_insts_dispatch_3_alu_rs2_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_12 = io_insts_dispatch_0_pc;
-      2'b01:
-        casez_tmp_12 = io_insts_dispatch_1_pc;
-      2'b10:
-        casez_tmp_12 = io_insts_dispatch_2_pc;
-      default:
-        casez_tmp_12 = io_insts_dispatch_3_pc;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_13 = io_prj_ready_0;
-      2'b01:
-        casez_tmp_13 = io_prj_ready_1;
-      2'b10:
-        casez_tmp_13 = io_prj_ready_2;
-      default:
-        casez_tmp_13 = io_prj_ready_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_2)
-      2'b00:
-        casez_tmp_14 = io_prk_ready_0;
-      2'b01:
-        casez_tmp_14 = io_prk_ready_1;
-      2'b10:
-        casez_tmp_14 = io_prk_ready_2;
-      default:
-        casez_tmp_14 = io_prk_ready_3;
-    endcase
-  end // always_comb
-  wire [1:0]  _queue_1_prk_waked_T_1 = 2'h1 - _tail_pop_T_16[1:0];
-  always_comb begin
-    casez (_queue_1_prk_waked_T_1)
-      2'b00:
-        casez_tmp_15 = io_insts_disp_valid_0;
-      2'b01:
-        casez_tmp_15 = io_insts_disp_valid_1;
-      2'b10:
-        casez_tmp_15 = io_insts_disp_valid_2;
-      default:
-        casez_tmp_15 = io_insts_disp_valid_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (_queue_1_prk_waked_T_1)
-      2'b00:
-        casez_tmp_16 = io_insts_disp_index_0;
-      2'b01:
-        casez_tmp_16 = io_insts_disp_index_1;
-      2'b10:
-        casez_tmp_16 = io_insts_disp_index_2;
-      default:
-        casez_tmp_16 = io_insts_disp_index_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_17 = io_insts_dispatch_0_prj;
-      2'b01:
-        casez_tmp_17 = io_insts_dispatch_1_prj;
-      2'b10:
-        casez_tmp_17 = io_insts_dispatch_2_prj;
-      default:
-        casez_tmp_17 = io_insts_dispatch_3_prj;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_18 = io_insts_dispatch_0_prk;
-      2'b01:
-        casez_tmp_18 = io_insts_dispatch_1_prk;
-      2'b10:
-        casez_tmp_18 = io_insts_dispatch_2_prk;
-      default:
-        casez_tmp_18 = io_insts_dispatch_3_prk;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_19 = io_insts_dispatch_0_rd_valid;
-      2'b01:
-        casez_tmp_19 = io_insts_dispatch_1_rd_valid;
-      2'b10:
-        casez_tmp_19 = io_insts_dispatch_2_rd_valid;
-      default:
-        casez_tmp_19 = io_insts_dispatch_3_rd_valid;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_20 = io_insts_dispatch_0_prd;
-      2'b01:
-        casez_tmp_20 = io_insts_dispatch_1_prd;
-      2'b10:
-        casez_tmp_20 = io_insts_dispatch_2_prd;
-      default:
-        casez_tmp_20 = io_insts_dispatch_3_prd;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_21 = io_insts_dispatch_0_imm;
-      2'b01:
-        casez_tmp_21 = io_insts_dispatch_1_imm;
-      2'b10:
-        casez_tmp_21 = io_insts_dispatch_2_imm;
-      default:
-        casez_tmp_21 = io_insts_dispatch_3_imm;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_22 = io_insts_dispatch_0_rob_index;
-      2'b01:
-        casez_tmp_22 = io_insts_dispatch_1_rob_index;
-      2'b10:
-        casez_tmp_22 = io_insts_dispatch_2_rob_index;
-      default:
-        casez_tmp_22 = io_insts_dispatch_3_rob_index;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_23 = io_insts_dispatch_0_alu_op;
-      2'b01:
-        casez_tmp_23 = io_insts_dispatch_1_alu_op;
-      2'b10:
-        casez_tmp_23 = io_insts_dispatch_2_alu_op;
-      default:
-        casez_tmp_23 = io_insts_dispatch_3_alu_op;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_24 = io_insts_dispatch_0_alu_rs1_sel;
-      2'b01:
-        casez_tmp_24 = io_insts_dispatch_1_alu_rs1_sel;
-      2'b10:
-        casez_tmp_24 = io_insts_dispatch_2_alu_rs1_sel;
-      default:
-        casez_tmp_24 = io_insts_dispatch_3_alu_rs1_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_25 = io_insts_dispatch_0_alu_rs2_sel;
-      2'b01:
-        casez_tmp_25 = io_insts_dispatch_1_alu_rs2_sel;
-      2'b10:
-        casez_tmp_25 = io_insts_dispatch_2_alu_rs2_sel;
-      default:
-        casez_tmp_25 = io_insts_dispatch_3_alu_rs2_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_26 = io_insts_dispatch_0_pc;
-      2'b01:
-        casez_tmp_26 = io_insts_dispatch_1_pc;
-      2'b10:
-        casez_tmp_26 = io_insts_dispatch_2_pc;
-      default:
-        casez_tmp_26 = io_insts_dispatch_3_pc;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_27 = io_prj_ready_0;
-      2'b01:
-        casez_tmp_27 = io_prj_ready_1;
-      2'b10:
-        casez_tmp_27 = io_prj_ready_2;
-      default:
-        casez_tmp_27 = io_prj_ready_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_16)
-      2'b00:
-        casez_tmp_28 = io_prk_ready_0;
-      2'b01:
-        casez_tmp_28 = io_prk_ready_1;
-      2'b10:
-        casez_tmp_28 = io_prk_ready_2;
-      default:
-        casez_tmp_28 = io_prk_ready_3;
-    endcase
-  end // always_comb
-  wire [1:0]  _queue_2_prk_waked_T_1 = 2'h2 - _tail_pop_T_16[1:0];
-  always_comb begin
-    casez (_queue_2_prk_waked_T_1)
-      2'b00:
-        casez_tmp_29 = io_insts_disp_valid_0;
-      2'b01:
-        casez_tmp_29 = io_insts_disp_valid_1;
-      2'b10:
-        casez_tmp_29 = io_insts_disp_valid_2;
-      default:
-        casez_tmp_29 = io_insts_disp_valid_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (_queue_2_prk_waked_T_1)
-      2'b00:
-        casez_tmp_30 = io_insts_disp_index_0;
-      2'b01:
-        casez_tmp_30 = io_insts_disp_index_1;
-      2'b10:
-        casez_tmp_30 = io_insts_disp_index_2;
-      default:
-        casez_tmp_30 = io_insts_disp_index_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_31 = io_insts_dispatch_0_prj;
-      2'b01:
-        casez_tmp_31 = io_insts_dispatch_1_prj;
-      2'b10:
-        casez_tmp_31 = io_insts_dispatch_2_prj;
-      default:
-        casez_tmp_31 = io_insts_dispatch_3_prj;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_32 = io_insts_dispatch_0_prk;
-      2'b01:
-        casez_tmp_32 = io_insts_dispatch_1_prk;
-      2'b10:
-        casez_tmp_32 = io_insts_dispatch_2_prk;
-      default:
-        casez_tmp_32 = io_insts_dispatch_3_prk;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_33 = io_insts_dispatch_0_rd_valid;
-      2'b01:
-        casez_tmp_33 = io_insts_dispatch_1_rd_valid;
-      2'b10:
-        casez_tmp_33 = io_insts_dispatch_2_rd_valid;
-      default:
-        casez_tmp_33 = io_insts_dispatch_3_rd_valid;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_34 = io_insts_dispatch_0_prd;
-      2'b01:
-        casez_tmp_34 = io_insts_dispatch_1_prd;
-      2'b10:
-        casez_tmp_34 = io_insts_dispatch_2_prd;
-      default:
-        casez_tmp_34 = io_insts_dispatch_3_prd;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_35 = io_insts_dispatch_0_imm;
-      2'b01:
-        casez_tmp_35 = io_insts_dispatch_1_imm;
-      2'b10:
-        casez_tmp_35 = io_insts_dispatch_2_imm;
-      default:
-        casez_tmp_35 = io_insts_dispatch_3_imm;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_36 = io_insts_dispatch_0_rob_index;
-      2'b01:
-        casez_tmp_36 = io_insts_dispatch_1_rob_index;
-      2'b10:
-        casez_tmp_36 = io_insts_dispatch_2_rob_index;
-      default:
-        casez_tmp_36 = io_insts_dispatch_3_rob_index;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_37 = io_insts_dispatch_0_alu_op;
-      2'b01:
-        casez_tmp_37 = io_insts_dispatch_1_alu_op;
-      2'b10:
-        casez_tmp_37 = io_insts_dispatch_2_alu_op;
-      default:
-        casez_tmp_37 = io_insts_dispatch_3_alu_op;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_38 = io_insts_dispatch_0_alu_rs1_sel;
-      2'b01:
-        casez_tmp_38 = io_insts_dispatch_1_alu_rs1_sel;
-      2'b10:
-        casez_tmp_38 = io_insts_dispatch_2_alu_rs1_sel;
-      default:
-        casez_tmp_38 = io_insts_dispatch_3_alu_rs1_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_39 = io_insts_dispatch_0_alu_rs2_sel;
-      2'b01:
-        casez_tmp_39 = io_insts_dispatch_1_alu_rs2_sel;
-      2'b10:
-        casez_tmp_39 = io_insts_dispatch_2_alu_rs2_sel;
-      default:
-        casez_tmp_39 = io_insts_dispatch_3_alu_rs2_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_40 = io_insts_dispatch_0_pc;
-      2'b01:
-        casez_tmp_40 = io_insts_dispatch_1_pc;
-      2'b10:
-        casez_tmp_40 = io_insts_dispatch_2_pc;
-      default:
-        casez_tmp_40 = io_insts_dispatch_3_pc;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_41 = io_prj_ready_0;
-      2'b01:
-        casez_tmp_41 = io_prj_ready_1;
-      2'b10:
-        casez_tmp_41 = io_prj_ready_2;
-      default:
-        casez_tmp_41 = io_prj_ready_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_30)
-      2'b00:
-        casez_tmp_42 = io_prk_ready_0;
-      2'b01:
-        casez_tmp_42 = io_prk_ready_1;
-      2'b10:
-        casez_tmp_42 = io_prk_ready_2;
-      default:
-        casez_tmp_42 = io_prk_ready_3;
-    endcase
-  end // always_comb
-  wire [1:0]  _queue_3_prk_waked_T_1 = 2'h3 - _tail_pop_T_16[1:0];
-  always_comb begin
-    casez (_queue_3_prk_waked_T_1)
-      2'b00:
-        casez_tmp_43 = io_insts_disp_valid_0;
-      2'b01:
-        casez_tmp_43 = io_insts_disp_valid_1;
-      2'b10:
-        casez_tmp_43 = io_insts_disp_valid_2;
-      default:
-        casez_tmp_43 = io_insts_disp_valid_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (_queue_3_prk_waked_T_1)
-      2'b00:
-        casez_tmp_44 = io_insts_disp_index_0;
-      2'b01:
-        casez_tmp_44 = io_insts_disp_index_1;
-      2'b10:
-        casez_tmp_44 = io_insts_disp_index_2;
-      default:
-        casez_tmp_44 = io_insts_disp_index_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_45 = io_insts_dispatch_0_prj;
-      2'b01:
-        casez_tmp_45 = io_insts_dispatch_1_prj;
-      2'b10:
-        casez_tmp_45 = io_insts_dispatch_2_prj;
-      default:
-        casez_tmp_45 = io_insts_dispatch_3_prj;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_46 = io_insts_dispatch_0_prk;
-      2'b01:
-        casez_tmp_46 = io_insts_dispatch_1_prk;
-      2'b10:
-        casez_tmp_46 = io_insts_dispatch_2_prk;
-      default:
-        casez_tmp_46 = io_insts_dispatch_3_prk;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_47 = io_insts_dispatch_0_rd_valid;
-      2'b01:
-        casez_tmp_47 = io_insts_dispatch_1_rd_valid;
-      2'b10:
-        casez_tmp_47 = io_insts_dispatch_2_rd_valid;
-      default:
-        casez_tmp_47 = io_insts_dispatch_3_rd_valid;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_48 = io_insts_dispatch_0_prd;
-      2'b01:
-        casez_tmp_48 = io_insts_dispatch_1_prd;
-      2'b10:
-        casez_tmp_48 = io_insts_dispatch_2_prd;
-      default:
-        casez_tmp_48 = io_insts_dispatch_3_prd;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_49 = io_insts_dispatch_0_imm;
-      2'b01:
-        casez_tmp_49 = io_insts_dispatch_1_imm;
-      2'b10:
-        casez_tmp_49 = io_insts_dispatch_2_imm;
-      default:
-        casez_tmp_49 = io_insts_dispatch_3_imm;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_50 = io_insts_dispatch_0_rob_index;
-      2'b01:
-        casez_tmp_50 = io_insts_dispatch_1_rob_index;
-      2'b10:
-        casez_tmp_50 = io_insts_dispatch_2_rob_index;
-      default:
-        casez_tmp_50 = io_insts_dispatch_3_rob_index;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_51 = io_insts_dispatch_0_alu_op;
-      2'b01:
-        casez_tmp_51 = io_insts_dispatch_1_alu_op;
-      2'b10:
-        casez_tmp_51 = io_insts_dispatch_2_alu_op;
-      default:
-        casez_tmp_51 = io_insts_dispatch_3_alu_op;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_52 = io_insts_dispatch_0_alu_rs1_sel;
-      2'b01:
-        casez_tmp_52 = io_insts_dispatch_1_alu_rs1_sel;
-      2'b10:
-        casez_tmp_52 = io_insts_dispatch_2_alu_rs1_sel;
-      default:
-        casez_tmp_52 = io_insts_dispatch_3_alu_rs1_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_53 = io_insts_dispatch_0_alu_rs2_sel;
-      2'b01:
-        casez_tmp_53 = io_insts_dispatch_1_alu_rs2_sel;
-      2'b10:
-        casez_tmp_53 = io_insts_dispatch_2_alu_rs2_sel;
-      default:
-        casez_tmp_53 = io_insts_dispatch_3_alu_rs2_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_54 = io_insts_dispatch_0_pc;
-      2'b01:
-        casez_tmp_54 = io_insts_dispatch_1_pc;
-      2'b10:
-        casez_tmp_54 = io_insts_dispatch_2_pc;
-      default:
-        casez_tmp_54 = io_insts_dispatch_3_pc;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_55 = io_prj_ready_0;
-      2'b01:
-        casez_tmp_55 = io_prj_ready_1;
-      2'b10:
-        casez_tmp_55 = io_prj_ready_2;
-      default:
-        casez_tmp_55 = io_prj_ready_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_44)
-      2'b00:
-        casez_tmp_56 = io_prk_ready_0;
-      2'b01:
-        casez_tmp_56 = io_prk_ready_1;
-      2'b10:
-        casez_tmp_56 = io_prk_ready_2;
-      default:
-        casez_tmp_56 = io_prk_ready_3;
-    endcase
-  end // always_comb
-  wire [1:0]  _queue_4_prk_waked_T_1 = 2'h0 - _tail_pop_T_16[1:0];
-  always_comb begin
-    casez (_queue_4_prk_waked_T_1)
-      2'b00:
-        casez_tmp_57 = io_insts_disp_valid_0;
-      2'b01:
-        casez_tmp_57 = io_insts_disp_valid_1;
-      2'b10:
-        casez_tmp_57 = io_insts_disp_valid_2;
-      default:
-        casez_tmp_57 = io_insts_disp_valid_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (_queue_4_prk_waked_T_1)
-      2'b00:
-        casez_tmp_58 = io_insts_disp_index_0;
-      2'b01:
-        casez_tmp_58 = io_insts_disp_index_1;
-      2'b10:
-        casez_tmp_58 = io_insts_disp_index_2;
-      default:
-        casez_tmp_58 = io_insts_disp_index_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_59 = io_insts_dispatch_0_prj;
-      2'b01:
-        casez_tmp_59 = io_insts_dispatch_1_prj;
-      2'b10:
-        casez_tmp_59 = io_insts_dispatch_2_prj;
-      default:
-        casez_tmp_59 = io_insts_dispatch_3_prj;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_60 = io_insts_dispatch_0_prk;
-      2'b01:
-        casez_tmp_60 = io_insts_dispatch_1_prk;
-      2'b10:
-        casez_tmp_60 = io_insts_dispatch_2_prk;
-      default:
-        casez_tmp_60 = io_insts_dispatch_3_prk;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_61 = io_insts_dispatch_0_rd_valid;
-      2'b01:
-        casez_tmp_61 = io_insts_dispatch_1_rd_valid;
-      2'b10:
-        casez_tmp_61 = io_insts_dispatch_2_rd_valid;
-      default:
-        casez_tmp_61 = io_insts_dispatch_3_rd_valid;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_62 = io_insts_dispatch_0_prd;
-      2'b01:
-        casez_tmp_62 = io_insts_dispatch_1_prd;
-      2'b10:
-        casez_tmp_62 = io_insts_dispatch_2_prd;
-      default:
-        casez_tmp_62 = io_insts_dispatch_3_prd;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_63 = io_insts_dispatch_0_imm;
-      2'b01:
-        casez_tmp_63 = io_insts_dispatch_1_imm;
-      2'b10:
-        casez_tmp_63 = io_insts_dispatch_2_imm;
-      default:
-        casez_tmp_63 = io_insts_dispatch_3_imm;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_64 = io_insts_dispatch_0_rob_index;
-      2'b01:
-        casez_tmp_64 = io_insts_dispatch_1_rob_index;
-      2'b10:
-        casez_tmp_64 = io_insts_dispatch_2_rob_index;
-      default:
-        casez_tmp_64 = io_insts_dispatch_3_rob_index;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_65 = io_insts_dispatch_0_alu_op;
-      2'b01:
-        casez_tmp_65 = io_insts_dispatch_1_alu_op;
-      2'b10:
-        casez_tmp_65 = io_insts_dispatch_2_alu_op;
-      default:
-        casez_tmp_65 = io_insts_dispatch_3_alu_op;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_66 = io_insts_dispatch_0_alu_rs1_sel;
-      2'b01:
-        casez_tmp_66 = io_insts_dispatch_1_alu_rs1_sel;
-      2'b10:
-        casez_tmp_66 = io_insts_dispatch_2_alu_rs1_sel;
-      default:
-        casez_tmp_66 = io_insts_dispatch_3_alu_rs1_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_67 = io_insts_dispatch_0_alu_rs2_sel;
-      2'b01:
-        casez_tmp_67 = io_insts_dispatch_1_alu_rs2_sel;
-      2'b10:
-        casez_tmp_67 = io_insts_dispatch_2_alu_rs2_sel;
-      default:
-        casez_tmp_67 = io_insts_dispatch_3_alu_rs2_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_68 = io_insts_dispatch_0_pc;
-      2'b01:
-        casez_tmp_68 = io_insts_dispatch_1_pc;
-      2'b10:
-        casez_tmp_68 = io_insts_dispatch_2_pc;
-      default:
-        casez_tmp_68 = io_insts_dispatch_3_pc;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_69 = io_prj_ready_0;
-      2'b01:
-        casez_tmp_69 = io_prj_ready_1;
-      2'b10:
-        casez_tmp_69 = io_prj_ready_2;
-      default:
-        casez_tmp_69 = io_prj_ready_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_58)
-      2'b00:
-        casez_tmp_70 = io_prk_ready_0;
-      2'b01:
-        casez_tmp_70 = io_prk_ready_1;
-      2'b10:
-        casez_tmp_70 = io_prk_ready_2;
-      default:
-        casez_tmp_70 = io_prk_ready_3;
-    endcase
-  end // always_comb
-  wire [1:0]  _queue_5_prk_waked_T_1 = 2'h1 - _tail_pop_T_16[1:0];
-  always_comb begin
-    casez (_queue_5_prk_waked_T_1)
-      2'b00:
-        casez_tmp_71 = io_insts_disp_valid_0;
-      2'b01:
-        casez_tmp_71 = io_insts_disp_valid_1;
-      2'b10:
-        casez_tmp_71 = io_insts_disp_valid_2;
-      default:
-        casez_tmp_71 = io_insts_disp_valid_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (_queue_5_prk_waked_T_1)
-      2'b00:
-        casez_tmp_72 = io_insts_disp_index_0;
-      2'b01:
-        casez_tmp_72 = io_insts_disp_index_1;
-      2'b10:
-        casez_tmp_72 = io_insts_disp_index_2;
-      default:
-        casez_tmp_72 = io_insts_disp_index_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_73 = io_insts_dispatch_0_prj;
-      2'b01:
-        casez_tmp_73 = io_insts_dispatch_1_prj;
-      2'b10:
-        casez_tmp_73 = io_insts_dispatch_2_prj;
-      default:
-        casez_tmp_73 = io_insts_dispatch_3_prj;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_74 = io_insts_dispatch_0_prk;
-      2'b01:
-        casez_tmp_74 = io_insts_dispatch_1_prk;
-      2'b10:
-        casez_tmp_74 = io_insts_dispatch_2_prk;
-      default:
-        casez_tmp_74 = io_insts_dispatch_3_prk;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_75 = io_insts_dispatch_0_rd_valid;
-      2'b01:
-        casez_tmp_75 = io_insts_dispatch_1_rd_valid;
-      2'b10:
-        casez_tmp_75 = io_insts_dispatch_2_rd_valid;
-      default:
-        casez_tmp_75 = io_insts_dispatch_3_rd_valid;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_76 = io_insts_dispatch_0_prd;
-      2'b01:
-        casez_tmp_76 = io_insts_dispatch_1_prd;
-      2'b10:
-        casez_tmp_76 = io_insts_dispatch_2_prd;
-      default:
-        casez_tmp_76 = io_insts_dispatch_3_prd;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_77 = io_insts_dispatch_0_imm;
-      2'b01:
-        casez_tmp_77 = io_insts_dispatch_1_imm;
-      2'b10:
-        casez_tmp_77 = io_insts_dispatch_2_imm;
-      default:
-        casez_tmp_77 = io_insts_dispatch_3_imm;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_78 = io_insts_dispatch_0_rob_index;
-      2'b01:
-        casez_tmp_78 = io_insts_dispatch_1_rob_index;
-      2'b10:
-        casez_tmp_78 = io_insts_dispatch_2_rob_index;
-      default:
-        casez_tmp_78 = io_insts_dispatch_3_rob_index;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_79 = io_insts_dispatch_0_alu_op;
-      2'b01:
-        casez_tmp_79 = io_insts_dispatch_1_alu_op;
-      2'b10:
-        casez_tmp_79 = io_insts_dispatch_2_alu_op;
-      default:
-        casez_tmp_79 = io_insts_dispatch_3_alu_op;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_80 = io_insts_dispatch_0_alu_rs1_sel;
-      2'b01:
-        casez_tmp_80 = io_insts_dispatch_1_alu_rs1_sel;
-      2'b10:
-        casez_tmp_80 = io_insts_dispatch_2_alu_rs1_sel;
-      default:
-        casez_tmp_80 = io_insts_dispatch_3_alu_rs1_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_81 = io_insts_dispatch_0_alu_rs2_sel;
-      2'b01:
-        casez_tmp_81 = io_insts_dispatch_1_alu_rs2_sel;
-      2'b10:
-        casez_tmp_81 = io_insts_dispatch_2_alu_rs2_sel;
-      default:
-        casez_tmp_81 = io_insts_dispatch_3_alu_rs2_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_82 = io_insts_dispatch_0_pc;
-      2'b01:
-        casez_tmp_82 = io_insts_dispatch_1_pc;
-      2'b10:
-        casez_tmp_82 = io_insts_dispatch_2_pc;
-      default:
-        casez_tmp_82 = io_insts_dispatch_3_pc;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_83 = io_prj_ready_0;
-      2'b01:
-        casez_tmp_83 = io_prj_ready_1;
-      2'b10:
-        casez_tmp_83 = io_prj_ready_2;
-      default:
-        casez_tmp_83 = io_prj_ready_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_72)
-      2'b00:
-        casez_tmp_84 = io_prk_ready_0;
-      2'b01:
-        casez_tmp_84 = io_prk_ready_1;
-      2'b10:
-        casez_tmp_84 = io_prk_ready_2;
-      default:
-        casez_tmp_84 = io_prk_ready_3;
-    endcase
-  end // always_comb
-  wire [1:0]  _queue_6_prk_waked_T_1 = 2'h2 - _tail_pop_T_16[1:0];
-  always_comb begin
-    casez (_queue_6_prk_waked_T_1)
-      2'b00:
-        casez_tmp_85 = io_insts_disp_valid_0;
-      2'b01:
-        casez_tmp_85 = io_insts_disp_valid_1;
-      2'b10:
-        casez_tmp_85 = io_insts_disp_valid_2;
-      default:
-        casez_tmp_85 = io_insts_disp_valid_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (_queue_6_prk_waked_T_1)
-      2'b00:
-        casez_tmp_86 = io_insts_disp_index_0;
-      2'b01:
-        casez_tmp_86 = io_insts_disp_index_1;
-      2'b10:
-        casez_tmp_86 = io_insts_disp_index_2;
-      default:
-        casez_tmp_86 = io_insts_disp_index_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_87 = io_insts_dispatch_0_prj;
-      2'b01:
-        casez_tmp_87 = io_insts_dispatch_1_prj;
-      2'b10:
-        casez_tmp_87 = io_insts_dispatch_2_prj;
-      default:
-        casez_tmp_87 = io_insts_dispatch_3_prj;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_88 = io_insts_dispatch_0_prk;
-      2'b01:
-        casez_tmp_88 = io_insts_dispatch_1_prk;
-      2'b10:
-        casez_tmp_88 = io_insts_dispatch_2_prk;
-      default:
-        casez_tmp_88 = io_insts_dispatch_3_prk;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_89 = io_insts_dispatch_0_rd_valid;
-      2'b01:
-        casez_tmp_89 = io_insts_dispatch_1_rd_valid;
-      2'b10:
-        casez_tmp_89 = io_insts_dispatch_2_rd_valid;
-      default:
-        casez_tmp_89 = io_insts_dispatch_3_rd_valid;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_90 = io_insts_dispatch_0_prd;
-      2'b01:
-        casez_tmp_90 = io_insts_dispatch_1_prd;
-      2'b10:
-        casez_tmp_90 = io_insts_dispatch_2_prd;
-      default:
-        casez_tmp_90 = io_insts_dispatch_3_prd;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_91 = io_insts_dispatch_0_imm;
-      2'b01:
-        casez_tmp_91 = io_insts_dispatch_1_imm;
-      2'b10:
-        casez_tmp_91 = io_insts_dispatch_2_imm;
-      default:
-        casez_tmp_91 = io_insts_dispatch_3_imm;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_92 = io_insts_dispatch_0_rob_index;
-      2'b01:
-        casez_tmp_92 = io_insts_dispatch_1_rob_index;
-      2'b10:
-        casez_tmp_92 = io_insts_dispatch_2_rob_index;
-      default:
-        casez_tmp_92 = io_insts_dispatch_3_rob_index;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_93 = io_insts_dispatch_0_alu_op;
-      2'b01:
-        casez_tmp_93 = io_insts_dispatch_1_alu_op;
-      2'b10:
-        casez_tmp_93 = io_insts_dispatch_2_alu_op;
-      default:
-        casez_tmp_93 = io_insts_dispatch_3_alu_op;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_94 = io_insts_dispatch_0_alu_rs1_sel;
-      2'b01:
-        casez_tmp_94 = io_insts_dispatch_1_alu_rs1_sel;
-      2'b10:
-        casez_tmp_94 = io_insts_dispatch_2_alu_rs1_sel;
-      default:
-        casez_tmp_94 = io_insts_dispatch_3_alu_rs1_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_95 = io_insts_dispatch_0_alu_rs2_sel;
-      2'b01:
-        casez_tmp_95 = io_insts_dispatch_1_alu_rs2_sel;
-      2'b10:
-        casez_tmp_95 = io_insts_dispatch_2_alu_rs2_sel;
-      default:
-        casez_tmp_95 = io_insts_dispatch_3_alu_rs2_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_96 = io_insts_dispatch_0_pc;
-      2'b01:
-        casez_tmp_96 = io_insts_dispatch_1_pc;
-      2'b10:
-        casez_tmp_96 = io_insts_dispatch_2_pc;
-      default:
-        casez_tmp_96 = io_insts_dispatch_3_pc;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_97 = io_prj_ready_0;
-      2'b01:
-        casez_tmp_97 = io_prj_ready_1;
-      2'b10:
-        casez_tmp_97 = io_prj_ready_2;
-      default:
-        casez_tmp_97 = io_prj_ready_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_86)
-      2'b00:
-        casez_tmp_98 = io_prk_ready_0;
-      2'b01:
-        casez_tmp_98 = io_prk_ready_1;
-      2'b10:
-        casez_tmp_98 = io_prk_ready_2;
-      default:
-        casez_tmp_98 = io_prk_ready_3;
-    endcase
-  end // always_comb
-  wire [1:0]  _queue_7_prk_waked_T_1 = 2'h3 - _tail_pop_T_16[1:0];
-  always_comb begin
-    casez (_queue_7_prk_waked_T_1)
-      2'b00:
-        casez_tmp_99 = io_insts_disp_valid_0;
-      2'b01:
-        casez_tmp_99 = io_insts_disp_valid_1;
-      2'b10:
-        casez_tmp_99 = io_insts_disp_valid_2;
-      default:
-        casez_tmp_99 = io_insts_disp_valid_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (_queue_7_prk_waked_T_1)
-      2'b00:
-        casez_tmp_100 = io_insts_disp_index_0;
-      2'b01:
-        casez_tmp_100 = io_insts_disp_index_1;
-      2'b10:
-        casez_tmp_100 = io_insts_disp_index_2;
-      default:
-        casez_tmp_100 = io_insts_disp_index_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_101 = io_insts_dispatch_0_prj;
-      2'b01:
-        casez_tmp_101 = io_insts_dispatch_1_prj;
-      2'b10:
-        casez_tmp_101 = io_insts_dispatch_2_prj;
-      default:
-        casez_tmp_101 = io_insts_dispatch_3_prj;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_102 = io_insts_dispatch_0_prk;
-      2'b01:
-        casez_tmp_102 = io_insts_dispatch_1_prk;
-      2'b10:
-        casez_tmp_102 = io_insts_dispatch_2_prk;
-      default:
-        casez_tmp_102 = io_insts_dispatch_3_prk;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_103 = io_insts_dispatch_0_rd_valid;
-      2'b01:
-        casez_tmp_103 = io_insts_dispatch_1_rd_valid;
-      2'b10:
-        casez_tmp_103 = io_insts_dispatch_2_rd_valid;
-      default:
-        casez_tmp_103 = io_insts_dispatch_3_rd_valid;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_104 = io_insts_dispatch_0_prd;
-      2'b01:
-        casez_tmp_104 = io_insts_dispatch_1_prd;
-      2'b10:
-        casez_tmp_104 = io_insts_dispatch_2_prd;
-      default:
-        casez_tmp_104 = io_insts_dispatch_3_prd;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_105 = io_insts_dispatch_0_imm;
-      2'b01:
-        casez_tmp_105 = io_insts_dispatch_1_imm;
-      2'b10:
-        casez_tmp_105 = io_insts_dispatch_2_imm;
-      default:
-        casez_tmp_105 = io_insts_dispatch_3_imm;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_106 = io_insts_dispatch_0_rob_index;
-      2'b01:
-        casez_tmp_106 = io_insts_dispatch_1_rob_index;
-      2'b10:
-        casez_tmp_106 = io_insts_dispatch_2_rob_index;
-      default:
-        casez_tmp_106 = io_insts_dispatch_3_rob_index;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_107 = io_insts_dispatch_0_alu_op;
-      2'b01:
-        casez_tmp_107 = io_insts_dispatch_1_alu_op;
-      2'b10:
-        casez_tmp_107 = io_insts_dispatch_2_alu_op;
-      default:
-        casez_tmp_107 = io_insts_dispatch_3_alu_op;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_108 = io_insts_dispatch_0_alu_rs1_sel;
-      2'b01:
-        casez_tmp_108 = io_insts_dispatch_1_alu_rs1_sel;
-      2'b10:
-        casez_tmp_108 = io_insts_dispatch_2_alu_rs1_sel;
-      default:
-        casez_tmp_108 = io_insts_dispatch_3_alu_rs1_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_109 = io_insts_dispatch_0_alu_rs2_sel;
-      2'b01:
-        casez_tmp_109 = io_insts_dispatch_1_alu_rs2_sel;
-      2'b10:
-        casez_tmp_109 = io_insts_dispatch_2_alu_rs2_sel;
-      default:
-        casez_tmp_109 = io_insts_dispatch_3_alu_rs2_sel;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_110 = io_insts_dispatch_0_pc;
-      2'b01:
-        casez_tmp_110 = io_insts_dispatch_1_pc;
-      2'b10:
-        casez_tmp_110 = io_insts_dispatch_2_pc;
-      default:
-        casez_tmp_110 = io_insts_dispatch_3_pc;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_111 = io_prj_ready_0;
-      2'b01:
-        casez_tmp_111 = io_prj_ready_1;
-      2'b10:
-        casez_tmp_111 = io_prj_ready_2;
-      default:
-        casez_tmp_111 = io_prj_ready_3;
-    endcase
-  end // always_comb
-  always_comb begin
-    casez (casez_tmp_100)
-      2'b00:
-        casez_tmp_112 = io_prk_ready_0;
-      2'b01:
-        casez_tmp_112 = io_prk_ready_1;
-      2'b10:
-        casez_tmp_112 = io_prk_ready_2;
-      default:
-        casez_tmp_112 = io_prk_ready_3;
-    endcase
-  end // always_comb
-  wire        queue_temp_1_prj_waked =
-    queue_1_prj_waked
-    | (|{queue_1_inst_prj == io_wake_preg_3,
-         queue_1_inst_prj == io_wake_preg_2,
-         queue_1_inst_prj == io_wake_preg_1,
-         queue_1_inst_prj == io_wake_preg_0});
-  wire        queue_temp_1_prk_waked =
-    queue_1_prk_waked
-    | (|{queue_1_inst_prk == io_wake_preg_3,
-         queue_1_inst_prk == io_wake_preg_2,
-         queue_1_inst_prk == io_wake_preg_1,
-         queue_1_inst_prk == io_wake_preg_0});
-  wire        queue_temp_2_prj_waked =
-    queue_2_prj_waked
-    | (|{queue_2_inst_prj == io_wake_preg_3,
-         queue_2_inst_prj == io_wake_preg_2,
-         queue_2_inst_prj == io_wake_preg_1,
-         queue_2_inst_prj == io_wake_preg_0});
-  wire        queue_temp_2_prk_waked =
-    queue_2_prk_waked
-    | (|{queue_2_inst_prk == io_wake_preg_3,
-         queue_2_inst_prk == io_wake_preg_2,
-         queue_2_inst_prk == io_wake_preg_1,
-         queue_2_inst_prk == io_wake_preg_0});
-  wire        queue_temp_3_prj_waked =
-    queue_3_prj_waked
-    | (|{queue_3_inst_prj == io_wake_preg_3,
-         queue_3_inst_prj == io_wake_preg_2,
-         queue_3_inst_prj == io_wake_preg_1,
-         queue_3_inst_prj == io_wake_preg_0});
-  wire        queue_temp_3_prk_waked =
-    queue_3_prk_waked
-    | (|{queue_3_inst_prk == io_wake_preg_3,
-         queue_3_inst_prk == io_wake_preg_2,
-         queue_3_inst_prk == io_wake_preg_1,
-         queue_3_inst_prk == io_wake_preg_0});
-  wire        queue_temp_4_prj_waked =
-    queue_4_prj_waked
-    | (|{queue_4_inst_prj == io_wake_preg_3,
-         queue_4_inst_prj == io_wake_preg_2,
-         queue_4_inst_prj == io_wake_preg_1,
-         queue_4_inst_prj == io_wake_preg_0});
-  wire        queue_temp_4_prk_waked =
-    queue_4_prk_waked
-    | (|{queue_4_inst_prk == io_wake_preg_3,
-         queue_4_inst_prk == io_wake_preg_2,
-         queue_4_inst_prk == io_wake_preg_1,
-         queue_4_inst_prk == io_wake_preg_0});
-  wire        queue_temp_5_prj_waked =
-    queue_5_prj_waked
-    | (|{queue_5_inst_prj == io_wake_preg_3,
-         queue_5_inst_prj == io_wake_preg_2,
-         queue_5_inst_prj == io_wake_preg_1,
-         queue_5_inst_prj == io_wake_preg_0});
-  wire        queue_temp_5_prk_waked =
-    queue_5_prk_waked
-    | (|{queue_5_inst_prk == io_wake_preg_3,
-         queue_5_inst_prk == io_wake_preg_2,
-         queue_5_inst_prk == io_wake_preg_1,
-         queue_5_inst_prk == io_wake_preg_0});
-  wire        queue_temp_6_prj_waked =
-    queue_6_prj_waked
-    | (|{queue_6_inst_prj == io_wake_preg_3,
-         queue_6_inst_prj == io_wake_preg_2,
-         queue_6_inst_prj == io_wake_preg_1,
-         queue_6_inst_prj == io_wake_preg_0});
-  wire        queue_temp_6_prk_waked =
-    queue_6_prk_waked
-    | (|{queue_6_inst_prk == io_wake_preg_3,
-         queue_6_inst_prk == io_wake_preg_2,
-         queue_6_inst_prk == io_wake_preg_1,
-         queue_6_inst_prk == io_wake_preg_0});
-  wire        queue_temp_7_prj_waked =
-    queue_7_prj_waked
-    | (|{queue_7_inst_prj == io_wake_preg_3,
-         queue_7_inst_prj == io_wake_preg_2,
-         queue_7_inst_prj == io_wake_preg_1,
-         queue_7_inst_prj == io_wake_preg_0});
-  wire        queue_temp_7_prk_waked =
-    queue_7_prk_waked
-    | (|{queue_7_inst_prk == io_wake_preg_3,
-         queue_7_inst_prk == io_wake_preg_2,
-         queue_7_inst_prk == io_wake_preg_1,
-         queue_7_inst_prk == io_wake_preg_0});
+      ? (next_mask[3] ? queue_4_inst_prj : queue_3_inst_prj)
+      : casez_tmp_41 ? casez_tmp_43 : 7'h0;
+  wire [6:0]  queue_next_3_inst_prk =
+    (|(_tail_pop_T_16[3:2]))
+      ? (next_mask[3] ? queue_4_inst_prk : queue_3_inst_prk)
+      : casez_tmp_41 ? casez_tmp_44 : 7'h0;
+  wire        _queue_next_4_prk_waked_T = _tail_pop_T_16 > 4'h4;
+  wire [6:0]  queue_next_4_inst_prj =
+    _queue_next_4_prk_waked_T
+      ? (next_mask[4] ? queue_5_inst_prj : queue_4_inst_prj)
+      : casez_tmp_55 ? casez_tmp_57 : 7'h0;
+  wire [6:0]  queue_next_4_inst_prk =
+    _queue_next_4_prk_waked_T
+      ? (next_mask[4] ? queue_5_inst_prk : queue_4_inst_prk)
+      : casez_tmp_55 ? casez_tmp_58 : 7'h0;
+  wire        _queue_next_5_prk_waked_T = _tail_pop_T_16 > 4'h5;
+  wire [6:0]  queue_next_5_inst_prj =
+    _queue_next_5_prk_waked_T
+      ? (next_mask[5] ? queue_6_inst_prj : queue_5_inst_prj)
+      : casez_tmp_69 ? casez_tmp_71 : 7'h0;
+  wire [6:0]  queue_next_5_inst_prk =
+    _queue_next_5_prk_waked_T
+      ? (next_mask[5] ? queue_6_inst_prk : queue_5_inst_prk)
+      : casez_tmp_69 ? casez_tmp_72 : 7'h0;
+  wire        _queue_next_6_prk_waked_T = _tail_pop_T_16 > 4'h6;
+  wire [6:0]  queue_next_6_inst_prj =
+    _queue_next_6_prk_waked_T
+      ? (next_mask[6] ? queue_7_inst_prj : queue_6_inst_prj)
+      : casez_tmp_83 ? casez_tmp_85 : 7'h0;
+  wire [6:0]  queue_next_6_inst_prk =
+    _queue_next_6_prk_waked_T
+      ? (next_mask[6] ? queue_7_inst_prk : queue_6_inst_prk)
+      : casez_tmp_83 ? casez_tmp_86 : 7'h0;
+  wire [6:0]  queue_next_7_inst_prj =
+    _tail_pop_T_16[3]
+      ? (next_mask[7] ? 7'h0 : queue_7_inst_prj)
+      : casez_tmp_97 ? casez_tmp_99 : 7'h0;
+  wire [6:0]  queue_next_7_inst_prk =
+    _tail_pop_T_16[3]
+      ? (next_mask[7] ? 7'h0 : queue_7_inst_prk)
+      : casez_tmp_97 ? casez_tmp_100 : 7'h0;
   always @(posedge clock) begin
     if (reset) begin
       queue_0_inst_prj <= 7'h0;
@@ -2013,6 +1923,7 @@ module Unorder_Issue_Queue(
         if (next_mask[0]) begin
           queue_0_inst_prj <= queue_1_inst_prj;
           queue_0_inst_prk <= queue_1_inst_prk;
+          queue_0_inst_rd_valid <= queue_1_inst_rd_valid;
           queue_0_inst_prd <= queue_1_inst_prd;
           queue_0_inst_imm <= queue_1_inst_imm;
           queue_0_inst_rob_index <= queue_1_inst_rob_index;
@@ -2021,37 +1932,18 @@ module Unorder_Issue_Queue(
           queue_0_inst_alu_rs2_sel <= queue_1_inst_alu_rs2_sel;
           queue_0_inst_pc <= queue_1_inst_pc;
         end
-        queue_0_inst_rd_valid <= queue_next_0_inst_rd_valid;
-        queue_0_prj_waked <=
-          (|_tail_pop_T_16)
-          & (next_mask[0]
-               ? queue_temp_1_prj_waked
-               : queue_0_prj_waked
-                 | (|{queue_0_inst_prj == io_wake_preg_3,
-                      queue_0_inst_prj == io_wake_preg_2,
-                      queue_0_inst_prj == io_wake_preg_1,
-                      queue_0_inst_prj == io_wake_preg_0}));
-        queue_0_prk_waked <=
-          (|_tail_pop_T_16)
-          & (next_mask[0]
-               ? queue_temp_1_prk_waked
-               : queue_0_prk_waked
-                 | (|{queue_0_inst_prk == io_wake_preg_3,
-                      queue_0_inst_prk == io_wake_preg_2,
-                      queue_0_inst_prk == io_wake_preg_1,
-                      queue_0_inst_prk == io_wake_preg_0}));
       end
       else begin
-        if (casez_tmp_1) begin
-          queue_0_inst_prj <= casez_tmp_3;
-          queue_0_inst_prk <= casez_tmp_4;
-          queue_0_inst_prd <= casez_tmp_6;
-          queue_0_inst_imm <= casez_tmp_7;
-          queue_0_inst_rob_index <= casez_tmp_8;
-          queue_0_inst_alu_op <= casez_tmp_9;
-          queue_0_inst_alu_rs1_sel <= casez_tmp_10;
-          queue_0_inst_alu_rs2_sel <= casez_tmp_11;
-          queue_0_inst_pc <= casez_tmp_12;
+        if (casez_tmp) begin
+          queue_0_inst_prj <= casez_tmp_1;
+          queue_0_inst_prk <= casez_tmp_2;
+          queue_0_inst_prd <= casez_tmp_4;
+          queue_0_inst_imm <= casez_tmp_5;
+          queue_0_inst_rob_index <= casez_tmp_6;
+          queue_0_inst_alu_op <= casez_tmp_7;
+          queue_0_inst_alu_rs1_sel <= casez_tmp_8;
+          queue_0_inst_alu_rs2_sel <= casez_tmp_9;
+          queue_0_inst_pc <= casez_tmp_10;
         end
         else begin
           queue_0_inst_prj <= 7'h0;
@@ -2064,14 +1956,29 @@ module Unorder_Issue_Queue(
           queue_0_inst_alu_rs2_sel <= 2'h0;
           queue_0_inst_pc <= 32'h0;
         end
-        queue_0_inst_rd_valid <= casez_tmp_1 & casez_tmp_5;
-        queue_0_prj_waked <= casez_tmp_13;
-        queue_0_prk_waked <= casez_tmp_14;
+        queue_0_inst_rd_valid <= casez_tmp & casez_tmp_3;
       end
+      queue_0_prj_waked <=
+        ((|_tail_pop_T_16)
+           ? (next_mask[0] ? queue_1_prj_waked : queue_0_prj_waked)
+           : casez_tmp & casez_tmp_11)
+        | (|{queue_next_0_inst_prj == io_wake_preg_3,
+             queue_next_0_inst_prj == io_wake_preg_2,
+             queue_next_0_inst_prj == io_wake_preg_1,
+             queue_next_0_inst_prj == io_wake_preg_0});
+      queue_0_prk_waked <=
+        ((|_tail_pop_T_16)
+           ? (next_mask[0] ? queue_1_prk_waked : queue_0_prk_waked)
+           : casez_tmp & casez_tmp_12)
+        | (|{queue_next_0_inst_prk == io_wake_preg_3,
+             queue_next_0_inst_prk == io_wake_preg_2,
+             queue_next_0_inst_prk == io_wake_preg_1,
+             queue_next_0_inst_prk == io_wake_preg_0});
       if (|(_tail_pop_T_16[3:1])) begin
         if (next_mask[1]) begin
           queue_1_inst_prj <= queue_2_inst_prj;
           queue_1_inst_prk <= queue_2_inst_prk;
+          queue_1_inst_rd_valid <= queue_2_inst_rd_valid;
           queue_1_inst_prd <= queue_2_inst_prd;
           queue_1_inst_imm <= queue_2_inst_imm;
           queue_1_inst_rob_index <= queue_2_inst_rob_index;
@@ -2080,25 +1987,18 @@ module Unorder_Issue_Queue(
           queue_1_inst_alu_rs2_sel <= queue_2_inst_alu_rs2_sel;
           queue_1_inst_pc <= queue_2_inst_pc;
         end
-        queue_1_inst_rd_valid <= queue_next_1_inst_rd_valid;
-        queue_1_prj_waked <=
-          (|(_tail_pop_T_16[3:1]))
-          & (next_mask[1] ? queue_temp_2_prj_waked : queue_temp_1_prj_waked);
-        queue_1_prk_waked <=
-          (|(_tail_pop_T_16[3:1]))
-          & (next_mask[1] ? queue_temp_2_prk_waked : queue_temp_1_prk_waked);
       end
       else begin
-        if (casez_tmp_15) begin
-          queue_1_inst_prj <= casez_tmp_17;
-          queue_1_inst_prk <= casez_tmp_18;
-          queue_1_inst_prd <= casez_tmp_20;
-          queue_1_inst_imm <= casez_tmp_21;
-          queue_1_inst_rob_index <= casez_tmp_22;
-          queue_1_inst_alu_op <= casez_tmp_23;
-          queue_1_inst_alu_rs1_sel <= casez_tmp_24;
-          queue_1_inst_alu_rs2_sel <= casez_tmp_25;
-          queue_1_inst_pc <= casez_tmp_26;
+        if (casez_tmp_13) begin
+          queue_1_inst_prj <= casez_tmp_15;
+          queue_1_inst_prk <= casez_tmp_16;
+          queue_1_inst_prd <= casez_tmp_18;
+          queue_1_inst_imm <= casez_tmp_19;
+          queue_1_inst_rob_index <= casez_tmp_20;
+          queue_1_inst_alu_op <= casez_tmp_21;
+          queue_1_inst_alu_rs1_sel <= casez_tmp_22;
+          queue_1_inst_alu_rs2_sel <= casez_tmp_23;
+          queue_1_inst_pc <= casez_tmp_24;
         end
         else begin
           queue_1_inst_prj <= 7'h0;
@@ -2111,14 +2011,29 @@ module Unorder_Issue_Queue(
           queue_1_inst_alu_rs2_sel <= 2'h0;
           queue_1_inst_pc <= 32'h0;
         end
-        queue_1_inst_rd_valid <= casez_tmp_15 & casez_tmp_19;
-        queue_1_prj_waked <= casez_tmp_27;
-        queue_1_prk_waked <= casez_tmp_28;
+        queue_1_inst_rd_valid <= casez_tmp_13 & casez_tmp_17;
       end
-      if (_queue_2_prk_waked_T) begin
+      queue_1_prj_waked <=
+        ((|(_tail_pop_T_16[3:1]))
+           ? (next_mask[1] ? queue_2_prj_waked : queue_1_prj_waked)
+           : casez_tmp_13 & casez_tmp_25)
+        | (|{queue_next_1_inst_prj == io_wake_preg_3,
+             queue_next_1_inst_prj == io_wake_preg_2,
+             queue_next_1_inst_prj == io_wake_preg_1,
+             queue_next_1_inst_prj == io_wake_preg_0});
+      queue_1_prk_waked <=
+        ((|(_tail_pop_T_16[3:1]))
+           ? (next_mask[1] ? queue_2_prk_waked : queue_1_prk_waked)
+           : casez_tmp_13 & casez_tmp_26)
+        | (|{queue_next_1_inst_prk == io_wake_preg_3,
+             queue_next_1_inst_prk == io_wake_preg_2,
+             queue_next_1_inst_prk == io_wake_preg_1,
+             queue_next_1_inst_prk == io_wake_preg_0});
+      if (_queue_next_2_prk_waked_T) begin
         if (next_mask[2]) begin
           queue_2_inst_prj <= queue_3_inst_prj;
           queue_2_inst_prk <= queue_3_inst_prk;
+          queue_2_inst_rd_valid <= queue_3_inst_rd_valid;
           queue_2_inst_prd <= queue_3_inst_prd;
           queue_2_inst_imm <= queue_3_inst_imm;
           queue_2_inst_rob_index <= queue_3_inst_rob_index;
@@ -2127,25 +2042,18 @@ module Unorder_Issue_Queue(
           queue_2_inst_alu_rs2_sel <= queue_3_inst_alu_rs2_sel;
           queue_2_inst_pc <= queue_3_inst_pc;
         end
-        queue_2_inst_rd_valid <= queue_next_2_inst_rd_valid;
-        queue_2_prj_waked <=
-          _queue_2_prk_waked_T
-          & (next_mask[2] ? queue_temp_3_prj_waked : queue_temp_2_prj_waked);
-        queue_2_prk_waked <=
-          _queue_2_prk_waked_T
-          & (next_mask[2] ? queue_temp_3_prk_waked : queue_temp_2_prk_waked);
       end
       else begin
-        if (casez_tmp_29) begin
-          queue_2_inst_prj <= casez_tmp_31;
-          queue_2_inst_prk <= casez_tmp_32;
-          queue_2_inst_prd <= casez_tmp_34;
-          queue_2_inst_imm <= casez_tmp_35;
-          queue_2_inst_rob_index <= casez_tmp_36;
-          queue_2_inst_alu_op <= casez_tmp_37;
-          queue_2_inst_alu_rs1_sel <= casez_tmp_38;
-          queue_2_inst_alu_rs2_sel <= casez_tmp_39;
-          queue_2_inst_pc <= casez_tmp_40;
+        if (casez_tmp_27) begin
+          queue_2_inst_prj <= casez_tmp_29;
+          queue_2_inst_prk <= casez_tmp_30;
+          queue_2_inst_prd <= casez_tmp_32;
+          queue_2_inst_imm <= casez_tmp_33;
+          queue_2_inst_rob_index <= casez_tmp_34;
+          queue_2_inst_alu_op <= casez_tmp_35;
+          queue_2_inst_alu_rs1_sel <= casez_tmp_36;
+          queue_2_inst_alu_rs2_sel <= casez_tmp_37;
+          queue_2_inst_pc <= casez_tmp_38;
         end
         else begin
           queue_2_inst_prj <= 7'h0;
@@ -2158,14 +2066,29 @@ module Unorder_Issue_Queue(
           queue_2_inst_alu_rs2_sel <= 2'h0;
           queue_2_inst_pc <= 32'h0;
         end
-        queue_2_inst_rd_valid <= casez_tmp_29 & casez_tmp_33;
-        queue_2_prj_waked <= casez_tmp_41;
-        queue_2_prk_waked <= casez_tmp_42;
+        queue_2_inst_rd_valid <= casez_tmp_27 & casez_tmp_31;
       end
+      queue_2_prj_waked <=
+        (_queue_next_2_prk_waked_T
+           ? (next_mask[2] ? queue_3_prj_waked : queue_2_prj_waked)
+           : casez_tmp_27 & casez_tmp_39)
+        | (|{queue_next_2_inst_prj == io_wake_preg_3,
+             queue_next_2_inst_prj == io_wake_preg_2,
+             queue_next_2_inst_prj == io_wake_preg_1,
+             queue_next_2_inst_prj == io_wake_preg_0});
+      queue_2_prk_waked <=
+        (_queue_next_2_prk_waked_T
+           ? (next_mask[2] ? queue_3_prk_waked : queue_2_prk_waked)
+           : casez_tmp_27 & casez_tmp_40)
+        | (|{queue_next_2_inst_prk == io_wake_preg_3,
+             queue_next_2_inst_prk == io_wake_preg_2,
+             queue_next_2_inst_prk == io_wake_preg_1,
+             queue_next_2_inst_prk == io_wake_preg_0});
       if (|(_tail_pop_T_16[3:2])) begin
         if (next_mask[3]) begin
           queue_3_inst_prj <= queue_4_inst_prj;
           queue_3_inst_prk <= queue_4_inst_prk;
+          queue_3_inst_rd_valid <= queue_4_inst_rd_valid;
           queue_3_inst_prd <= queue_4_inst_prd;
           queue_3_inst_imm <= queue_4_inst_imm;
           queue_3_inst_rob_index <= queue_4_inst_rob_index;
@@ -2174,25 +2097,18 @@ module Unorder_Issue_Queue(
           queue_3_inst_alu_rs2_sel <= queue_4_inst_alu_rs2_sel;
           queue_3_inst_pc <= queue_4_inst_pc;
         end
-        queue_3_inst_rd_valid <= queue_next_3_inst_rd_valid;
-        queue_3_prj_waked <=
-          (|(_tail_pop_T_16[3:2]))
-          & (next_mask[3] ? queue_temp_4_prj_waked : queue_temp_3_prj_waked);
-        queue_3_prk_waked <=
-          (|(_tail_pop_T_16[3:2]))
-          & (next_mask[3] ? queue_temp_4_prk_waked : queue_temp_3_prk_waked);
       end
       else begin
-        if (casez_tmp_43) begin
-          queue_3_inst_prj <= casez_tmp_45;
-          queue_3_inst_prk <= casez_tmp_46;
-          queue_3_inst_prd <= casez_tmp_48;
-          queue_3_inst_imm <= casez_tmp_49;
-          queue_3_inst_rob_index <= casez_tmp_50;
-          queue_3_inst_alu_op <= casez_tmp_51;
-          queue_3_inst_alu_rs1_sel <= casez_tmp_52;
-          queue_3_inst_alu_rs2_sel <= casez_tmp_53;
-          queue_3_inst_pc <= casez_tmp_54;
+        if (casez_tmp_41) begin
+          queue_3_inst_prj <= casez_tmp_43;
+          queue_3_inst_prk <= casez_tmp_44;
+          queue_3_inst_prd <= casez_tmp_46;
+          queue_3_inst_imm <= casez_tmp_47;
+          queue_3_inst_rob_index <= casez_tmp_48;
+          queue_3_inst_alu_op <= casez_tmp_49;
+          queue_3_inst_alu_rs1_sel <= casez_tmp_50;
+          queue_3_inst_alu_rs2_sel <= casez_tmp_51;
+          queue_3_inst_pc <= casez_tmp_52;
         end
         else begin
           queue_3_inst_prj <= 7'h0;
@@ -2205,14 +2121,29 @@ module Unorder_Issue_Queue(
           queue_3_inst_alu_rs2_sel <= 2'h0;
           queue_3_inst_pc <= 32'h0;
         end
-        queue_3_inst_rd_valid <= casez_tmp_43 & casez_tmp_47;
-        queue_3_prj_waked <= casez_tmp_55;
-        queue_3_prk_waked <= casez_tmp_56;
+        queue_3_inst_rd_valid <= casez_tmp_41 & casez_tmp_45;
       end
-      if (_queue_4_prk_waked_T) begin
+      queue_3_prj_waked <=
+        ((|(_tail_pop_T_16[3:2]))
+           ? (next_mask[3] ? queue_4_prj_waked : queue_3_prj_waked)
+           : casez_tmp_41 & casez_tmp_53)
+        | (|{queue_next_3_inst_prj == io_wake_preg_3,
+             queue_next_3_inst_prj == io_wake_preg_2,
+             queue_next_3_inst_prj == io_wake_preg_1,
+             queue_next_3_inst_prj == io_wake_preg_0});
+      queue_3_prk_waked <=
+        ((|(_tail_pop_T_16[3:2]))
+           ? (next_mask[3] ? queue_4_prk_waked : queue_3_prk_waked)
+           : casez_tmp_41 & casez_tmp_54)
+        | (|{queue_next_3_inst_prk == io_wake_preg_3,
+             queue_next_3_inst_prk == io_wake_preg_2,
+             queue_next_3_inst_prk == io_wake_preg_1,
+             queue_next_3_inst_prk == io_wake_preg_0});
+      if (_queue_next_4_prk_waked_T) begin
         if (next_mask[4]) begin
           queue_4_inst_prj <= queue_5_inst_prj;
           queue_4_inst_prk <= queue_5_inst_prk;
+          queue_4_inst_rd_valid <= queue_5_inst_rd_valid;
           queue_4_inst_prd <= queue_5_inst_prd;
           queue_4_inst_imm <= queue_5_inst_imm;
           queue_4_inst_rob_index <= queue_5_inst_rob_index;
@@ -2221,25 +2152,18 @@ module Unorder_Issue_Queue(
           queue_4_inst_alu_rs2_sel <= queue_5_inst_alu_rs2_sel;
           queue_4_inst_pc <= queue_5_inst_pc;
         end
-        queue_4_inst_rd_valid <= queue_next_4_inst_rd_valid;
-        queue_4_prj_waked <=
-          _queue_4_prk_waked_T
-          & (next_mask[4] ? queue_temp_5_prj_waked : queue_temp_4_prj_waked);
-        queue_4_prk_waked <=
-          _queue_4_prk_waked_T
-          & (next_mask[4] ? queue_temp_5_prk_waked : queue_temp_4_prk_waked);
       end
       else begin
-        if (casez_tmp_57) begin
-          queue_4_inst_prj <= casez_tmp_59;
-          queue_4_inst_prk <= casez_tmp_60;
-          queue_4_inst_prd <= casez_tmp_62;
-          queue_4_inst_imm <= casez_tmp_63;
-          queue_4_inst_rob_index <= casez_tmp_64;
-          queue_4_inst_alu_op <= casez_tmp_65;
-          queue_4_inst_alu_rs1_sel <= casez_tmp_66;
-          queue_4_inst_alu_rs2_sel <= casez_tmp_67;
-          queue_4_inst_pc <= casez_tmp_68;
+        if (casez_tmp_55) begin
+          queue_4_inst_prj <= casez_tmp_57;
+          queue_4_inst_prk <= casez_tmp_58;
+          queue_4_inst_prd <= casez_tmp_60;
+          queue_4_inst_imm <= casez_tmp_61;
+          queue_4_inst_rob_index <= casez_tmp_62;
+          queue_4_inst_alu_op <= casez_tmp_63;
+          queue_4_inst_alu_rs1_sel <= casez_tmp_64;
+          queue_4_inst_alu_rs2_sel <= casez_tmp_65;
+          queue_4_inst_pc <= casez_tmp_66;
         end
         else begin
           queue_4_inst_prj <= 7'h0;
@@ -2252,14 +2176,29 @@ module Unorder_Issue_Queue(
           queue_4_inst_alu_rs2_sel <= 2'h0;
           queue_4_inst_pc <= 32'h0;
         end
-        queue_4_inst_rd_valid <= casez_tmp_57 & casez_tmp_61;
-        queue_4_prj_waked <= casez_tmp_69;
-        queue_4_prk_waked <= casez_tmp_70;
+        queue_4_inst_rd_valid <= casez_tmp_55 & casez_tmp_59;
       end
-      if (_queue_5_prk_waked_T) begin
+      queue_4_prj_waked <=
+        (_queue_next_4_prk_waked_T
+           ? (next_mask[4] ? queue_5_prj_waked : queue_4_prj_waked)
+           : casez_tmp_55 & casez_tmp_67)
+        | (|{queue_next_4_inst_prj == io_wake_preg_3,
+             queue_next_4_inst_prj == io_wake_preg_2,
+             queue_next_4_inst_prj == io_wake_preg_1,
+             queue_next_4_inst_prj == io_wake_preg_0});
+      queue_4_prk_waked <=
+        (_queue_next_4_prk_waked_T
+           ? (next_mask[4] ? queue_5_prk_waked : queue_4_prk_waked)
+           : casez_tmp_55 & casez_tmp_68)
+        | (|{queue_next_4_inst_prk == io_wake_preg_3,
+             queue_next_4_inst_prk == io_wake_preg_2,
+             queue_next_4_inst_prk == io_wake_preg_1,
+             queue_next_4_inst_prk == io_wake_preg_0});
+      if (_queue_next_5_prk_waked_T) begin
         if (next_mask[5]) begin
           queue_5_inst_prj <= queue_6_inst_prj;
           queue_5_inst_prk <= queue_6_inst_prk;
+          queue_5_inst_rd_valid <= queue_6_inst_rd_valid;
           queue_5_inst_prd <= queue_6_inst_prd;
           queue_5_inst_imm <= queue_6_inst_imm;
           queue_5_inst_rob_index <= queue_6_inst_rob_index;
@@ -2268,25 +2207,18 @@ module Unorder_Issue_Queue(
           queue_5_inst_alu_rs2_sel <= queue_6_inst_alu_rs2_sel;
           queue_5_inst_pc <= queue_6_inst_pc;
         end
-        queue_5_inst_rd_valid <= queue_next_5_inst_rd_valid;
-        queue_5_prj_waked <=
-          _queue_5_prk_waked_T
-          & (next_mask[5] ? queue_temp_6_prj_waked : queue_temp_5_prj_waked);
-        queue_5_prk_waked <=
-          _queue_5_prk_waked_T
-          & (next_mask[5] ? queue_temp_6_prk_waked : queue_temp_5_prk_waked);
       end
       else begin
-        if (casez_tmp_71) begin
-          queue_5_inst_prj <= casez_tmp_73;
-          queue_5_inst_prk <= casez_tmp_74;
-          queue_5_inst_prd <= casez_tmp_76;
-          queue_5_inst_imm <= casez_tmp_77;
-          queue_5_inst_rob_index <= casez_tmp_78;
-          queue_5_inst_alu_op <= casez_tmp_79;
-          queue_5_inst_alu_rs1_sel <= casez_tmp_80;
-          queue_5_inst_alu_rs2_sel <= casez_tmp_81;
-          queue_5_inst_pc <= casez_tmp_82;
+        if (casez_tmp_69) begin
+          queue_5_inst_prj <= casez_tmp_71;
+          queue_5_inst_prk <= casez_tmp_72;
+          queue_5_inst_prd <= casez_tmp_74;
+          queue_5_inst_imm <= casez_tmp_75;
+          queue_5_inst_rob_index <= casez_tmp_76;
+          queue_5_inst_alu_op <= casez_tmp_77;
+          queue_5_inst_alu_rs1_sel <= casez_tmp_78;
+          queue_5_inst_alu_rs2_sel <= casez_tmp_79;
+          queue_5_inst_pc <= casez_tmp_80;
         end
         else begin
           queue_5_inst_prj <= 7'h0;
@@ -2299,14 +2231,29 @@ module Unorder_Issue_Queue(
           queue_5_inst_alu_rs2_sel <= 2'h0;
           queue_5_inst_pc <= 32'h0;
         end
-        queue_5_inst_rd_valid <= casez_tmp_71 & casez_tmp_75;
-        queue_5_prj_waked <= casez_tmp_83;
-        queue_5_prk_waked <= casez_tmp_84;
+        queue_5_inst_rd_valid <= casez_tmp_69 & casez_tmp_73;
       end
-      if (_queue_6_prk_waked_T) begin
+      queue_5_prj_waked <=
+        (_queue_next_5_prk_waked_T
+           ? (next_mask[5] ? queue_6_prj_waked : queue_5_prj_waked)
+           : casez_tmp_69 & casez_tmp_81)
+        | (|{queue_next_5_inst_prj == io_wake_preg_3,
+             queue_next_5_inst_prj == io_wake_preg_2,
+             queue_next_5_inst_prj == io_wake_preg_1,
+             queue_next_5_inst_prj == io_wake_preg_0});
+      queue_5_prk_waked <=
+        (_queue_next_5_prk_waked_T
+           ? (next_mask[5] ? queue_6_prk_waked : queue_5_prk_waked)
+           : casez_tmp_69 & casez_tmp_82)
+        | (|{queue_next_5_inst_prk == io_wake_preg_3,
+             queue_next_5_inst_prk == io_wake_preg_2,
+             queue_next_5_inst_prk == io_wake_preg_1,
+             queue_next_5_inst_prk == io_wake_preg_0});
+      if (_queue_next_6_prk_waked_T) begin
         if (next_mask[6]) begin
           queue_6_inst_prj <= queue_7_inst_prj;
           queue_6_inst_prk <= queue_7_inst_prk;
+          queue_6_inst_rd_valid <= queue_7_inst_rd_valid;
           queue_6_inst_prd <= queue_7_inst_prd;
           queue_6_inst_imm <= queue_7_inst_imm;
           queue_6_inst_rob_index <= queue_7_inst_rob_index;
@@ -2315,25 +2262,18 @@ module Unorder_Issue_Queue(
           queue_6_inst_alu_rs2_sel <= queue_7_inst_alu_rs2_sel;
           queue_6_inst_pc <= queue_7_inst_pc;
         end
-        queue_6_inst_rd_valid <= queue_next_6_inst_rd_valid;
-        queue_6_prj_waked <=
-          _queue_6_prk_waked_T
-          & (next_mask[6] ? queue_temp_7_prj_waked : queue_temp_6_prj_waked);
-        queue_6_prk_waked <=
-          _queue_6_prk_waked_T
-          & (next_mask[6] ? queue_temp_7_prk_waked : queue_temp_6_prk_waked);
       end
       else begin
-        if (casez_tmp_85) begin
-          queue_6_inst_prj <= casez_tmp_87;
-          queue_6_inst_prk <= casez_tmp_88;
-          queue_6_inst_prd <= casez_tmp_90;
-          queue_6_inst_imm <= casez_tmp_91;
-          queue_6_inst_rob_index <= casez_tmp_92;
-          queue_6_inst_alu_op <= casez_tmp_93;
-          queue_6_inst_alu_rs1_sel <= casez_tmp_94;
-          queue_6_inst_alu_rs2_sel <= casez_tmp_95;
-          queue_6_inst_pc <= casez_tmp_96;
+        if (casez_tmp_83) begin
+          queue_6_inst_prj <= casez_tmp_85;
+          queue_6_inst_prk <= casez_tmp_86;
+          queue_6_inst_prd <= casez_tmp_88;
+          queue_6_inst_imm <= casez_tmp_89;
+          queue_6_inst_rob_index <= casez_tmp_90;
+          queue_6_inst_alu_op <= casez_tmp_91;
+          queue_6_inst_alu_rs1_sel <= casez_tmp_92;
+          queue_6_inst_alu_rs2_sel <= casez_tmp_93;
+          queue_6_inst_pc <= casez_tmp_94;
         end
         else begin
           queue_6_inst_prj <= 7'h0;
@@ -2346,17 +2286,28 @@ module Unorder_Issue_Queue(
           queue_6_inst_alu_rs2_sel <= 2'h0;
           queue_6_inst_pc <= 32'h0;
         end
-        queue_6_inst_rd_valid <= casez_tmp_85 & casez_tmp_89;
-        queue_6_prj_waked <= casez_tmp_97;
-        queue_6_prk_waked <= casez_tmp_98;
+        queue_6_inst_rd_valid <= casez_tmp_83 & casez_tmp_87;
       end
+      queue_6_prj_waked <=
+        (_queue_next_6_prk_waked_T
+           ? (next_mask[6] ? queue_7_prj_waked : queue_6_prj_waked)
+           : casez_tmp_83 & casez_tmp_95)
+        | (|{queue_next_6_inst_prj == io_wake_preg_3,
+             queue_next_6_inst_prj == io_wake_preg_2,
+             queue_next_6_inst_prj == io_wake_preg_1,
+             queue_next_6_inst_prj == io_wake_preg_0});
+      queue_6_prk_waked <=
+        (_queue_next_6_prk_waked_T
+           ? (next_mask[6] ? queue_7_prk_waked : queue_6_prk_waked)
+           : casez_tmp_83 & casez_tmp_96)
+        | (|{queue_next_6_inst_prk == io_wake_preg_3,
+             queue_next_6_inst_prk == io_wake_preg_2,
+             queue_next_6_inst_prk == io_wake_preg_1,
+             queue_next_6_inst_prk == io_wake_preg_0});
       if (_tail_pop_T_16[3]) begin
-        if (_GEN) begin
+        if (next_mask[7]) begin
           queue_7_inst_prj <= 7'h0;
           queue_7_inst_prk <= 7'h0;
-        end
-        queue_7_inst_rd_valid <= queue_next_7_inst_rd_valid;
-        if (_GEN) begin
           queue_7_inst_prd <= 7'h0;
           queue_7_inst_imm <= 32'h0;
           queue_7_inst_rob_index <= 6'h0;
@@ -2365,20 +2316,19 @@ module Unorder_Issue_Queue(
           queue_7_inst_alu_rs2_sel <= 2'h0;
           queue_7_inst_pc <= 32'h0;
         end
-        queue_7_prj_waked <= _tail_pop_T_16[3] & ~(next_mask[7]) & queue_temp_7_prj_waked;
-        queue_7_prk_waked <= _tail_pop_T_16[3] & ~(next_mask[7]) & queue_temp_7_prk_waked;
+        queue_7_inst_rd_valid <= ~(next_mask[7]) & queue_7_inst_rd_valid;
       end
       else begin
-        if (casez_tmp_99) begin
-          queue_7_inst_prj <= casez_tmp_101;
-          queue_7_inst_prk <= casez_tmp_102;
-          queue_7_inst_prd <= casez_tmp_104;
-          queue_7_inst_imm <= casez_tmp_105;
-          queue_7_inst_rob_index <= casez_tmp_106;
-          queue_7_inst_alu_op <= casez_tmp_107;
-          queue_7_inst_alu_rs1_sel <= casez_tmp_108;
-          queue_7_inst_alu_rs2_sel <= casez_tmp_109;
-          queue_7_inst_pc <= casez_tmp_110;
+        if (casez_tmp_97) begin
+          queue_7_inst_prj <= casez_tmp_99;
+          queue_7_inst_prk <= casez_tmp_100;
+          queue_7_inst_prd <= casez_tmp_102;
+          queue_7_inst_imm <= casez_tmp_103;
+          queue_7_inst_rob_index <= casez_tmp_104;
+          queue_7_inst_alu_op <= casez_tmp_105;
+          queue_7_inst_alu_rs1_sel <= casez_tmp_106;
+          queue_7_inst_alu_rs2_sel <= casez_tmp_107;
+          queue_7_inst_pc <= casez_tmp_108;
         end
         else begin
           queue_7_inst_prj <= 7'h0;
@@ -2391,10 +2341,24 @@ module Unorder_Issue_Queue(
           queue_7_inst_alu_rs2_sel <= 2'h0;
           queue_7_inst_pc <= 32'h0;
         end
-        queue_7_inst_rd_valid <= casez_tmp_99 & casez_tmp_103;
-        queue_7_prj_waked <= casez_tmp_111;
-        queue_7_prk_waked <= casez_tmp_112;
+        queue_7_inst_rd_valid <= casez_tmp_97 & casez_tmp_101;
       end
+      queue_7_prj_waked <=
+        (_tail_pop_T_16[3]
+           ? ~(next_mask[7]) & queue_7_prj_waked
+           : casez_tmp_97 & casez_tmp_109)
+        | (|{queue_next_7_inst_prj == io_wake_preg_3,
+             queue_next_7_inst_prj == io_wake_preg_2,
+             queue_next_7_inst_prj == io_wake_preg_1,
+             queue_next_7_inst_prj == io_wake_preg_0});
+      queue_7_prk_waked <=
+        (_tail_pop_T_16[3]
+           ? ~(next_mask[7]) & queue_7_prk_waked
+           : casez_tmp_97 & casez_tmp_110)
+        | (|{queue_next_7_inst_prk == io_wake_preg_3,
+             queue_next_7_inst_prk == io_wake_preg_2,
+             queue_next_7_inst_prk == io_wake_preg_1,
+             queue_next_7_inst_prk == io_wake_preg_0});
       if (io_flush)
         tail <= 4'h0;
       else if (io_stall)
@@ -2491,36 +2455,14 @@ module Unorder_Issue_Queue(
   assign io_issue_req_5 = tail > 4'h5 & queue_5_prj_waked & queue_5_prk_waked;
   assign io_issue_req_6 = tail > 4'h6 & queue_6_prj_waked & queue_6_prk_waked;
   assign io_issue_req_7 = tail[3] & queue_7_prj_waked & queue_7_prk_waked;
-  assign io_prd_queue_0 =
-    queue_next_0_inst_rd_valid & (|_tail_pop_T_16)
-      ? (next_mask[0] ? queue_1_inst_prd : queue_0_inst_prd)
-      : 7'h0;
-  assign io_prd_queue_1 =
-    queue_next_1_inst_rd_valid & (|(_tail_pop_T_16[3:1]))
-      ? (next_mask[1] ? queue_2_inst_prd : queue_1_inst_prd)
-      : 7'h0;
-  assign io_prd_queue_2 =
-    queue_next_2_inst_rd_valid & _queue_2_prk_waked_T
-      ? (next_mask[2] ? queue_3_inst_prd : queue_2_inst_prd)
-      : 7'h0;
-  assign io_prd_queue_3 =
-    queue_next_3_inst_rd_valid & (|(_tail_pop_T_16[3:2]))
-      ? (next_mask[3] ? queue_4_inst_prd : queue_3_inst_prd)
-      : 7'h0;
-  assign io_prd_queue_4 =
-    queue_next_4_inst_rd_valid & _queue_4_prk_waked_T
-      ? (next_mask[4] ? queue_5_inst_prd : queue_4_inst_prd)
-      : 7'h0;
-  assign io_prd_queue_5 =
-    queue_next_5_inst_rd_valid & _queue_5_prk_waked_T
-      ? (next_mask[5] ? queue_6_inst_prd : queue_5_inst_prd)
-      : 7'h0;
-  assign io_prd_queue_6 =
-    queue_next_6_inst_rd_valid & _queue_6_prk_waked_T
-      ? (next_mask[6] ? queue_7_inst_prd : queue_6_inst_prd)
-      : 7'h0;
-  assign io_prd_queue_7 = ~queue_next_7_inst_rd_valid | _GEN ? 7'h0 : queue_7_inst_prd;
-  assign io_prd_queue_8 = casez_tmp ? casez_tmp_0 : 7'h0;
+  assign io_prd_queue_0 = queue_0_inst_rd_valid ? queue_0_inst_prd : 7'h0;
+  assign io_prd_queue_1 = queue_1_inst_rd_valid ? queue_1_inst_prd : 7'h0;
+  assign io_prd_queue_2 = queue_2_inst_rd_valid ? queue_2_inst_prd : 7'h0;
+  assign io_prd_queue_3 = queue_3_inst_rd_valid ? queue_3_inst_prd : 7'h0;
+  assign io_prd_queue_4 = queue_4_inst_rd_valid ? queue_4_inst_prd : 7'h0;
+  assign io_prd_queue_5 = queue_5_inst_rd_valid ? queue_5_inst_prd : 7'h0;
+  assign io_prd_queue_6 = queue_6_inst_rd_valid ? queue_6_inst_prd : 7'h0;
+  assign io_prd_queue_7 = queue_7_inst_rd_valid ? queue_7_inst_prd : 7'h0;
   assign io_elem_num = _tail_pop_T_16;
   assign io_full = full;
 endmodule
