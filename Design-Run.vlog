@@ -22,3 +22,4 @@
 2023-10-31 16:13 LUT: 53146 FF: 21522 BRAM: 4 DSP: 8                add busy board
 2023-10-31 17:13 LUT: 53153 FF: 21513 BRAM: 4 DSP: 8                convert dipatch algorithm
 2023-10-31 20:53 LUT: 53183 FF: 21999 BRAM: 4 DSP: 8                del 8 ROB item and add predict to 128
+2023-10-31 21:18 LUT: 53062 FF: 21985 BRAM: 4 DSP: 8                simplify some logic in dispatch
