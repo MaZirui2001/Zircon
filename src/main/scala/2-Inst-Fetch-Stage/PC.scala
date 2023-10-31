@@ -27,7 +27,7 @@ class PC(reset_val: Int) extends Module {
         io.npc := io.flush_pd_target
     }
     .elsewhen(!io.pc_stall) {
-        when(io.pred_jump.asUInt.orR){
+        when(io.pred_jump.reduce(_||_)){
             io.npc := io.pred_npc
         }.otherwise{
             io.npc := (pc + 16.U)(31, 4) ## 0.U(4.W)

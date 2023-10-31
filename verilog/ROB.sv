@@ -1309,8 +1309,8 @@ module ROB(
   wire        empty_1 = elem_num_1 == 5'h0;
   wire        empty_2 = elem_num_2 == 5'h0;
   wire        empty_3 = elem_num_3 == 5'h0;
-  wire [3:0]  _full_T_4 =
-    {elem_num_3 == 5'hA, elem_num_2 == 5'hA, elem_num_1 == 5'hA, elem_num_0 == 5'hA};
+  wire        full =
+    elem_num_0 == 5'hA | elem_num_1 == 5'hA | elem_num_2 == 5'hA | elem_num_3 == 5'hA;
   always_comb begin
     casez (head_sel)
       2'b00:
@@ -9621,20 +9621,19 @@ module ROB(
     2'(head_sel
        + {|{predict_fail_bit_3, predict_fail_bit_2},
           predict_fail_bit_3 | predict_fail_bit_1});
-  wire [1:0]  _cmt_pred_index_T_4 =
+  wire [1:0]  _cmt_pred_index_T_5 =
     2'(head_sel
-       + ({ras_update_en_bit_3 & predict_fail_bit_3,
-           ras_update_en_bit_2 & predict_fail_bit_2,
-           ras_update_en_bit_1 & predict_fail_bit_1,
-           ras_update_en_bit_0 & predict_fail_bit_0} == 4'h0
-            ? (pred_update_en_bit_0
+       + (ras_update_en_bit_0 & predict_fail_bit_0 | ras_update_en_bit_1
+          & predict_fail_bit_1 | ras_update_en_bit_2 & predict_fail_bit_2
+          | ras_update_en_bit_3 & predict_fail_bit_3
+            ? (ras_update_en_bit_0
                  ? 2'h0
-                 : pred_update_en_bit_1 ? 2'h1 : {1'h1, ~pred_update_en_bit_2})
-            : ras_update_en_bit_0
+                 : ras_update_en_bit_1 ? 2'h1 : {1'h1, ~ras_update_en_bit_2})
+            : pred_update_en_bit_0
                 ? 2'h0
-                : ras_update_en_bit_1 ? 2'h1 : {1'h1, ~ras_update_en_bit_2}));
-  wire [3:0]  _io_predict_fail_cmt_T =
-    {predict_fail_bit_3, predict_fail_bit_2, predict_fail_bit_1, predict_fail_bit_0};
+                : pred_update_en_bit_1 ? 2'h1 : {1'h1, ~pred_update_en_bit_2}));
+  wire        _io_predict_fail_cmt_output =
+    predict_fail_bit_0 | predict_fail_bit_1 | predict_fail_bit_2 | predict_fail_bit_3;
   always_comb begin
     casez (_cmt_index_T)
       2'b00:
@@ -10116,7 +10115,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_615 = rob_0_0_branch_target;
       2'b01:
@@ -10128,7 +10127,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_616 = rob_0_0_real_jump;
       2'b01:
@@ -10140,7 +10139,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_617 = rob_0_0_br_type_pred;
       2'b01:
@@ -10152,7 +10151,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_618 = rob_0_0_pc;
       2'b01:
@@ -10164,7 +10163,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_619 = rob_0_1_branch_target;
       2'b01:
@@ -10176,7 +10175,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_620 = rob_0_1_real_jump;
       2'b01:
@@ -10188,7 +10187,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_621 = rob_0_1_br_type_pred;
       2'b01:
@@ -10200,7 +10199,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_622 = rob_0_1_pc;
       2'b01:
@@ -10212,7 +10211,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_623 = rob_0_2_branch_target;
       2'b01:
@@ -10224,7 +10223,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_624 = rob_0_2_real_jump;
       2'b01:
@@ -10236,7 +10235,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_625 = rob_0_2_br_type_pred;
       2'b01:
@@ -10248,7 +10247,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_626 = rob_0_2_pc;
       2'b01:
@@ -10260,7 +10259,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_627 = rob_0_3_branch_target;
       2'b01:
@@ -10272,7 +10271,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_628 = rob_0_3_real_jump;
       2'b01:
@@ -10284,7 +10283,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_629 = rob_0_3_br_type_pred;
       2'b01:
@@ -10296,7 +10295,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_630 = rob_0_3_pc;
       2'b01:
@@ -10308,7 +10307,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_631 = rob_0_4_branch_target;
       2'b01:
@@ -10320,7 +10319,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_632 = rob_0_4_real_jump;
       2'b01:
@@ -10332,7 +10331,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_633 = rob_0_4_br_type_pred;
       2'b01:
@@ -10344,7 +10343,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_634 = rob_0_4_pc;
       2'b01:
@@ -10356,7 +10355,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_635 = rob_0_5_branch_target;
       2'b01:
@@ -10368,7 +10367,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_636 = rob_0_5_real_jump;
       2'b01:
@@ -10380,7 +10379,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_637 = rob_0_5_br_type_pred;
       2'b01:
@@ -10392,7 +10391,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_638 = rob_0_5_pc;
       2'b01:
@@ -10404,7 +10403,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_639 = rob_0_6_branch_target;
       2'b01:
@@ -10416,7 +10415,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_640 = rob_0_6_real_jump;
       2'b01:
@@ -10428,7 +10427,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_641 = rob_0_6_br_type_pred;
       2'b01:
@@ -10440,7 +10439,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_642 = rob_0_6_pc;
       2'b01:
@@ -10452,7 +10451,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_643 = rob_0_7_branch_target;
       2'b01:
@@ -10464,7 +10463,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_644 = rob_0_7_real_jump;
       2'b01:
@@ -10476,7 +10475,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_645 = rob_0_7_br_type_pred;
       2'b01:
@@ -10488,7 +10487,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_646 = rob_0_7_pc;
       2'b01:
@@ -10500,7 +10499,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_647 = rob_0_8_branch_target;
       2'b01:
@@ -10512,7 +10511,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_648 = rob_0_8_real_jump;
       2'b01:
@@ -10524,7 +10523,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_649 = rob_0_8_br_type_pred;
       2'b01:
@@ -10536,7 +10535,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_650 = rob_0_8_pc;
       2'b01:
@@ -10548,7 +10547,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_651 = rob_0_9_branch_target;
       2'b01:
@@ -10560,7 +10559,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_652 = rob_0_9_real_jump;
       2'b01:
@@ -10572,7 +10571,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_653 = rob_0_9_br_type_pred;
       2'b01:
@@ -10584,7 +10583,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_654 = rob_0_9_pc;
       2'b01:
@@ -10596,7 +10595,7 @@ module ROB(
     endcase
   end // always_comb
   always_comb begin
-    casez (_cmt_pred_index_T_4)
+    casez (_cmt_pred_index_T_5)
       2'b00:
         casez_tmp_655 = head_0;
       2'b01:
@@ -10876,25 +10875,25 @@ module ROB(
            ? _io_cmt_en_2_output
            : (&_head_T_16) ? _io_cmt_en_1_output : (&head_sel) & _io_cmt_en_0_output};
   wire        _GEN_0 = tail == 4'h0;
-  wire        _GEN_1 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_0;
+  wire        _GEN_1 = ~full & io_inst_valid_rn_0 & _GEN_0;
   wire        _GEN_2 = tail == 4'h1;
-  wire        _GEN_3 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_2;
+  wire        _GEN_3 = ~full & io_inst_valid_rn_0 & _GEN_2;
   wire        _GEN_4 = tail == 4'h2;
-  wire        _GEN_5 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_4;
+  wire        _GEN_5 = ~full & io_inst_valid_rn_0 & _GEN_4;
   wire        _GEN_6 = tail == 4'h3;
-  wire        _GEN_7 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_6;
+  wire        _GEN_7 = ~full & io_inst_valid_rn_0 & _GEN_6;
   wire        _GEN_8 = tail == 4'h4;
-  wire        _GEN_9 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_8;
+  wire        _GEN_9 = ~full & io_inst_valid_rn_0 & _GEN_8;
   wire        _GEN_10 = tail == 4'h5;
-  wire        _GEN_11 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_10;
+  wire        _GEN_11 = ~full & io_inst_valid_rn_0 & _GEN_10;
   wire        _GEN_12 = tail == 4'h6;
-  wire        _GEN_13 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_12;
+  wire        _GEN_13 = ~full & io_inst_valid_rn_0 & _GEN_12;
   wire        _GEN_14 = tail == 4'h7;
-  wire        _GEN_15 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_14;
+  wire        _GEN_15 = ~full & io_inst_valid_rn_0 & _GEN_14;
   wire        _GEN_16 = tail == 4'h8;
-  wire        _GEN_17 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_16;
+  wire        _GEN_17 = ~full & io_inst_valid_rn_0 & _GEN_16;
   wire        _GEN_18 = tail == 4'h9;
-  wire        _GEN_19 = ~(|_full_T_4) & io_inst_valid_rn_0 & _GEN_18;
+  wire        _GEN_19 = ~full & io_inst_valid_rn_0 & _GEN_18;
   wire        _GEN_20 = ~_GEN_1 & rob_0_0_complete;
   wire        _GEN_21 = ~_GEN_3 & rob_0_1_complete;
   wire        _GEN_22 = ~_GEN_5 & rob_0_2_complete;
@@ -10905,16 +10904,16 @@ module ROB(
   wire        _GEN_27 = ~_GEN_15 & rob_0_7_complete;
   wire        _GEN_28 = ~_GEN_17 & rob_0_8_complete;
   wire        _GEN_29 = ~_GEN_19 & rob_0_9_complete;
-  wire        _GEN_30 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_0;
-  wire        _GEN_31 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_2;
-  wire        _GEN_32 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_4;
-  wire        _GEN_33 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_6;
-  wire        _GEN_34 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_8;
-  wire        _GEN_35 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_10;
-  wire        _GEN_36 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_12;
-  wire        _GEN_37 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_14;
-  wire        _GEN_38 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_16;
-  wire        _GEN_39 = ~(|_full_T_4) & io_inst_valid_rn_1 & _GEN_18;
+  wire        _GEN_30 = ~full & io_inst_valid_rn_1 & _GEN_0;
+  wire        _GEN_31 = ~full & io_inst_valid_rn_1 & _GEN_2;
+  wire        _GEN_32 = ~full & io_inst_valid_rn_1 & _GEN_4;
+  wire        _GEN_33 = ~full & io_inst_valid_rn_1 & _GEN_6;
+  wire        _GEN_34 = ~full & io_inst_valid_rn_1 & _GEN_8;
+  wire        _GEN_35 = ~full & io_inst_valid_rn_1 & _GEN_10;
+  wire        _GEN_36 = ~full & io_inst_valid_rn_1 & _GEN_12;
+  wire        _GEN_37 = ~full & io_inst_valid_rn_1 & _GEN_14;
+  wire        _GEN_38 = ~full & io_inst_valid_rn_1 & _GEN_16;
+  wire        _GEN_39 = ~full & io_inst_valid_rn_1 & _GEN_18;
   wire        _GEN_40 = ~_GEN_30 & rob_1_0_complete;
   wire        _GEN_41 = ~_GEN_31 & rob_1_1_complete;
   wire        _GEN_42 = ~_GEN_32 & rob_1_2_complete;
@@ -10925,16 +10924,16 @@ module ROB(
   wire        _GEN_47 = ~_GEN_37 & rob_1_7_complete;
   wire        _GEN_48 = ~_GEN_38 & rob_1_8_complete;
   wire        _GEN_49 = ~_GEN_39 & rob_1_9_complete;
-  wire        _GEN_50 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_0;
-  wire        _GEN_51 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_2;
-  wire        _GEN_52 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_4;
-  wire        _GEN_53 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_6;
-  wire        _GEN_54 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_8;
-  wire        _GEN_55 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_10;
-  wire        _GEN_56 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_12;
-  wire        _GEN_57 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_14;
-  wire        _GEN_58 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_16;
-  wire        _GEN_59 = ~(|_full_T_4) & io_inst_valid_rn_2 & _GEN_18;
+  wire        _GEN_50 = ~full & io_inst_valid_rn_2 & _GEN_0;
+  wire        _GEN_51 = ~full & io_inst_valid_rn_2 & _GEN_2;
+  wire        _GEN_52 = ~full & io_inst_valid_rn_2 & _GEN_4;
+  wire        _GEN_53 = ~full & io_inst_valid_rn_2 & _GEN_6;
+  wire        _GEN_54 = ~full & io_inst_valid_rn_2 & _GEN_8;
+  wire        _GEN_55 = ~full & io_inst_valid_rn_2 & _GEN_10;
+  wire        _GEN_56 = ~full & io_inst_valid_rn_2 & _GEN_12;
+  wire        _GEN_57 = ~full & io_inst_valid_rn_2 & _GEN_14;
+  wire        _GEN_58 = ~full & io_inst_valid_rn_2 & _GEN_16;
+  wire        _GEN_59 = ~full & io_inst_valid_rn_2 & _GEN_18;
   wire        _GEN_60 = ~_GEN_50 & rob_2_0_complete;
   wire        _GEN_61 = ~_GEN_51 & rob_2_1_complete;
   wire        _GEN_62 = ~_GEN_52 & rob_2_2_complete;
@@ -10945,16 +10944,16 @@ module ROB(
   wire        _GEN_67 = ~_GEN_57 & rob_2_7_complete;
   wire        _GEN_68 = ~_GEN_58 & rob_2_8_complete;
   wire        _GEN_69 = ~_GEN_59 & rob_2_9_complete;
-  wire        _GEN_70 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_0;
-  wire        _GEN_71 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_2;
-  wire        _GEN_72 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_4;
-  wire        _GEN_73 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_6;
-  wire        _GEN_74 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_8;
-  wire        _GEN_75 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_10;
-  wire        _GEN_76 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_12;
-  wire        _GEN_77 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_14;
-  wire        _GEN_78 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_16;
-  wire        _GEN_79 = ~(|_full_T_4) & io_inst_valid_rn_3 & _GEN_18;
+  wire        _GEN_70 = ~full & io_inst_valid_rn_3 & _GEN_0;
+  wire        _GEN_71 = ~full & io_inst_valid_rn_3 & _GEN_2;
+  wire        _GEN_72 = ~full & io_inst_valid_rn_3 & _GEN_4;
+  wire        _GEN_73 = ~full & io_inst_valid_rn_3 & _GEN_6;
+  wire        _GEN_74 = ~full & io_inst_valid_rn_3 & _GEN_8;
+  wire        _GEN_75 = ~full & io_inst_valid_rn_3 & _GEN_10;
+  wire        _GEN_76 = ~full & io_inst_valid_rn_3 & _GEN_12;
+  wire        _GEN_77 = ~full & io_inst_valid_rn_3 & _GEN_14;
+  wire        _GEN_78 = ~full & io_inst_valid_rn_3 & _GEN_16;
+  wire        _GEN_79 = ~full & io_inst_valid_rn_3 & _GEN_18;
   wire        _GEN_80 = ~_GEN_70 & rob_3_0_complete;
   wire        _GEN_81 = ~_GEN_71 & rob_3_1_complete;
   wire        _GEN_82 = ~_GEN_72 & rob_3_2_complete;
@@ -11263,25 +11262,29 @@ module ROB(
   wire        _GEN_385 = _GEN_384 | _GEN_292;
   wire [3:0]  _GEN_386 = {3'h0, _io_cmt_en_0_output};
   wire [3:0]  _head_T_7 = 4'(casez_tmp_10 + _GEN_386);
-  wire        _GEN_387 = (|_io_predict_fail_cmt_T) | 4'(casez_tmp_10 + _GEN_386) == 4'hA;
+  wire        _GEN_387 =
+    _io_predict_fail_cmt_output | 4'(casez_tmp_10 + _GEN_386) == 4'hA;
   wire        _GEN_388 = head_sel == 2'h0;
   wire        _GEN_389 = head_sel == 2'h1;
   wire        _GEN_390 = head_sel == 2'h2;
   wire [3:0]  _GEN_391 = {3'h0, _io_cmt_en_1_output};
   wire [3:0]  _head_T_18 = 4'(casez_tmp_22 + _GEN_391);
-  wire        _GEN_392 = (|_io_predict_fail_cmt_T) | 4'(casez_tmp_22 + _GEN_391) == 4'hA;
+  wire        _GEN_392 =
+    _io_predict_fail_cmt_output | 4'(casez_tmp_22 + _GEN_391) == 4'hA;
   wire        _GEN_393 = _head_T_16 == 2'h0;
   wire        _GEN_394 = _head_T_16 == 2'h1;
   wire        _GEN_395 = _head_T_16 == 2'h2;
   wire [3:0]  _GEN_396 = {3'h0, _io_cmt_en_2_output};
   wire [3:0]  _head_T_29 = 4'(casez_tmp_46 + _GEN_396);
-  wire        _GEN_397 = (|_io_predict_fail_cmt_T) | 4'(casez_tmp_46 + _GEN_396) == 4'hA;
+  wire        _GEN_397 =
+    _io_predict_fail_cmt_output | 4'(casez_tmp_46 + _GEN_396) == 4'hA;
   wire        _GEN_398 = _head_T_27 == 2'h0;
   wire        _GEN_399 = _head_T_27 == 2'h1;
   wire        _GEN_400 = _head_T_27 == 2'h2;
   wire [3:0]  _GEN_401 = {3'h0, _io_cmt_en_3_output};
   wire [3:0]  _head_T_40 = 4'(casez_tmp_70 + _GEN_401);
-  wire        _GEN_402 = (|_io_predict_fail_cmt_T) | 4'(casez_tmp_70 + _GEN_401) == 4'hA;
+  wire        _GEN_402 =
+    _io_predict_fail_cmt_output | 4'(casez_tmp_70 + _GEN_401) == 4'hA;
   wire        _GEN_403 = _head_T_38 == 2'h0;
   wire        _GEN_404 = _head_T_38 == 2'h1;
   wire        _GEN_405 = _head_T_38 == 2'h2;
@@ -13232,14 +13235,14 @@ module ROB(
         else
           head_3 <= _head_T_7;
       end
-      if (|_io_predict_fail_cmt_T) begin
+      if (_io_predict_fail_cmt_output) begin
         tail <= 4'h0;
         elem_num_0 <= 5'h0;
         elem_num_1 <= 5'h0;
         elem_num_2 <= 5'h0;
         elem_num_3 <= 5'h0;
       end
-      else if ((|_full_T_4) | io_stall) begin
+      else if (full | io_stall) begin
         elem_num_0 <= 5'(elem_num_0 - _GEN_406);
         elem_num_1 <= 5'(elem_num_1 - _GEN_407);
         elem_num_2 <= 5'(elem_num_2 - _GEN_408);
@@ -13256,7 +13259,7 @@ module ROB(
         elem_num_3 <= 5'(5'(elem_num_3 + {4'h0, io_inst_valid_rn_3}) - _GEN);
       end
       head_sel <=
-        (|_io_predict_fail_cmt_T)
+        _io_predict_fail_cmt_output
           ? 2'h0
           : 2'(2'(head_sel + {1'h0, _io_cmt_en_0_output})
                + 2'({1'h0, _io_cmt_en_1_output}
@@ -13267,7 +13270,7 @@ module ROB(
   assign io_rob_index_rn_1 = {tail, 2'h1};
   assign io_rob_index_rn_2 = {tail, 2'h2};
   assign io_rob_index_rn_3 = {tail, 2'h3};
-  assign io_full = |_full_T_4;
+  assign io_full = full;
   assign io_cmt_en_0 = _io_cmt_en_0_output;
   assign io_cmt_en_1 = _io_cmt_en_1_output;
   assign io_cmt_en_2 = _io_cmt_en_2_output;
@@ -13305,16 +13308,14 @@ module ROB(
           + {1'h0, casez_tmp_325 & _io_cmt_en_1_output})
        + 2'({1'h0, casez_tmp_447 & _io_cmt_en_2_output}
             + {1'h0, casez_tmp_579 & _io_cmt_en_3_output}));
-  assign io_predict_fail_cmt = |_io_predict_fail_cmt_T;
+  assign io_predict_fail_cmt = _io_predict_fail_cmt_output;
   assign io_branch_target_cmt =
     casez_tmp_613 ? {casez_tmp_612, 2'h0} : 32'({casez_tmp_614, 2'h0} + 32'h4);
   assign io_pred_update_en_cmt =
-    |{pred_update_en_bit_3,
-      pred_update_en_bit_2,
-      pred_update_en_bit_1,
-      pred_update_en_bit_0};
+    pred_update_en_bit_0 | pred_update_en_bit_1 | pred_update_en_bit_2
+    | pred_update_en_bit_3;
   assign io_ras_update_en_cmt =
-    |{ras_update_en_bit_3, ras_update_en_bit_2, ras_update_en_bit_1, ras_update_en_bit_0};
+    ras_update_en_bit_0 | ras_update_en_bit_1 | ras_update_en_bit_2 | ras_update_en_bit_3;
   assign io_pred_branch_target_cmt = {casez_tmp_656, 2'h0};
   assign io_pred_pc_cmt = {casez_tmp_659, 2'h0};
   assign io_pred_real_jump_cmt = casez_tmp_657;

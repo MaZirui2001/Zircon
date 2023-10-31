@@ -2285,14 +2285,9 @@ module CPU(
     .io_issue_req_6                    (_iq1_io_issue_req_6),
     .io_issue_req_7                    (_iq1_io_issue_req_7),
     .io_stall
-      ({_iq1_io_issue_req_7,
-        _iq1_io_issue_req_6,
-        _iq1_io_issue_req_5,
-        _iq1_io_issue_req_4,
-        _iq1_io_issue_req_3,
-        _iq1_io_issue_req_2,
-        _iq1_io_issue_req_1,
-        _iq1_io_issue_req_0} == 8'h0),
+      (~(_iq1_io_issue_req_0 | _iq1_io_issue_req_1 | _iq1_io_issue_req_2
+         | _iq1_io_issue_req_3 | _iq1_io_issue_req_4 | _iq1_io_issue_req_5
+         | _iq1_io_issue_req_6 | _iq1_io_issue_req_7)),
     .io_issue_ack_0                    (_sel1_io_issue_ack_0),
     .io_issue_ack_1                    (_sel1_io_issue_ack_1),
     .io_issue_ack_2                    (_sel1_io_issue_ack_2),
@@ -2655,14 +2650,9 @@ module CPU(
     .io_issue_req_6                     (_iq2_io_issue_req_6),
     .io_issue_req_7                     (_iq2_io_issue_req_7),
     .io_stall
-      ({_iq2_io_issue_req_7,
-        _iq2_io_issue_req_6,
-        _iq2_io_issue_req_5,
-        _iq2_io_issue_req_4,
-        _iq2_io_issue_req_3,
-        _iq2_io_issue_req_2,
-        _iq2_io_issue_req_1,
-        _iq2_io_issue_req_0} == 8'h0),
+      (~(_iq2_io_issue_req_0 | _iq2_io_issue_req_1 | _iq2_io_issue_req_2
+         | _iq2_io_issue_req_3 | _iq2_io_issue_req_4 | _iq2_io_issue_req_5
+         | _iq2_io_issue_req_6 | _iq2_io_issue_req_7)),
     .io_issue_ack_0                     (_sel2_io_issue_ack_0),
     .io_issue_ack_1                     (_sel2_io_issue_ack_1),
     .io_issue_ack_2                     (_sel2_io_issue_ack_2),
@@ -2913,14 +2903,9 @@ module CPU(
     .io_issue_req_6                  (_iq3_io_issue_req_6),
     .io_issue_req_7                  (_iq3_io_issue_req_7),
     .io_stall
-      ({_iq3_io_issue_req_7,
-        _iq3_io_issue_req_6,
-        _iq3_io_issue_req_5,
-        _iq3_io_issue_req_4,
-        _iq3_io_issue_req_3,
-        _iq3_io_issue_req_2,
-        _iq3_io_issue_req_1,
-        _iq3_io_issue_req_0} == 8'h0 | _sb_io_full),
+      (~(_iq3_io_issue_req_0 | _iq3_io_issue_req_1 | _iq3_io_issue_req_2
+         | _iq3_io_issue_req_3 | _iq3_io_issue_req_4 | _iq3_io_issue_req_5
+         | _iq3_io_issue_req_6 | _iq3_io_issue_req_7) | _sb_io_full),
     .io_issue_ack_0                  (_sel3_io_issue_ack_0),
     .io_issue_ack_1                  (_sel3_io_issue_ack_1),
     .io_issue_ack_2                  (_sel3_io_issue_ack_2),

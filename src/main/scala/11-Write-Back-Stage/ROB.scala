@@ -83,7 +83,7 @@ class ROB(n: Int) extends Module{
     val head_sel    = RegInit(0.U(2.W))
 
     val empty       = VecInit(elem_num.map(_ === 0.U))
-    val full        = VecInit(elem_num.map(_ === neach.U)).asUInt.orR
+    val full        = VecInit(elem_num.map(_ === neach.U)).reduce(_||_)
 
     val inst_valid_rn = io.inst_valid_rn.reduce(_||_)
     // rn stage
@@ -136,16 +136,16 @@ class ROB(n: Int) extends Module{
     val ras_update_ohbit        = PriorityEncoder(ras_update_en_bit.asUInt)
        
     val cmt_index               = head_sel+pred_fail_ohbit
-    val cmt_pred_index          = head_sel+Mux(!ras_pred_fail.asUInt.orR, pred_update_ohbit, ras_update_ohbit)
+    val cmt_pred_index          = head_sel+Mux(!ras_pred_fail.reduce(_||_), pred_update_ohbit, ras_update_ohbit)
     val rob_pred_update_item    = rob(cmt_index)(head(cmt_index))
     val rob_jump_update_item    = rob(cmt_pred_index)(head(cmt_pred_index))
 
-    io.ras_update_en_cmt        := ras_update_en_bit.asUInt.orR
-    io.predict_fail_cmt         := predict_fail_bit.asUInt.orR
+    io.ras_update_en_cmt        := ras_update_en_bit.reduce(_||_)
+    io.predict_fail_cmt         := predict_fail_bit.reduce(_||_)
     io.branch_target_cmt        := Mux(rob_pred_update_item.real_jump, 
                                    rob_pred_update_item.branch_target ## 0.U(2.W),
                                    (rob_pred_update_item.pc ## 0.U(2.W)) + 4.U)
-    io.pred_update_en_cmt       := pred_update_en_bit.asUInt.orR
+    io.pred_update_en_cmt       := pred_update_en_bit.reduce(_||_)
     io.pred_branch_target_cmt   := rob_jump_update_item.branch_target ## 0.U(2.W)
     io.br_type_pred_cmt         := rob_jump_update_item.br_type_pred
     io.pred_pc_cmt              := rob_jump_update_item.pc ## 0.U(2.W)
@@ -153,7 +153,7 @@ class ROB(n: Int) extends Module{
 
     // update store buffer
     val is_store_cmt_bit        = VecInit(Seq.tabulate(4)(i => rob_update_items(i).is_store && io.cmt_en(i)))
-    io.is_store_num_cmt         := PopCount(is_store_cmt_bit.asUInt)
+    io.is_store_num_cmt         := PopCount(is_store_cmt_bit)
 
     io.rd_cmt                   := rob_update_items.map(_.rd)
     io.rd_valid_cmt             := rob_update_items.map(_.rd_valid)
@@ -179,12 +179,8 @@ class ROB(n: Int) extends Module{
     // stat
     io.predict_fail_stat        := predict_fail_bit
     io.br_type_stat             := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).br_type_pred))
-    io.is_br_stat(0) := pred_update_en_bit(0) 
+    io.is_br_stat(0)            := pred_update_en_bit(0) 
     for(i <- 1 until 4){
         io.is_br_stat(i) := pred_update_en_bit(i) && !(predict_fail_bit(i-1) && io.is_br_stat(i-1))
     }
 } 
-
-// object ROB extends App {
-//     emitVerilog(new ROB(8), Array("-td", "build/"))
-// }

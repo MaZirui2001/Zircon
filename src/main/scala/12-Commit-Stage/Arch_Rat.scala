@@ -2,25 +2,7 @@ import chisel3._
 import chisel3.util._
 import RAT._
 import PRED_Config._
-// object ARCH_RAT_Func{
-//     def Valid_Write_First_Read(cmt_en: Vec[Bool], rd_valid_cmt: Vec[Bool], prd_cmt: Vec[UInt], pprd_cmt: Vec[UInt], arat: Vec[rat_t], rindex: Int) : Bool = {
-//         val prd_wf = Cat(
-//                     rindex.U === prd_cmt(3) && cmt_en(3) && rd_valid_cmt(3),
-//                     rindex.U === prd_cmt(2) && cmt_en(2) && rd_valid_cmt(2),
-//                     rindex.U === prd_cmt(1) && cmt_en(1) && rd_valid_cmt(1),
-//                     rindex.U === prd_cmt(0) && cmt_en(0) && rd_valid_cmt(0)
-//                     )
 
-//         val pprd_wf = Cat(
-//                     rindex.U === pprd_cmt(3) && cmt_en(3) && rd_valid_cmt(3),
-//                     rindex.U === pprd_cmt(2) && cmt_en(2) && rd_valid_cmt(2),
-//                     rindex.U === pprd_cmt(1) && cmt_en(1) && rd_valid_cmt(1),
-//                     rindex.U === pprd_cmt(0) && cmt_en(0) && rd_valid_cmt(0)
-//                     )
-//         Mux(prd_wf.orR, true.B, Mux(pprd_wf.orR, false.B, arat(rindex).valid))
-//     }
-// }
-// import ARCH_RAT_Func._
 class Arch_Rat_IO extends Bundle {
     // for commit 
     val cmt_en          = Input(Vec(4, Bool()))
@@ -59,7 +41,7 @@ class Arch_Rat extends Module {
     }
     arat := arat_next
 
-    val cmt_en = io.cmt_en.asUInt.orR
+    val cmt_en = io.cmt_en.reduce(_||_)
     head_next := head
     for(i <- 0 until 4){
         head_next(head_sel+i.U) := Mux(head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)) >= 20.U, 0.U, head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)))
@@ -86,3 +68,23 @@ class Arch_Rat extends Module {
         io.head_arch(i) := head_next(i)
     }
 }
+
+// object ARCH_RAT_Func{
+//     def Valid_Write_First_Read(cmt_en: Vec[Bool], rd_valid_cmt: Vec[Bool], prd_cmt: Vec[UInt], pprd_cmt: Vec[UInt], arat: Vec[rat_t], rindex: Int) : Bool = {
+//         val prd_wf = Cat(
+//                     rindex.U === prd_cmt(3) && cmt_en(3) && rd_valid_cmt(3),
+//                     rindex.U === prd_cmt(2) && cmt_en(2) && rd_valid_cmt(2),
+//                     rindex.U === prd_cmt(1) && cmt_en(1) && rd_valid_cmt(1),
+//                     rindex.U === prd_cmt(0) && cmt_en(0) && rd_valid_cmt(0)
+//                     )
+
+//         val pprd_wf = Cat(
+//                     rindex.U === pprd_cmt(3) && cmt_en(3) && rd_valid_cmt(3),
+//                     rindex.U === pprd_cmt(2) && cmt_en(2) && rd_valid_cmt(2),
+//                     rindex.U === pprd_cmt(1) && cmt_en(1) && rd_valid_cmt(1),
+//                     rindex.U === pprd_cmt(0) && cmt_en(0) && rd_valid_cmt(0)
+//                     )
+//         Mux(prd_wf.orR, true.B, Mux(pprd_wf.orR, false.B, arat(rindex).valid))
+//     }
+// }
+// import ARCH_RAT_Func._

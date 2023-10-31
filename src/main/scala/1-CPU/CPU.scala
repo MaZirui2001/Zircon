@@ -267,7 +267,7 @@ class CPU(RESET_VEC: Int) extends Module {
     
     sel1.io.insts_issue         := iq1.io.insts_issue
     sel1.io.issue_req           := iq1.io.issue_req
-    sel1.io.stall               := !(iq1.io.issue_req.asUInt.orR)
+    sel1.io.stall               := !(iq1.io.issue_req.reduce(_||_))
 
     // 2. arith2, calculate and branch 
     iq2.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i))))
@@ -281,7 +281,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     sel2.io.insts_issue         := iq2.io.insts_issue
     sel2.io.issue_req           := iq2.io.issue_req
-    sel2.io.stall               := !(iq2.io.issue_req.asUInt.orR)
+    sel2.io.stall               := !(iq2.io.issue_req.reduce(_||_))
 
     // 3. load, load and store
     iq3.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i))))
@@ -295,7 +295,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     sel3.io.insts_issue         := iq3.io.insts_issue
     sel3.io.issue_req           := iq3.io.issue_req
-    sel3.io.stall               := !(iq3.io.issue_req.asUInt.orR) || sb.io.full
+    sel3.io.stall               := !(iq3.io.issue_req.reduce(_||_)) || sb.io.full
 
     // 4. multiply, multiply and divide
     iq4.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_MD_gen(rp_reg.io.insts_pack_DP(i))))
@@ -379,12 +379,6 @@ class CPU(RESET_VEC: Int) extends Module {
         RS2_IMM -> re_reg1.io.inst_pack_EX.imm,
         RS2_FOUR -> 4.U)
     )
-
-    // bypass1.io.prd_wb        := ew_reg1.io.inst_pack_WB.prd
-    // bypass1.io.prj_ex        := re_reg1.io.inst_pack_EX.prj
-    // bypass1.io.prk_ex        := re_reg1.io.inst_pack_EX.prk
-    // bypass1.io.prf_wdata_wb  := ew_reg1.io.alu_out_WB
-    // bypass1.io.rd_valid_wb   := ew_reg1.io.inst_pack_WB.rd_valid
     
     ew_reg1.io.flush          := rob.io.predict_fail_cmt
     ew_reg1.io.stall          := false.B

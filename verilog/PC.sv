@@ -21,7 +21,7 @@ module PC(
 );
 
   reg  [31:0] pc;
-  wire [3:0]  _GEN = {io_pred_jump_3, io_pred_jump_2, io_pred_jump_1, io_pred_jump_0};
+  wire        _GEN = io_pred_jump_0 | io_pred_jump_1 | io_pred_jump_2 | io_pred_jump_3;
   wire [31:0] _io_npc_T = 32'(pc + 32'h10);
   wire [31:0] _io_npc_T_3 = {_io_npc_T[31:4], 4'h0};
   wire [3:0]  _GEN_0 =
@@ -37,7 +37,7 @@ module PC(
       pc <= io_flush_pd_target;
     else if (io_pc_stall) begin
     end
-    else if (|_GEN)
+    else if (_GEN)
       pc <= io_pred_npc;
     else
       pc <= _io_npc_T_3;
@@ -48,7 +48,7 @@ module PC(
       ? io_branch_target
       : io_flush_by_pd
           ? io_flush_pd_target
-          : io_pc_stall ? pc : (|_GEN) ? io_pred_npc : _io_npc_T_3;
+          : io_pc_stall ? pc : _GEN ? io_pred_npc : _io_npc_T_3;
   assign io_inst_valid_IF_0 = _GEN_0[0] & _GEN_1[0];
   assign io_inst_valid_IF_1 = _GEN_0[1] & _GEN_1[1];
   assign io_inst_valid_IF_2 = _GEN_0[2] & _GEN_1[2];

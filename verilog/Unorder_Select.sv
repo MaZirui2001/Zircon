@@ -136,14 +136,8 @@ module Unorder_Select(
                           ? 8'h20
                           : io_issue_req_6 ? 8'h40 : {io_issue_req_7, 7'h0};
   wire        _GEN =
-    (|{io_issue_req_7,
-       io_issue_req_6,
-       io_issue_req_5,
-       io_issue_req_4,
-       io_issue_req_3,
-       io_issue_req_2,
-       io_issue_req_1,
-       io_issue_req_0}) & ~io_stall;
+    (io_issue_req_0 | io_issue_req_1 | io_issue_req_2 | io_issue_req_3 | io_issue_req_4
+     | io_issue_req_5 | io_issue_req_6 | io_issue_req_7) & ~io_stall;
   wire        _io_issue_ack_0_output = _GEN & issue_ack[0];
   wire        _io_issue_ack_1_output = _GEN & issue_ack[1];
   wire        _io_issue_ack_2_output = _GEN & issue_ack[2];
@@ -157,6 +151,7 @@ module Unorder_Select(
     {|(issue_ack[7:4]),
      |(_select_index_T_1[2:1]),
      _select_index_T_1[2] | _select_index_T_1[0]};
+  wire        _io_inst_issue_valid_T = _io_issue_ack_0_output | _io_issue_ack_1_output;
   always_comb begin
     casez (select_index)
       3'b000:
@@ -357,15 +352,10 @@ module Unorder_Select(
         casez_tmp_8 = io_insts_issue_7_inst_pc;
     endcase
   end // always_comb
-  wire [7:0]  _io_inst_issue_T =
-    {_io_issue_ack_7_output,
-     _io_issue_ack_6_output,
-     _io_issue_ack_5_output,
-     _io_issue_ack_4_output,
-     _io_issue_ack_3_output,
-     _io_issue_ack_2_output,
-     _io_issue_ack_1_output,
-     _io_issue_ack_0_output};
+  wire        _io_inst_issue_T_6 =
+    _io_inst_issue_valid_T | _io_issue_ack_2_output | _io_issue_ack_3_output
+    | _io_issue_ack_4_output | _io_issue_ack_5_output | _io_issue_ack_6_output
+    | _io_issue_ack_7_output;
   assign io_issue_ack_0 = _io_issue_ack_0_output;
   assign io_issue_ack_1 = _io_issue_ack_1_output;
   assign io_issue_ack_2 = _io_issue_ack_2_output;
@@ -375,34 +365,24 @@ module Unorder_Select(
   assign io_issue_ack_6 = _io_issue_ack_6_output;
   assign io_issue_ack_7 = _io_issue_ack_7_output;
   assign io_wake_preg =
-    (|{_io_issue_ack_7_output,
-       _io_issue_ack_6_output,
-       _io_issue_ack_5_output,
-       _io_issue_ack_4_output,
-       _io_issue_ack_3_output,
-       _io_issue_ack_2_output,
-       _io_issue_ack_1_output,
-       _io_issue_ack_0_output}) & casez_tmp_1
+    (_io_inst_issue_valid_T | _io_issue_ack_2_output | _io_issue_ack_3_output
+     | _io_issue_ack_4_output | _io_issue_ack_5_output | _io_issue_ack_6_output
+     | _io_issue_ack_7_output) & casez_tmp_1
       ? casez_tmp_2
       : 7'h0;
-  assign io_inst_issue_inst_prj = (|_io_inst_issue_T) ? casez_tmp : 7'h0;
-  assign io_inst_issue_inst_prk = (|_io_inst_issue_T) ? casez_tmp_0 : 7'h0;
-  assign io_inst_issue_inst_rd_valid = (|_io_inst_issue_T) & casez_tmp_1;
-  assign io_inst_issue_inst_prd = (|_io_inst_issue_T) ? casez_tmp_2 : 7'h0;
-  assign io_inst_issue_inst_imm = (|_io_inst_issue_T) ? casez_tmp_3 : 32'h0;
-  assign io_inst_issue_inst_rob_index = (|_io_inst_issue_T) ? casez_tmp_4 : 6'h0;
-  assign io_inst_issue_inst_alu_op = (|_io_inst_issue_T) ? casez_tmp_5 : 5'h0;
-  assign io_inst_issue_inst_alu_rs1_sel = (|_io_inst_issue_T) ? casez_tmp_6 : 2'h0;
-  assign io_inst_issue_inst_alu_rs2_sel = (|_io_inst_issue_T) ? casez_tmp_7 : 2'h0;
-  assign io_inst_issue_inst_pc = (|_io_inst_issue_T) ? casez_tmp_8 : 32'h0;
+  assign io_inst_issue_inst_prj = _io_inst_issue_T_6 ? casez_tmp : 7'h0;
+  assign io_inst_issue_inst_prk = _io_inst_issue_T_6 ? casez_tmp_0 : 7'h0;
+  assign io_inst_issue_inst_rd_valid = _io_inst_issue_T_6 & casez_tmp_1;
+  assign io_inst_issue_inst_prd = _io_inst_issue_T_6 ? casez_tmp_2 : 7'h0;
+  assign io_inst_issue_inst_imm = _io_inst_issue_T_6 ? casez_tmp_3 : 32'h0;
+  assign io_inst_issue_inst_rob_index = _io_inst_issue_T_6 ? casez_tmp_4 : 6'h0;
+  assign io_inst_issue_inst_alu_op = _io_inst_issue_T_6 ? casez_tmp_5 : 5'h0;
+  assign io_inst_issue_inst_alu_rs1_sel = _io_inst_issue_T_6 ? casez_tmp_6 : 2'h0;
+  assign io_inst_issue_inst_alu_rs2_sel = _io_inst_issue_T_6 ? casez_tmp_7 : 2'h0;
+  assign io_inst_issue_inst_pc = _io_inst_issue_T_6 ? casez_tmp_8 : 32'h0;
   assign io_inst_issue_valid =
-    |{_io_issue_ack_7_output,
-      _io_issue_ack_6_output,
-      _io_issue_ack_5_output,
-      _io_issue_ack_4_output,
-      _io_issue_ack_3_output,
-      _io_issue_ack_2_output,
-      _io_issue_ack_1_output,
-      _io_issue_ack_0_output};
+    _io_inst_issue_valid_T | _io_issue_ack_2_output | _io_issue_ack_3_output
+    | _io_issue_ack_4_output | _io_issue_ack_5_output | _io_issue_ack_6_output
+    | _io_issue_ack_7_output;
 endmodule
 

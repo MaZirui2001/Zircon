@@ -335,7 +335,7 @@ module Prev_Decode(
              : io_insts_pack_IF_3_predict_jump)
       : io_insts_pack_IF_3_predict_jump;
   assign io_insts_pack_PD_3_pred_npc = inst_pack_pd_3_pred_npc;
-  assign io_pred_fix = |{pred_fix_3, pred_fix_2, pred_fix_1, pred_fix_0};
+  assign io_pred_fix = pred_fix_0 | pred_fix_1 | pred_fix_2 | pred_fix_3;
   assign io_pred_fix_target = casez_tmp;
   assign io_pred_fix_is_bl = casez_tmp_0;
   assign io_pred_fix_pc_plus_4 = casez_tmp_1;
