@@ -5,7 +5,7 @@ import Control_Signal._
 
 // LUT: 2377
 object Dispatch_Func{
-    def Dispatch_Ready_Generate(pr: UInt, prd_queue: Vec[UInt], queue_sel: UInt, index: UInt): Bool = {
+    def Dispatch_Ready_Generate(pr: UInt, prd_queue: Vec[UInt], index: UInt): Bool = {
         val prd_hit = Wire(Vec(9, Bool()))
         prd_hit := 0.U.asTypeOf(Vec(9, Bool()))
         val n = MuxLookup(index, 0.U)(Seq(
@@ -21,10 +21,10 @@ object Dispatch_Func{
         }
         !(prd_hit.reduce(_ || _))
     }
-    def Ready_Generate(pr: UInt, prd_queue: Vec[Vec[UInt]], queue_sel: UInt): Bool = {
+    def Ready_Generate(pr: UInt, prd_queue: Vec[Vec[UInt]]): Bool = {
         val prd_ready = Wire(Vec(4, Bool()))
         for(i <- 0 until 4){
-            prd_ready(i) := Dispatch_Ready_Generate(pr, prd_queue(i), queue_sel, i.U(2.W))
+            prd_ready(i) := Dispatch_Ready_Generate(pr, prd_queue(i), i.U(2.W))
         }
         prd_ready.reduce(_ && _)
     }
@@ -62,8 +62,8 @@ class Dispatch extends RawModule{
     }
     import Dispatch_Func._
     for(i <- 0 until 4){
-        io.prj_ready(i) := !io.inst_packs(i).rj_valid || io.inst_packs(i).prj === 0.U || (!io.inst_packs(i).prj_raw && Ready_Generate(io.inst_packs(i).prj, io.prd_queue, queue_sel(i)))
-        io.prk_ready(i) := !io.inst_packs(i).rk_valid || io.inst_packs(i).prk === 0.U || (!io.inst_packs(i).prk_raw && Ready_Generate(io.inst_packs(i).prk, io.prd_queue, queue_sel(i)))
+        io.prj_ready(i) := !io.inst_packs(i).rj_valid || io.inst_packs(i).prj === 0.U || (!io.inst_packs(i).prj_raw && Ready_Generate(io.inst_packs(i).prj, io.prd_queue))
+        io.prk_ready(i) := !io.inst_packs(i).rk_valid || io.inst_packs(i).prk === 0.U || (!io.inst_packs(i).prk_raw && Ready_Generate(io.inst_packs(i).prk, io.prd_queue))
     }
     
     // alloc insts to issue queue, pressed
