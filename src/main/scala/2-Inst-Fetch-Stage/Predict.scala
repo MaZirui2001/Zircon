@@ -10,9 +10,9 @@ object PRED_Config{
         val tag = UInt(BTB_TAG_WIDTH.W)
         val typ = UInt(2.W)
     }
-    val BHT_INDEX_WIDTH = 6
+    val BHT_INDEX_WIDTH = 7
     val BHT_DEPTH = 1 << BHT_INDEX_WIDTH
-    val PHT_INDEX_WIDTH = 6
+    val PHT_INDEX_WIDTH = 7
     val PHT_DEPTH = 1 << PHT_INDEX_WIDTH
 
     val JIRL = 1.U(2.W)
@@ -50,8 +50,8 @@ class Predict extends Module{
 
     val btb_tagv = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
     val btb_targ = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(30+2, BTB_DEPTH)).io))
-    val bht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(64)(0.U(4.W))))))
-    val pht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(64)(2.U(2.W))))))
+    val bht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W))))))
+    val pht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W))))))
 
     val ras = RegInit(VecInit(Seq.fill(16)(0x1c000000.U(32.W))))
     val top = RegInit(0.U(4.W))
@@ -66,7 +66,7 @@ class Predict extends Module{
     val bht_rindex      = pc(4-1+BHT_INDEX_WIDTH, 4) 
     val bht_rdata       = VecInit(bht.map(_(bht_rindex)))
 
-    val pht_rindex      = VecInit(Seq.tabulate(4)(i => (bht_rdata(i) ^ pc(9, 6)) ## pc(5, 4)))
+    val pht_rindex      = VecInit(Seq.tabulate(4)(i => (bht_rdata(i) ^ pc(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## pc(PHT_INDEX_WIDTH-1, 4)))
     val pht_rdata       = VecInit(Seq.tabulate(4)(i => pht(i)(pht_rindex(i))))
 
     val predict_jump    = VecInit(Seq.tabulate(4)(i => pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
@@ -122,7 +122,7 @@ class Predict extends Module{
     }
 
     // pht
-    val pht_windex = (bht(io.pc_cmt(3, 2))(bht_windex) ^ io.pc_cmt(9, 6)) ## io.pc_cmt(5, 4)
+    val pht_windex = (bht(io.pc_cmt(3, 2))(bht_windex) ^ io.pc_cmt(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## io.pc_cmt(PHT_INDEX_WIDTH-1, 4)
 
     when(update_en){
         pht(io.pc_cmt(3, 2))(pht_windex) := Mux(io.real_jump, 

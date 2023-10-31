@@ -145,7 +145,7 @@ module Free_List(
         casez_tmp = tail_3;
     endcase
   end // always_comb
-  wire [1:0] _tail_T_15 = tail_sel + 2'h1;
+  wire [1:0] _tail_T_15 = 2'(tail_sel + 2'h1);
   always_comb begin
     casez (_tail_T_15)
       2'b00:
@@ -158,7 +158,7 @@ module Free_List(
         casez_tmp_0 = tail_3;
     endcase
   end // always_comb
-  wire [1:0] _tail_T_25 = tail_sel - 2'h2;
+  wire [1:0] _tail_T_25 = 2'(tail_sel - 2'h2);
   always_comb begin
     casez (_tail_T_25)
       2'b00:
@@ -171,7 +171,7 @@ module Free_List(
         casez_tmp_1 = tail_3;
     endcase
   end // always_comb
-  wire [1:0] _tail_T_35 = tail_sel - 2'h1;
+  wire [1:0] _tail_T_35 = 2'(tail_sel - 2'h1);
   always_comb begin
     casez (_tail_T_35)
       2'b00:
@@ -456,26 +456,26 @@ module Free_List(
         casez_tmp_6 = free_list_3_0;
     endcase
   end // always_comb
-  wire [4:0] _head_0_T_3 = head_0 + {4'h0, io_rd_valid_0};
-  wire [4:0] _head_1_T_3 = head_1 + {4'h0, io_rd_valid_1};
-  wire [4:0] _head_2_T_3 = head_2 + {4'h0, io_rd_valid_2};
-  wire [4:0] _head_3_T_3 = head_3 + {4'h0, io_rd_valid_3};
+  wire [4:0] _head_0_T_3 = 5'(head_0 + {4'h0, io_rd_valid_0});
+  wire [4:0] _head_1_T_3 = 5'(head_1 + {4'h0, io_rd_valid_1});
+  wire [4:0] _head_2_T_3 = 5'(head_2 + {4'h0, io_rd_valid_2});
+  wire [4:0] _head_3_T_3 = 5'(head_3 + {4'h0, io_rd_valid_3});
   wire [4:0] _GEN = {4'h0, io_commit_pprd_valid_0};
-  wire       _tail_T_4 = casez_tmp + _GEN == 5'h14;
-  wire [4:0] _tail_T_7 = casez_tmp + _GEN;
+  wire       _tail_T_4 = 5'(casez_tmp + _GEN) == 5'h14;
+  wire [4:0] _tail_T_7 = 5'(casez_tmp + _GEN);
   wire [1:0] _GEN_0 = {1'h0, io_commit_en_0};
   wire [1:0] _GEN_1 = {1'h0, io_commit_en_1};
   wire [1:0] _GEN_2 = {1'h0, io_commit_en_2};
   wire [1:0] _GEN_3 = {1'h0, io_commit_en_3};
   wire [4:0] _GEN_4 = {4'h0, io_commit_pprd_valid_1};
-  wire       _tail_T_14 = casez_tmp_0 + _GEN_4 == 5'h14;
-  wire [4:0] _tail_T_17 = casez_tmp_0 + _GEN_4;
+  wire       _tail_T_14 = 5'(casez_tmp_0 + _GEN_4) == 5'h14;
+  wire [4:0] _tail_T_17 = 5'(casez_tmp_0 + _GEN_4);
   wire [4:0] _GEN_5 = {4'h0, io_commit_pprd_valid_2};
-  wire       _tail_T_24 = casez_tmp_1 + _GEN_5 == 5'h14;
-  wire [4:0] _tail_T_27 = casez_tmp_1 + _GEN_5;
+  wire       _tail_T_24 = 5'(casez_tmp_1 + _GEN_5) == 5'h14;
+  wire [4:0] _tail_T_27 = 5'(casez_tmp_1 + _GEN_5);
   wire [4:0] _GEN_6 = {4'h0, io_commit_pprd_valid_3};
-  wire       _tail_T_34 = casez_tmp_2 + _GEN_6 == 5'h14;
-  wire [4:0] _tail_T_37 = casez_tmp_2 + _GEN_6;
+  wire       _tail_T_34 = 5'(casez_tmp_2 + _GEN_6) == 5'h14;
+  wire [4:0] _tail_T_37 = 5'(casez_tmp_2 + _GEN_6);
   wire       _GEN_7 = tail_sel == 2'h0;
   wire       _GEN_8 = tail_sel == 2'h1;
   wire       _GEN_9 = tail_sel == 2'h2;
@@ -1510,13 +1510,25 @@ module Free_List(
           tail_3 <= _tail_T_7;
       end
       if (io_commit_en_3)
-        tail_sel <= io_predict_fail ? 2'h0 : tail_sel + _GEN_0 + _GEN_1 + _GEN_2 + _GEN_3;
+        tail_sel <=
+          io_predict_fail
+            ? 2'h0
+            : 2'(2'(tail_sel + _GEN_0) + 2'(_GEN_1 + 2'(_GEN_2 + _GEN_3)));
       else if (io_commit_en_2)
-        tail_sel <= io_predict_fail ? 2'h0 : tail_sel + _GEN_0 + _GEN_1 + _GEN_2 + _GEN_3;
+        tail_sel <=
+          io_predict_fail
+            ? 2'h0
+            : 2'(2'(tail_sel + _GEN_0) + 2'(_GEN_1 + 2'(_GEN_2 + _GEN_3)));
       else if (io_commit_en_1)
-        tail_sel <= io_predict_fail ? 2'h0 : tail_sel + _GEN_0 + _GEN_1 + _GEN_2 + _GEN_3;
+        tail_sel <=
+          io_predict_fail
+            ? 2'h0
+            : 2'(2'(tail_sel + _GEN_0) + 2'(_GEN_1 + 2'(_GEN_2 + _GEN_3)));
       else if (io_commit_en_0)
-        tail_sel <= io_predict_fail ? 2'h0 : tail_sel + _GEN_0 + _GEN_1 + _GEN_2 + _GEN_3;
+        tail_sel <=
+          io_predict_fail
+            ? 2'h0
+            : 2'(2'(tail_sel + _GEN_0) + 2'(_GEN_1 + 2'(_GEN_2 + _GEN_3)));
     end
   end // always @(posedge)
   assign io_alloc_preg_0 = casez_tmp_3;

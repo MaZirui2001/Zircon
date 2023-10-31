@@ -22,10 +22,11 @@ module PC(
 
   reg  [31:0] pc;
   wire [3:0]  _GEN = {io_pred_jump_3, io_pred_jump_2, io_pred_jump_1, io_pred_jump_0};
-  wire [31:0] _io_npc_T = pc + 32'h10;
+  wire [31:0] _io_npc_T = 32'(pc + 32'h10);
   wire [31:0] _io_npc_T_3 = {_io_npc_T[31:4], 4'h0};
   wire [3:0]  _GEN_0 =
-    {io_pred_jump_0 ? 3'h1 : io_pred_jump_1 ? 3'h2 : {io_pred_jump_2, 2'h0}, 1'h0} - 4'h1;
+    4'({io_pred_jump_0 ? 3'h1 : io_pred_jump_1 ? 3'h2 : {io_pred_jump_2, 2'h0}, 1'h0}
+       - 4'h1);
   wire [3:0]  _GEN_1 = 4'hF >> pc[3:2];
   always @(posedge clock) begin
     if (reset)

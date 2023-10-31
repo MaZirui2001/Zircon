@@ -154,7 +154,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val ew_reg4         = Module(new MD_EX_WB_Reg)
 
     /* Write Back Stage */
-    val rob             = Module(new ROB(48))
+    val rob             = Module(new ROB(40))
 
     /* Commit Stage */
     val arat            = Module(new Arch_Rat)
@@ -238,18 +238,8 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // DP stage
     dp.io.inst_packs            := rp_reg.io.insts_pack_DP
-    // dp.io.prd_queue             := VecInit( VecInit(iq1.io.prd_queue :+ 0.U(7.W)), 
-    //                                         VecInit(iq2.io.prd_queue :+ 0.U(7.W)), 
-    //                                         VecInit(iq3.io.prd_queue :+ Mux(re_reg3.io.inst_pack_RF.rd_valid, re_reg3.io.inst_pack_RF.prd, 0.U)), 
-    //                                         VecInit(iq4.io.prd_queue :+ 0.U(7.W)))
     dp.io.elem_num              := VecInit(iq1.io.elem_num, iq2.io.elem_num)
 
-    // // DP-IS SegReg
-    // di_reg.io.flush                 := rob.io.predict_fail_cmt
-    // di_reg.io.stall                 := stall_by_iq
-    // di_reg.io.insts_pack_DP         := dp.io.inst_packs
-    // di_reg.io.insts_disp_index_DP   := dp.io.insts_disp_index
-    // di_reg.io.insts_disp_valid_DP   := dp.io.insts_disp_valid
 
     // issue stage
     // busyboard

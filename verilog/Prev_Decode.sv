@@ -110,10 +110,10 @@ module Prev_Decode(
                 & io_insts_pack_IF_3_inst[29:28] != 2'h3,
               1'h0})
       : 2'h0;
-  wire [31:0] _inst_pack_pd_0_pred_npc_T_16 = io_insts_pack_IF_0_pc + 32'h4;
-  wire [31:0] _inst_pack_pd_1_pred_npc_T_16 = io_insts_pack_IF_1_pc + 32'h4;
-  wire [31:0] _inst_pack_pd_2_pred_npc_T_16 = io_insts_pack_IF_2_pc + 32'h4;
-  wire [31:0] _inst_pack_pd_3_pred_npc_T_16 = io_insts_pack_IF_3_pc + 32'h4;
+  wire [31:0] _inst_pack_pd_0_pred_npc_T_16 = 32'(io_insts_pack_IF_0_pc + 32'h4);
+  wire [31:0] _inst_pack_pd_1_pred_npc_T_16 = 32'(io_insts_pack_IF_1_pc + 32'h4);
+  wire [31:0] _inst_pack_pd_2_pred_npc_T_16 = 32'(io_insts_pack_IF_2_pc + 32'h4);
+  wire [31:0] _inst_pack_pd_3_pred_npc_T_16 = 32'(io_insts_pack_IF_3_pc + 32'h4);
   always_comb begin
     casez (pred_index)
       2'b00:
@@ -160,24 +160,24 @@ module Prev_Decode(
   assign inst_pack_pd_0_pred_npc =
     io_insts_pack_IF_0_inst_valid
       ? (_GEN_3
-           ? io_insts_pack_IF_0_pc
-             + {{4{io_insts_pack_IF_0_inst[9]}},
-                io_insts_pack_IF_0_inst[9:0],
-                io_insts_pack_IF_0_inst[25:10],
-                2'h0}
+           ? 32'(io_insts_pack_IF_0_pc
+                 + {{4{io_insts_pack_IF_0_inst[9]}},
+                    io_insts_pack_IF_0_inst[9:0],
+                    io_insts_pack_IF_0_inst[25:10],
+                    2'h0})
            : _GEN_4
                ? (io_insts_pack_IF_0_pred_valid
                     ? (io_insts_pack_IF_0_predict_jump
-                         ? io_insts_pack_IF_0_pc
-                           + {{14{io_insts_pack_IF_0_inst[25]}},
-                              io_insts_pack_IF_0_inst[25:10],
-                              2'h0}
+                         ? 32'(io_insts_pack_IF_0_pc
+                               + {{14{io_insts_pack_IF_0_inst[25]}},
+                                  io_insts_pack_IF_0_inst[25:10],
+                                  2'h0})
                          : io_insts_pack_IF_0_pred_npc)
                     : io_insts_pack_IF_0_inst[25]
-                        ? io_insts_pack_IF_0_pc
-                          + {{14{io_insts_pack_IF_0_inst[25]}},
-                             io_insts_pack_IF_0_inst[25:10],
-                             2'h0}
+                        ? 32'(io_insts_pack_IF_0_pc
+                              + {{14{io_insts_pack_IF_0_inst[25]}},
+                                 io_insts_pack_IF_0_inst[25:10],
+                                 2'h0})
                         : _inst_pack_pd_0_pred_npc_T_16)
                : io_insts_pack_IF_0_pred_npc)
       : io_insts_pack_IF_0_pred_npc;
@@ -203,24 +203,24 @@ module Prev_Decode(
   assign inst_pack_pd_1_pred_npc =
     io_insts_pack_IF_1_inst_valid
       ? (_GEN_5
-           ? io_insts_pack_IF_1_pc
-             + {{4{io_insts_pack_IF_1_inst[9]}},
-                io_insts_pack_IF_1_inst[9:0],
-                io_insts_pack_IF_1_inst[25:10],
-                2'h0}
+           ? 32'(io_insts_pack_IF_1_pc
+                 + {{4{io_insts_pack_IF_1_inst[9]}},
+                    io_insts_pack_IF_1_inst[9:0],
+                    io_insts_pack_IF_1_inst[25:10],
+                    2'h0})
            : _GEN_6
                ? (io_insts_pack_IF_1_pred_valid
                     ? (io_insts_pack_IF_1_predict_jump
-                         ? io_insts_pack_IF_1_pc
-                           + {{14{io_insts_pack_IF_1_inst[25]}},
-                              io_insts_pack_IF_1_inst[25:10],
-                              2'h0}
+                         ? 32'(io_insts_pack_IF_1_pc
+                               + {{14{io_insts_pack_IF_1_inst[25]}},
+                                  io_insts_pack_IF_1_inst[25:10],
+                                  2'h0})
                          : io_insts_pack_IF_1_pred_npc)
                     : io_insts_pack_IF_1_inst[25]
-                        ? io_insts_pack_IF_1_pc
-                          + {{14{io_insts_pack_IF_1_inst[25]}},
-                             io_insts_pack_IF_1_inst[25:10],
-                             2'h0}
+                        ? 32'(io_insts_pack_IF_1_pc
+                              + {{14{io_insts_pack_IF_1_inst[25]}},
+                                 io_insts_pack_IF_1_inst[25:10],
+                                 2'h0})
                         : _inst_pack_pd_1_pred_npc_T_16)
                : io_insts_pack_IF_1_pred_npc)
       : io_insts_pack_IF_1_pred_npc;
@@ -246,24 +246,24 @@ module Prev_Decode(
   assign inst_pack_pd_2_pred_npc =
     io_insts_pack_IF_2_inst_valid
       ? (_GEN_7
-           ? io_insts_pack_IF_2_pc
-             + {{4{io_insts_pack_IF_2_inst[9]}},
-                io_insts_pack_IF_2_inst[9:0],
-                io_insts_pack_IF_2_inst[25:10],
-                2'h0}
+           ? 32'(io_insts_pack_IF_2_pc
+                 + {{4{io_insts_pack_IF_2_inst[9]}},
+                    io_insts_pack_IF_2_inst[9:0],
+                    io_insts_pack_IF_2_inst[25:10],
+                    2'h0})
            : _GEN_8
                ? (io_insts_pack_IF_2_pred_valid
                     ? (io_insts_pack_IF_2_predict_jump
-                         ? io_insts_pack_IF_2_pc
-                           + {{14{io_insts_pack_IF_2_inst[25]}},
-                              io_insts_pack_IF_2_inst[25:10],
-                              2'h0}
+                         ? 32'(io_insts_pack_IF_2_pc
+                               + {{14{io_insts_pack_IF_2_inst[25]}},
+                                  io_insts_pack_IF_2_inst[25:10],
+                                  2'h0})
                          : io_insts_pack_IF_2_pred_npc)
                     : io_insts_pack_IF_2_inst[25]
-                        ? io_insts_pack_IF_2_pc
-                          + {{14{io_insts_pack_IF_2_inst[25]}},
-                             io_insts_pack_IF_2_inst[25:10],
-                             2'h0}
+                        ? 32'(io_insts_pack_IF_2_pc
+                              + {{14{io_insts_pack_IF_2_inst[25]}},
+                                 io_insts_pack_IF_2_inst[25:10],
+                                 2'h0})
                         : _inst_pack_pd_2_pred_npc_T_16)
                : io_insts_pack_IF_2_pred_npc)
       : io_insts_pack_IF_2_pred_npc;
@@ -282,24 +282,24 @@ module Prev_Decode(
   assign inst_pack_pd_3_pred_npc =
     io_insts_pack_IF_3_inst_valid
       ? (_GEN_9
-           ? io_insts_pack_IF_3_pc
-             + {{4{io_insts_pack_IF_3_inst[9]}},
-                io_insts_pack_IF_3_inst[9:0],
-                io_insts_pack_IF_3_inst[25:10],
-                2'h0}
+           ? 32'(io_insts_pack_IF_3_pc
+                 + {{4{io_insts_pack_IF_3_inst[9]}},
+                    io_insts_pack_IF_3_inst[9:0],
+                    io_insts_pack_IF_3_inst[25:10],
+                    2'h0})
            : _GEN_10
                ? (io_insts_pack_IF_3_pred_valid
                     ? (io_insts_pack_IF_3_predict_jump
-                         ? io_insts_pack_IF_3_pc
-                           + {{14{io_insts_pack_IF_3_inst[25]}},
-                              io_insts_pack_IF_3_inst[25:10],
-                              2'h0}
+                         ? 32'(io_insts_pack_IF_3_pc
+                               + {{14{io_insts_pack_IF_3_inst[25]}},
+                                  io_insts_pack_IF_3_inst[25:10],
+                                  2'h0})
                          : io_insts_pack_IF_3_pred_npc)
                     : io_insts_pack_IF_3_inst[25]
-                        ? io_insts_pack_IF_3_pc
-                          + {{14{io_insts_pack_IF_3_inst[25]}},
-                             io_insts_pack_IF_3_inst[25:10],
-                             2'h0}
+                        ? 32'(io_insts_pack_IF_3_pc
+                              + {{14{io_insts_pack_IF_3_inst[25]}},
+                                 io_insts_pack_IF_3_inst[25:10],
+                                 2'h0})
                         : _inst_pack_pd_3_pred_npc_T_16)
                : io_insts_pack_IF_3_pred_npc)
       : io_insts_pack_IF_3_pred_npc;

@@ -49,17 +49,21 @@ module Dispatch(
       ? {1'h0, io_elem_num_0 > io_elem_num_1}
       : io_inst_packs_0_fu_id;
   wire       _queue_id_hit_0_0_T = queue_sel_0 == 2'h0;
-  wire [3:0] fu1_next_num = _queue_id_hit_0_0_T ? io_elem_num_0 + 4'h1 : io_elem_num_0;
+  wire [3:0] fu1_next_num =
+    _queue_id_hit_0_0_T ? 4'(io_elem_num_0 + 4'h1) : io_elem_num_0;
   wire       _queue_id_hit_0_1_T = queue_sel_0 == 2'h1;
-  wire [3:0] fu2_next_num = _queue_id_hit_0_1_T ? io_elem_num_1 + 4'h1 : io_elem_num_1;
+  wire [3:0] fu2_next_num =
+    _queue_id_hit_0_1_T ? 4'(io_elem_num_1 + 4'h1) : io_elem_num_1;
   wire [1:0] queue_sel_1 =
     io_inst_packs_1_fu_id == 2'h0
       ? {1'h0, fu1_next_num > fu2_next_num}
       : io_inst_packs_1_fu_id;
   wire       _queue_id_hit_1_0_T = queue_sel_1 == 2'h0;
-  wire [3:0] fu1_next_num_1 = _queue_id_hit_1_0_T ? fu1_next_num + 4'h1 : fu1_next_num;
+  wire [3:0] fu1_next_num_1 =
+    _queue_id_hit_1_0_T ? 4'(fu1_next_num + 4'h1) : fu1_next_num;
   wire       _queue_id_hit_1_1_T = queue_sel_1 == 2'h1;
-  wire [3:0] fu2_next_num_1 = _queue_id_hit_1_1_T ? fu2_next_num + 4'h1 : fu2_next_num;
+  wire [3:0] fu2_next_num_1 =
+    _queue_id_hit_1_1_T ? 4'(fu2_next_num + 4'h1) : fu2_next_num;
   wire [1:0] queue_sel_2 =
     io_inst_packs_2_fu_id == 2'h0
       ? {1'h0, fu1_next_num_1 > fu2_next_num_1}
@@ -70,9 +74,9 @@ module Dispatch(
     io_inst_packs_3_fu_id == 2'h0
       ? {1'h0,
          (_queue_id_hit_2_0_T
-            ? fu1_next_num_1 + 4'h1
+            ? 4'(fu1_next_num_1 + 4'h1)
             : fu1_next_num_1) > (_queue_id_hit_2_1_T
-                                   ? fu2_next_num_1 + 4'h1
+                                   ? 4'(fu2_next_num_1 + 4'h1)
                                    : fu2_next_num_1)}
       : io_inst_packs_3_fu_id;
   wire       queue_id_hit_0_0 = _queue_id_hit_0_0_T & io_inst_packs_0_inst_valid;
@@ -94,43 +98,43 @@ module Dispatch(
   wire       _GEN = queue_id_hit_1_0 & ~queue_id_hit_0_0;
   wire       _GEN_0 = queue_id_hit_1_0 & queue_id_hit_0_0;
   wire [1:0] next_alloc_index_1_0 =
-    queue_id_hit_1_0 ? {1'h0, queue_id_hit_0_0} + 2'h1 : {1'h0, queue_id_hit_0_0};
+    queue_id_hit_1_0 ? 2'({1'h0, queue_id_hit_0_0} + 2'h1) : {1'h0, queue_id_hit_0_0};
   wire       _GEN_1 = queue_id_hit_1_1 & ~queue_id_hit_0_1;
   wire       _GEN_2 = queue_id_hit_1_1 & queue_id_hit_0_1;
   wire [1:0] next_alloc_index_1_1 =
-    queue_id_hit_1_1 ? {1'h0, queue_id_hit_0_1} + 2'h1 : {1'h0, queue_id_hit_0_1};
+    queue_id_hit_1_1 ? 2'({1'h0, queue_id_hit_0_1} + 2'h1) : {1'h0, queue_id_hit_0_1};
   wire       _GEN_3 = queue_id_hit_1_2 & ~queue_id_hit_0_2;
   wire       _GEN_4 = queue_id_hit_1_2 & queue_id_hit_0_2;
   wire [1:0] next_alloc_index_1_2 =
-    queue_id_hit_1_2 ? {1'h0, queue_id_hit_0_2} + 2'h1 : {1'h0, queue_id_hit_0_2};
+    queue_id_hit_1_2 ? 2'({1'h0, queue_id_hit_0_2} + 2'h1) : {1'h0, queue_id_hit_0_2};
   wire       _GEN_5 = queue_id_hit_1_3 & ~queue_id_hit_0_3;
   wire       _GEN_6 = queue_id_hit_1_3 & queue_id_hit_0_3;
   wire [1:0] next_alloc_index_1_3 =
-    queue_id_hit_1_3 ? {1'h0, queue_id_hit_0_3} + 2'h1 : {1'h0, queue_id_hit_0_3};
+    queue_id_hit_1_3 ? 2'({1'h0, queue_id_hit_0_3} + 2'h1) : {1'h0, queue_id_hit_0_3};
   wire       _GEN_7 = next_alloc_index_1_0 == 2'h0;
   wire       _GEN_8 = queue_id_hit_2_0 & next_alloc_index_1_0 == 2'h1;
   wire       _GEN_9 = queue_id_hit_2_0 & next_alloc_index_1_0 == 2'h2;
   wire       _GEN_10 = queue_id_hit_2_0 & (&next_alloc_index_1_0);
   wire [1:0] next_alloc_index_2_0 =
-    queue_id_hit_2_0 ? next_alloc_index_1_0 + 2'h1 : next_alloc_index_1_0;
+    queue_id_hit_2_0 ? 2'(next_alloc_index_1_0 + 2'h1) : next_alloc_index_1_0;
   wire       _GEN_11 = next_alloc_index_1_1 == 2'h0;
   wire       _GEN_12 = queue_id_hit_2_1 & next_alloc_index_1_1 == 2'h1;
   wire       _GEN_13 = queue_id_hit_2_1 & next_alloc_index_1_1 == 2'h2;
   wire       _GEN_14 = queue_id_hit_2_1 & (&next_alloc_index_1_1);
   wire [1:0] next_alloc_index_2_1 =
-    queue_id_hit_2_1 ? next_alloc_index_1_1 + 2'h1 : next_alloc_index_1_1;
+    queue_id_hit_2_1 ? 2'(next_alloc_index_1_1 + 2'h1) : next_alloc_index_1_1;
   wire       _GEN_15 = next_alloc_index_1_2 == 2'h0;
   wire       _GEN_16 = queue_id_hit_2_2 & next_alloc_index_1_2 == 2'h1;
   wire       _GEN_17 = queue_id_hit_2_2 & next_alloc_index_1_2 == 2'h2;
   wire       _GEN_18 = queue_id_hit_2_2 & (&next_alloc_index_1_2);
   wire [1:0] next_alloc_index_2_2 =
-    queue_id_hit_2_2 ? next_alloc_index_1_2 + 2'h1 : next_alloc_index_1_2;
+    queue_id_hit_2_2 ? 2'(next_alloc_index_1_2 + 2'h1) : next_alloc_index_1_2;
   wire       _GEN_19 = next_alloc_index_1_3 == 2'h0;
   wire       _GEN_20 = queue_id_hit_2_3 & next_alloc_index_1_3 == 2'h1;
   wire       _GEN_21 = queue_id_hit_2_3 & next_alloc_index_1_3 == 2'h2;
   wire       _GEN_22 = queue_id_hit_2_3 & (&next_alloc_index_1_3);
   wire [1:0] next_alloc_index_2_3 =
-    queue_id_hit_2_3 ? next_alloc_index_1_3 + 2'h1 : next_alloc_index_1_3;
+    queue_id_hit_2_3 ? 2'(next_alloc_index_1_3 + 2'h1) : next_alloc_index_1_3;
   wire       _GEN_23 = queue_id_hit_3_0 & next_alloc_index_2_0 == 2'h0;
   wire       _GEN_24 = next_alloc_index_2_0 == 2'h1;
   wire       _GEN_25 = next_alloc_index_2_0 == 2'h2;

@@ -19,4 +19,6 @@
 2023-10-30 15:34 LUT: 53988 FF: 21438 BRAM: 4 DSP: 8                optimize load and store decode logic 
 2023-10-30 16:29 LUT: 53608 FF: 21433 BRAM: 4 DSP: 8                optimize logic in iq 
 2023-10-30 16:37 LUT: 53183 FF: 21433 BRAM: 4 DSP: 8                optimize logic in iq again
-2923-10-31 16:13 LUT: 53146 FF: 21522 BRAM: 4 DSP: 8                add busy board
+2023-10-31 16:13 LUT: 53146 FF: 21522 BRAM: 4 DSP: 8                add busy board
+2023-10-31 17:13 LUT: 53153 FF: 21513 BRAM: 4 DSP: 8                convert dipatch algorithm
+2023-10-31 20:53 LUT: 53183 FF: 21999 BRAM: 4 DSP: 8                del 8 ROB item and add predict to 128

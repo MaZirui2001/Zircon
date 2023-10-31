@@ -6,13 +6,14 @@ module MDU(
   output [31:0] io_md_out
 );
 
-  wire [63:0] _md_out_T_3 = {{32{io_src1[31]}}, io_src1} * {{32{io_src2[31]}}, io_src2};
-  wire [63:0] _md_out_T_5 = {32'h0, io_src1} * {32'h0, io_src2};
+  wire [63:0] _md_out_T_3 =
+    64'({{32{io_src1[31]}}, io_src1} * {{32{io_src2[31]}}, io_src2});
+  wire [63:0] _md_out_T_5 = 64'({32'h0, io_src1} * {32'h0, io_src2});
   wire [32:0] _md_out_T_9 =
     $signed({io_src1[31], io_src1}) / $signed({io_src2[31], io_src2});
   assign io_md_out =
     io_md_op == 5'hB
-      ? io_src1 * io_src2
+      ? 32'(io_src1 * io_src2)
       : io_md_op == 5'hC
           ? _md_out_T_3[63:32]
           : io_md_op == 5'hD

@@ -774,13 +774,13 @@ module Arch_Rat(
     endcase
   end // always_comb
   wire [4:0] _GEN_563 = {4'h0, io_cmt_en_0 & io_rd_valid_cmt_0};
-  wire       _head_next_T_5 = casez_tmp + _GEN_563 > 5'h13;
-  wire [4:0] _head_next_T_9 = casez_tmp + _GEN_563;
+  wire       _head_next_T_5 = 5'(casez_tmp + _GEN_563) > 5'h13;
+  wire [4:0] _head_next_T_9 = 5'(casez_tmp + _GEN_563);
   wire [4:0] _head_next_T_11 = _head_next_T_5 ? 5'h0 : _head_next_T_9;
   wire       _GEN_564 = head_sel == 2'h0;
   wire       _GEN_565 = head_sel == 2'h1;
   wire       _GEN_566 = head_sel == 2'h2;
-  wire [1:0] _head_next_T_18 = head_sel + 2'h1;
+  wire [1:0] _head_next_T_18 = 2'(head_sel + 2'h1);
   always_comb begin
     casez (_head_next_T_18)
       2'b00:
@@ -794,13 +794,13 @@ module Arch_Rat(
     endcase
   end // always_comb
   wire [4:0] _GEN_567 = {4'h0, io_cmt_en_1 & io_rd_valid_cmt_1};
-  wire       _head_next_T_17 = casez_tmp_0 + _GEN_567 > 5'h13;
-  wire [4:0] _head_next_T_21 = casez_tmp_0 + _GEN_567;
+  wire       _head_next_T_17 = 5'(casez_tmp_0 + _GEN_567) > 5'h13;
+  wire [4:0] _head_next_T_21 = 5'(casez_tmp_0 + _GEN_567);
   wire [4:0] _head_next_T_23 = _head_next_T_17 ? 5'h0 : _head_next_T_21;
   wire       _GEN_568 = _head_next_T_18 == 2'h0;
   wire       _GEN_569 = _head_next_T_18 == 2'h1;
   wire       _GEN_570 = _head_next_T_18 == 2'h2;
-  wire [1:0] _head_next_T_30 = head_sel - 2'h2;
+  wire [1:0] _head_next_T_30 = 2'(head_sel - 2'h2);
   always_comb begin
     casez (_head_next_T_30)
       2'b00:
@@ -814,13 +814,13 @@ module Arch_Rat(
     endcase
   end // always_comb
   wire [4:0] _GEN_571 = {4'h0, io_cmt_en_2 & io_rd_valid_cmt_2};
-  wire       _head_next_T_29 = casez_tmp_1 + _GEN_571 > 5'h13;
-  wire [4:0] _head_next_T_33 = casez_tmp_1 + _GEN_571;
+  wire       _head_next_T_29 = 5'(casez_tmp_1 + _GEN_571) > 5'h13;
+  wire [4:0] _head_next_T_33 = 5'(casez_tmp_1 + _GEN_571);
   wire [4:0] _head_next_T_35 = _head_next_T_29 ? 5'h0 : _head_next_T_33;
   wire       _GEN_572 = _head_next_T_30 == 2'h0;
   wire       _GEN_573 = _head_next_T_30 == 2'h1;
   wire       _GEN_574 = _head_next_T_30 == 2'h2;
-  wire [1:0] _head_next_T_42 = head_sel - 2'h1;
+  wire [1:0] _head_next_T_42 = 2'(head_sel - 2'h1);
   always_comb begin
     casez (_head_next_T_42)
       2'b00:
@@ -834,17 +834,17 @@ module Arch_Rat(
     endcase
   end // always_comb
   wire [4:0] _GEN_575 = {4'h0, io_cmt_en_3 & io_rd_valid_cmt_3};
-  wire       _head_next_T_41 = casez_tmp_2 + _GEN_575 > 5'h13;
-  wire [4:0] _head_next_T_45 = casez_tmp_2 + _GEN_575;
+  wire       _head_next_T_41 = 5'(casez_tmp_2 + _GEN_575) > 5'h13;
+  wire [4:0] _head_next_T_45 = 5'(casez_tmp_2 + _GEN_575);
   wire [4:0] _head_next_T_47 = _head_next_T_41 ? 5'h0 : _head_next_T_45;
   wire       _GEN_576 = _head_next_T_42 == 2'h0;
   wire       _GEN_577 = _head_next_T_42 == 2'h1;
   wire       _GEN_578 = _head_next_T_42 == 2'h2;
   reg  [3:0] top;
   wire       _GEN_579 = io_br_type_pred_cmt == 2'h1 & io_ras_update_en_cmt;
-  wire [3:0] _top_next_T = top - 4'h1;
+  wire [3:0] _top_next_T = 4'(top - 4'h1);
   wire       _GEN_580 = io_br_type_pred_cmt == 2'h2 & io_ras_update_en_cmt;
-  wire [3:0] _top_next_T_2 = top + 4'h1;
+  wire [3:0] _top_next_T_2 = 4'(top + 4'h1);
   always @(posedge clock) begin
     if (reset) begin
       arat_0 <= 1'h0;
@@ -1362,8 +1362,8 @@ module Arch_Rat(
       head_sel <=
         io_predict_fail
           ? 2'h0
-          : head_sel + {1'h0, io_cmt_en_0} + {1'h0, io_cmt_en_1} + {1'h0, io_cmt_en_2}
-            + {1'h0, io_cmt_en_3};
+          : 2'(2'(head_sel + {1'h0, io_cmt_en_0})
+               + 2'({1'h0, io_cmt_en_1} + 2'({1'h0, io_cmt_en_2} + {1'h0, io_cmt_en_3})));
       if (_GEN_579)
         top <= _top_next_T;
       else if (_GEN_580)

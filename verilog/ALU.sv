@@ -11,9 +11,9 @@ module ALU(
   always_comb begin
     casez (io_alu_op)
       4'b0000:
-        casez_tmp = io_src1 + io_src2;
+        casez_tmp = 32'(io_src1 + io_src2);
       4'b0001:
-        casez_tmp = io_src1 - io_src2;
+        casez_tmp = 32'(io_src1 - io_src2);
       4'b0010:
         casez_tmp = {31'h0, $signed(io_src1) < $signed(io_src2)};
       4'b0011:

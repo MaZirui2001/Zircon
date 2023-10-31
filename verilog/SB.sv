@@ -185,10 +185,10 @@ module SB(
   end // always_comb
   wire [38:0] _GEN = {7'h0, io_addr_ex};
   wire        ld_hit_0 =
-    casez_tmp_2 <= io_addr_ex & _GEN < {7'h0, casez_tmp_2} + (39'h1 << casez_tmp_3)
+    casez_tmp_2 <= io_addr_ex & _GEN < 39'({7'h0, casez_tmp_2} + (39'h1 << casez_tmp_3))
     & (head[3] ^ tail[3]) & tail[2:0] >= head[2:0];
   always_comb begin
-    casez (tail[2:0] - 3'h1)
+    casez (3'(tail[2:0] - 3'h1))
       3'b000:
         casez_tmp_4 = sb_0_addr;
       3'b001:
@@ -208,7 +208,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h1)
+    casez (3'(tail[2:0] - 3'h1))
       3'b000:
         casez_tmp_5 = sb_0_wlen;
       3'b001:
@@ -228,7 +228,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h1)
+    casez (3'(tail[2:0] - 3'h1))
       3'b000:
         casez_tmp_6 = sb_0_addr;
       3'b001:
@@ -248,12 +248,12 @@ module SB(
     endcase
   end // always_comb
   wire        ld_hit_1 =
-    casez_tmp_4 <= io_addr_ex & _GEN < {7'h0, casez_tmp_6} + (39'h1 << casez_tmp_5)
+    casez_tmp_4 <= io_addr_ex & _GEN < 39'({7'h0, casez_tmp_6} + (39'h1 << casez_tmp_5))
     & (head[3] ^ tail[3]
-         ? tail[2:0] - 3'h1 >= head[2:0] | tail[2:0] - 3'h1 < tail[2:0]
-         : tail[2:0] - 3'h1 >= head[2:0] & tail[2:0] - 3'h1 < tail[2:0]);
+         ? 3'(tail[2:0] - 3'h1) >= head[2:0] | 3'(tail[2:0] - 3'h1) < tail[2:0]
+         : 3'(tail[2:0] - 3'h1) >= head[2:0] & 3'(tail[2:0] - 3'h1) < tail[2:0]);
   always_comb begin
-    casez (tail[2:0] - 3'h2)
+    casez (3'(tail[2:0] - 3'h2))
       3'b000:
         casez_tmp_7 = sb_0_addr;
       3'b001:
@@ -273,7 +273,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h2)
+    casez (3'(tail[2:0] - 3'h2))
       3'b000:
         casez_tmp_8 = sb_0_wlen;
       3'b001:
@@ -293,7 +293,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h2)
+    casez (3'(tail[2:0] - 3'h2))
       3'b000:
         casez_tmp_9 = sb_0_addr;
       3'b001:
@@ -313,12 +313,12 @@ module SB(
     endcase
   end // always_comb
   wire        ld_hit_2 =
-    casez_tmp_7 <= io_addr_ex & _GEN < {7'h0, casez_tmp_9} + (39'h1 << casez_tmp_8)
+    casez_tmp_7 <= io_addr_ex & _GEN < 39'({7'h0, casez_tmp_9} + (39'h1 << casez_tmp_8))
     & (head[3] ^ tail[3]
-         ? tail[2:0] - 3'h2 >= head[2:0] | tail[2:0] - 3'h2 < tail[2:0]
-         : tail[2:0] - 3'h2 >= head[2:0] & tail[2:0] - 3'h2 < tail[2:0]);
+         ? 3'(tail[2:0] - 3'h2) >= head[2:0] | 3'(tail[2:0] - 3'h2) < tail[2:0]
+         : 3'(tail[2:0] - 3'h2) >= head[2:0] & 3'(tail[2:0] - 3'h2) < tail[2:0]);
   always_comb begin
-    casez (tail[2:0] - 3'h3)
+    casez (3'(tail[2:0] - 3'h3))
       3'b000:
         casez_tmp_10 = sb_0_addr;
       3'b001:
@@ -338,7 +338,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h3)
+    casez (3'(tail[2:0] - 3'h3))
       3'b000:
         casez_tmp_11 = sb_0_wlen;
       3'b001:
@@ -358,7 +358,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h3)
+    casez (3'(tail[2:0] - 3'h3))
       3'b000:
         casez_tmp_12 = sb_0_addr;
       3'b001:
@@ -378,12 +378,13 @@ module SB(
     endcase
   end // always_comb
   wire        ld_hit_3 =
-    casez_tmp_10 <= io_addr_ex & _GEN < {7'h0, casez_tmp_12} + (39'h1 << casez_tmp_11)
+    casez_tmp_10 <= io_addr_ex
+    & _GEN < 39'({7'h0, casez_tmp_12} + (39'h1 << casez_tmp_11))
     & (head[3] ^ tail[3]
-         ? tail[2:0] - 3'h3 >= head[2:0] | tail[2:0] - 3'h3 < tail[2:0]
-         : tail[2:0] - 3'h3 >= head[2:0] & tail[2:0] - 3'h3 < tail[2:0]);
+         ? 3'(tail[2:0] - 3'h3) >= head[2:0] | 3'(tail[2:0] - 3'h3) < tail[2:0]
+         : 3'(tail[2:0] - 3'h3) >= head[2:0] & 3'(tail[2:0] - 3'h3) < tail[2:0]);
   always_comb begin
-    casez (tail[2:0] - 3'h4)
+    casez (3'(tail[2:0] - 3'h4))
       3'b000:
         casez_tmp_13 = sb_0_addr;
       3'b001:
@@ -403,7 +404,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h4)
+    casez (3'(tail[2:0] - 3'h4))
       3'b000:
         casez_tmp_14 = sb_0_wlen;
       3'b001:
@@ -423,7 +424,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h4)
+    casez (3'(tail[2:0] - 3'h4))
       3'b000:
         casez_tmp_15 = sb_0_addr;
       3'b001:
@@ -443,12 +444,13 @@ module SB(
     endcase
   end // always_comb
   wire        ld_hit_4 =
-    casez_tmp_13 <= io_addr_ex & _GEN < {7'h0, casez_tmp_15} + (39'h1 << casez_tmp_14)
+    casez_tmp_13 <= io_addr_ex
+    & _GEN < 39'({7'h0, casez_tmp_15} + (39'h1 << casez_tmp_14))
     & (head[3] ^ tail[3]
-         ? tail[2:0] - 3'h4 >= head[2:0] | tail[2:0] - 3'h4 < tail[2:0]
-         : tail[2:0] - 3'h4 >= head[2:0] & tail[2:0] - 3'h4 < tail[2:0]);
+         ? 3'(tail[2:0] - 3'h4) >= head[2:0] | 3'(tail[2:0] - 3'h4) < tail[2:0]
+         : 3'(tail[2:0] - 3'h4) >= head[2:0] & 3'(tail[2:0] - 3'h4) < tail[2:0]);
   always_comb begin
-    casez (tail[2:0] + 3'h3)
+    casez (3'(tail[2:0] + 3'h3))
       3'b000:
         casez_tmp_16 = sb_0_addr;
       3'b001:
@@ -468,7 +470,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h3)
+    casez (3'(tail[2:0] + 3'h3))
       3'b000:
         casez_tmp_17 = sb_0_wlen;
       3'b001:
@@ -488,7 +490,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h3)
+    casez (3'(tail[2:0] + 3'h3))
       3'b000:
         casez_tmp_18 = sb_0_addr;
       3'b001:
@@ -508,12 +510,13 @@ module SB(
     endcase
   end // always_comb
   wire        ld_hit_5 =
-    casez_tmp_16 <= io_addr_ex & _GEN < {7'h0, casez_tmp_18} + (39'h1 << casez_tmp_17)
+    casez_tmp_16 <= io_addr_ex
+    & _GEN < 39'({7'h0, casez_tmp_18} + (39'h1 << casez_tmp_17))
     & (head[3] ^ tail[3]
-         ? tail[2:0] + 3'h3 >= head[2:0] | tail[2:0] + 3'h3 < tail[2:0]
-         : tail[2:0] + 3'h3 >= head[2:0] & tail[2:0] + 3'h3 < tail[2:0]);
+         ? 3'(tail[2:0] + 3'h3) >= head[2:0] | 3'(tail[2:0] + 3'h3) < tail[2:0]
+         : 3'(tail[2:0] + 3'h3) >= head[2:0] & 3'(tail[2:0] + 3'h3) < tail[2:0]);
   always_comb begin
-    casez (tail[2:0] + 3'h2)
+    casez (3'(tail[2:0] + 3'h2))
       3'b000:
         casez_tmp_19 = sb_0_addr;
       3'b001:
@@ -533,7 +536,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h2)
+    casez (3'(tail[2:0] + 3'h2))
       3'b000:
         casez_tmp_20 = sb_0_wlen;
       3'b001:
@@ -553,7 +556,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h2)
+    casez (3'(tail[2:0] + 3'h2))
       3'b000:
         casez_tmp_21 = sb_0_addr;
       3'b001:
@@ -573,12 +576,13 @@ module SB(
     endcase
   end // always_comb
   wire        ld_hit_6 =
-    casez_tmp_19 <= io_addr_ex & _GEN < {7'h0, casez_tmp_21} + (39'h1 << casez_tmp_20)
+    casez_tmp_19 <= io_addr_ex
+    & _GEN < 39'({7'h0, casez_tmp_21} + (39'h1 << casez_tmp_20))
     & (head[3] ^ tail[3]
-         ? tail[2:0] + 3'h2 >= head[2:0] | tail[2:0] + 3'h2 < tail[2:0]
-         : tail[2:0] + 3'h2 >= head[2:0] & tail[2:0] + 3'h2 < tail[2:0]);
+         ? 3'(tail[2:0] + 3'h2) >= head[2:0] | 3'(tail[2:0] + 3'h2) < tail[2:0]
+         : 3'(tail[2:0] + 3'h2) >= head[2:0] & 3'(tail[2:0] + 3'h2) < tail[2:0]);
   always_comb begin
-    casez (tail[2:0] + 3'h1)
+    casez (3'(tail[2:0] + 3'h1))
       3'b000:
         casez_tmp_22 = sb_0_addr;
       3'b001:
@@ -598,7 +602,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h1)
+    casez (3'(tail[2:0] + 3'h1))
       3'b000:
         casez_tmp_23 = sb_0_wlen;
       3'b001:
@@ -618,7 +622,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h1)
+    casez (3'(tail[2:0] + 3'h1))
       3'b000:
         casez_tmp_24 = sb_0_addr;
       3'b001:
@@ -638,10 +642,11 @@ module SB(
     endcase
   end // always_comb
   wire        ld_hit_7 =
-    casez_tmp_22 <= io_addr_ex & _GEN < {7'h0, casez_tmp_24} + (39'h1 << casez_tmp_23)
+    casez_tmp_22 <= io_addr_ex
+    & _GEN < 39'({7'h0, casez_tmp_24} + (39'h1 << casez_tmp_23))
     & (head[3] ^ tail[3]
-         ? tail[2:0] + 3'h1 >= head[2:0] | tail[2:0] + 3'h1 < tail[2:0]
-         : tail[2:0] + 3'h1 >= head[2:0] & tail[2:0] + 3'h1 < tail[2:0]);
+         ? 3'(tail[2:0] + 3'h1) >= head[2:0] | 3'(tail[2:0] + 3'h1) < tail[2:0]
+         : 3'(tail[2:0] + 3'h1) >= head[2:0] & 3'(tail[2:0] + 3'h1) < tail[2:0]);
   always_comb begin
     casez (tail[2:0])
       3'b000:
@@ -663,7 +668,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h1)
+    casez (3'(tail[2:0] - 3'h1))
       3'b000:
         casez_tmp_26 = sb_0_data;
       3'b001:
@@ -683,7 +688,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h2)
+    casez (3'(tail[2:0] - 3'h2))
       3'b000:
         casez_tmp_27 = sb_0_data;
       3'b001:
@@ -703,7 +708,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h3)
+    casez (3'(tail[2:0] - 3'h3))
       3'b000:
         casez_tmp_28 = sb_0_data;
       3'b001:
@@ -723,7 +728,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] - 3'h4)
+    casez (3'(tail[2:0] - 3'h4))
       3'b000:
         casez_tmp_29 = sb_0_data;
       3'b001:
@@ -743,7 +748,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h3)
+    casez (3'(tail[2:0] + 3'h3))
       3'b000:
         casez_tmp_30 = sb_0_data;
       3'b001:
@@ -763,7 +768,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h2)
+    casez (3'(tail[2:0] + 3'h2))
       3'b000:
         casez_tmp_31 = sb_0_data;
       3'b001:
@@ -783,7 +788,7 @@ module SB(
     endcase
   end // always_comb
   always_comb begin
-    casez (tail[2:0] + 3'h1)
+    casez (3'(tail[2:0] + 3'h1))
       3'b000:
         casez_tmp_32 = sb_0_data;
       3'b001:
@@ -917,21 +922,21 @@ module SB(
       if (_elem_num_T & ~(|wait_to_cmt))
         head <= 4'h0;
       else
-        head <= head + {3'h0, (|wait_to_cmt) | (|io_is_store_num_cmt)};
+        head <= 4'(head + {3'h0, (|wait_to_cmt) | (|io_is_store_num_cmt)});
       if (io_flush)
         tail <= 4'h0;
       else
-        tail <= tail + _GEN_1;
+        tail <= 4'(tail + _GEN_1);
       if (_elem_num_T & ~(|wait_to_cmt))
         elem_num <= 4'h0;
       else
-        elem_num <= elem_num - {3'h0, _io_is_store_cmt_output} + _GEN_1;
+        elem_num <= 4'(4'(elem_num - {3'h0, _io_is_store_cmt_output}) + _GEN_1);
       flush_buf <=
         io_flush & (io_is_store_num_cmt[1] | (|wait_to_cmt)) | (|wait_to_cmt) & flush_buf;
       if (|io_is_store_num_cmt)
-        wait_to_cmt <= wait_to_cmt + {1'h0, io_is_store_num_cmt} - 3'h1;
+        wait_to_cmt <= 3'(wait_to_cmt + 3'({1'h0, io_is_store_num_cmt} - 3'h1));
       else if (_io_is_store_cmt_output)
-        wait_to_cmt <= wait_to_cmt - 3'h1;
+        wait_to_cmt <= 3'(wait_to_cmt - 3'h1);
     end
   end // always @(posedge)
   assign io_full = full;

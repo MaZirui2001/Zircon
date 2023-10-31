@@ -1246,19 +1246,19 @@ module CPU(
     .io_insts_pack_IF_0_predict_jump (_predict_io_predict_jump_0),
     .io_insts_pack_IF_0_pred_npc     (_predict_io_pred_npc),
     .io_insts_pack_IF_0_pred_valid   (_predict_io_pred_valid_0),
-    .io_insts_pack_IF_1_pc           (_pc_io_pc_IF + 32'h4),
+    .io_insts_pack_IF_1_pc           (32'(_pc_io_pc_IF + 32'h4)),
     .io_insts_pack_IF_1_inst         (io_inst2_IF),
     .io_insts_pack_IF_1_inst_valid   (_pc_io_inst_valid_IF_1),
     .io_insts_pack_IF_1_predict_jump (_predict_io_predict_jump_1),
     .io_insts_pack_IF_1_pred_npc     (_predict_io_pred_npc),
     .io_insts_pack_IF_1_pred_valid   (_predict_io_pred_valid_1),
-    .io_insts_pack_IF_2_pc           (_pc_io_pc_IF + 32'h8),
+    .io_insts_pack_IF_2_pc           (32'(_pc_io_pc_IF + 32'h8)),
     .io_insts_pack_IF_2_inst         (io_inst3_IF),
     .io_insts_pack_IF_2_inst_valid   (_pc_io_inst_valid_IF_2),
     .io_insts_pack_IF_2_predict_jump (_predict_io_predict_jump_2),
     .io_insts_pack_IF_2_pred_npc     (_predict_io_pred_npc),
     .io_insts_pack_IF_2_pred_valid   (_predict_io_pred_valid_2),
-    .io_insts_pack_IF_3_pc           (_pc_io_pc_IF + 32'hC),
+    .io_insts_pack_IF_3_pc           (32'(_pc_io_pc_IF + 32'hC)),
     .io_insts_pack_IF_3_inst         (io_inst4_IF),
     .io_insts_pack_IF_3_inst_valid   (_pc_io_inst_valid_IF_3),
     .io_insts_pack_IF_3_predict_jump (_predict_io_predict_jump_3),
@@ -3317,8 +3317,9 @@ module CPU(
     .io_inst_pack_EX1_mem_type   (_re_reg3_io_inst_pack_EX_mem_type),
     .io_inst_pack_EX1_inst_valid (_re_reg3_io_inst_pack_EX_inst_valid),
     .io_mem_addr_EX1
-      ((_bypass3_io_forward_prj_en ? _bypass3_io_forward_prj_data : _re_reg3_io_src1_EX)
-       + _re_reg3_io_inst_pack_EX_imm),
+      (32'((_bypass3_io_forward_prj_en
+              ? _bypass3_io_forward_prj_data
+              : _re_reg3_io_src1_EX) + _re_reg3_io_inst_pack_EX_imm)),
     .io_mem_wdata_EX1
       (_bypass3_io_forward_prk_en ? _bypass3_io_forward_prk_data : _re_reg3_io_src2_EX),
     .io_inst_pack_EX2_rd_valid   (_ls_ex_reg_io_inst_pack_EX2_rd_valid),

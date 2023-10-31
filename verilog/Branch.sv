@@ -28,8 +28,8 @@ module Branch(
   wire        _GEN_7 = io_br_type == 4'h3;
   assign _io_branch_target_output =
     _GEN | _GEN_0 | _GEN_1 | _GEN_2 | _GEN_3 | _GEN_4 | ~_GEN_5
-      ? io_pc_ex + io_imm_ex
-      : io_src1 + io_imm_ex;
+      ? 32'(io_pc_ex + io_imm_ex)
+      : 32'(io_src1 + io_imm_ex);
   assign io_real_jump =
     _GEN
       ? _io_real_jump_T

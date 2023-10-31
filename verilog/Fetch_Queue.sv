@@ -199,7 +199,7 @@ module Fetch_Queue(
   wire [11:0] _tail_index_T_1 = tail[31:20] | tail[15:4];
   wire [3:0]  _tail_index_T_3 = _tail_index_T_1[11:8] | _tail_index_T_1[3:0];
   wire        _io_inst_queue_ready_T =
-    head_index != {|(tail[31:16]), |(_tail_index_T_1[11:4]), |_tail_index_T_3} + 3'h1;
+    head_index != 3'({|(tail[31:16]), |(_tail_index_T_1[11:4]), |_tail_index_T_3} + 3'h1);
   always_comb begin
     casez (head_index)
       3'b000:
