@@ -13,8 +13,6 @@ class Dispatch_IO(n: Int) extends Bundle{
     // output for each issue queue
     val insts_disp_index    = Output(Vec(4, Vec(4, UInt(2.W))))
     val insts_disp_valid    = Output(Vec(4, Vec(4, Bool())))
-
-    
 }
 
 class Dispatch extends RawModule{
@@ -22,9 +20,17 @@ class Dispatch extends RawModule{
 
     val queue_sel = Wire(Vec(4, UInt(2.W)))
     val queue_id_hit = Wire(Vec(4, Vec(4, Bool())))
+    var fu1_num = io.elem_num(0)
+    var fu2_num = io.elem_num(1)
     for(i <- 0 until 4){
+        val fu1_next_num = Wire(UInt((log2Ceil(8)+1).W))
+        val fu2_next_num = Wire(UInt((log2Ceil(8)+1).W))
         queue_sel(i) := Mux(io.inst_packs(i).fu_id === ARITH, 
-                        Mux(io.elem_num(0) <= io.elem_num(1), 0.U, 1.U), io.inst_packs(i).fu_id)
+                        Mux(fu1_num <= fu2_num, 0.U, 1.U), io.inst_packs(i).fu_id)
+        fu1_next_num := Mux(queue_sel(i) === 0.U, fu1_num + 1.U, fu1_num)
+        fu2_next_num := Mux(queue_sel(i) === 1.U, fu2_num + 1.U, fu2_num)
+        fu1_num = fu1_next_num
+        fu2_num = fu2_next_num
     }
     for(i <- 0 until 4){
         for(j <- 0 until 4){

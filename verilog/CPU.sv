@@ -222,10 +222,14 @@ module CPU(
   wire        _ew_reg2_io_predict_fail_WB;
   wire [31:0] _ew_reg2_io_branch_target_WB;
   wire        _ew_reg2_io_real_jump_WB;
-  wire        _bypass2_io_forward_prj_en;
-  wire        _bypass2_io_forward_prk_en;
-  wire [31:0] _bypass2_io_forward_prj_data;
-  wire [31:0] _bypass2_io_forward_prk_data;
+  wire        _bypass12_io_forward_prj_en_0;
+  wire        _bypass12_io_forward_prj_en_1;
+  wire        _bypass12_io_forward_prk_en_0;
+  wire        _bypass12_io_forward_prk_en_1;
+  wire [31:0] _bypass12_io_forward_prj_data_0;
+  wire [31:0] _bypass12_io_forward_prj_data_1;
+  wire [31:0] _bypass12_io_forward_prk_data_0;
+  wire [31:0] _bypass12_io_forward_prk_data_1;
   wire        _br_io_real_jump;
   wire        _br_io_predict_fail;
   wire [31:0] _br_io_branch_target;
@@ -235,10 +239,6 @@ module CPU(
   wire [5:0]  _ew_reg1_io_inst_pack_WB_rob_index;
   wire        _ew_reg1_io_inst_pack_WB_inst_valid;
   wire [31:0] _ew_reg1_io_alu_out_WB;
-  wire        _bypass1_io_forward_prj_en;
-  wire        _bypass1_io_forward_prk_en;
-  wire [31:0] _bypass1_io_forward_prj_data;
-  wire [31:0] _bypass1_io_forward_prk_data;
   wire [31:0] _alu1_io_alu_out;
   wire [6:0]  _re_reg4_io_inst_pack_EX_prj;
   wire [6:0]  _re_reg4_io_inst_pack_EX_prk;
@@ -1095,13 +1095,13 @@ module CPU(
   reg  [6:0]  r_11;
   reg  [6:0]  r_12;
   reg  [6:0]  r_13;
-  reg  [6:0]  r_14;
-  reg  [6:0]  r_15;
   always_comb begin
     casez (_re_reg1_io_inst_pack_EX_alu_rs1_sel)
       2'b00:
         casez_tmp =
-          _bypass1_io_forward_prj_en ? _bypass1_io_forward_prj_data : _re_reg1_io_src1_EX;
+          _bypass12_io_forward_prj_en_0
+            ? _bypass12_io_forward_prj_data_0
+            : _re_reg1_io_src1_EX;
       2'b01:
         casez_tmp = _re_reg1_io_inst_pack_EX_pc;
       2'b10:
@@ -1114,7 +1114,9 @@ module CPU(
     casez (_re_reg1_io_inst_pack_EX_alu_rs2_sel)
       2'b00:
         casez_tmp_0 =
-          _bypass1_io_forward_prk_en ? _bypass1_io_forward_prk_data : _re_reg1_io_src2_EX;
+          _bypass12_io_forward_prk_en_0
+            ? _bypass12_io_forward_prk_data_0
+            : _re_reg1_io_src2_EX;
       2'b01:
         casez_tmp_0 = _re_reg1_io_inst_pack_EX_imm;
       2'b10:
@@ -1124,7 +1126,7 @@ module CPU(
     endcase
   end // always_comb
   wire [31:0] _br_io_src1_T =
-    _bypass2_io_forward_prj_en ? _bypass2_io_forward_prj_data : _re_reg2_io_src1_EX;
+    _bypass12_io_forward_prj_en_1 ? _bypass12_io_forward_prj_data_1 : _re_reg2_io_src1_EX;
   always_comb begin
     casez (_re_reg2_io_inst_pack_EX_alu_rs1_sel)
       2'b00:
@@ -1138,7 +1140,7 @@ module CPU(
     endcase
   end // always_comb
   wire [31:0] _br_io_src2_T =
-    _bypass2_io_forward_prk_en ? _bypass2_io_forward_prk_data : _re_reg2_io_src2_EX;
+    _bypass12_io_forward_prk_en_1 ? _bypass12_io_forward_prk_data_1 : _re_reg2_io_src2_EX;
   always_comb begin
     casez (_re_reg2_io_inst_pack_EX_alu_rs2_sel)
       2'b00:
@@ -1168,26 +1170,22 @@ module CPU(
       r_11 <= 7'h0;
       r_12 <= 7'h0;
       r_13 <= 7'h0;
-      r_14 <= 7'h0;
-      r_15 <= 7'h0;
     end
     else begin
-      r <= _sel2_io_wake_preg;
-      r_1 <= _sel3_io_wake_preg;
-      r_2 <= r_1;
-      r_3 <= _sel4_io_wake_preg;
-      r_4 <= _sel1_io_wake_preg;
-      r_5 <= _sel3_io_wake_preg;
-      r_6 <= r_5;
-      r_7 <= _sel4_io_wake_preg;
-      r_8 <= _sel1_io_wake_preg;
-      r_9 <= _sel2_io_wake_preg;
-      r_10 <= _sel3_io_wake_preg;
-      r_11 <= _sel4_io_wake_preg;
-      r_12 <= _sel1_io_wake_preg;
-      r_13 <= _sel2_io_wake_preg;
-      r_14 <= _sel3_io_wake_preg;
-      r_15 <= r_14;
+      r <= _sel3_io_wake_preg;
+      r_1 <= r;
+      r_2 <= _sel4_io_wake_preg;
+      r_3 <= _sel3_io_wake_preg;
+      r_4 <= r_3;
+      r_5 <= _sel4_io_wake_preg;
+      r_6 <= _sel1_io_wake_preg;
+      r_7 <= _sel2_io_wake_preg;
+      r_8 <= _sel3_io_wake_preg;
+      r_9 <= _sel4_io_wake_preg;
+      r_10 <= _sel1_io_wake_preg;
+      r_11 <= _sel2_io_wake_preg;
+      r_12 <= _sel3_io_wake_preg;
+      r_13 <= r_12;
     end
   end // always @(posedge)
   PC pc (
@@ -2093,9 +2091,9 @@ module CPU(
     .io_prk_ready_2                    (prk_ready_2),
     .io_prk_ready_3                    (prk_ready_3),
     .io_wake_preg_0                    (_sel1_io_wake_preg),
-    .io_wake_preg_1                    (r),
-    .io_wake_preg_2                    (r_2),
-    .io_wake_preg_3                    (r_3),
+    .io_wake_preg_1                    (_sel2_io_wake_preg),
+    .io_wake_preg_2                    (r_1),
+    .io_wake_preg_3                    (r_2),
     .io_issue_ack_0                    (_sel1_io_issue_ack_0),
     .io_issue_ack_1                    (_sel1_io_issue_ack_1),
     .io_issue_ack_2                    (_sel1_io_issue_ack_2),
@@ -2414,10 +2412,10 @@ module CPU(
     .io_prk_ready_1                     (prk_ready_1),
     .io_prk_ready_2                     (prk_ready_2),
     .io_prk_ready_3                     (prk_ready_3),
-    .io_wake_preg_0                     (r_4),
+    .io_wake_preg_0                     (_sel1_io_wake_preg),
     .io_wake_preg_1                     (_sel2_io_wake_preg),
-    .io_wake_preg_2                     (r_6),
-    .io_wake_preg_3                     (r_7),
+    .io_wake_preg_2                     (r_4),
+    .io_wake_preg_3                     (r_5),
     .io_issue_ack_0                     (_sel2_io_issue_ack_0),
     .io_issue_ack_1                     (_sel2_io_issue_ack_1),
     .io_issue_ack_2                     (_sel2_io_issue_ack_2),
@@ -2769,10 +2767,10 @@ module CPU(
     .io_prk_ready_1                  (prk_ready_1),
     .io_prk_ready_2                  (prk_ready_2),
     .io_prk_ready_3                  (prk_ready_3),
-    .io_wake_preg_0                  (r_8),
-    .io_wake_preg_1                  (r_9),
-    .io_wake_preg_2                  (r_10),
-    .io_wake_preg_3                  (r_11),
+    .io_wake_preg_0                  (r_6),
+    .io_wake_preg_1                  (r_7),
+    .io_wake_preg_2                  (r_8),
+    .io_wake_preg_3                  (r_9),
     .io_issue_ack_0                  (_sel3_io_issue_ack_0),
     .io_issue_ack_1                  (_sel3_io_issue_ack_1),
     .io_issue_ack_2                  (_sel3_io_issue_ack_2),
@@ -3009,9 +3007,9 @@ module CPU(
     .io_prk_ready_1                (prk_ready_1),
     .io_prk_ready_2                (prk_ready_2),
     .io_prk_ready_3                (prk_ready_3),
-    .io_wake_preg_0                (r_12),
-    .io_wake_preg_1                (r_13),
-    .io_wake_preg_2                (r_15),
+    .io_wake_preg_0                (r_10),
+    .io_wake_preg_1                (r_11),
+    .io_wake_preg_2                (r_13),
     .io_wake_preg_3                (_sel4_io_wake_preg),
     .io_issue_ack                  (_sel4_io_issue_ack),
     .io_insts_issue_inst_prj       (_iq4_io_insts_issue_inst_prj),
@@ -3224,17 +3222,6 @@ module CPU(
     .io_alu_op  (_re_reg1_io_inst_pack_EX_alu_op[3:0]),
     .io_alu_out (_alu1_io_alu_out)
   );
-  Bypass bypass1 (
-    .io_prd_wb           (_ew_reg1_io_inst_pack_WB_prd),
-    .io_prj_ex           (_re_reg1_io_inst_pack_EX_prj),
-    .io_prk_ex           (_re_reg1_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_ew_reg1_io_alu_out_WB),
-    .io_rd_valid_wb      (_ew_reg1_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_bypass1_io_forward_prj_en),
-    .io_forward_prk_en   (_bypass1_io_forward_prk_en),
-    .io_forward_prj_data (_bypass1_io_forward_prj_data),
-    .io_forward_prk_data (_bypass1_io_forward_prk_data)
-  );
   FU1_EX_WB_Reg ew_reg1 (
     .clock                      (clock),
     .reset                      (reset),
@@ -3268,16 +3255,25 @@ module CPU(
     .io_predict_fail  (_br_io_predict_fail),
     .io_branch_target (_br_io_branch_target)
   );
-  Bypass bypass2 (
-    .io_prd_wb           (_ew_reg2_io_inst_pack_WB_prd),
-    .io_prj_ex           (_re_reg2_io_inst_pack_EX_prj),
-    .io_prk_ex           (_re_reg2_io_inst_pack_EX_prk),
-    .io_prf_wdata_wb     (_ew_reg2_io_alu_out_WB),
-    .io_rd_valid_wb      (_ew_reg2_io_inst_pack_WB_rd_valid),
-    .io_forward_prj_en   (_bypass2_io_forward_prj_en),
-    .io_forward_prk_en   (_bypass2_io_forward_prk_en),
-    .io_forward_prj_data (_bypass2_io_forward_prj_data),
-    .io_forward_prk_data (_bypass2_io_forward_prk_data)
+  Bypass_2 bypass12 (
+    .io_prd_wb_0           (_ew_reg1_io_inst_pack_WB_prd),
+    .io_prd_wb_1           (_ew_reg2_io_inst_pack_WB_prd),
+    .io_prj_ex_0           (_re_reg1_io_inst_pack_EX_prj),
+    .io_prj_ex_1           (_re_reg2_io_inst_pack_EX_prj),
+    .io_prk_ex_0           (_re_reg1_io_inst_pack_EX_prk),
+    .io_prk_ex_1           (_re_reg2_io_inst_pack_EX_prk),
+    .io_prf_wdata_wb_0     (_ew_reg1_io_alu_out_WB),
+    .io_prf_wdata_wb_1     (_ew_reg2_io_alu_out_WB),
+    .io_rd_valid_wb_0      (_ew_reg1_io_inst_pack_WB_rd_valid),
+    .io_rd_valid_wb_1      (_ew_reg2_io_inst_pack_WB_rd_valid),
+    .io_forward_prj_en_0   (_bypass12_io_forward_prj_en_0),
+    .io_forward_prj_en_1   (_bypass12_io_forward_prj_en_1),
+    .io_forward_prk_en_0   (_bypass12_io_forward_prk_en_0),
+    .io_forward_prk_en_1   (_bypass12_io_forward_prk_en_1),
+    .io_forward_prj_data_0 (_bypass12_io_forward_prj_data_0),
+    .io_forward_prj_data_1 (_bypass12_io_forward_prj_data_1),
+    .io_forward_prk_data_0 (_bypass12_io_forward_prk_data_0),
+    .io_forward_prk_data_1 (_bypass12_io_forward_prk_data_1)
   );
   FU2_EX_WB_Reg ew_reg2 (
     .clock                      (clock),

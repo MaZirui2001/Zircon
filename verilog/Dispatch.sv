@@ -44,25 +44,47 @@ module Dispatch(
                io_insts_disp_valid_3_3
 );
 
-  wire       _queue_sel_3_T_1 = io_elem_num_0 <= io_elem_num_1;
   wire [1:0] queue_sel_0 =
-    io_inst_packs_0_fu_id == 2'h0 ? {1'h0, ~_queue_sel_3_T_1} : io_inst_packs_0_fu_id;
+    io_inst_packs_0_fu_id == 2'h0
+      ? {1'h0, io_elem_num_0 > io_elem_num_1}
+      : io_inst_packs_0_fu_id;
+  wire       _queue_id_hit_0_0_T = queue_sel_0 == 2'h0;
+  wire [3:0] fu1_next_num = _queue_id_hit_0_0_T ? io_elem_num_0 + 4'h1 : io_elem_num_0;
+  wire       _queue_id_hit_0_1_T = queue_sel_0 == 2'h1;
+  wire [3:0] fu2_next_num = _queue_id_hit_0_1_T ? io_elem_num_1 + 4'h1 : io_elem_num_1;
   wire [1:0] queue_sel_1 =
-    io_inst_packs_1_fu_id == 2'h0 ? {1'h0, ~_queue_sel_3_T_1} : io_inst_packs_1_fu_id;
+    io_inst_packs_1_fu_id == 2'h0
+      ? {1'h0, fu1_next_num > fu2_next_num}
+      : io_inst_packs_1_fu_id;
+  wire       _queue_id_hit_1_0_T = queue_sel_1 == 2'h0;
+  wire [3:0] fu1_next_num_1 = _queue_id_hit_1_0_T ? fu1_next_num + 4'h1 : fu1_next_num;
+  wire       _queue_id_hit_1_1_T = queue_sel_1 == 2'h1;
+  wire [3:0] fu2_next_num_1 = _queue_id_hit_1_1_T ? fu2_next_num + 4'h1 : fu2_next_num;
   wire [1:0] queue_sel_2 =
-    io_inst_packs_2_fu_id == 2'h0 ? {1'h0, ~_queue_sel_3_T_1} : io_inst_packs_2_fu_id;
+    io_inst_packs_2_fu_id == 2'h0
+      ? {1'h0, fu1_next_num_1 > fu2_next_num_1}
+      : io_inst_packs_2_fu_id;
+  wire       _queue_id_hit_2_0_T = queue_sel_2 == 2'h0;
+  wire       _queue_id_hit_2_1_T = queue_sel_2 == 2'h1;
   wire [1:0] queue_sel_3 =
-    io_inst_packs_3_fu_id == 2'h0 ? {1'h0, ~_queue_sel_3_T_1} : io_inst_packs_3_fu_id;
-  wire       queue_id_hit_0_0 = queue_sel_0 == 2'h0 & io_inst_packs_0_inst_valid;
-  wire       queue_id_hit_0_1 = queue_sel_0 == 2'h1 & io_inst_packs_0_inst_valid;
+    io_inst_packs_3_fu_id == 2'h0
+      ? {1'h0,
+         (_queue_id_hit_2_0_T
+            ? fu1_next_num_1 + 4'h1
+            : fu1_next_num_1) > (_queue_id_hit_2_1_T
+                                   ? fu2_next_num_1 + 4'h1
+                                   : fu2_next_num_1)}
+      : io_inst_packs_3_fu_id;
+  wire       queue_id_hit_0_0 = _queue_id_hit_0_0_T & io_inst_packs_0_inst_valid;
+  wire       queue_id_hit_0_1 = _queue_id_hit_0_1_T & io_inst_packs_0_inst_valid;
   wire       queue_id_hit_0_2 = queue_sel_0 == 2'h2 & io_inst_packs_0_inst_valid;
   wire       queue_id_hit_0_3 = (&queue_sel_0) & io_inst_packs_0_inst_valid;
-  wire       queue_id_hit_1_0 = queue_sel_1 == 2'h0 & io_inst_packs_1_inst_valid;
-  wire       queue_id_hit_1_1 = queue_sel_1 == 2'h1 & io_inst_packs_1_inst_valid;
+  wire       queue_id_hit_1_0 = _queue_id_hit_1_0_T & io_inst_packs_1_inst_valid;
+  wire       queue_id_hit_1_1 = _queue_id_hit_1_1_T & io_inst_packs_1_inst_valid;
   wire       queue_id_hit_1_2 = queue_sel_1 == 2'h2 & io_inst_packs_1_inst_valid;
   wire       queue_id_hit_1_3 = (&queue_sel_1) & io_inst_packs_1_inst_valid;
-  wire       queue_id_hit_2_0 = queue_sel_2 == 2'h0 & io_inst_packs_2_inst_valid;
-  wire       queue_id_hit_2_1 = queue_sel_2 == 2'h1 & io_inst_packs_2_inst_valid;
+  wire       queue_id_hit_2_0 = _queue_id_hit_2_0_T & io_inst_packs_2_inst_valid;
+  wire       queue_id_hit_2_1 = _queue_id_hit_2_1_T & io_inst_packs_2_inst_valid;
   wire       queue_id_hit_2_2 = queue_sel_2 == 2'h2 & io_inst_packs_2_inst_valid;
   wire       queue_id_hit_2_3 = (&queue_sel_2) & io_inst_packs_2_inst_valid;
   wire       queue_id_hit_3_0 = queue_sel_3 == 2'h0 & io_inst_packs_3_inst_valid;

@@ -30,10 +30,11 @@ RF_EX_Reg.sv
 RF_EX_Reg_1.sv
 RF_EX_Reg_2.sv
 ALU.sv
-Bypass.sv
 FU1_EX_WB_Reg.sv
 Branch.sv
+Bypass_2.sv
 FU2_EX_WB_Reg.sv
+Bypass.sv
 LS_EX1_EX2_Reg.sv
 SB.sv
 LS_EX2_WB_Reg.sv

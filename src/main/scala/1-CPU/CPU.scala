@@ -135,12 +135,13 @@ class CPU(RESET_VEC: Int) extends Module {
 
     /* Execute Stage */
     val alu1            = Module(new ALU)
-    val bypass1         = Module(new Bypass)
+    // val bypass1         = Module(new Bypass)
     val ew_reg1         = Module(new FU1_EX_WB_Reg)
 
     val alu2            = Module(new ALU)
     val br              = Module(new Branch)
-    val bypass2         = Module(new Bypass)
+    // val bypass2         = Module(new Bypass)
+    val bypass12        = Module(new Bypass_2)
     val ew_reg2         = Module(new FU2_EX_WB_Reg)
 
     val bypass3         = Module(new Bypass)
@@ -321,8 +322,8 @@ class CPU(RESET_VEC: Int) extends Module {
     sel4.io.stall               := !(iq4.io.issue_req)
 
     // mutual wakeup
-    iq1.io.wake_preg            := VecInit(sel1.io.wake_preg, ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
-    iq2.io.wake_preg            := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), sel2.io.wake_preg, ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
+    iq1.io.wake_preg            := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
+    iq2.io.wake_preg            := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
     iq3.io.wake_preg            := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
     iq4.io.wake_preg            := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), sel4.io.wake_preg)
 
@@ -379,21 +380,21 @@ class CPU(RESET_VEC: Int) extends Module {
     // 1. arith common fu
     alu1.io.alu_op := re_reg1.io.inst_pack_EX.alu_op
     alu1.io.src1 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
-        RS1_REG -> Mux(bypass1.io.forward_prj_en, bypass1.io.forward_prj_data, re_reg1.io.src1_EX),
+        RS1_REG -> Mux(bypass12.io.forward_prj_en(0), bypass12.io.forward_prj_data(0), re_reg1.io.src1_EX),
         RS1_PC -> re_reg1.io.inst_pack_EX.pc,
         RS1_ZERO -> 0.U)
     )
     alu1.io.src2 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
-        RS2_REG -> Mux(bypass1.io.forward_prk_en, bypass1.io.forward_prk_data, re_reg1.io.src2_EX),
+        RS2_REG -> Mux(bypass12.io.forward_prk_en(0), bypass12.io.forward_prk_data(0), re_reg1.io.src2_EX),
         RS2_IMM -> re_reg1.io.inst_pack_EX.imm,
         RS2_FOUR -> 4.U)
     )
 
-    bypass1.io.prd_wb        := ew_reg1.io.inst_pack_WB.prd
-    bypass1.io.prj_ex        := re_reg1.io.inst_pack_EX.prj
-    bypass1.io.prk_ex        := re_reg1.io.inst_pack_EX.prk
-    bypass1.io.prf_wdata_wb  := ew_reg1.io.alu_out_WB
-    bypass1.io.rd_valid_wb   := ew_reg1.io.inst_pack_WB.rd_valid
+    // bypass1.io.prd_wb        := ew_reg1.io.inst_pack_WB.prd
+    // bypass1.io.prj_ex        := re_reg1.io.inst_pack_EX.prj
+    // bypass1.io.prk_ex        := re_reg1.io.inst_pack_EX.prk
+    // bypass1.io.prf_wdata_wb  := ew_reg1.io.alu_out_WB
+    // bypass1.io.rd_valid_wb   := ew_reg1.io.inst_pack_WB.rd_valid
     
     ew_reg1.io.flush          := rob.io.predict_fail_cmt
     ew_reg1.io.stall          := false.B
@@ -403,29 +404,29 @@ class CPU(RESET_VEC: Int) extends Module {
     // 2. arith-branch fu
     alu2.io.alu_op := re_reg2.io.inst_pack_EX.alu_op
     alu2.io.src1 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
-        RS1_REG -> Mux(bypass2.io.forward_prj_en, bypass2.io.forward_prj_data, re_reg2.io.src1_EX),
+        RS1_REG -> Mux(bypass12.io.forward_prj_en(1), bypass12.io.forward_prj_data(1), re_reg2.io.src1_EX),
         RS1_PC -> re_reg2.io.inst_pack_EX.pc,
         RS1_ZERO -> 0.U)
     )
     alu2.io.src2 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
-        RS2_REG -> Mux(bypass2.io.forward_prk_en, bypass2.io.forward_prk_data, re_reg2.io.src2_EX),
+        RS2_REG -> Mux(bypass12.io.forward_prk_en(1), bypass12.io.forward_prk_data(1), re_reg2.io.src2_EX),
         RS2_IMM -> re_reg2.io.inst_pack_EX.imm,
         RS2_FOUR -> 4.U)
     )
 
     br.io.br_type       := re_reg2.io.inst_pack_EX.br_type
-    br.io.src1          := Mux(bypass2.io.forward_prj_en, bypass2.io.forward_prj_data, re_reg2.io.src1_EX)
-    br.io.src2          := Mux(bypass2.io.forward_prk_en, bypass2.io.forward_prk_data, re_reg2.io.src2_EX)
+    br.io.src1          := Mux(bypass12.io.forward_prj_en(1), bypass12.io.forward_prj_data(1), re_reg2.io.src1_EX)
+    br.io.src2          := Mux(bypass12.io.forward_prk_en(1), bypass12.io.forward_prk_data(1), re_reg2.io.src2_EX)
     br.io.pc_ex         := re_reg2.io.inst_pack_EX.pc
     br.io.imm_ex        := re_reg2.io.inst_pack_EX.imm
     br.io.predict_jump  := re_reg2.io.inst_pack_EX.predict_jump
     br.io.pred_npc      := re_reg2.io.inst_pack_EX.pred_npc
 
-    bypass2.io.prd_wb        := ew_reg2.io.inst_pack_WB.prd
-    bypass2.io.prj_ex        := re_reg2.io.inst_pack_EX.prj
-    bypass2.io.prk_ex        := re_reg2.io.inst_pack_EX.prk
-    bypass2.io.prf_wdata_wb  := ew_reg2.io.alu_out_WB
-    bypass2.io.rd_valid_wb   := ew_reg2.io.inst_pack_WB.rd_valid
+    bypass12.io.prd_wb        := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd)
+    bypass12.io.prj_ex        := VecInit(re_reg1.io.inst_pack_EX.prj, re_reg2.io.inst_pack_EX.prj)
+    bypass12.io.prk_ex        := VecInit(re_reg1.io.inst_pack_EX.prk, re_reg2.io.inst_pack_EX.prk)
+    bypass12.io.prf_wdata_wb  := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB)
+    bypass12.io.rd_valid_wb   := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid)
 
     ew_reg2.io.flush              := rob.io.predict_fail_cmt
     ew_reg2.io.stall              := false.B
