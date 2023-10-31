@@ -59,15 +59,7 @@ module Order_Issue_Queue(
   output [5:0]  io_insts_issue_inst_rob_index,
   output [4:0]  io_insts_issue_inst_alu_op,
   output        io_issue_req,
-  output [6:0]  io_prd_queue_0,
-                io_prd_queue_1,
-                io_prd_queue_2,
-                io_prd_queue_3,
-                io_prd_queue_4,
-                io_prd_queue_5,
-                io_prd_queue_6,
-                io_prd_queue_7,
-  output        io_full,
+                io_full,
   input         io_stall,
                 io_flush
 );
@@ -1764,14 +1756,6 @@ module Order_Issue_Queue(
   assign io_insts_issue_inst_rob_index = queue_0_inst_rob_index;
   assign io_insts_issue_inst_alu_op = queue_0_inst_alu_op;
   assign io_issue_req = (|tail) & queue_0_prj_waked & queue_0_prk_waked;
-  assign io_prd_queue_0 = queue_0_inst_rd_valid ? queue_0_inst_prd : 7'h0;
-  assign io_prd_queue_1 = queue_1_inst_rd_valid ? queue_1_inst_prd : 7'h0;
-  assign io_prd_queue_2 = queue_2_inst_rd_valid ? queue_2_inst_prd : 7'h0;
-  assign io_prd_queue_3 = queue_3_inst_rd_valid ? queue_3_inst_prd : 7'h0;
-  assign io_prd_queue_4 = queue_4_inst_rd_valid ? queue_4_inst_prd : 7'h0;
-  assign io_prd_queue_5 = queue_5_inst_rd_valid ? queue_5_inst_prd : 7'h0;
-  assign io_prd_queue_6 = queue_6_inst_rd_valid ? queue_6_inst_prd : 7'h0;
-  assign io_prd_queue_7 = queue_7_inst_rd_valid ? queue_7_inst_prd : 7'h0;
   assign io_full = full;
 endmodule
 

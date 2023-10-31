@@ -24,7 +24,7 @@ class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends 
     val issue_req        = Output(Bool())
 
     // output for dispatch
-    val prd_queue        = Output(Vec(n, UInt(7.W)))
+    // val prd_queue        = Output(Vec(n, UInt(7.W)))
     val full             = Output(Bool())
 
     val stall            = Input(Bool())
@@ -57,7 +57,7 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
             queue_next(i).prj_waked := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prj_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
             queue_next(i).prk_waked := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prk_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
         }
-        io.prd_queue(i) := Mux(queue(i).inst.asInstanceOf[inst_pack_DP_t].rd_valid, queue(i).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
+        // io.prd_queue(i) := Mux(queue(i).inst.asInstanceOf[inst_pack_DP_t].rd_valid, queue(i).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
     }
 
     for(i <- 0 until n){

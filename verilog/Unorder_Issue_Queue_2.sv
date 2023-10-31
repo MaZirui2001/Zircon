@@ -122,15 +122,7 @@ module Unorder_Issue_Queue_2(
                 io_issue_req_5,
                 io_issue_req_6,
                 io_issue_req_7,
-  output [6:0]  io_prd_queue_0,
-                io_prd_queue_1,
-                io_prd_queue_2,
-                io_prd_queue_3,
-                io_prd_queue_4,
-                io_prd_queue_5,
-                io_prd_queue_6,
-                io_prd_queue_7,
-  output        io_full,
+                io_full,
   input         io_stall,
                 io_flush
 );
@@ -1919,14 +1911,6 @@ module Unorder_Issue_Queue_2(
     & ~(queue_0_inst_mem_type[4] | queue_1_inst_mem_type[4] | queue_2_inst_mem_type[4]
         | queue_3_inst_mem_type[4] | queue_4_inst_mem_type[4] | queue_5_inst_mem_type[4]
         | queue_6_inst_mem_type[4]);
-  assign io_prd_queue_0 = queue_0_inst_rd_valid ? queue_0_inst_prd : 7'h0;
-  assign io_prd_queue_1 = queue_1_inst_rd_valid ? queue_1_inst_prd : 7'h0;
-  assign io_prd_queue_2 = queue_2_inst_rd_valid ? queue_2_inst_prd : 7'h0;
-  assign io_prd_queue_3 = queue_3_inst_rd_valid ? queue_3_inst_prd : 7'h0;
-  assign io_prd_queue_4 = queue_4_inst_rd_valid ? queue_4_inst_prd : 7'h0;
-  assign io_prd_queue_5 = queue_5_inst_rd_valid ? queue_5_inst_prd : 7'h0;
-  assign io_prd_queue_6 = queue_6_inst_rd_valid ? queue_6_inst_prd : 7'h0;
-  assign io_prd_queue_7 = queue_7_inst_rd_valid ? queue_7_inst_prd : 7'h0;
   assign io_full = full;
 endmodule
 

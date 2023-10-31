@@ -13,6 +13,7 @@ Free_List.sv
 Reg_Rename.sv
 RN_DP_Reg.sv
 Dispatch.sv
+Busy_Board.sv
 Unorder_Issue_Queue.sv
 Unorder_Select.sv
 IS_RF_Reg.sv

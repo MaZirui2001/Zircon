@@ -322,14 +322,6 @@ module CPU(
   wire [5:0]  _iq4_io_insts_issue_inst_rob_index;
   wire [4:0]  _iq4_io_insts_issue_inst_alu_op;
   wire        _iq4_io_issue_req;
-  wire [6:0]  _iq4_io_prd_queue_0;
-  wire [6:0]  _iq4_io_prd_queue_1;
-  wire [6:0]  _iq4_io_prd_queue_2;
-  wire [6:0]  _iq4_io_prd_queue_3;
-  wire [6:0]  _iq4_io_prd_queue_4;
-  wire [6:0]  _iq4_io_prd_queue_5;
-  wire [6:0]  _iq4_io_prd_queue_6;
-  wire [6:0]  _iq4_io_prd_queue_7;
   wire        _iq4_io_full;
   wire [6:0]  _ir_reg3_io_inst_pack_RF_prj;
   wire [6:0]  _ir_reg3_io_inst_pack_RF_prk;
@@ -420,14 +412,6 @@ module CPU(
   wire        _iq3_io_issue_req_5;
   wire        _iq3_io_issue_req_6;
   wire        _iq3_io_issue_req_7;
-  wire [6:0]  _iq3_io_prd_queue_0;
-  wire [6:0]  _iq3_io_prd_queue_1;
-  wire [6:0]  _iq3_io_prd_queue_2;
-  wire [6:0]  _iq3_io_prd_queue_3;
-  wire [6:0]  _iq3_io_prd_queue_4;
-  wire [6:0]  _iq3_io_prd_queue_5;
-  wire [6:0]  _iq3_io_prd_queue_6;
-  wire [6:0]  _iq3_io_prd_queue_7;
   wire        _iq3_io_full;
   wire [6:0]  _ir_reg2_io_inst_pack_RF_prj;
   wire [6:0]  _ir_reg2_io_inst_pack_RF_prk;
@@ -578,14 +562,6 @@ module CPU(
   wire        _iq2_io_issue_req_5;
   wire        _iq2_io_issue_req_6;
   wire        _iq2_io_issue_req_7;
-  wire [6:0]  _iq2_io_prd_queue_0;
-  wire [6:0]  _iq2_io_prd_queue_1;
-  wire [6:0]  _iq2_io_prd_queue_2;
-  wire [6:0]  _iq2_io_prd_queue_3;
-  wire [6:0]  _iq2_io_prd_queue_4;
-  wire [6:0]  _iq2_io_prd_queue_5;
-  wire [6:0]  _iq2_io_prd_queue_6;
-  wire [6:0]  _iq2_io_prd_queue_7;
   wire [3:0]  _iq2_io_elem_num;
   wire        _iq2_io_full;
   wire [6:0]  _ir_reg1_io_inst_pack_RF_prj;
@@ -707,16 +683,16 @@ module CPU(
   wire        _iq1_io_issue_req_5;
   wire        _iq1_io_issue_req_6;
   wire        _iq1_io_issue_req_7;
-  wire [6:0]  _iq1_io_prd_queue_0;
-  wire [6:0]  _iq1_io_prd_queue_1;
-  wire [6:0]  _iq1_io_prd_queue_2;
-  wire [6:0]  _iq1_io_prd_queue_3;
-  wire [6:0]  _iq1_io_prd_queue_4;
-  wire [6:0]  _iq1_io_prd_queue_5;
-  wire [6:0]  _iq1_io_prd_queue_6;
-  wire [6:0]  _iq1_io_prd_queue_7;
   wire [3:0]  _iq1_io_elem_num;
   wire        _iq1_io_full;
+  wire        _bd_io_prj_busy_0;
+  wire        _bd_io_prj_busy_1;
+  wire        _bd_io_prj_busy_2;
+  wire        _bd_io_prj_busy_3;
+  wire        _bd_io_prk_busy_0;
+  wire        _bd_io_prk_busy_1;
+  wire        _bd_io_prk_busy_2;
+  wire        _bd_io_prk_busy_3;
   wire [1:0]  _dp_io_insts_disp_index_0_0;
   wire [1:0]  _dp_io_insts_disp_index_0_1;
   wire [1:0]  _dp_io_insts_disp_index_0_2;
@@ -749,14 +725,6 @@ module CPU(
   wire        _dp_io_insts_disp_valid_3_1;
   wire        _dp_io_insts_disp_valid_3_2;
   wire        _dp_io_insts_disp_valid_3_3;
-  wire        _dp_io_prj_ready_0;
-  wire        _dp_io_prj_ready_1;
-  wire        _dp_io_prj_ready_2;
-  wire        _dp_io_prj_ready_3;
-  wire        _dp_io_prk_ready_0;
-  wire        _dp_io_prk_ready_1;
-  wire        _dp_io_prk_ready_2;
-  wire        _dp_io_prk_ready_3;
   wire [31:0] _rp_reg_io_insts_pack_DP_0_pc;
   wire        _rp_reg_io_insts_pack_DP_0_inst_valid;
   wire        _rp_reg_io_insts_pack_DP_0_predict_jump;
@@ -1089,6 +1057,30 @@ module CPU(
   wire        stall_by_iq = _iq1_io_full | _iq2_io_full | _iq3_io_full | _iq4_io_full;
   wire        _rp_reg_io_flush_T = _rob_io_full | _rename_io_free_list_empty;
   wire        _dr_reg_io_stall_T_1 = _rp_reg_io_flush_T | stall_by_iq;
+  wire        prj_ready_0 =
+    ~_rp_reg_io_insts_pack_DP_0_rj_valid | _rp_reg_io_insts_pack_DP_0_prj == 7'h0
+    | ~_bd_io_prj_busy_0;
+  wire        prj_ready_1 =
+    ~_rp_reg_io_insts_pack_DP_1_rj_valid | _rp_reg_io_insts_pack_DP_1_prj == 7'h0
+    | ~_rp_reg_io_insts_pack_DP_1_prj_raw & ~_bd_io_prj_busy_1;
+  wire        prj_ready_2 =
+    ~_rp_reg_io_insts_pack_DP_2_rj_valid | _rp_reg_io_insts_pack_DP_2_prj == 7'h0
+    | ~_rp_reg_io_insts_pack_DP_2_prj_raw & ~_bd_io_prj_busy_2;
+  wire        prj_ready_3 =
+    ~_rp_reg_io_insts_pack_DP_3_rj_valid | _rp_reg_io_insts_pack_DP_3_prj == 7'h0
+    | ~_rp_reg_io_insts_pack_DP_3_prj_raw & ~_bd_io_prj_busy_3;
+  wire        prk_ready_0 =
+    ~_rp_reg_io_insts_pack_DP_0_rk_valid | _rp_reg_io_insts_pack_DP_0_prk == 7'h0
+    | ~_bd_io_prk_busy_0;
+  wire        prk_ready_1 =
+    ~_rp_reg_io_insts_pack_DP_1_rk_valid | _rp_reg_io_insts_pack_DP_1_prk == 7'h0
+    | ~_rp_reg_io_insts_pack_DP_1_prk_raw & ~_bd_io_prk_busy_1;
+  wire        prk_ready_2 =
+    ~_rp_reg_io_insts_pack_DP_2_rk_valid | _rp_reg_io_insts_pack_DP_2_prk == 7'h0
+    | ~_rp_reg_io_insts_pack_DP_2_prk_raw & ~_bd_io_prk_busy_2;
+  wire        prk_ready_3 =
+    ~_rp_reg_io_insts_pack_DP_3_rk_valid | _rp_reg_io_insts_pack_DP_3_prk == 7'h0
+    | ~_rp_reg_io_insts_pack_DP_3_prk_raw & ~_bd_io_prk_busy_3;
   reg  [6:0]  r;
   reg  [6:0]  r_1;
   reg  [6:0]  r_2;
@@ -1962,69 +1954,13 @@ module CPU(
   );
   Dispatch dp (
     .io_inst_packs_0_inst_valid (_rp_reg_io_insts_pack_DP_0_inst_valid),
-    .io_inst_packs_0_rj_valid   (_rp_reg_io_insts_pack_DP_0_rj_valid),
-    .io_inst_packs_0_rk_valid   (_rp_reg_io_insts_pack_DP_0_rk_valid),
     .io_inst_packs_0_fu_id      (_rp_reg_io_insts_pack_DP_0_fu_id),
-    .io_inst_packs_0_prj        (_rp_reg_io_insts_pack_DP_0_prj),
-    .io_inst_packs_0_prk        (_rp_reg_io_insts_pack_DP_0_prk),
     .io_inst_packs_1_inst_valid (_rp_reg_io_insts_pack_DP_1_inst_valid),
-    .io_inst_packs_1_rj_valid   (_rp_reg_io_insts_pack_DP_1_rj_valid),
-    .io_inst_packs_1_rk_valid   (_rp_reg_io_insts_pack_DP_1_rk_valid),
     .io_inst_packs_1_fu_id      (_rp_reg_io_insts_pack_DP_1_fu_id),
-    .io_inst_packs_1_prj        (_rp_reg_io_insts_pack_DP_1_prj),
-    .io_inst_packs_1_prk        (_rp_reg_io_insts_pack_DP_1_prk),
-    .io_inst_packs_1_prj_raw    (_rp_reg_io_insts_pack_DP_1_prj_raw),
-    .io_inst_packs_1_prk_raw    (_rp_reg_io_insts_pack_DP_1_prk_raw),
     .io_inst_packs_2_inst_valid (_rp_reg_io_insts_pack_DP_2_inst_valid),
-    .io_inst_packs_2_rj_valid   (_rp_reg_io_insts_pack_DP_2_rj_valid),
-    .io_inst_packs_2_rk_valid   (_rp_reg_io_insts_pack_DP_2_rk_valid),
     .io_inst_packs_2_fu_id      (_rp_reg_io_insts_pack_DP_2_fu_id),
-    .io_inst_packs_2_prj        (_rp_reg_io_insts_pack_DP_2_prj),
-    .io_inst_packs_2_prk        (_rp_reg_io_insts_pack_DP_2_prk),
-    .io_inst_packs_2_prj_raw    (_rp_reg_io_insts_pack_DP_2_prj_raw),
-    .io_inst_packs_2_prk_raw    (_rp_reg_io_insts_pack_DP_2_prk_raw),
     .io_inst_packs_3_inst_valid (_rp_reg_io_insts_pack_DP_3_inst_valid),
-    .io_inst_packs_3_rj_valid   (_rp_reg_io_insts_pack_DP_3_rj_valid),
-    .io_inst_packs_3_rk_valid   (_rp_reg_io_insts_pack_DP_3_rk_valid),
     .io_inst_packs_3_fu_id      (_rp_reg_io_insts_pack_DP_3_fu_id),
-    .io_inst_packs_3_prj        (_rp_reg_io_insts_pack_DP_3_prj),
-    .io_inst_packs_3_prk        (_rp_reg_io_insts_pack_DP_3_prk),
-    .io_inst_packs_3_prj_raw    (_rp_reg_io_insts_pack_DP_3_prj_raw),
-    .io_inst_packs_3_prk_raw    (_rp_reg_io_insts_pack_DP_3_prk_raw),
-    .io_prd_queue_0_0           (_iq1_io_prd_queue_0),
-    .io_prd_queue_0_1           (_iq1_io_prd_queue_1),
-    .io_prd_queue_0_2           (_iq1_io_prd_queue_2),
-    .io_prd_queue_0_3           (_iq1_io_prd_queue_3),
-    .io_prd_queue_0_4           (_iq1_io_prd_queue_4),
-    .io_prd_queue_0_5           (_iq1_io_prd_queue_5),
-    .io_prd_queue_0_6           (_iq1_io_prd_queue_6),
-    .io_prd_queue_0_7           (_iq1_io_prd_queue_7),
-    .io_prd_queue_1_0           (_iq2_io_prd_queue_0),
-    .io_prd_queue_1_1           (_iq2_io_prd_queue_1),
-    .io_prd_queue_1_2           (_iq2_io_prd_queue_2),
-    .io_prd_queue_1_3           (_iq2_io_prd_queue_3),
-    .io_prd_queue_1_4           (_iq2_io_prd_queue_4),
-    .io_prd_queue_1_5           (_iq2_io_prd_queue_5),
-    .io_prd_queue_1_6           (_iq2_io_prd_queue_6),
-    .io_prd_queue_1_7           (_iq2_io_prd_queue_7),
-    .io_prd_queue_2_0           (_iq3_io_prd_queue_0),
-    .io_prd_queue_2_1           (_iq3_io_prd_queue_1),
-    .io_prd_queue_2_2           (_iq3_io_prd_queue_2),
-    .io_prd_queue_2_3           (_iq3_io_prd_queue_3),
-    .io_prd_queue_2_4           (_iq3_io_prd_queue_4),
-    .io_prd_queue_2_5           (_iq3_io_prd_queue_5),
-    .io_prd_queue_2_6           (_iq3_io_prd_queue_6),
-    .io_prd_queue_2_7           (_iq3_io_prd_queue_7),
-    .io_prd_queue_2_8
-      (_ir_reg3_io_inst_pack_RF_rd_valid ? _ir_reg3_io_inst_pack_RF_prd : 7'h0),
-    .io_prd_queue_3_0           (_iq4_io_prd_queue_0),
-    .io_prd_queue_3_1           (_iq4_io_prd_queue_1),
-    .io_prd_queue_3_2           (_iq4_io_prd_queue_2),
-    .io_prd_queue_3_3           (_iq4_io_prd_queue_3),
-    .io_prd_queue_3_4           (_iq4_io_prd_queue_4),
-    .io_prd_queue_3_5           (_iq4_io_prd_queue_5),
-    .io_prd_queue_3_6           (_iq4_io_prd_queue_6),
-    .io_prd_queue_3_7           (_iq4_io_prd_queue_7),
     .io_elem_num_0              (_iq1_io_elem_num),
     .io_elem_num_1              (_iq2_io_elem_num),
     .io_insts_disp_index_0_0    (_dp_io_insts_disp_index_0_0),
@@ -2058,15 +1994,44 @@ module CPU(
     .io_insts_disp_valid_3_0    (_dp_io_insts_disp_valid_3_0),
     .io_insts_disp_valid_3_1    (_dp_io_insts_disp_valid_3_1),
     .io_insts_disp_valid_3_2    (_dp_io_insts_disp_valid_3_2),
-    .io_insts_disp_valid_3_3    (_dp_io_insts_disp_valid_3_3),
-    .io_prj_ready_0             (_dp_io_prj_ready_0),
-    .io_prj_ready_1             (_dp_io_prj_ready_1),
-    .io_prj_ready_2             (_dp_io_prj_ready_2),
-    .io_prj_ready_3             (_dp_io_prj_ready_3),
-    .io_prk_ready_0             (_dp_io_prk_ready_0),
-    .io_prk_ready_1             (_dp_io_prk_ready_1),
-    .io_prk_ready_2             (_dp_io_prk_ready_2),
-    .io_prk_ready_3             (_dp_io_prk_ready_3)
+    .io_insts_disp_valid_3_3    (_dp_io_insts_disp_valid_3_3)
+  );
+  Busy_Board bd (
+    .clock               (clock),
+    .reset               (reset),
+    .io_prj_0            (_rp_reg_io_insts_pack_DP_0_prj),
+    .io_prj_1            (_rp_reg_io_insts_pack_DP_1_prj),
+    .io_prj_2            (_rp_reg_io_insts_pack_DP_2_prj),
+    .io_prj_3            (_rp_reg_io_insts_pack_DP_3_prj),
+    .io_prk_0            (_rp_reg_io_insts_pack_DP_0_prk),
+    .io_prk_1            (_rp_reg_io_insts_pack_DP_1_prk),
+    .io_prk_2            (_rp_reg_io_insts_pack_DP_2_prk),
+    .io_prk_3            (_rp_reg_io_insts_pack_DP_3_prk),
+    .io_prj_busy_0       (_bd_io_prj_busy_0),
+    .io_prj_busy_1       (_bd_io_prj_busy_1),
+    .io_prj_busy_2       (_bd_io_prj_busy_2),
+    .io_prj_busy_3       (_bd_io_prj_busy_3),
+    .io_prk_busy_0       (_bd_io_prk_busy_0),
+    .io_prk_busy_1       (_bd_io_prk_busy_1),
+    .io_prk_busy_2       (_bd_io_prk_busy_2),
+    .io_prk_busy_3       (_bd_io_prk_busy_3),
+    .io_prd_wake_0       (_sel1_io_wake_preg),
+    .io_prd_wake_1       (_sel2_io_wake_preg),
+    .io_prd_wake_2       (_ir_reg3_io_inst_pack_RF_prd),
+    .io_prd_wake_3       (_sel4_io_wake_preg),
+    .io_prd_wake_valid_0 (_sel1_io_inst_issue_valid),
+    .io_prd_wake_valid_1 (_sel2_io_inst_issue_valid),
+    .io_prd_wake_valid_2 (_ir_reg3_io_inst_pack_RF_rd_valid),
+    .io_prd_wake_valid_3 (_sel4_io_inst_issue_valid),
+    .io_prd_disp_0       (_rp_reg_io_insts_pack_DP_0_prd),
+    .io_prd_disp_1       (_rp_reg_io_insts_pack_DP_1_prd),
+    .io_prd_disp_2       (_rp_reg_io_insts_pack_DP_2_prd),
+    .io_prd_disp_3       (_rp_reg_io_insts_pack_DP_3_prd),
+    .io_prd_disp_valid_0 (_rp_reg_io_insts_pack_DP_0_rd_valid),
+    .io_prd_disp_valid_1 (_rp_reg_io_insts_pack_DP_1_rd_valid),
+    .io_prd_disp_valid_2 (_rp_reg_io_insts_pack_DP_2_rd_valid),
+    .io_prd_disp_valid_3 (_rp_reg_io_insts_pack_DP_3_rd_valid),
+    .io_flush            (_rob_io_predict_fail_cmt)
   );
   Unorder_Issue_Queue iq1 (
     .clock                             (clock),
@@ -2119,14 +2084,14 @@ module CPU(
     .io_insts_dispatch_3_alu_rs1_sel   (_rp_reg_io_insts_pack_DP_3_alu_rs1_sel),
     .io_insts_dispatch_3_alu_rs2_sel   (_rp_reg_io_insts_pack_DP_3_alu_rs2_sel),
     .io_insts_dispatch_3_pc            (_rp_reg_io_insts_pack_DP_3_pc),
-    .io_prj_ready_0                    (_dp_io_prj_ready_0),
-    .io_prj_ready_1                    (_dp_io_prj_ready_1),
-    .io_prj_ready_2                    (_dp_io_prj_ready_2),
-    .io_prj_ready_3                    (_dp_io_prj_ready_3),
-    .io_prk_ready_0                    (_dp_io_prk_ready_0),
-    .io_prk_ready_1                    (_dp_io_prk_ready_1),
-    .io_prk_ready_2                    (_dp_io_prk_ready_2),
-    .io_prk_ready_3                    (_dp_io_prk_ready_3),
+    .io_prj_ready_0                    (prj_ready_0),
+    .io_prj_ready_1                    (prj_ready_1),
+    .io_prj_ready_2                    (prj_ready_2),
+    .io_prj_ready_3                    (prj_ready_3),
+    .io_prk_ready_0                    (prk_ready_0),
+    .io_prk_ready_1                    (prk_ready_1),
+    .io_prk_ready_2                    (prk_ready_2),
+    .io_prk_ready_3                    (prk_ready_3),
     .io_wake_preg_0                    (_sel1_io_wake_preg),
     .io_wake_preg_1                    (r),
     .io_wake_preg_2                    (r_2),
@@ -2227,14 +2192,6 @@ module CPU(
     .io_issue_req_5                    (_iq1_io_issue_req_5),
     .io_issue_req_6                    (_iq1_io_issue_req_6),
     .io_issue_req_7                    (_iq1_io_issue_req_7),
-    .io_prd_queue_0                    (_iq1_io_prd_queue_0),
-    .io_prd_queue_1                    (_iq1_io_prd_queue_1),
-    .io_prd_queue_2                    (_iq1_io_prd_queue_2),
-    .io_prd_queue_3                    (_iq1_io_prd_queue_3),
-    .io_prd_queue_4                    (_iq1_io_prd_queue_4),
-    .io_prd_queue_5                    (_iq1_io_prd_queue_5),
-    .io_prd_queue_6                    (_iq1_io_prd_queue_6),
-    .io_prd_queue_7                    (_iq1_io_prd_queue_7),
     .io_elem_num                       (_iq1_io_elem_num),
     .io_full                           (_iq1_io_full),
     .io_stall                          (stall_by_iq),
@@ -2449,14 +2406,14 @@ module CPU(
     .io_insts_dispatch_3_br_type        (_rp_reg_io_insts_pack_DP_3_br_type),
     .io_insts_dispatch_3_predict_jump   (_rp_reg_io_insts_pack_DP_3_predict_jump),
     .io_insts_dispatch_3_pred_npc       (_rp_reg_io_insts_pack_DP_3_pred_npc),
-    .io_prj_ready_0                     (_dp_io_prj_ready_0),
-    .io_prj_ready_1                     (_dp_io_prj_ready_1),
-    .io_prj_ready_2                     (_dp_io_prj_ready_2),
-    .io_prj_ready_3                     (_dp_io_prj_ready_3),
-    .io_prk_ready_0                     (_dp_io_prk_ready_0),
-    .io_prk_ready_1                     (_dp_io_prk_ready_1),
-    .io_prk_ready_2                     (_dp_io_prk_ready_2),
-    .io_prk_ready_3                     (_dp_io_prk_ready_3),
+    .io_prj_ready_0                     (prj_ready_0),
+    .io_prj_ready_1                     (prj_ready_1),
+    .io_prj_ready_2                     (prj_ready_2),
+    .io_prj_ready_3                     (prj_ready_3),
+    .io_prk_ready_0                     (prk_ready_0),
+    .io_prk_ready_1                     (prk_ready_1),
+    .io_prk_ready_2                     (prk_ready_2),
+    .io_prk_ready_3                     (prk_ready_3),
     .io_wake_preg_0                     (r_4),
     .io_wake_preg_1                     (_sel2_io_wake_preg),
     .io_wake_preg_2                     (r_6),
@@ -2581,14 +2538,6 @@ module CPU(
     .io_issue_req_5                     (_iq2_io_issue_req_5),
     .io_issue_req_6                     (_iq2_io_issue_req_6),
     .io_issue_req_7                     (_iq2_io_issue_req_7),
-    .io_prd_queue_0                     (_iq2_io_prd_queue_0),
-    .io_prd_queue_1                     (_iq2_io_prd_queue_1),
-    .io_prd_queue_2                     (_iq2_io_prd_queue_2),
-    .io_prd_queue_3                     (_iq2_io_prd_queue_3),
-    .io_prd_queue_4                     (_iq2_io_prd_queue_4),
-    .io_prd_queue_5                     (_iq2_io_prd_queue_5),
-    .io_prd_queue_6                     (_iq2_io_prd_queue_6),
-    .io_prd_queue_7                     (_iq2_io_prd_queue_7),
     .io_elem_num                        (_iq2_io_elem_num),
     .io_full                            (_iq2_io_full),
     .io_stall                           (stall_by_iq),
@@ -2812,14 +2761,14 @@ module CPU(
     .io_insts_dispatch_3_imm         (_rp_reg_io_insts_pack_DP_3_imm),
     .io_insts_dispatch_3_rob_index   (_rp_reg_io_insts_pack_DP_3_rob_index),
     .io_insts_dispatch_3_mem_type    (_rp_reg_io_insts_pack_DP_3_mem_type),
-    .io_prj_ready_0                  (_dp_io_prj_ready_0),
-    .io_prj_ready_1                  (_dp_io_prj_ready_1),
-    .io_prj_ready_2                  (_dp_io_prj_ready_2),
-    .io_prj_ready_3                  (_dp_io_prj_ready_3),
-    .io_prk_ready_0                  (_dp_io_prk_ready_0),
-    .io_prk_ready_1                  (_dp_io_prk_ready_1),
-    .io_prk_ready_2                  (_dp_io_prk_ready_2),
-    .io_prk_ready_3                  (_dp_io_prk_ready_3),
+    .io_prj_ready_0                  (prj_ready_0),
+    .io_prj_ready_1                  (prj_ready_1),
+    .io_prj_ready_2                  (prj_ready_2),
+    .io_prj_ready_3                  (prj_ready_3),
+    .io_prk_ready_0                  (prk_ready_0),
+    .io_prk_ready_1                  (prk_ready_1),
+    .io_prk_ready_2                  (prk_ready_2),
+    .io_prk_ready_3                  (prk_ready_3),
     .io_wake_preg_0                  (r_8),
     .io_wake_preg_1                  (r_9),
     .io_wake_preg_2                  (r_10),
@@ -2896,14 +2845,6 @@ module CPU(
     .io_issue_req_5                  (_iq3_io_issue_req_5),
     .io_issue_req_6                  (_iq3_io_issue_req_6),
     .io_issue_req_7                  (_iq3_io_issue_req_7),
-    .io_prd_queue_0                  (_iq3_io_prd_queue_0),
-    .io_prd_queue_1                  (_iq3_io_prd_queue_1),
-    .io_prd_queue_2                  (_iq3_io_prd_queue_2),
-    .io_prd_queue_3                  (_iq3_io_prd_queue_3),
-    .io_prd_queue_4                  (_iq3_io_prd_queue_4),
-    .io_prd_queue_5                  (_iq3_io_prd_queue_5),
-    .io_prd_queue_6                  (_iq3_io_prd_queue_6),
-    .io_prd_queue_7                  (_iq3_io_prd_queue_7),
     .io_full                         (_iq3_io_full),
     .io_stall                        (stall_by_iq),
     .io_flush                        (_rob_io_predict_fail_cmt)
@@ -3060,14 +3001,14 @@ module CPU(
     .io_insts_dispatch_3_imm       (_rp_reg_io_insts_pack_DP_3_imm),
     .io_insts_dispatch_3_rob_index (_rp_reg_io_insts_pack_DP_3_rob_index),
     .io_insts_dispatch_3_alu_op    (_rp_reg_io_insts_pack_DP_3_alu_op),
-    .io_prj_ready_0                (_dp_io_prj_ready_0),
-    .io_prj_ready_1                (_dp_io_prj_ready_1),
-    .io_prj_ready_2                (_dp_io_prj_ready_2),
-    .io_prj_ready_3                (_dp_io_prj_ready_3),
-    .io_prk_ready_0                (_dp_io_prk_ready_0),
-    .io_prk_ready_1                (_dp_io_prk_ready_1),
-    .io_prk_ready_2                (_dp_io_prk_ready_2),
-    .io_prk_ready_3                (_dp_io_prk_ready_3),
+    .io_prj_ready_0                (prj_ready_0),
+    .io_prj_ready_1                (prj_ready_1),
+    .io_prj_ready_2                (prj_ready_2),
+    .io_prj_ready_3                (prj_ready_3),
+    .io_prk_ready_0                (prk_ready_0),
+    .io_prk_ready_1                (prk_ready_1),
+    .io_prk_ready_2                (prk_ready_2),
+    .io_prk_ready_3                (prk_ready_3),
     .io_wake_preg_0                (r_12),
     .io_wake_preg_1                (r_13),
     .io_wake_preg_2                (r_15),
@@ -3081,14 +3022,6 @@ module CPU(
     .io_insts_issue_inst_rob_index (_iq4_io_insts_issue_inst_rob_index),
     .io_insts_issue_inst_alu_op    (_iq4_io_insts_issue_inst_alu_op),
     .io_issue_req                  (_iq4_io_issue_req),
-    .io_prd_queue_0                (_iq4_io_prd_queue_0),
-    .io_prd_queue_1                (_iq4_io_prd_queue_1),
-    .io_prd_queue_2                (_iq4_io_prd_queue_2),
-    .io_prd_queue_3                (_iq4_io_prd_queue_3),
-    .io_prd_queue_4                (_iq4_io_prd_queue_4),
-    .io_prd_queue_5                (_iq4_io_prd_queue_5),
-    .io_prd_queue_6                (_iq4_io_prd_queue_6),
-    .io_prd_queue_7                (_iq4_io_prd_queue_7),
     .io_full                       (_iq4_io_full),
     .io_stall                      (stall_by_iq),
     .io_flush                      (_rob_io_predict_fail_cmt)

@@ -43,7 +43,7 @@ class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extend
     val issue_req        = Output(Vec(n, Bool()))
 
     // output for dispatch
-    val prd_queue        = Output(Vec(n, UInt(7.W)))
+    // val prd_queue        = Output(Vec(n, UInt(7.W)))
     val elem_num         = Output(UInt((log2Ceil(n)+1).W))
     val full             = Output(Bool())
  
@@ -82,7 +82,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
             queue_next(i).prj_waked := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prj_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
             queue_next(i).prk_waked := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prk_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
         }
-        io.prd_queue(i) := Mux(queue(i).inst.asInstanceOf[inst_pack_DP_t].rd_valid, queue(i).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
+        // io.prd_queue(i) := Mux(queue(i).inst.asInstanceOf[inst_pack_DP_t].rd_valid, queue(i).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
     }
     for(i <- 0 until n){
         queue(i).inst := queue_next(i).inst
