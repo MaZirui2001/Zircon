@@ -16,14 +16,8 @@ class Free_List extends Module{
         val head_arch           = Input(Vec(4, UInt(5.W)))
     })
 
-    val free_list = Reg(Vec(4, Vec(20, UInt(7.W))))
-    when(reset.asBool) {
-        for(j <- 0 until 20){
-            for(i <- 0 until 4){
-                free_list(i)(j) := (j * 4 + i).asUInt
-            }
-        }
-    }
+    val free_list = RegInit(VecInit(Seq.tabulate(4)(i => VecInit(Seq.tabulate(20)(j => (j * 4 + i).asUInt)))))
+
     val head = RegInit(VecInit(Seq.fill(4)(1.U(5.W))))
     val tail = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
     val tail_sel = RegInit(0.U(2.W))

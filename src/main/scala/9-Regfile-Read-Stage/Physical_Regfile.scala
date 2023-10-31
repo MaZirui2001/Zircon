@@ -30,12 +30,8 @@ class Physical_Regfile_IO extends Bundle{
 class Physical_Regfile extends Module{
     val io = IO(new Physical_Regfile_IO)
 
-    val rf = Reg(Vec(80, UInt(32.W)))
-    when(reset.asBool){
-        for(i <- 0 until 80){
-            rf(i) := 0.U
-        }
-    }
+    val rf = RegInit(VecInit(Seq.fill(80)(0.U(32.W))))
+
 
     // read, write first regfile
     import RF_Func._
