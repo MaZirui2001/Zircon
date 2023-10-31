@@ -101,7 +101,6 @@ class Predict extends Module{
         btb_tagv(i).dina := btb_wdata(i).valid ## btb_wdata(i).tag
         btb_tagv(i).clka := clock
         btb_tagv(i).wea := update_en && mask(i)
-        btb_tagv(i).enb := true.B
         btb_rdata(i).valid := btb_tagv(i).doutb(BTB_TAG_WIDTH)
         btb_rdata(i).tag := btb_tagv(i).doutb(BTB_TAG_WIDTH-1, 0)
     }
@@ -111,7 +110,6 @@ class Predict extends Module{
         btb_targ(i).dina := btb_wdata(i).target ## btb_wdata(i).typ
         btb_targ(i).clka := clock
         btb_targ(i).wea := update_en && mask(i)
-        btb_targ(i).enb := true.B
         btb_rdata(i).target := btb_targ(i).doutb(31, 2)
         btb_rdata(i).typ := btb_targ(i).doutb(1, 0)
     }

@@ -9,7 +9,6 @@ class xilinx_simple_dual_port_1_clock_ram(RAM_WIDTH: Int, RAM_DEPTH: Int) extend
         val dina = Input(UInt(RAM_WIDTH.W))
         val clka = Input(Clock())
         val wea = Input(Bool())
-        val enb = Input(Bool())
         val doutb = Output(UInt(RAM_WIDTH.W))
     })
     val module = "xilinx_simple_dual_port_1_clock_ram.sv"
@@ -29,7 +28,6 @@ class xilinx_simple_dual_port_1_clock_ram(RAM_WIDTH: Int, RAM_DEPTH: Int) extend
 |     input [RAM_WIDTH-1:0] dina,          // RAM input data
 |     input clka,                          // Clock
 |     input wea,                           // Write enable
-|     input enb,                           // Read Enable, for additional power savings, disable when not in use
 |     output [RAM_WIDTH-1:0] doutb         // RAM output data
 |   );
 |   (*ram_style="block"*)
@@ -38,9 +36,9 @@ class xilinx_simple_dual_port_1_clock_ram(RAM_WIDTH: Int, RAM_DEPTH: Int) extend
 |   
 |     // The following code either initializes the memory values to a specified file or to all zeros to match hardware
 |     always @(posedge clka) begin
-|       if (wea)
+|       if (wea) begin
 |         BRAM[addra] <= dina;
-|       if (enb)
+|       end
 |         ram_data <= BRAM[addrb];
 |     end
 |   

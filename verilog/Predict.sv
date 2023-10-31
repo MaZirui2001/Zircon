@@ -6504,7 +6504,6 @@ module Predict(
     .dina  ({1'h1, io_pc_cmt[31:12]}),
     .clka  (clock),
     .wea   (io_update_en & _btb_targ_0_wea_T),
-    .enb   (1'h1),
     .doutb (_xilinx_simple_dual_port_1_clock_ram_doutb)
   );
   xilinx_simple_dual_port_1_clock_ram #(
@@ -6516,7 +6515,6 @@ module Predict(
     .dina  ({1'h1, io_pc_cmt[31:12]}),
     .clka  (clock),
     .wea   (io_update_en & _btb_targ_1_wea_T),
-    .enb   (1'h1),
     .doutb (_xilinx_simple_dual_port_1_clock_ram_1_doutb)
   );
   xilinx_simple_dual_port_1_clock_ram #(
@@ -6528,7 +6526,6 @@ module Predict(
     .dina  ({1'h1, io_pc_cmt[31:12]}),
     .clka  (clock),
     .wea   (io_update_en & _btb_targ_2_wea_T),
-    .enb   (1'h1),
     .doutb (_xilinx_simple_dual_port_1_clock_ram_2_doutb)
   );
   xilinx_simple_dual_port_1_clock_ram #(
@@ -6540,7 +6537,6 @@ module Predict(
     .dina  ({1'h1, io_pc_cmt[31:12]}),
     .clka  (clock),
     .wea   (io_update_en & (&(io_pc_cmt[3:2]))),
-    .enb   (1'h1),
     .doutb (_xilinx_simple_dual_port_1_clock_ram_3_doutb)
   );
   xilinx_simple_dual_port_1_clock_ram #(
@@ -6552,7 +6548,6 @@ module Predict(
     .dina  ({io_branch_target[31:2], io_br_type}),
     .clka  (clock),
     .wea   (io_update_en & _btb_targ_0_wea_T),
-    .enb   (1'h1),
     .doutb (_xilinx_simple_dual_port_1_clock_ram_4_doutb)
   );
   xilinx_simple_dual_port_1_clock_ram #(
@@ -6564,7 +6559,6 @@ module Predict(
     .dina  ({io_branch_target[31:2], io_br_type}),
     .clka  (clock),
     .wea   (io_update_en & _btb_targ_1_wea_T),
-    .enb   (1'h1),
     .doutb (_xilinx_simple_dual_port_1_clock_ram_5_doutb)
   );
   xilinx_simple_dual_port_1_clock_ram #(
@@ -6576,7 +6570,6 @@ module Predict(
     .dina  ({io_branch_target[31:2], io_br_type}),
     .clka  (clock),
     .wea   (io_update_en & _btb_targ_2_wea_T),
-    .enb   (1'h1),
     .doutb (_xilinx_simple_dual_port_1_clock_ram_6_doutb)
   );
   xilinx_simple_dual_port_1_clock_ram #(
@@ -6588,7 +6581,6 @@ module Predict(
     .dina  ({io_branch_target[31:2], io_br_type}),
     .clka  (clock),
     .wea   (io_update_en & (&(io_pc_cmt[3:2]))),
-    .enb   (1'h1),
     .doutb (_xilinx_simple_dual_port_1_clock_ram_7_doutb)
   );
   assign io_predict_jump_0 = _GEN_0[0];
