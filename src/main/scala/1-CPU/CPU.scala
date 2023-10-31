@@ -247,7 +247,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq1.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_FU1_gen(rp_reg.io.insts_pack_DP(i))))
     iq1.io.insts_disp_index     := dp.io.insts_disp_index(0)
     iq1.io.insts_disp_valid     := dp.io.insts_disp_valid(0)
-    iq1.io.insert_num           := dp.io.insert_num(0)
     iq1.io.prj_ready            := dp.io.prj_ready
     iq1.io.prk_ready            := dp.io.prk_ready
     iq1.io.issue_ack            := sel1.io.issue_ack
@@ -262,7 +261,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq2.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i))))
     iq2.io.insts_disp_index     := dp.io.insts_disp_index(1)
     iq2.io.insts_disp_valid     := dp.io.insts_disp_valid(1)
-    iq2.io.insert_num           := dp.io.insert_num(1)
     iq2.io.prj_ready            := dp.io.prj_ready
     iq2.io.prk_ready            := dp.io.prk_ready
     iq2.io.issue_ack            := sel2.io.issue_ack
@@ -277,7 +275,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq3.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i))))
     iq3.io.insts_disp_index     := dp.io.insts_disp_index(2)
     iq3.io.insts_disp_valid     := dp.io.insts_disp_valid(2)
-    iq3.io.insert_num           := dp.io.insert_num(2)
     iq3.io.prj_ready            := dp.io.prj_ready
     iq3.io.prk_ready            := dp.io.prk_ready
     iq3.io.issue_ack            := sel3.io.issue_ack
@@ -292,7 +289,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq4.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_MD_gen(rp_reg.io.insts_pack_DP(i))))
     iq4.io.insts_disp_index     := dp.io.insts_disp_index(3)
     iq4.io.insts_disp_valid     := dp.io.insts_disp_valid(3)
-    iq4.io.insert_num           := dp.io.insert_num(3)
     iq4.io.prj_ready            := dp.io.prj_ready
     iq4.io.prk_ready            := dp.io.prk_ready
     iq4.io.issue_ack            := sel4.io.issue_ack

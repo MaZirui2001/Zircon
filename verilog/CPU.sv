@@ -749,10 +749,6 @@ module CPU(
   wire        _dp_io_insts_disp_valid_3_1;
   wire        _dp_io_insts_disp_valid_3_2;
   wire        _dp_io_insts_disp_valid_3_3;
-  wire [2:0]  _dp_io_insert_num_0;
-  wire [2:0]  _dp_io_insert_num_1;
-  wire [2:0]  _dp_io_insert_num_2;
-  wire [2:0]  _dp_io_insert_num_3;
   wire        _dp_io_prj_ready_0;
   wire        _dp_io_prj_ready_1;
   wire        _dp_io_prj_ready_2;
@@ -2063,10 +2059,6 @@ module CPU(
     .io_insts_disp_valid_3_1    (_dp_io_insts_disp_valid_3_1),
     .io_insts_disp_valid_3_2    (_dp_io_insts_disp_valid_3_2),
     .io_insts_disp_valid_3_3    (_dp_io_insts_disp_valid_3_3),
-    .io_insert_num_0            (_dp_io_insert_num_0),
-    .io_insert_num_1            (_dp_io_insert_num_1),
-    .io_insert_num_2            (_dp_io_insert_num_2),
-    .io_insert_num_3            (_dp_io_insert_num_3),
     .io_prj_ready_0             (_dp_io_prj_ready_0),
     .io_prj_ready_1             (_dp_io_prj_ready_1),
     .io_prj_ready_2             (_dp_io_prj_ready_2),
@@ -2127,7 +2119,6 @@ module CPU(
     .io_insts_dispatch_3_alu_rs1_sel   (_rp_reg_io_insts_pack_DP_3_alu_rs1_sel),
     .io_insts_dispatch_3_alu_rs2_sel   (_rp_reg_io_insts_pack_DP_3_alu_rs2_sel),
     .io_insts_dispatch_3_pc            (_rp_reg_io_insts_pack_DP_3_pc),
-    .io_insert_num                     (_dp_io_insert_num_0),
     .io_prj_ready_0                    (_dp_io_prj_ready_0),
     .io_prj_ready_1                    (_dp_io_prj_ready_1),
     .io_prj_ready_2                    (_dp_io_prj_ready_2),
@@ -2458,7 +2449,6 @@ module CPU(
     .io_insts_dispatch_3_br_type        (_rp_reg_io_insts_pack_DP_3_br_type),
     .io_insts_dispatch_3_predict_jump   (_rp_reg_io_insts_pack_DP_3_predict_jump),
     .io_insts_dispatch_3_pred_npc       (_rp_reg_io_insts_pack_DP_3_pred_npc),
-    .io_insert_num                      (_dp_io_insert_num_1),
     .io_prj_ready_0                     (_dp_io_prj_ready_0),
     .io_prj_ready_1                     (_dp_io_prj_ready_1),
     .io_prj_ready_2                     (_dp_io_prj_ready_2),
@@ -2822,7 +2812,6 @@ module CPU(
     .io_insts_dispatch_3_imm         (_rp_reg_io_insts_pack_DP_3_imm),
     .io_insts_dispatch_3_rob_index   (_rp_reg_io_insts_pack_DP_3_rob_index),
     .io_insts_dispatch_3_mem_type    (_rp_reg_io_insts_pack_DP_3_mem_type),
-    .io_insert_num                   (_dp_io_insert_num_2),
     .io_prj_ready_0                  (_dp_io_prj_ready_0),
     .io_prj_ready_1                  (_dp_io_prj_ready_1),
     .io_prj_ready_2                  (_dp_io_prj_ready_2),
@@ -3071,7 +3060,6 @@ module CPU(
     .io_insts_dispatch_3_imm       (_rp_reg_io_insts_pack_DP_3_imm),
     .io_insts_dispatch_3_rob_index (_rp_reg_io_insts_pack_DP_3_rob_index),
     .io_insts_dispatch_3_alu_op    (_rp_reg_io_insts_pack_DP_3_alu_op),
-    .io_insert_num                 (_dp_io_insert_num_3),
     .io_prj_ready_0                (_dp_io_prj_ready_0),
     .io_prj_ready_1                (_dp_io_prj_ready_1),
     .io_prj_ready_2                (_dp_io_prj_ready_2),

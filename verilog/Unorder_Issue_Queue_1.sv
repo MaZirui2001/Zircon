@@ -62,7 +62,6 @@ module Unorder_Issue_Queue_1(
   input  [3:0]  io_insts_dispatch_3_br_type,
   input         io_insts_dispatch_3_predict_jump,
   input  [31:0] io_insts_dispatch_3_pred_npc,
-  input  [2:0]  io_insert_num,
   input         io_prj_ready_0,
                 io_prj_ready_1,
                 io_prj_ready_2,
@@ -467,7 +466,10 @@ module Unorder_Issue_Queue_1(
   reg         queue_7_prj_waked;
   reg         queue_7_prk_waked;
   reg  [3:0]  tail;
-  wire        full = _tail_pop_T_16 >= 4'h8 - {1'h0, io_insert_num};
+  wire [2:0]  insert_num =
+    {1'h0, {1'h0, io_insts_disp_valid_0} + {1'h0, io_insts_disp_valid_1}}
+    + {1'h0, {1'h0, io_insts_disp_valid_2} + {1'h0, io_insts_disp_valid_3}};
+  wire        full = _tail_pop_T_16 >= 4'h8 - {1'h0, insert_num};
   assign _tail_pop_T_16 =
     tail
     - {3'h0,
@@ -2720,7 +2722,7 @@ module Unorder_Issue_Queue_1(
       else if (io_stall)
         tail <= _tail_pop_T_16;
       else
-        tail <= _tail_pop_T_16 + {1'h0, full ? 3'h0 : io_insert_num};
+        tail <= _tail_pop_T_16 + {1'h0, full ? 3'h0 : insert_num};
     end
   end // always @(posedge)
   assign io_insts_issue_0_inst_prj = queue_0_inst_prj;

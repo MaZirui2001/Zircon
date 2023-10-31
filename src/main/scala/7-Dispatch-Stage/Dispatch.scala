@@ -41,10 +41,7 @@ class Dispatch_IO(n: Int) extends Bundle{
     val insts_disp_index    = Output(Vec(4, Vec(4, UInt(2.W))))
     val insts_disp_valid    = Output(Vec(4, Vec(4, Bool())))
 
-    val insert_num          = Output(Vec(4, UInt(3.W)))
-
     val prj_ready           = Output(Vec(4, Bool()))
-
     val prk_ready           = Output(Vec(4, Bool()))
     
 }
@@ -54,7 +51,6 @@ class Dispatch extends RawModule{
 
     val queue_sel = Wire(Vec(4, UInt(2.W)))
     val queue_id_hit = Wire(Vec(4, Vec(4, Bool())))
-    val queue_id_hit_trav = Wire(Vec(4, Vec(4, Bool())))
     for(i <- 0 until 4){
         queue_sel(i) := Mux(io.inst_packs(i).fu_id === ARITH, 
                         Mux(io.elem_num(0) <= io.elem_num(1), 0.U, 1.U), io.inst_packs(i).fu_id)
@@ -62,9 +58,7 @@ class Dispatch extends RawModule{
     for(i <- 0 until 4){
         for(j <- 0 until 4){
             queue_id_hit(i)(j) := queue_sel(i) === j.U && io.inst_packs(i).inst_valid
-            queue_id_hit_trav(i)(j) := queue_id_hit(j)(i)
         }
-        io.insert_num(i) := Mux(queue_id_hit_trav(i).asUInt.orR, PopCount(queue_id_hit_trav(i)), 0.U)
     }
     import Dispatch_Func._
     for(i <- 0 until 4){
@@ -74,17 +68,18 @@ class Dispatch extends RawModule{
     
     // alloc insts to issue queue, pressed
     io.insts_disp_index := DontCare
+    io.insts_disp_valid := VecInit(Seq.fill(4)(VecInit(Seq.fill(4)(false.B))))
     var alloc_index = VecInit(Seq.fill(4)(0.U(2.W)))
     for(i <- 0 until 4){
         var next_alloc_index = Wire(Vec(4, UInt(2.W)))
         for(j <- 0 until 4){
             when(queue_id_hit(i)(j)){
                 io.insts_disp_index(j)(alloc_index(j)) := i.U(3.W)
+                io.insts_disp_valid(j)(alloc_index(j)) := true.B
             }
             next_alloc_index(j) := Mux(queue_id_hit(i)(j), alloc_index(j) + 1.U, alloc_index(j))
         }
         alloc_index = next_alloc_index
     }
-    io.insts_disp_valid := io.insert_num.map(x => VecInit(((1.U(4.W) << x)(3, 0) - 1.U).asBools))
 }
 

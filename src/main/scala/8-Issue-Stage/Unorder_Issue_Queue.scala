@@ -28,7 +28,6 @@ class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extend
     val insts_disp_index = Input(Vec(4, UInt(2.W)))
     val insts_disp_valid = Input(Vec(4, Bool()))
     val insts_dispatch   = Input(Vec(4, inst_pack_t))
-    val insert_num       = Input(UInt(3.W))
     val prj_ready        = Input(Vec(4, Bool()))
     val prk_ready        = Input(Vec(4, Bool()))
     val queue_ready      = Output(Bool())
@@ -58,7 +57,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
     val tail = RegInit(0.U((log2Ceil(n)+1).W))
 
     val empty = tail === 0.U
-    val insert_num = io.insert_num
+    val insert_num = PopCount(io.insts_disp_valid)
     val tail_pop = Wire(UInt((log2Ceil(n)+1).W))
     val full = tail_pop >= n.U - insert_num
     io.full := full
