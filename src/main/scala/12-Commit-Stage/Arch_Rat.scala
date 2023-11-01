@@ -12,7 +12,7 @@ class Arch_Rat_IO extends Bundle {
     val predict_fail    = Input(Bool())
 
     // for reg rename
-    val arch_rat        = Output(Vec(80, UInt(1.W)))
+    val arch_rat        = Output(Vec(81, UInt(1.W)))
     val head_arch       = Output(Vec(4, UInt(5.W)))
 
     // for ras
@@ -24,11 +24,11 @@ class Arch_Rat_IO extends Bundle {
 class Arch_Rat extends Module {
     val io = IO(new Arch_Rat_IO)
 
-    val arat = RegInit(VecInit(Seq.fill(80)(false.B)))
-    val arat_next = Wire(Vec(80, Bool()))
+    val arat = RegInit(VecInit(Seq.fill(81)(false.B)))
+    val arat_next = Wire(Vec(81, Bool()))
 
 
-    val head = RegInit(VecInit(1.U(5.W), 1.U(5.W), 1.U(5.W), 1.U(5.W)))
+    val head = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
     val head_next = Wire(Vec(4, UInt(5.W)))
     val head_sel = RegInit(0.U(2.W))
 
@@ -44,7 +44,7 @@ class Arch_Rat extends Module {
     val cmt_en = io.cmt_en.reduce(_||_)
     head_next := head
     for(i <- 0 until 4){
-        head_next(head_sel+i.U) := Mux(head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)) >= 20.U, 0.U, head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)))
+        head_next(head_sel+i.U) := Mux(head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)) === 21.U, 0.U, head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)))
     }
     head := head_next
     head_sel := Mux(io.predict_fail, 0.U, head_sel + PopCount(io.cmt_en))
@@ -61,7 +61,7 @@ class Arch_Rat extends Module {
     top := top_next
     io.top_arch := top_next
 
-    for(i <- 0 until 80){
+    for(i <- 0 until 81){
         io.arch_rat(i) := arat_next(i)
     }
     for(i <- 0 until 4){

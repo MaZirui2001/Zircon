@@ -128,6 +128,7 @@ module Physical_Regfile(
   reg  [31:0] rf_77;
   reg  [31:0] rf_78;
   reg  [31:0] rf_79;
+  reg  [31:0] rf_80;
   wire        _io_prj_data_0_wf_T_1 = io_prj_0 == io_prd_3 & io_rf_we_3;
   wire        _io_prj_data_0_wf_T_3 = io_prj_0 == io_prd_2 & io_rf_we_2;
   wire        _io_prj_data_0_wf_T_5 = io_prj_0 == io_prd_1 & io_rf_we_1;
@@ -307,7 +308,7 @@ module Physical_Regfile(
       7'b1001111:
         casez_tmp_0 = rf_79;
       7'b1010000:
-        casez_tmp_0 = rf_0;
+        casez_tmp_0 = rf_80;
       7'b1010001:
         casez_tmp_0 = rf_0;
       7'b1010010:
@@ -583,7 +584,7 @@ module Physical_Regfile(
       7'b1001111:
         casez_tmp_2 = rf_79;
       7'b1010000:
-        casez_tmp_2 = rf_0;
+        casez_tmp_2 = rf_80;
       7'b1010001:
         casez_tmp_2 = rf_0;
       7'b1010010:
@@ -859,7 +860,7 @@ module Physical_Regfile(
       7'b1001111:
         casez_tmp_4 = rf_79;
       7'b1010000:
-        casez_tmp_4 = rf_0;
+        casez_tmp_4 = rf_80;
       7'b1010001:
         casez_tmp_4 = rf_0;
       7'b1010010:
@@ -1135,7 +1136,7 @@ module Physical_Regfile(
       7'b1001111:
         casez_tmp_6 = rf_79;
       7'b1010000:
-        casez_tmp_6 = rf_0;
+        casez_tmp_6 = rf_80;
       7'b1010001:
         casez_tmp_6 = rf_0;
       7'b1010010:
@@ -1411,7 +1412,7 @@ module Physical_Regfile(
       7'b1001111:
         casez_tmp_8 = rf_79;
       7'b1010000:
-        casez_tmp_8 = rf_0;
+        casez_tmp_8 = rf_80;
       7'b1010001:
         casez_tmp_8 = rf_0;
       7'b1010010:
@@ -1687,7 +1688,7 @@ module Physical_Regfile(
       7'b1001111:
         casez_tmp_10 = rf_79;
       7'b1010000:
-        casez_tmp_10 = rf_0;
+        casez_tmp_10 = rf_80;
       7'b1010001:
         casez_tmp_10 = rf_0;
       7'b1010010:
@@ -1963,7 +1964,7 @@ module Physical_Regfile(
       7'b1001111:
         casez_tmp_12 = rf_79;
       7'b1010000:
-        casez_tmp_12 = rf_0;
+        casez_tmp_12 = rf_80;
       7'b1010001:
         casez_tmp_12 = rf_0;
       7'b1010010:
@@ -2239,7 +2240,7 @@ module Physical_Regfile(
       7'b1001111:
         casez_tmp_14 = rf_79;
       7'b1010000:
-        casez_tmp_14 = rf_0;
+        casez_tmp_14 = rf_80;
       7'b1010001:
         casez_tmp_14 = rf_0;
       7'b1010010:
@@ -2418,6 +2419,7 @@ module Physical_Regfile(
       rf_77 <= 32'h0;
       rf_78 <= 32'h0;
       rf_79 <= 32'h0;
+      rf_80 <= 32'h0;
     end
     else begin
       if (io_rf_we_3 & io_prd_3 == 7'h0)
@@ -3060,6 +3062,14 @@ module Physical_Regfile(
         rf_79 <= io_wdata_1;
       else if (io_rf_we_0 & io_prd_0 == 7'h4F)
         rf_79 <= io_wdata_0;
+      if (io_rf_we_3 & io_prd_3 == 7'h50)
+        rf_80 <= io_wdata_3;
+      else if (io_rf_we_2 & io_prd_2 == 7'h50)
+        rf_80 <= io_wdata_2;
+      else if (io_rf_we_1 & io_prd_1 == 7'h50)
+        rf_80 <= io_wdata_1;
+      else if (io_rf_we_0 & io_prd_0 == 7'h50)
+        rf_80 <= io_wdata_0;
     end
   end // always @(posedge)
   assign io_prj_data_0 =

@@ -137,6 +137,7 @@ module Reg_Rename(
                io_arch_rat_77,
                io_arch_rat_78,
                io_arch_rat_79,
+               io_arch_rat_80,
   input  [4:0] io_head_arch_0,
                io_head_arch_1,
                io_head_arch_2,
@@ -297,6 +298,7 @@ module Reg_Rename(
     .io_arch_rat_77  (io_arch_rat_77),
     .io_arch_rat_78  (io_arch_rat_78),
     .io_arch_rat_79  (io_arch_rat_79),
+    .io_arch_rat_80  (io_arch_rat_80),
     .io_predict_fail (io_predict_fail),
     .io_stall        (_free_list_io_empty)
   );

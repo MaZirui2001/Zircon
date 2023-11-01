@@ -25,7 +25,7 @@ class Busy_Board_IO extends Bundle{
 
 class Busy_Board extends Module {
     val io = IO(new Busy_Board_IO)
-    val busy_board = RegInit(VecInit(Seq.fill(80)(false.B)))
+    val busy_board = RegInit(VecInit(Seq.fill(81)(false.B)))
 
     // read by insts
     for(i <- 0 until 4){
@@ -47,6 +47,6 @@ class Busy_Board extends Module {
     }
 
     when(io.flush){
-        busy_board := VecInit(Seq.fill(80)(false.B))
+        busy_board := VecInit(Seq.fill(81)(false.B))
     }
 }

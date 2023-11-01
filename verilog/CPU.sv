@@ -149,6 +149,7 @@ module CPU(
   wire        _arat_io_arch_rat_77;
   wire        _arat_io_arch_rat_78;
   wire        _arat_io_arch_rat_79;
+  wire        _arat_io_arch_rat_80;
   wire [4:0]  _arat_io_head_arch_0;
   wire [4:0]  _arat_io_head_arch_1;
   wire [4:0]  _arat_io_head_arch_2;
@@ -1781,6 +1782,7 @@ module CPU(
     .io_arch_rat_77         (_arat_io_arch_rat_77),
     .io_arch_rat_78         (_arat_io_arch_rat_78),
     .io_arch_rat_79         (_arat_io_arch_rat_79),
+    .io_arch_rat_80         (_arat_io_arch_rat_80),
     .io_head_arch_0         (_arat_io_head_arch_0),
     .io_head_arch_1         (_arat_io_head_arch_1),
     .io_head_arch_2         (_arat_io_head_arch_2),
@@ -3629,6 +3631,7 @@ module CPU(
     .io_arch_rat_77       (_arat_io_arch_rat_77),
     .io_arch_rat_78       (_arat_io_arch_rat_78),
     .io_arch_rat_79       (_arat_io_arch_rat_79),
+    .io_arch_rat_80       (_arat_io_arch_rat_80),
     .io_head_arch_0       (_arat_io_head_arch_0),
     .io_head_arch_1       (_arat_io_head_arch_1),
     .io_head_arch_2       (_arat_io_head_arch_2),

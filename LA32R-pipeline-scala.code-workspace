@@ -12,6 +12,9 @@
 		},
 		{
 			"path": "../software"
+		},
+		{
+			"path": "../cache-sim"
 		}
 	],
 	"settings": {

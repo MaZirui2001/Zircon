@@ -30,7 +30,7 @@ class Physical_Regfile_IO extends Bundle{
 class Physical_Regfile extends Module{
     val io = IO(new Physical_Regfile_IO)
 
-    val rf = RegInit(VecInit(Seq.fill(80)(0.U(32.W))))
+    val rf = RegInit(VecInit(Seq.fill(81)(0.U(32.W))))
 
 
     // read, write first regfile
