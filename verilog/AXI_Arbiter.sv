@@ -32,12 +32,13 @@ module AXI_Arbiter(
   wire       _GEN_3 = _GEN_0 | _GEN_1;
   wire       _GEN_4 = r_state == 3'h3;
   wire       _GEN_5 = _GEN_0 | _GEN_1 | _GEN_2;
+  wire       _GEN_6 = _GEN_5 | ~_GEN_4;
   reg  [1:0] w_state;
-  wire       _GEN_6 = w_state == 2'h0;
-  wire       _GEN_7 = w_state == 2'h1;
-  wire       _GEN_8 = _GEN_6 | _GEN_7 | w_state == 2'h2;
-  wire       _io_bready_output = ~_GEN_8 & (&w_state) & _GEN & io_bvalid;
-  assign _GEN = ~_GEN_8;
+  wire       _GEN_7 = w_state == 2'h0;
+  wire       _GEN_8 = w_state == 2'h1;
+  wire       _GEN_9 = _GEN_7 | _GEN_8 | w_state == 2'h2;
+  wire       _io_bready_output = ~_GEN_9 & (&w_state) & _GEN & io_bvalid;
+  assign _GEN = ~_GEN_9;
   always_comb begin
     casez (w_state)
       2'b00:
@@ -70,12 +71,12 @@ module AXI_Arbiter(
   assign io_i_rready = ~_GEN_3 & _GEN_2 & io_rvalid;
   assign io_i_rdata = io_rdata;
   assign io_i_rlast = ~_GEN_3 & _GEN_2 & io_rlast;
-  assign io_araddr = _GEN_5 | ~_GEN_4 ? io_i_araddr : 32'h0;
+  assign io_araddr = _GEN_6 ? io_i_araddr : 32'h0;
   assign io_arburst = _GEN_5 ? 2'h1 : {1'h0, ~_GEN_4};
-  assign io_arlen = _GEN_5 ? 8'h1 : {7'h0, ~_GEN_4};
+  assign io_arlen = _GEN_6 ? 8'hF : 8'h0;
   assign io_arsize = _GEN_5 ? 3'h2 : {1'h0, ~_GEN_4, 1'h0};
   assign io_arvalid = ~_GEN_0 & (_GEN_1 | ~_GEN_2 & _GEN_4);
-  assign io_awvalid = ~_GEN_6 & _GEN_7;
+  assign io_awvalid = ~_GEN_7 & _GEN_8;
   assign io_bready = _io_bready_output;
   assign io_rready = ~_GEN_3 & _GEN_2 & io_i_rvalid;
 endmodule

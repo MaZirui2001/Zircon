@@ -61,6 +61,7 @@ class ICache extends Module{
     val cmem                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_write_first(8 * OFFSET_DEPTH, INDEX_DEPTH)).io))
     
     val addr_sel            = WireDefault(FROM_PIPE)
+    
     // IF-RM SegReg
     val addr_reg_IF_RM      = RegInit(0.U(32.W))
     val rvalid_reg_IF_RM    = RegInit(false.B)
@@ -69,7 +70,7 @@ class ICache extends Module{
     val addr_RM             = addr_reg_IF_RM
     val rvalid_RM           = rvalid_reg_IF_RM
     val cache_miss_RM       = WireDefault(false.B)
-    val data_sel            = WireDefault(false.B)
+    val data_sel            = WireDefault(FROM_RBUF)
     val i_rvalid            = WireDefault(false.B)
 
     // mem we
@@ -84,9 +85,10 @@ class ICache extends Module{
     // lru 
     val lru_mem             = RegInit(VecInit(Seq.fill(INDEX_DEPTH)(0.U(1.W))))
     val lru_sel             = lru_mem(index_RM)
-    val lru_upd             = WireDefault(false.B)
+    val lru_miss_upd        = WireDefault(false.B)
+    val lru_hit_upd         = WireDefault(false.B)
 
-    val ret_buf             = RegInit(VecInit(Seq.fill(8*OFFSET_DEPTH/32)(0.U(32.W))))
+    val ret_buf             = RegInit(0.U((8*OFFSET_DEPTH).W))
 
     // IF Stage
     for(i <- 0 until 2){
@@ -97,7 +99,7 @@ class ICache extends Module{
     }
     for(i <- 0 until 2){
         cmem(i).addra   := Mux(addr_sel === FROM_PIPE, index_IF, index_RM)
-        cmem(i).dina    := ret_buf.asUInt
+        cmem(i).dina    := ret_buf
         cmem(i).clka    := clock
         cmem(i).wea     := cmem_we_RM(i)
     }
@@ -118,48 +120,47 @@ class ICache extends Module{
     val cache_hit_RM    = hit_RM.reduce(_||_)
 
     /* rdata logic */
-    val cmem_rdata_RM   = VecInit(Seq.tabulate(2)(i => cmem(i).douta))(hit_index_RM)
-    val rbuf_rdata_RM   = ret_buf(offset_RM(OFFSET_WIDTH-1, 2))
+    val block_offset    = offset_RM(OFFSET_WIDTH-1, 4) ## 0.U(7.W)
+    val cmem_rdata_RM   = (cmem(hit_index_RM).douta >> block_offset)(127, 0)
+    val rbuf_rdata_RM   = (ret_buf >> block_offset)(127, 0)
     val rdata_RM        = Mux(data_sel === FROM_CMEM, cmem_rdata_RM, rbuf_rdata_RM)
 
     /* return buffer update logic */
     when(io.i_rready){
-        ret_buf := VecInit(Seq.tabulate(8*OFFSET_DEPTH/32)(i =>(
-            if(i == 8*OFFSET_DEPTH/32-1) io.i_rdata 
-            else ret_buf(i+1)
-        )))
+        ret_buf := io.i_rdata ## ret_buf(8*OFFSET_DEPTH-1, 32)
     }
     /* lru logic */
-    when(lru_upd){
-        lru_mem(index_RM) := ~lru_sel
-    }
+    lru_mem(index_RM) := lru_miss_upd && !lru_sel || lru_hit_upd && !hit_index_RM
 
     /* FSM for read */
-    val s_idle :: s_miss :: s_refill :: Nil = Enum(3)
+    val s_idle :: s_miss :: s_refill :: s_wait :: Nil = Enum(4)
     val state = RegInit(s_idle)
     switch(state){
         is(s_idle){
             addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
             when(rvalid_RM){
                 state           := Mux(cache_hit_RM, s_idle, s_miss)
+                lru_hit_upd     := cache_hit_RM
                 cache_miss_RM   := !cache_hit_RM
                 data_sel        := FROM_CMEM
             }
         }
         is(s_miss){
             i_rvalid            := true.B
-            when(io.i_rready && io.i_rlast){
-                state           := s_refill
-                cache_miss_RM   := true.B
-            }
+            cache_miss_RM       := true.B
+            state               := Mux(io.i_rready && io.i_rlast, s_refill, s_miss)
         }
         is(s_refill){
-            state               := s_idle
-            cache_miss_RM       := false.B
-            lru_upd             := true.B
+            state               := s_wait
+            cache_miss_RM       := true.B
+            lru_miss_upd        := true.B
             tagv_we_RM(lru_sel) := true.B
             cmem_we_RM(lru_sel) := true.B
             addr_sel            := FROM_SEG
+        }
+        is(s_wait){
+            state               := Mux(stall, s_wait, s_idle)
+            cache_miss_RM       := false.B
         }
     }
 
@@ -170,5 +171,5 @@ class ICache extends Module{
     io.i_rvalid         := i_rvalid
     io.i_rsize          := 2.U
     io.i_rburst         := 1.U
-    io.i_rlen           := (OFFSET_DEPTH/32-1).U
+    io.i_rlen           := (8*OFFSET_DEPTH/32-1).U
 }

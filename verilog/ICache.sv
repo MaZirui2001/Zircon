@@ -13,7 +13,8 @@ module ICache(
   input          io_i_rlast
 );
 
-  wire         lru_upd;
+  wire         lru_miss_upd;
+  wire         _GEN;
   wire [511:0] _xilinx_single_port_ram_write_first_3_douta;
   wire [511:0] _xilinx_single_port_ram_write_first_2_douta;
   wire [20:0]  _xilinx_single_port_ram_write_first_1_douta;
@@ -86,22 +87,7 @@ module ICache(
   reg          lru_mem_61;
   reg          lru_mem_62;
   reg          lru_mem_63;
-  reg  [31:0]  ret_buf_0;
-  reg  [31:0]  ret_buf_1;
-  reg  [31:0]  ret_buf_2;
-  reg  [31:0]  ret_buf_3;
-  reg  [31:0]  ret_buf_4;
-  reg  [31:0]  ret_buf_5;
-  reg  [31:0]  ret_buf_6;
-  reg  [31:0]  ret_buf_7;
-  reg  [31:0]  ret_buf_8;
-  reg  [31:0]  ret_buf_9;
-  reg  [31:0]  ret_buf_10;
-  reg  [31:0]  ret_buf_11;
-  reg  [31:0]  ret_buf_12;
-  reg  [31:0]  ret_buf_13;
-  reg  [31:0]  ret_buf_14;
-  reg  [31:0]  ret_buf_15;
+  reg  [511:0] ret_buf;
   wire [20:0]  tagv_1_dina = {1'h1, io_addr_IF[31:12]};
   wire         hit_RM_1 =
     _xilinx_single_port_ram_write_first_1_douta[20]
@@ -109,6 +95,12 @@ module ICache(
   wire         cache_hit_RM =
     _xilinx_single_port_ram_write_first_douta[20]
     & _xilinx_single_port_ram_write_first_douta[19:0] == addr_reg_IF_RM[31:12] | hit_RM_1;
+  wire [511:0] _GEN_0 = {503'h0, addr_reg_IF_RM[5:4], 7'h0};
+  wire [511:0] _cmem_rdata_RM_T =
+    (hit_RM_1
+       ? _xilinx_single_port_ram_write_first_3_douta
+       : _xilinx_single_port_ram_write_first_2_douta) >> _GEN_0;
+  wire [511:0] _rbuf_rdata_RM_T = ret_buf >> _GEN_0;
   always_comb begin
     casez (addr_reg_IF_RM[11:6])
       6'b000000:
@@ -242,27 +234,28 @@ module ICache(
     endcase
   end // always_comb
   reg  [1:0]   state;
-  wire         _GEN = state == 2'h0;
-  wire         _GEN_0 = state == 2'h1;
-  wire         _GEN_1 = io_i_rready & io_i_rlast;
+  assign _GEN = state == 2'h0;
+  wire         _GEN_1 = state == 2'h1;
   wire         _GEN_2 = state == 2'h2;
+  wire         _GEN_3 = _GEN | _GEN_1;
+  assign lru_miss_upd = ~_GEN_3 & _GEN_2;
+  wire         cmem_we_RM_0 = ~_GEN_3 & _GEN_2 & ~casez_tmp;
+  wire         cmem_we_RM_1 = ~_GEN_3 & _GEN_2 & casez_tmp;
   always_comb begin
     casez (state)
       2'b00:
         casez_tmp_0 = rvalid_reg_IF_RM ? {1'h0, ~cache_hit_RM} : state;
       2'b01:
-        casez_tmp_0 = _GEN_1 ? 2'h2 : state;
+        casez_tmp_0 = io_i_rready & io_i_rlast ? 2'h2 : 2'h1;
       2'b10:
-        casez_tmp_0 = 2'h0;
+        casez_tmp_0 = 2'h3;
       default:
-        casez_tmp_0 = state;
+        casez_tmp_0 = 2'h0;
     endcase
   end // always_comb
-  wire         cache_miss_RM = _GEN ? rvalid_reg_IF_RM & ~cache_hit_RM : _GEN_0 & _GEN_1;
-  wire         _GEN_3 = _GEN | _GEN_0;
-  assign lru_upd = ~_GEN_3 & _GEN_2;
-  wire         cmem_we_RM_0 = ~_GEN_3 & _GEN_2 & ~casez_tmp;
-  wire         cmem_we_RM_1 = ~_GEN_3 & _GEN_2 & casez_tmp;
+  wire         cache_miss_RM = _GEN ? rvalid_reg_IF_RM & ~cache_hit_RM : _GEN_1 | _GEN_2;
+  wire         _lru_mem_T_4 =
+    lru_miss_upd & ~casez_tmp | _GEN & rvalid_reg_IF_RM & cache_hit_RM & ~hit_RM_1;
   always @(posedge clock) begin
     if (reset) begin
       addr_reg_IF_RM <= 32'h0;
@@ -331,22 +324,7 @@ module ICache(
       lru_mem_61 <= 1'h0;
       lru_mem_62 <= 1'h0;
       lru_mem_63 <= 1'h0;
-      ret_buf_0 <= 32'h0;
-      ret_buf_1 <= 32'h0;
-      ret_buf_2 <= 32'h0;
-      ret_buf_3 <= 32'h0;
-      ret_buf_4 <= 32'h0;
-      ret_buf_5 <= 32'h0;
-      ret_buf_6 <= 32'h0;
-      ret_buf_7 <= 32'h0;
-      ret_buf_8 <= 32'h0;
-      ret_buf_9 <= 32'h0;
-      ret_buf_10 <= 32'h0;
-      ret_buf_11 <= 32'h0;
-      ret_buf_12 <= 32'h0;
-      ret_buf_13 <= 32'h0;
-      ret_buf_14 <= 32'h0;
-      ret_buf_15 <= 32'h0;
+      ret_buf <= 512'h0;
       state <= 2'h0;
     end
     else begin
@@ -354,152 +332,136 @@ module ICache(
         addr_reg_IF_RM <= io_addr_IF;
         rvalid_reg_IF_RM <= io_rvalid_IF;
       end
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h0)
-        lru_mem_0 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h1)
-        lru_mem_1 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h2)
-        lru_mem_2 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h3)
-        lru_mem_3 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h4)
-        lru_mem_4 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h5)
-        lru_mem_5 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h6)
-        lru_mem_6 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h7)
-        lru_mem_7 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h8)
-        lru_mem_8 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h9)
-        lru_mem_9 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'hA)
-        lru_mem_10 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'hB)
-        lru_mem_11 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'hC)
-        lru_mem_12 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'hD)
-        lru_mem_13 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'hE)
-        lru_mem_14 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'hF)
-        lru_mem_15 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h10)
-        lru_mem_16 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h11)
-        lru_mem_17 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h12)
-        lru_mem_18 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h13)
-        lru_mem_19 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h14)
-        lru_mem_20 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h15)
-        lru_mem_21 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h16)
-        lru_mem_22 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h17)
-        lru_mem_23 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h18)
-        lru_mem_24 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h19)
-        lru_mem_25 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h1A)
-        lru_mem_26 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h1B)
-        lru_mem_27 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h1C)
-        lru_mem_28 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h1D)
-        lru_mem_29 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h1E)
-        lru_mem_30 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h1F)
-        lru_mem_31 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h20)
-        lru_mem_32 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h21)
-        lru_mem_33 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h22)
-        lru_mem_34 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h23)
-        lru_mem_35 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h24)
-        lru_mem_36 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h25)
-        lru_mem_37 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h26)
-        lru_mem_38 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h27)
-        lru_mem_39 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h28)
-        lru_mem_40 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h29)
-        lru_mem_41 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h2A)
-        lru_mem_42 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h2B)
-        lru_mem_43 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h2C)
-        lru_mem_44 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h2D)
-        lru_mem_45 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h2E)
-        lru_mem_46 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h2F)
-        lru_mem_47 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h30)
-        lru_mem_48 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h31)
-        lru_mem_49 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h32)
-        lru_mem_50 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h33)
-        lru_mem_51 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h34)
-        lru_mem_52 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h35)
-        lru_mem_53 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h36)
-        lru_mem_54 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h37)
-        lru_mem_55 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h38)
-        lru_mem_56 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h39)
-        lru_mem_57 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h3A)
-        lru_mem_58 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h3B)
-        lru_mem_59 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h3C)
-        lru_mem_60 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h3D)
-        lru_mem_61 <= ~casez_tmp;
-      if (lru_upd & addr_reg_IF_RM[11:6] == 6'h3E)
-        lru_mem_62 <= ~casez_tmp;
-      if (lru_upd & (&(addr_reg_IF_RM[11:6])))
-        lru_mem_63 <= ~casez_tmp;
-      if (io_i_rready) begin
-        ret_buf_0 <= ret_buf_1;
-        ret_buf_1 <= ret_buf_2;
-        ret_buf_2 <= ret_buf_3;
-        ret_buf_3 <= ret_buf_4;
-        ret_buf_4 <= ret_buf_5;
-        ret_buf_5 <= ret_buf_6;
-        ret_buf_6 <= ret_buf_7;
-        ret_buf_7 <= ret_buf_8;
-        ret_buf_8 <= ret_buf_9;
-        ret_buf_9 <= ret_buf_10;
-        ret_buf_10 <= ret_buf_11;
-        ret_buf_11 <= ret_buf_12;
-        ret_buf_12 <= ret_buf_13;
-        ret_buf_13 <= ret_buf_14;
-        ret_buf_14 <= ret_buf_15;
-        ret_buf_15 <= io_i_rdata;
-      end
+      if (addr_reg_IF_RM[11:6] == 6'h0)
+        lru_mem_0 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h1)
+        lru_mem_1 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h2)
+        lru_mem_2 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h3)
+        lru_mem_3 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h4)
+        lru_mem_4 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h5)
+        lru_mem_5 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h6)
+        lru_mem_6 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h7)
+        lru_mem_7 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h8)
+        lru_mem_8 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h9)
+        lru_mem_9 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'hA)
+        lru_mem_10 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'hB)
+        lru_mem_11 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'hC)
+        lru_mem_12 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'hD)
+        lru_mem_13 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'hE)
+        lru_mem_14 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'hF)
+        lru_mem_15 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h10)
+        lru_mem_16 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h11)
+        lru_mem_17 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h12)
+        lru_mem_18 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h13)
+        lru_mem_19 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h14)
+        lru_mem_20 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h15)
+        lru_mem_21 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h16)
+        lru_mem_22 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h17)
+        lru_mem_23 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h18)
+        lru_mem_24 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h19)
+        lru_mem_25 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h1A)
+        lru_mem_26 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h1B)
+        lru_mem_27 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h1C)
+        lru_mem_28 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h1D)
+        lru_mem_29 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h1E)
+        lru_mem_30 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h1F)
+        lru_mem_31 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h20)
+        lru_mem_32 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h21)
+        lru_mem_33 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h22)
+        lru_mem_34 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h23)
+        lru_mem_35 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h24)
+        lru_mem_36 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h25)
+        lru_mem_37 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h26)
+        lru_mem_38 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h27)
+        lru_mem_39 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h28)
+        lru_mem_40 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h29)
+        lru_mem_41 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h2A)
+        lru_mem_42 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h2B)
+        lru_mem_43 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h2C)
+        lru_mem_44 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h2D)
+        lru_mem_45 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h2E)
+        lru_mem_46 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h2F)
+        lru_mem_47 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h30)
+        lru_mem_48 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h31)
+        lru_mem_49 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h32)
+        lru_mem_50 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h33)
+        lru_mem_51 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h34)
+        lru_mem_52 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h35)
+        lru_mem_53 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h36)
+        lru_mem_54 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h37)
+        lru_mem_55 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h38)
+        lru_mem_56 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h39)
+        lru_mem_57 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h3A)
+        lru_mem_58 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h3B)
+        lru_mem_59 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h3C)
+        lru_mem_60 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h3D)
+        lru_mem_61 <= _lru_mem_T_4;
+      if (addr_reg_IF_RM[11:6] == 6'h3E)
+        lru_mem_62 <= _lru_mem_T_4;
+      if (&(addr_reg_IF_RM[11:6]))
+        lru_mem_63 <= _lru_mem_T_4;
+      if (io_i_rready)
+        ret_buf <= {io_i_rdata, ret_buf[511:32]};
       state <= casez_tmp_0;
     end
   end // always @(posedge)
@@ -507,7 +469,7 @@ module ICache(
     .RAM_DEPTH(64),
     .RAM_WIDTH(21)
   ) xilinx_single_port_ram_write_first (
-    .addra (lru_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
+    .addra (lru_miss_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
     .dina  (tagv_1_dina),
     .clka  (clock),
     .wea   (cmem_we_RM_0),
@@ -517,7 +479,7 @@ module ICache(
     .RAM_DEPTH(64),
     .RAM_WIDTH(21)
   ) xilinx_single_port_ram_write_first_1 (
-    .addra (lru_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
+    .addra (lru_miss_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
     .dina  (tagv_1_dina),
     .clka  (clock),
     .wea   (cmem_we_RM_1),
@@ -527,24 +489,8 @@ module ICache(
     .RAM_DEPTH(64),
     .RAM_WIDTH(512)
   ) xilinx_single_port_ram_write_first_2 (
-    .addra (lru_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
-    .dina
-      ({ret_buf_15,
-        ret_buf_14,
-        ret_buf_13,
-        ret_buf_12,
-        ret_buf_11,
-        ret_buf_10,
-        ret_buf_9,
-        ret_buf_8,
-        ret_buf_7,
-        ret_buf_6,
-        ret_buf_5,
-        ret_buf_4,
-        ret_buf_3,
-        ret_buf_2,
-        ret_buf_1,
-        ret_buf_0}),
+    .addra (lru_miss_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
+    .dina  (ret_buf),
     .clka  (clock),
     .wea   (cmem_we_RM_0),
     .douta (_xilinx_single_port_ram_write_first_2_douta)
@@ -553,34 +499,16 @@ module ICache(
     .RAM_DEPTH(64),
     .RAM_WIDTH(512)
   ) xilinx_single_port_ram_write_first_3 (
-    .addra (lru_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
-    .dina
-      ({ret_buf_15,
-        ret_buf_14,
-        ret_buf_13,
-        ret_buf_12,
-        ret_buf_11,
-        ret_buf_10,
-        ret_buf_9,
-        ret_buf_8,
-        ret_buf_7,
-        ret_buf_6,
-        ret_buf_5,
-        ret_buf_4,
-        ret_buf_3,
-        ret_buf_2,
-        ret_buf_1,
-        ret_buf_0}),
+    .addra (lru_miss_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
+    .dina  (ret_buf),
     .clka  (clock),
     .wea   (cmem_we_RM_1),
     .douta (_xilinx_single_port_ram_write_first_3_douta)
   );
   assign io_cache_miss_RM = cache_miss_RM;
   assign io_rdata_RM =
-    hit_RM_1
-      ? _xilinx_single_port_ram_write_first_3_douta[127:0]
-      : _xilinx_single_port_ram_write_first_2_douta[127:0];
+    _GEN & rvalid_reg_IF_RM ? _cmem_rdata_RM_T[127:0] : _rbuf_rdata_RM_T[127:0];
   assign io_i_araddr = {addr_reg_IF_RM[31:6], 6'h0};
-  assign io_i_rvalid = ~_GEN & _GEN_0;
+  assign io_i_rvalid = ~_GEN & _GEN_1;
 endmodule
 

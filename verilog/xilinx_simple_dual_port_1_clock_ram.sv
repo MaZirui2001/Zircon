@@ -25,7 +25,7 @@
        if (wea) begin
          BRAM[addra] <= dina;
        end
-         ram_data <= addra == addrb && wea ? dina : BRAM[addrb];
+         ram_data <= BRAM[addrb];
      end
    
      //  The following code generates HIGH_PERFORMANCE (use output register) or LOW_LATENCY (no output register)
