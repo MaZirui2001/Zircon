@@ -15,7 +15,7 @@ class Dispatch_IO(n: Int) extends Bundle{
     val insts_disp_valid    = Output(Vec(4, Vec(4, Bool())))
 }
 
-class Dispatch extends RawModule{
+class Dispatch extends Module{
     val io = IO(new Dispatch_IO(8))
 
     val queue_id_hit = Wire(Vec(4, UInt(4.W)))

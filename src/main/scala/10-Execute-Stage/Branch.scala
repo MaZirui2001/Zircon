@@ -17,7 +17,7 @@ class Branch_IO extends Bundle {
     val branch_target   = Output(UInt(32.W))
 }
 
-class Branch extends RawModule {
+class Branch extends Module {
     val io = IO(new Branch_IO)
     io.predict_fail := false.B
     io.branch_target := io.pc_ex + io.imm_ex

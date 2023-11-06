@@ -9,7 +9,7 @@ class MDU_IO extends Bundle {
     val md_out = Output(UInt(32.W))
 }
 
-class MDU extends RawModule {
+class MDU extends Module {
     val io = IO(new MDU_IO)
 
     val md_out = Wire(UInt(32.W))

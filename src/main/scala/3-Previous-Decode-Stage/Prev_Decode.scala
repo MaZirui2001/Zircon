@@ -27,7 +27,7 @@ class Prev_Decode_IO extends Bundle {
     val pred_fix_pc_plus_4  = Output(UInt(32.W))
 }
 import PD_Pack._
-class Prev_Decode extends RawModule {
+class Prev_Decode extends Module {
     val io = IO(new Prev_Decode_IO)
 
     val insts_opcode = VecInit(io.insts_pack_IF.map(_.inst(31, 30)))

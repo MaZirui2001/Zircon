@@ -144,7 +144,7 @@ object Control_Signal{
 
     )
 }
-class Imm_Gen extends RawModule{
+class Imm_Gen extends Module{
     val io = IO(new Bundle{
         val inst        = Input(UInt(32.W))
         val imm_type    = Input(UInt(4.W))
@@ -189,7 +189,7 @@ class DecodeIO extends Bundle{
     val inst_exist      = Output(Bool())
     //val inst_pack          = Output(Inst_Pack.inst_pack_t)
 }
-class Decode extends RawModule{
+class Decode extends Module{
     val io = IO(new DecodeIO)
     val ctrl = ListLookup(io.inst, Control_Signal.default, Control_Signal.map)
     val imm_gen = Module(new Imm_Gen)

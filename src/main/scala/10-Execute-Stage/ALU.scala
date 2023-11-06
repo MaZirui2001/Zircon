@@ -10,7 +10,7 @@ class ALU_IO extends Bundle{
     val alu_out     = Output(UInt(32.W))
 }
 
-class ALU extends RawModule {
+class ALU extends Module {
     val io = IO(new ALU_IO)
 
     val src1 = io.src1
