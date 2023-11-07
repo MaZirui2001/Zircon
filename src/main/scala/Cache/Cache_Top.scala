@@ -45,7 +45,7 @@ class Cache_Top extends Module{
     ic.io.addr_IF           := io.i_addr_pipe
     ic.io.rvalid_IF         := io.i_rvalid_pipe
     io.cache_miss_RM        := ic.io.cache_miss_RM
-    io.rdata_RM             := ic.io.rdata_RM
+    io.rdata_RM             := ic.io.rdata_RM.asUInt
 
     ic.stall                := false.B
     ic.flush                := false.B
