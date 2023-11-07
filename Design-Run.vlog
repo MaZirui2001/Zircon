@@ -25,3 +25,6 @@
 2023-10-31 21:18 LUT: 53062 FF: 21985 BRAM: 4 DSP: 8                simplify some logic in dispatch
 2023-11-01 18:43 LUT: 54614 FF: 21915 BRAM: 4 DSP: 8                strange!
 2023-11-01 19:43 LUT: 53933 FF: 22068 BRAM: 4 DSP: 8                add to 81 physical regs
+2023-11-07 16:53 LUT: 53164 FF: 21579 BRAM: 4 DSP: 8                strip to 36 rob items 
+
+2023-11-07 19:18 LUT: 49320 FF: 20167 BRAM: 4 DSP: 8                get how to compile without sim
