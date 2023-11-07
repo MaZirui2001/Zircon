@@ -154,7 +154,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val ew_reg4         = Module(new MD_EX_WB_Reg)
 
     /* Write Back Stage */
-    val rob             = Module(new ROB(40))
+    val rob             = Module(new ROB(36))
 
     /* Commit Stage */
     val arat            = Module(new Arch_Rat)
@@ -508,7 +508,7 @@ class CPU(RESET_VEC: Int) extends Module {
     arat.io.pprd_cmt            := rob.io.pprd_cmt
     arat.io.rd_valid_cmt        := rob.io.rd_valid_cmt
     arat.io.predict_fail        := rob.io.predict_fail_cmt
-    arat.io.br_type_pred_cmt    := rob.io.br_type_pred_cmt
+    arat.io.br_type_pred_cmt    := rob.io.ras_type_pred_cmt
     arat.io.ras_update_en_cmt   := rob.io.ras_update_en_cmt
 
 

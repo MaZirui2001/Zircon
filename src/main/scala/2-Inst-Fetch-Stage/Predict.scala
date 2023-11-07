@@ -80,12 +80,13 @@ class Predict extends Module{
         pred_valid_hit(i) := predict_valid((i.U+pc(3, 2)) & 3.U) && pred_valid(i)
     }
 
-    val pred_hit_oh     = Mux(pred_hit.reduce(_||_), PriorityEncoderOH(pred_hit.asUInt), 0.U)
-    val pred_hit_index  = PriorityEncoder(pred_hit)
+    val pred_hit_oh         = Mux(pred_hit.reduce(_||_), PriorityEncoderOH(pred_hit.asUInt), 0.U)
+    val pred_hit_index      = PriorityEncoder(pred_hit)
+    val pred_hit_index_raw  = pred_hit_index + pc(3, 2)
 
     io.predict_jump     := pred_hit_oh.asBools
     io.pred_valid       := pred_valid_hit
-    io.pred_npc         := Mux(btb_rdata(pred_hit_index+pc(3, 2)).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index+pc(3, 2)).target ## 0.U(2.W)) 
+    io.pred_npc         := Mux(btb_rdata(pred_hit_index_raw).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index_raw).target ## 0.U(2.W)) 
     // io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
     // update
     val update_en       = io.update_en
@@ -146,10 +147,10 @@ class Predict extends Module{
             top := top + 1.U
             ras(top) := io.pd_pc_plus_4
         }
-    }.elsewhen(btb_rdata(pred_hit_index+pc(3, 2)).typ === BL){
+    }.elsewhen(btb_rdata(pred_hit_index_raw).typ === BL){
         top := top + 1.U
-        ras(top) := io.pc + (pred_hit_index << 2.U) + 4.U
-    }.elsewhen(btb_rdata(pred_hit_index+pc(3, 2)).typ === JIRL){
+        ras(top) := pc + (pred_hit_index ## 0.U(2.W)) + 4.U
+    }.elsewhen(btb_rdata(pred_hit_index_raw).typ === JIRL){
         top := top - 1.U
     }
 

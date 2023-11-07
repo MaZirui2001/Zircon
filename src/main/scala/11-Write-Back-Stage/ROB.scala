@@ -63,6 +63,7 @@ class ROB_IO(n: Int) extends Bundle{
     val pred_pc_cmt             = Output(UInt(32.W))
     val pred_real_jump_cmt      = Output(Bool())
     val br_type_pred_cmt        = Output(UInt(2.W))
+    val ras_type_pred_cmt       = Output(UInt(2.W))
 
     val rf_wdata_cmt            = Output(Vec(4, UInt(32.W)))
 
@@ -128,26 +129,28 @@ class ROB(n: Int) extends Module{
     io.full                     := full
     val predict_fail_bit        = VecInit(Seq.tabulate(4)(i => rob_update_items(i).predict_fail && io.cmt_en(i)))
     val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob_update_items(i).br_type_pred =/= 3.U && io.cmt_en(i)))
-    val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => (rob_update_items(i).br_type_pred === BL || rob_update_items(i).br_type_pred === JIRL) && io.cmt_en(i)))
-    val ras_pred_fail           = VecInit(Seq.tabulate(4)(i => ras_update_en_bit(i) && predict_fail_bit(i)))
+    val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => pred_update_en_bit(i) && rob_update_items(i).br_type_pred =/= 0.U))
 
-    val pred_fail_ohbit         = OHToUInt(predict_fail_bit.asUInt)
-    val pred_update_ohbit       = PriorityEncoder(pred_update_en_bit.asUInt)
-    val ras_update_ohbit        = PriorityEncoder(ras_update_en_bit.asUInt)
+    val pred_fail_index         = OHToUInt(predict_fail_bit.asUInt)
+    val pred_update_index       = PriorityEncoder(pred_update_en_bit.asUInt)
+    val ras_update_index        = PriorityEncoder(ras_update_en_bit.asUInt)
        
-    val cmt_index               = head_sel+pred_fail_ohbit
-    val cmt_pred_index          = head_sel+Mux(!ras_pred_fail.reduce(_||_), pred_update_ohbit, ras_update_ohbit)
+    val cmt_index               = head_sel + pred_fail_index
+    val cmt_pred_index          = head_sel + Mux(predict_fail_bit.reduce(_||_), pred_fail_index, pred_update_index)
+    val cmt_ras_index           = head_sel + ras_update_index
     val rob_pred_update_item    = rob(cmt_index)(head(cmt_index))
     val rob_jump_update_item    = rob(cmt_pred_index)(head(cmt_pred_index))
+    val rob_ras_update_item     = rob(cmt_ras_index)(head(cmt_ras_index))
 
     io.ras_update_en_cmt        := ras_update_en_bit.reduce(_||_)
     io.predict_fail_cmt         := predict_fail_bit.reduce(_||_)
     io.branch_target_cmt        := Mux(rob_pred_update_item.real_jump, 
-                                   rob_pred_update_item.branch_target ## 0.U(2.W),
-                                   (rob_pred_update_item.pc ## 0.U(2.W)) + 4.U)
+                                        rob_pred_update_item.branch_target ## 0.U(2.W),
+                                        (rob_pred_update_item.pc ## 0.U(2.W)) + 4.U)
     io.pred_update_en_cmt       := pred_update_en_bit.reduce(_||_)
     io.pred_branch_target_cmt   := rob_jump_update_item.branch_target ## 0.U(2.W)
     io.br_type_pred_cmt         := rob_jump_update_item.br_type_pred
+    io.ras_type_pred_cmt        := rob_ras_update_item.br_type_pred
     io.pred_pc_cmt              := rob_jump_update_item.pc ## 0.U(2.W)
     io.pred_real_jump_cmt       := rob_jump_update_item.real_jump
 

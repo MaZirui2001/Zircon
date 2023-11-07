@@ -26,10 +26,6 @@ module Predict(
   input  [31:0] io_pd_pc_plus_4
 );
 
-  wire [1:0]  btb_rdata_3_typ;
-  wire [1:0]  btb_rdata_2_typ;
-  wire [1:0]  btb_rdata_1_typ;
-  wire [1:0]  btb_rdata_0_typ;
   wire [19:0] btb_rdata_3_tag;
   wire        btb_rdata_3_valid;
   wire [19:0] btb_rdata_2_tag;
@@ -62,8 +58,8 @@ module Predict(
   reg         casez_tmp_12;
   reg         casez_tmp_13;
   reg         casez_tmp_14;
-  reg  [1:0]  casez_tmp_15;
-  reg  [29:0] casez_tmp_16;
+  reg  [29:0] casez_tmp_15;
+  reg  [1:0]  casez_tmp_16;
   reg  [31:0] casez_tmp_17;
   reg  [3:0]  casez_tmp_18;
   reg  [3:0]  casez_tmp_19;
@@ -323,7 +319,6 @@ module Predict(
   reg  [1:0]  casez_tmp_273;
   reg  [1:0]  casez_tmp_274;
   reg  [1:0]  casez_tmp_275;
-  reg  [1:0]  casez_tmp_276;
   reg  [3:0]  bht_0_0;
   reg  [3:0]  bht_0_1;
   reg  [3:0]  bht_0_2;
@@ -3570,31 +3565,33 @@ module Predict(
       : 4'h0;
   wire [1:0]  pred_hit_index =
     pred_hit_0 ? 2'h0 : pred_hit_1 ? 2'h1 : {1'h1, ~pred_hit_2};
+  wire [1:0]  _pred_hit_index_raw_T_1 = 2'(pred_hit_index + io_pc[3:2]);
   always_comb begin
-    casez (2'(pred_hit_index + io_pc[3:2]))
+    casez (_pred_hit_index_raw_T_1)
       2'b00:
-        casez_tmp_15 = btb_rdata_0_typ;
+        casez_tmp_15 = _xilinx_simple_dual_port_1_clock_ram_4_doutb[31:2];
       2'b01:
-        casez_tmp_15 = btb_rdata_1_typ;
+        casez_tmp_15 = _xilinx_simple_dual_port_1_clock_ram_5_doutb[31:2];
       2'b10:
-        casez_tmp_15 = btb_rdata_2_typ;
+        casez_tmp_15 = _xilinx_simple_dual_port_1_clock_ram_6_doutb[31:2];
       default:
-        casez_tmp_15 = btb_rdata_3_typ;
+        casez_tmp_15 = _xilinx_simple_dual_port_1_clock_ram_7_doutb[31:2];
     endcase
   end // always_comb
+  always_comb begin
+    casez (_pred_hit_index_raw_T_1)
+      2'b00:
+        casez_tmp_16 = _xilinx_simple_dual_port_1_clock_ram_4_doutb[1:0];
+      2'b01:
+        casez_tmp_16 = _xilinx_simple_dual_port_1_clock_ram_5_doutb[1:0];
+      2'b10:
+        casez_tmp_16 = _xilinx_simple_dual_port_1_clock_ram_6_doutb[1:0];
+      default:
+        casez_tmp_16 = _xilinx_simple_dual_port_1_clock_ram_7_doutb[1:0];
+    endcase
+  end // always_comb
+  wire        _io_pred_npc_T = casez_tmp_16 == 2'h1;
   wire [3:0]  _top_T_4 = 4'(top - 4'h1);
-  always_comb begin
-    casez (2'(pred_hit_index + io_pc[3:2]))
-      2'b00:
-        casez_tmp_16 = _xilinx_simple_dual_port_1_clock_ram_4_doutb[31:2];
-      2'b01:
-        casez_tmp_16 = _xilinx_simple_dual_port_1_clock_ram_5_doutb[31:2];
-      2'b10:
-        casez_tmp_16 = _xilinx_simple_dual_port_1_clock_ram_6_doutb[31:2];
-      default:
-        casez_tmp_16 = _xilinx_simple_dual_port_1_clock_ram_7_doutb[31:2];
-    endcase
-  end // always_comb
   always_comb begin
     casez (_top_T_4)
       4'b0000:
@@ -3642,10 +3639,6 @@ module Predict(
   assign btb_rdata_2_tag = _xilinx_simple_dual_port_1_clock_ram_2_doutb[19:0];
   assign btb_rdata_3_valid = _xilinx_simple_dual_port_1_clock_ram_3_doutb[20];
   assign btb_rdata_3_tag = _xilinx_simple_dual_port_1_clock_ram_3_doutb[19:0];
-  assign btb_rdata_0_typ = _xilinx_simple_dual_port_1_clock_ram_4_doutb[1:0];
-  assign btb_rdata_1_typ = _xilinx_simple_dual_port_1_clock_ram_5_doutb[1:0];
-  assign btb_rdata_2_typ = _xilinx_simple_dual_port_1_clock_ram_6_doutb[1:0];
-  assign btb_rdata_3_typ = _xilinx_simple_dual_port_1_clock_ram_7_doutb[1:0];
   always_comb begin
     casez (io_pc_cmt[3:2])
       2'b00:
@@ -7239,20 +7232,8 @@ module Predict(
         casez_tmp_275 = casez_tmp_274;
     endcase
   end // always_comb
-  always_comb begin
-    casez (2'(pred_hit_index + io_pc[3:2]))
-      2'b00:
-        casez_tmp_276 = btb_rdata_0_typ;
-      2'b01:
-        casez_tmp_276 = btb_rdata_1_typ;
-      2'b10:
-        casez_tmp_276 = btb_rdata_2_typ;
-      default:
-        casez_tmp_276 = btb_rdata_3_typ;
-    endcase
-  end // always_comb
-  wire        _GEN = casez_tmp_276 == 2'h2;
-  wire [31:0] _ras_T_3 = 32'({28'h0, pred_hit_index, 2'h0} + 32'(io_pc + 32'h4));
+  wire        _GEN = casez_tmp_16 == 2'h2;
+  wire [31:0] _ras_T_3 = 32'(io_pc + 32'({28'h0, pred_hit_index, 2'h0} + 32'h4));
   wire        _GEN_0 = top == 4'h0;
   wire        _GEN_1 = top == 4'h1;
   wire        _GEN_2 = top == 4'h2;
@@ -12746,7 +12727,7 @@ module Predict(
           ras_15 <= _ras_T_3;
         if (_GEN)
           top <= 4'(top + 4'h1);
-        else if (casez_tmp_276 == 2'h1)
+        else if (_io_pred_npc_T)
           top <= _top_T_4;
       end
       if (io_ras_update_en & _GEN_272) begin
@@ -12854,7 +12835,7 @@ module Predict(
   assign io_predict_jump_2 = pred_hit_oh[2];
   assign io_predict_jump_3 = pred_hit_oh[3];
   assign io_pred_npc =
-    casez_tmp_15 == 2'h1 & ~(jirl_sel[1]) ? casez_tmp_17 : {casez_tmp_16, 2'h0};
+    _io_pred_npc_T & ~(jirl_sel[1]) ? casez_tmp_17 : {casez_tmp_15, 2'h0};
   assign io_pred_valid_0 = casez_tmp_8 & pred_valid[0];
   assign io_pred_valid_1 = casez_tmp_10 & pred_valid[1];
   assign io_pred_valid_2 = casez_tmp_12 & pred_valid[2];

@@ -185,6 +185,7 @@ module CPU(
   wire [31:0] _rob_io_pred_pc_cmt;
   wire        _rob_io_pred_real_jump_cmt;
   wire [1:0]  _rob_io_br_type_pred_cmt;
+  wire [1:0]  _rob_io_ras_type_pred_cmt;
   wire        _ew_reg4_io_inst_pack_WB_rd_valid;
   wire [6:0]  _ew_reg4_io_inst_pack_WB_prd;
   wire [5:0]  _ew_reg4_io_inst_pack_WB_rob_index;
@@ -3514,6 +3515,7 @@ module CPU(
     .io_pred_pc_cmt            (_rob_io_pred_pc_cmt),
     .io_pred_real_jump_cmt     (_rob_io_pred_real_jump_cmt),
     .io_br_type_pred_cmt       (_rob_io_br_type_pred_cmt),
+    .io_ras_type_pred_cmt      (_rob_io_ras_type_pred_cmt),
     .io_rf_wdata_cmt_0         (io_commit_rf_wdata1),
     .io_rf_wdata_cmt_1         (io_commit_rf_wdata2),
     .io_rf_wdata_cmt_2         (io_commit_rf_wdata3),
@@ -3637,7 +3639,7 @@ module CPU(
     .io_head_arch_2       (_arat_io_head_arch_2),
     .io_head_arch_3       (_arat_io_head_arch_3),
     .io_top_arch          (_arat_io_top_arch),
-    .io_br_type_pred_cmt  (_rob_io_br_type_pred_cmt),
+    .io_br_type_pred_cmt  (_rob_io_ras_type_pred_cmt),
     .io_ras_update_en_cmt (_rob_io_ras_update_en_cmt)
   );
   assign io_pc_IF = _pc_io_pc_IF;
