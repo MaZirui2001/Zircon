@@ -11,7 +11,7 @@ object CPU_Main extends App {
                             "-O=release",
                             "--ignore-read-enable-mem",
                             "--lower-memories",
-                            "--lowering-options=disallowPackedArrays, disallowLocalVariables, explicitBitcast",
+                            "--lowering-options=disallowPackedArrays, disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
                             "-o=verilog/",
                             "-split-verilog",
                             "--disable-aggressive-merge-connections",
@@ -29,11 +29,9 @@ object Cache_Main extends App {
                             "-O=release",
                             "--ignore-read-enable-mem",
                             "--lower-memories",
-                            "--lowering-options=disallowPackedArrays, disallowLocalVariables, explicitBitcast",
+                            "--lowering-options=disallowPackedArrays, disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
                             "-o=verilog/",
                             "-split-verilog",
-                            "--disable-aggressive-merge-connections",
-                            //"--preserve-aggregate=vec"
                             )
     )
 }

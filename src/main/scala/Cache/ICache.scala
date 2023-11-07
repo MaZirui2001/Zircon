@@ -54,11 +54,11 @@ class ICache extends Module{
     val offset_IF   = addr_IF(OFFSET_WIDTH-1, 0)
 
     // IF Stage
-    val tagv                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_write_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
+    val tagv                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_read_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
     val tag_r_RM            = VecInit(Seq.tabulate(2)(i => tagv(i).douta(TAG_WIDTH-1, 0)))
     val valid_r_RM          = VecInit(Seq.tabulate(2)(i => tagv(i).douta(TAG_WIDTH)))
 
-    val cmem                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_write_first(8 * OFFSET_DEPTH, INDEX_DEPTH)).io))
+    val cmem                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_read_first(8 * OFFSET_DEPTH, INDEX_DEPTH)).io))
     
     val addr_sel            = WireDefault(FROM_PIPE)
     
@@ -105,10 +105,7 @@ class ICache extends Module{
     }
 
     // IF-RM SegReg
-    when(flush){
-        addr_reg_IF_RM      := 0.U
-        rvalid_reg_IF_RM    := false.B
-    }.elsewhen(!(stall || cache_miss_RM)){
+    when(!(stall || cache_miss_RM)){
         addr_reg_IF_RM      := io.addr_IF
         rvalid_reg_IF_RM    := io.rvalid_IF
     }
@@ -120,7 +117,7 @@ class ICache extends Module{
     val cache_hit_RM    = hit_RM.reduce(_||_)
 
     /* rdata logic */
-    val block_offset    = offset_RM(OFFSET_WIDTH-1, 4) ## 0.U(7.W)
+    val block_offset    = offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(5.W)
     val cmem_rdata_RM   = (cmem(hit_index_RM).douta >> block_offset)(127, 0)
     val rbuf_rdata_RM   = (ret_buf >> block_offset)(127, 0)
     val rdata_RM        = Mux(data_sel === FROM_CMEM, cmem_rdata_RM, rbuf_rdata_RM)

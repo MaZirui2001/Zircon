@@ -15,10 +15,10 @@ module ICache(
 
   wire         lru_miss_upd;
   wire         _GEN;
-  wire [511:0] _xilinx_single_port_ram_write_first_3_douta;
-  wire [511:0] _xilinx_single_port_ram_write_first_2_douta;
-  wire [20:0]  _xilinx_single_port_ram_write_first_1_douta;
-  wire [20:0]  _xilinx_single_port_ram_write_first_douta;
+  wire [511:0] _xilinx_single_port_ram_read_first_3_douta;
+  wire [511:0] _xilinx_single_port_ram_read_first_2_douta;
+  wire [20:0]  _xilinx_single_port_ram_read_first_1_douta;
+  wire [20:0]  _xilinx_single_port_ram_read_first_douta;
   reg          casez_tmp;
   reg  [1:0]   casez_tmp_0;
   reg  [31:0]  addr_reg_IF_RM;
@@ -90,16 +90,16 @@ module ICache(
   reg  [511:0] ret_buf;
   wire [20:0]  tagv_1_dina = {1'h1, io_addr_IF[31:12]};
   wire         hit_RM_1 =
-    _xilinx_single_port_ram_write_first_1_douta[20]
-    & _xilinx_single_port_ram_write_first_1_douta[19:0] == addr_reg_IF_RM[31:12];
+    _xilinx_single_port_ram_read_first_1_douta[20]
+    & _xilinx_single_port_ram_read_first_1_douta[19:0] == addr_reg_IF_RM[31:12];
   wire         cache_hit_RM =
-    _xilinx_single_port_ram_write_first_douta[20]
-    & _xilinx_single_port_ram_write_first_douta[19:0] == addr_reg_IF_RM[31:12] | hit_RM_1;
-  wire [511:0] _GEN_0 = {503'h0, addr_reg_IF_RM[5:4], 7'h0};
+    _xilinx_single_port_ram_read_first_douta[20]
+    & _xilinx_single_port_ram_read_first_douta[19:0] == addr_reg_IF_RM[31:12] | hit_RM_1;
+  wire [511:0] _GEN_0 = {503'h0, addr_reg_IF_RM[5:2], 5'h0};
   wire [511:0] _cmem_rdata_RM_T =
     (hit_RM_1
-       ? _xilinx_single_port_ram_write_first_3_douta
-       : _xilinx_single_port_ram_write_first_2_douta) >> _GEN_0;
+       ? _xilinx_single_port_ram_read_first_3_douta
+       : _xilinx_single_port_ram_read_first_2_douta) >> _GEN_0;
   wire [511:0] _rbuf_rdata_RM_T = ret_buf >> _GEN_0;
   always_comb begin
     casez (addr_reg_IF_RM[11:6])
@@ -465,45 +465,45 @@ module ICache(
       state <= casez_tmp_0;
     end
   end // always @(posedge)
-  xilinx_single_port_ram_write_first #(
+  xilinx_single_port_ram_read_first #(
     .RAM_DEPTH(64),
     .RAM_WIDTH(21)
-  ) xilinx_single_port_ram_write_first (
+  ) xilinx_single_port_ram_read_first (
     .addra (lru_miss_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
     .dina  (tagv_1_dina),
     .clka  (clock),
     .wea   (cmem_we_RM_0),
-    .douta (_xilinx_single_port_ram_write_first_douta)
+    .douta (_xilinx_single_port_ram_read_first_douta)
   );
-  xilinx_single_port_ram_write_first #(
+  xilinx_single_port_ram_read_first #(
     .RAM_DEPTH(64),
     .RAM_WIDTH(21)
-  ) xilinx_single_port_ram_write_first_1 (
+  ) xilinx_single_port_ram_read_first_1 (
     .addra (lru_miss_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
     .dina  (tagv_1_dina),
     .clka  (clock),
     .wea   (cmem_we_RM_1),
-    .douta (_xilinx_single_port_ram_write_first_1_douta)
+    .douta (_xilinx_single_port_ram_read_first_1_douta)
   );
-  xilinx_single_port_ram_write_first #(
+  xilinx_single_port_ram_read_first #(
     .RAM_DEPTH(64),
     .RAM_WIDTH(512)
-  ) xilinx_single_port_ram_write_first_2 (
+  ) xilinx_single_port_ram_read_first_2 (
     .addra (lru_miss_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
     .dina  (ret_buf),
     .clka  (clock),
     .wea   (cmem_we_RM_0),
-    .douta (_xilinx_single_port_ram_write_first_2_douta)
+    .douta (_xilinx_single_port_ram_read_first_2_douta)
   );
-  xilinx_single_port_ram_write_first #(
+  xilinx_single_port_ram_read_first #(
     .RAM_DEPTH(64),
     .RAM_WIDTH(512)
-  ) xilinx_single_port_ram_write_first_3 (
+  ) xilinx_single_port_ram_read_first_3 (
     .addra (lru_miss_upd ? addr_reg_IF_RM[11:6] : io_addr_IF[11:6]),
     .dina  (ret_buf),
     .clka  (clock),
     .wea   (cmem_we_RM_1),
-    .douta (_xilinx_single_port_ram_write_first_3_douta)
+    .douta (_xilinx_single_port_ram_read_first_3_douta)
   );
   assign io_cache_miss_RM = cache_miss_RM;
   assign io_rdata_RM =
