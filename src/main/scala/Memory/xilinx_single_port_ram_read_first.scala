@@ -26,6 +26,7 @@ class xilinx_single_port_ram_read_first(RAM_WIDTH: Int, RAM_DEPTH: Int) extends 
 | );
 | 
 |   reg [RAM_WIDTH-1:0] BRAM [RAM_DEPTH-1:0];
+|   reg [$clog2(RAM_DEPTH)-1:0] addr_r;
 |   reg [RAM_WIDTH-1:0] ram_data = {RAM_WIDTH{1'b0}};
 | 
 |   // The following code either initializes the memory values to a specified file or to all zeros to match hardware
@@ -37,14 +38,13 @@ class xilinx_single_port_ram_read_first(RAM_WIDTH: Int, RAM_DEPTH: Int) extends 
 |   endgenerate
 | 
 |   always @(posedge clka) begin
-|       if (wea) 
-|         BRAM[addra] <= dina;
-|        ram_data <= BRAM[addra];
+|       addr_r <= addra;
+|       if (wea) BRAM[addra] <= dina;
 |   end
 | 
 | 
 |    // The following is a 1 clock cycle read latency at the cost of a longer clock-to-out timing
-|    assign douta = ram_data;
+|    assign douta = BRAM[addr_r];
 | 
 | endmodule	
         """.stripMargin)
