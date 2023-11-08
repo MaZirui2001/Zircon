@@ -187,7 +187,6 @@ class DecodeIO extends Bundle{
 
     val fu_id           = Output(UInt(2.W))
     val inst_exist      = Output(Bool())
-    //val inst_pack          = Output(Inst_Pack.inst_pack_t)
 }
 class Decode extends Module{
     val io = IO(new DecodeIO)

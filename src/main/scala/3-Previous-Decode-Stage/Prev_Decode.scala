@@ -62,29 +62,29 @@ class Prev_Decode extends Module {
         }
         pred_fix_pc_plus_4(i) := io.insts_pack_IF(i).pc + 4.U
     }
-    io.pred_fix_is_bl := pred_fix_is_bl(pred_index)
-    io.pred_fix_pc_plus_4 := pred_fix_pc_plus_4(pred_index)
+    io.pred_fix_is_bl       := pred_fix_is_bl(pred_index)
+    io.pred_fix_pc_plus_4   := pred_fix_pc_plus_4(pred_index)
     
     for(i <- 0 until 4){
         when(io.insts_pack_IF(i).inst_valid){
             switch(jump_type(i)){
                 is(YES_JUMP){
-                    inst_pack_pd(i).predict_jump := true.B
-                    inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
-                    need_fix(i) := !io.insts_pack_IF(i).predict_jump || inst_pack_pd(i).pred_npc =/= io.insts_pack_IF(i).pred_npc
+                    inst_pack_pd(i).predict_jump    := true.B
+                    inst_pack_pd(i).pred_npc        := io.insts_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
+                    need_fix(i)                     := !io.insts_pack_IF(i).predict_jump || inst_pack_pd(i).pred_npc =/= io.insts_pack_IF(i).pred_npc
                 }
                 is(MAY_JUMP){
+                    val pc_target = io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W))
                     when(!io.insts_pack_IF(i).pred_valid){
-                        need_fix(i) := inst(i)(25)
-                        inst_pack_pd(i).predict_jump := inst(i)(25)
-                        inst_pack_pd(i).pred_npc := Mux(inst(i)(25), io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W)), io.insts_pack_IF(i).pc + 4.U)
+                        need_fix(i)                     := inst(i)(25)
+                        inst_pack_pd(i).predict_jump    := inst(i)(25)
+                        inst_pack_pd(i).pred_npc        := Mux(inst(i)(25), pc_target, io.insts_pack_IF(i).pc + 4.U)
                     }.otherwise{
                         when(io.insts_pack_IF(i).predict_jump){
-                            need_fix(i) := inst_pack_pd(i).pred_npc =/= io.insts_pack_IF(i).pred_npc
-                            inst_pack_pd(i).predict_jump := io.insts_pack_IF(i).predict_jump
-                            inst_pack_pd(i).pred_npc := io.insts_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W))
+                            need_fix(i)                     := pc_target =/= io.insts_pack_IF(i).pred_npc
+                            inst_pack_pd(i).predict_jump    := io.insts_pack_IF(i).predict_jump
+                            inst_pack_pd(i).pred_npc        := pc_target
                         }
-
                     }
                 }
             }

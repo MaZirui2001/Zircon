@@ -14,8 +14,6 @@ object CPU_Main extends App {
                             "--lowering-options=disallowPackedArrays, disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
                             "-o=verilog/",
                             "-split-verilog",
-                            "--disable-aggressive-merge-connections",
-                            //"--preserve-aggregate=vec"
                             )
     )
 }

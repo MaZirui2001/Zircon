@@ -23,11 +23,6 @@ class Bypass_2 extends Module {
         io.forward_prj_data(i) := Mux(io.rd_valid_wb(0) && (io.prd_wb(0) === io.prj_ex(i)), io.prf_wdata_wb(0), io.prf_wdata_wb(1))
         io.forward_prk_data(i) := Mux(io.rd_valid_wb(0) && (io.prd_wb(0) === io.prk_ex(i)), io.prf_wdata_wb(0), io.prf_wdata_wb(1))
     }
-    // io.forward_prj_en := (io.rd_valid_wb && (io.prd_wb === io.prj_ex))
-    // io.forward_prk_en := (io.rd_valid_wb && (io.prd_wb === io.prk_ex))
-
-    // io.forward_prj_data := io.prf_wdata_wb
-    // io.forward_prk_data := io.prf_wdata_wb
 }
 
 
