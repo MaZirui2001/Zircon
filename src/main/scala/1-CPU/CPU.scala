@@ -306,12 +306,18 @@ class CPU(RESET_VEC: Int) extends Module {
     sel4.io.stall               := !(iq4.io.issue_req)
 
     // mutual wakeup
-    iq1.io.wake_preg            := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
-    iq2.io.wake_preg            := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
-    iq3.io.wake_preg            := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel4.io.wake_preg, 1, 0.U, true.B))
-    iq4.io.wake_preg            := VecInit(ShiftRegister(sel1.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel2.io.wake_preg, 1, 0.U, true.B), ShiftRegister(sel3.io.wake_preg, 2, 0.U, true.B), sel4.io.wake_preg)
+    val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, sel2.io.wake_preg, Mux(ir_reg3.io.inst_pack_RF.rd_valid, ir_reg3.io.inst_pack_RF.prd, 0.U), sel4.io.wake_preg)
+    val iq_mutual_wake_preg     = VecInit(Mux(ir_reg1.io.inst_pack_RF.rd_valid, ir_reg1.io.inst_pack_RF.prd, 0.U),
+                                          Mux(ir_reg2.io.inst_pack_RF.rd_valid, ir_reg2.io.inst_pack_RF.prd, 0.U),
+                                          Mux(re_reg3.io.inst_pack_EX.rd_valid, re_reg3.io.inst_pack_EX.prd, 0.U),
+                                          Mux(ir_reg4.io.inst_pack_RF.rd_valid, ir_reg4.io.inst_pack_RF.prd, 0.U))
+    
+    iq1.io.wake_preg            := VecInit(iq_inline_wake_preg(0), iq_inline_wake_preg(1), iq_mutual_wake_preg(2), iq_mutual_wake_preg(3))
+    iq2.io.wake_preg            := VecInit(iq_inline_wake_preg(0), iq_inline_wake_preg(1), iq_mutual_wake_preg(2), iq_mutual_wake_preg(3))
+    iq3.io.wake_preg            := VecInit(iq_mutual_wake_preg(0), iq_mutual_wake_preg(1), iq_inline_wake_preg(2), iq_mutual_wake_preg(3))
+    iq4.io.wake_preg            := VecInit(iq_mutual_wake_preg(0), iq_mutual_wake_preg(1), iq_mutual_wake_preg(2), iq_inline_wake_preg(3))
 
-    // IS-EX SegReg
+    // IS-RF SegReg
     ir_reg1.io.flush         := rob.io.predict_fail_cmt
     ir_reg1.io.stall         := false.B
     ir_reg1.io.inst_pack_IS  := inst_pack_IS_FU1_gen(sel1.io.inst_issue.inst, sel1.io.inst_issue_valid)
