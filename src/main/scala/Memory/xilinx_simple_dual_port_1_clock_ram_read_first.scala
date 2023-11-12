@@ -40,16 +40,13 @@ class xilinx_simple_dual_port_1_clock_ram_read_first(RAM_WIDTH: Int, RAM_DEPTH: 
 |         for (ram_index = 0; ram_index < RAM_DEPTH; ram_index = ram_index + 1)
 |           BRAM[ram_index] = {RAM_WIDTH{1'b0}};
 |   endgenerate
+|
 |   always @(posedge clka)
 |       addr_r <= addrb;
+|       if (wea) BRAM[addra] <= dina;
 |
 |   assign doutb = BRAM[addr_r];
 |
-|     // The following code either initializes the memory values to a specified file or to all zeros to match hardware
-|     always @(posedge clka) begin
-|       if (wea) 
-|         BRAM[addra] <= dina;
-|     end
 |   endmodule
 """.stripMargin)
 }            

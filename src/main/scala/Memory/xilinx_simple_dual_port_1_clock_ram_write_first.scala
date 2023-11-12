@@ -4,12 +4,12 @@ import chisel3.util._
 class xilinx_simple_dual_port_1_clock_ram_write_first(RAM_WIDTH: Int, RAM_DEPTH: Int) extends BlackBox(Map( "RAM_WIDTH" -> RAM_WIDTH,
                                                                                                 "RAM_DEPTH" -> RAM_DEPTH)) with HasBlackBoxInline {
     val io = IO(new Bundle {
-        val addra = Input(UInt(log2Ceil(RAM_DEPTH).W))
-        val addrb = Input(UInt(log2Ceil(RAM_DEPTH).W))
-        val dina = Input(UInt(RAM_WIDTH.W))
-        val clka = Input(Clock())
-        val wea = Input(Bool())
-        val doutb = Output(UInt(RAM_WIDTH.W))
+        val addra   = Input(UInt(log2Ceil(RAM_DEPTH).W))
+        val addrb   = Input(UInt(log2Ceil(RAM_DEPTH).W))
+        val dina    = Input(UInt(RAM_WIDTH.W))
+        val clka    = Input(Clock())
+        val wea     = Input(Bool())
+        val doutb   = Output(UInt(RAM_WIDTH.W))
     })
     val module = "xilinx_simple_dual_port_1_clock_ram_write_first.sv"
     setInline(module,
@@ -37,16 +37,14 @@ class xilinx_simple_dual_port_1_clock_ram_write_first(RAM_WIDTH: Int, RAM_DEPTH:
 |         for (ram_index = 0; ram_index < RAM_DEPTH; ram_index = ram_index + 1)
 |           BRAM[ram_index] = {RAM_WIDTH{1'b0}};
 |   endgenerate
+|
 |     reg [RAM_WIDTH-1:0] BRAM [RAM_DEPTH-1:0];
 |     reg [$clog2(RAM_DEPTH)-1:0] addr_r;
 |     always @(posedge clka)
 |         addr_r <= addra == addrb ? addra : addrb;
-|     
+|         if (wea) BRAM[addra] <= dina;
+|          
 |     assign doutb = BRAM[addr_r];
-|     // The following code either initializes the memory values to a specified file or to all zeros to match hardware
-|     always @(posedge clka) 
-|       if (wea) 
-|         BRAM[addra] <= dina;
 |   endmodule
 """.stripMargin)
 }            
