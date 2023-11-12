@@ -36,12 +36,13 @@ class xilinx_single_port_ram_write_first(RAM_WIDTH: Int, RAM_DEPTH: Int) extends
 |           BRAM[ram_index] = {RAM_WIDTH{1'b0}};
 |   endgenerate
 | 
-|   always @(posedge clka)
+|   always @(posedge clka) begin
 |       if (wea) begin
 |         BRAM[addra] <= dina;
 |         ram_data <= dina;
 |       end else
 |         ram_data <= BRAM[addra];
+|   end
 | 
 | 
 |    // The following is a 1 clock cycle read latency at the cost of a longer clock-to-out timing

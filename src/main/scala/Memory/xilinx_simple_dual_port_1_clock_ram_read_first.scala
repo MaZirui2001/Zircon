@@ -41,9 +41,10 @@ class xilinx_simple_dual_port_1_clock_ram_read_first(RAM_WIDTH: Int, RAM_DEPTH: 
 |           BRAM[ram_index] = {RAM_WIDTH{1'b0}};
 |   endgenerate
 |
-|   always @(posedge clka)
+|   always @(posedge clka) begin
 |       addr_r <= addrb;
 |       if (wea) BRAM[addra] <= dina;
+|   end
 |
 |   assign doutb = BRAM[addr_r];
 |

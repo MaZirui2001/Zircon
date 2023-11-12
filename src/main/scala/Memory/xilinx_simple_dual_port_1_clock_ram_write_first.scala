@@ -40,9 +40,10 @@ class xilinx_simple_dual_port_1_clock_ram_write_first(RAM_WIDTH: Int, RAM_DEPTH:
 |
 |     reg [RAM_WIDTH-1:0] BRAM [RAM_DEPTH-1:0];
 |     reg [$clog2(RAM_DEPTH)-1:0] addr_r;
-|     always @(posedge clka)
+|     always @(posedge clka) begin
 |         addr_r <= addra == addrb ? addra : addrb;
 |         if (wea) BRAM[addra] <= dina;
+|     end
 |          
 |     assign doutb = BRAM[addr_r];
 |   endmodule
