@@ -183,7 +183,8 @@ class DCache extends Module{
     val rdata_MEM       = (rmask & rdata_MEM_temp) | (~rmask & Fill(32, rfill))
 
     /* write logic */
-    val wmask           = Mux(mem_type_MEM(3), 0.U((8 * OFFSET_DEPTH).W), ((0.U((8*OFFSET_DEPTH-32).W) ## (UIntToOH(highest_index)(31, 0) - 1.U)(31, 0)) << block_offset)(8 * OFFSET_DEPTH - 1, 0))
+    val wmask           = Mux(mem_type_MEM(3), 0.U((8 * OFFSET_DEPTH).W), 
+                            ((0.U((8*OFFSET_DEPTH-32).W) ## (UIntToOH(highest_index)(31, 0) - 1.U)(31, 0)) << block_offset)(8 * OFFSET_DEPTH - 1, 0))
     val wdata_refill    = ((0.U((8*OFFSET_DEPTH-32).W) ## wdata_reg_TC_MEM) << block_offset)(8 * OFFSET_DEPTH - 1, 0)
     wdata_MEM           := (wmask & wdata_refill) | (~wmask & ret_buf)
     val wmask_byte      = VecInit(Seq.tabulate(OFFSET_DEPTH)(i => wmask(8*i+7, 8*i).orR)).asUInt
