@@ -93,7 +93,7 @@ class ICache extends Module{
     // IF Stage
     for(i <- 0 until 2){
         tagv(i).addra   := Mux(addr_sel === FROM_PIPE, index_IF, index_RM)
-        tagv(i).dina    := true.B ## tag_IF
+        tagv(i).dina    := true.B ## tag_RM
         tagv(i).clka    := clock
         tagv(i).wea     := tagv_we_RM(i)
     }

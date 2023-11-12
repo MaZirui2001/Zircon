@@ -11,7 +11,7 @@ object CPU_Main extends App {
                             "-O=release",
                             "--ignore-read-enable-mem",
                             "--lower-memories",
-                            "--lowering-options=disallowPackedArrays, disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
+                            "--lowering-options=disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
                             "-o=verilog/",
                             "-split-verilog",
                             )
@@ -27,7 +27,24 @@ object Cache_Main extends App {
                             "-O=release",
                             "--ignore-read-enable-mem",
                             "--lower-memories",
-                            "--lowering-options=disallowPackedArrays, disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
+                            "--lowering-options= disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
+                            "-o=verilog/",
+                            "-split-verilog",
+                            )
+    )
+}
+
+object DCache_Main extends App {
+    ChiselStage.emitSystemVerilogFile(
+        new DCache, 
+        Array("-td", "build/"),
+        firtoolOpts = Array("-disable-all-randomization", 
+                            "-strip-debug-info",
+                            "-strip-fir-debug-info",
+                            "-O=release",
+                            "--ignore-read-enable-mem",
+                            "--lower-memories",
+                            "--lowering-options=disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
                             "-o=verilog/",
                             "-split-verilog",
                             )
