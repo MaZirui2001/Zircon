@@ -48,8 +48,8 @@ import PRED_Config._
 class Predict extends Module{
     val io = IO(new Predict_IO)
 
-    val btb_tagv = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
-    val btb_targ = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram(30+2, BTB_DEPTH)).io))
+    val btb_tagv = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
+    val btb_targ = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(30+2, BTB_DEPTH)).io))
     val bht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W))))))
     val pht = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W))))))
 
@@ -87,7 +87,6 @@ class Predict extends Module{
     io.predict_jump     := pred_hit_oh.asBools
     io.pred_valid       := pred_valid_hit
     io.pred_npc         := Mux(btb_rdata(pred_hit_index_raw).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index_raw).target ## 0.U(2.W)) 
-    // io.pred_npc         := btb_rdata(pred_hit_index).target ## 0.U(2.W)
     // update
     val update_en       = io.update_en
     // btb
