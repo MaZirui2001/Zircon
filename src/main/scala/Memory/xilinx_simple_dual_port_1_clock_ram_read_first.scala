@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class xilinx_simple_dual_port_1_clock_ram(RAM_WIDTH: Int, RAM_DEPTH: Int) extends BlackBox(Map( "RAM_WIDTH" -> RAM_WIDTH,
+class xilinx_simple_dual_port_1_clock_ram_read_first(RAM_WIDTH: Int, RAM_DEPTH: Int) extends BlackBox(Map( "RAM_WIDTH" -> RAM_WIDTH,
                                                                                                 "RAM_DEPTH" -> RAM_DEPTH)) with HasBlackBoxInline {
     val io = IO(new Bundle {
         val addra = Input(UInt(log2Ceil(RAM_DEPTH).W))
@@ -11,7 +11,7 @@ class xilinx_simple_dual_port_1_clock_ram(RAM_WIDTH: Int, RAM_DEPTH: Int) extend
         val wea = Input(Bool())
         val doutb = Output(UInt(RAM_WIDTH.W))
     })
-    val module = "xilinx_simple_dual_port_1_clock_ram.sv"
+    val module = "xilinx_simple_dual_port_1_clock_ram_read_first.sv"
     setInline(module,
 """
 |    
@@ -19,7 +19,7 @@ class xilinx_simple_dual_port_1_clock_ram(RAM_WIDTH: Int, RAM_DEPTH: Int) extend
 |//  This code implements a parameterizable SDP single clock memory.
 |//  If a reset or enable is not necessary, it may be tied off or removed from the code.
 |
-| module xilinx_simple_dual_port_1_clock_ram #(
+| module xilinx_simple_dual_port_1_clock_ram_read_first #(
 |     parameter RAM_WIDTH = 64,                       // Specify RAM data width
 |     parameter RAM_DEPTH = 512                      // Specify RAM depth (number of entries)
 |   ) (
@@ -41,7 +41,7 @@ class xilinx_simple_dual_port_1_clock_ram(RAM_WIDTH: Int, RAM_DEPTH: Int) extend
 |           BRAM[ram_index] = {RAM_WIDTH{1'b0}};
 |   endgenerate
 |   always @(posedge clka)
-|       addr_r <= addra == addrb ? addra : addrb;
+|       addr_r <= addrb;
 |
 |   assign doutb = BRAM[addr_r];
 |
