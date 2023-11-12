@@ -24,7 +24,7 @@ class xilinx_single_port_ram_write_first(RAM_WIDTH: Int, RAM_DEPTH: Int) extends
 |   input wea,                            // Write enable
 |   output [RAM_WIDTH-1:0] douta          // RAM output data
 | );
-| 
+| (*ram_style="block"*)
 |   reg [RAM_WIDTH-1:0] BRAM [RAM_DEPTH-1:0];
 |   reg [RAM_WIDTH-1:0] ram_data = {RAM_WIDTH{1'b0}};
 | 

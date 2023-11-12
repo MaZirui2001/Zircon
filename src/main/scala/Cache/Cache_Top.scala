@@ -8,6 +8,12 @@ class Cache_Top extends Module{
         val cache_miss_RM       = Output(Bool())
         val rdata_RM            = Output(UInt(128.W))
 
+        val d_addr_pipe         = Input(UInt(32.W))
+        val mem_type_pipe       = Input(UInt(5.W))
+        val wdata_pipe          = Input(UInt(32.W))
+        val cache_miss_MEM      = Output(Bool())
+        val rdata_MEM           = Output(UInt(32.W))
+
         val araddr              = Output(UInt(32.W))
         val arburst             = Output(UInt(2.W))
         val arid                = Output(UInt(4.W))
@@ -40,6 +46,7 @@ class Cache_Top extends Module{
     })
 
     val ic                  = Module(new ICache)
+    val dc                  = Module(new DCache)
     val arb                 = Module(new AXI_Arbiter)
 
     ic.io.addr_IF           := io.i_addr_pipe
@@ -47,8 +54,16 @@ class Cache_Top extends Module{
     io.cache_miss_RM        := ic.io.cache_miss_RM
     io.rdata_RM             := ic.io.rdata_RM.asUInt
 
-    ic.stall                := false.B
-    ic.flush                := false.B
+    ic.io.stall             := false.B
+    ic.io.flush             := false.B
+
+    dc.io.addr_EX           := io.d_addr_pipe
+    dc.io.mem_type_EX       := io.mem_type_pipe
+    dc.io.wdata_EX          := io.wdata_pipe
+    io.cache_miss_MEM       := dc.io.cache_miss_MEM
+    io.rdata_MEM            := dc.io.rdata_MEM
+
+    dc.io.stall             := false.B
 
     arb.io.i_araddr         := ic.io.i_araddr
     arb.io.i_rvalid         := ic.io.i_rvalid
@@ -59,19 +74,26 @@ class Cache_Top extends Module{
     arb.io.i_rburst         := ic.io.i_rburst
     arb.io.i_rlen           := ic.io.i_rlen
 
-    arb.io.d_araddr         := 0.U // TODO
-    arb.io.d_rvalid         := false.B
-    arb.io.d_rsize          := 0.U
-    arb.io.d_rburst         := 0.U
-    arb.io.d_rlen           := 0.U
-    arb.io.d_awaddr         := 0.U // TODO
-    arb.io.d_wvalid         := false.B
-    arb.io.d_wdata          := 0.U
-    arb.io.d_wlast          := false.B
-    arb.io.d_wsize          := 0.U
-    arb.io.d_wburst         := 0.U
-    arb.io.d_wlen           := 0.U
-    arb.io.d_wstrb          := 0.U
+    arb.io.d_araddr         := dc.io.d_araddr
+    arb.io.d_rvalid         := dc.io.d_rvalid
+    dc.io.d_rready          := arb.io.d_rready
+    dc.io.d_rdata           := arb.io.d_rdata
+    dc.io.d_rlast           := arb.io.d_rlast
+    arb.io.d_rsize          := dc.io.d_rsize
+    arb.io.d_rburst         := dc.io.d_rburst
+    arb.io.d_rlen           := dc.io.d_rlen
+
+    arb.io.d_awaddr         := dc.io.d_awaddr
+    arb.io.d_wdata          := dc.io.d_wdata
+    arb.io.d_wvalid         := dc.io.d_wvalid  
+    dc.io.d_wready          := arb.io.d_wready
+    
+    arb.io.d_wlast          := dc.io.d_wlast
+    arb.io.d_wsize          := dc.io.d_wsize
+    arb.io.d_wburst         := dc.io.d_wburst
+    arb.io.d_wlen           := dc.io.d_wlen
+    arb.io.d_wstrb          := dc.io.d_wstrb
+    dc.io.d_bvalid          := arb.io.d_bvalid
     arb.io.d_bready         := false.B
 
 

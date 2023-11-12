@@ -97,7 +97,7 @@ class DCache extends Module{
 
     // mem we
     val tagv_we_TC      = WireDefault(VecInit(Seq.fill(2)(false.B)))
-    val cmem_we_MEM     = WireDefault(VecInit(Seq.fill(2)(0.U(OFFSET_WIDTH.W))))
+    val cmem_we_MEM     = WireDefault(VecInit(Seq.fill(2)(0.U(OFFSET_DEPTH.W))))
 
     // addr decode
     val tag_MEM         = addr_MEM(31, 32-TAG_WIDTH)
@@ -141,14 +141,14 @@ class DCache extends Module{
     }
     for(i <- 0 until 2){
         cmem(i).addra   := index_MEM
-        cmem(i).addrb   := Mux(addr_sel === FROM_PIPE, index_TC, index_EX)
+        cmem(i).addrb   := Mux(addr_sel === FROM_PIPE, index_TC, index_MEM)
         cmem(i).dina    := wdata_MEM
         cmem(i).clka    := clock
         cmem(i).wea     := cmem_we_MEM(i)
     }
 
     // EX-TC SegReg
-    when(!stall || cache_miss_MEM){
+    when(!(stall || cache_miss_MEM)){
         addr_reg_EX_TC      := io.addr_EX
         mem_type_reg_EX_TC  := io.mem_type_EX
         wdata_reg_EX_TC     := io.wdata_EX
@@ -159,7 +159,7 @@ class DCache extends Module{
     val hit_TC          = VecInit(Seq.tabulate(2)(i => valid_r_TC(i) && tag_r_TC(i) === tag_TC)).asUInt
     
     // TC-MEM SegReg
-    when(!stall || cache_miss_MEM){
+    when(!(stall || cache_miss_MEM)){
         addr_reg_TC_MEM     := addr_reg_EX_TC
         mem_type_reg_TC_MEM := mem_type_reg_EX_TC
         wdata_reg_TC_MEM    := wdata_reg_EX_TC
@@ -183,9 +183,9 @@ class DCache extends Module{
     val rdata_MEM       = (rmask & rdata_MEM_temp) | (~rmask & Fill(32, rfill))
 
     /* write logic */
-    val wmask           = (0.U((8*OFFSET_DEPTH-32).W) ## (UIntToOH(highest_index)(31, 0) - 1.U)(31, 0)) << block_offset
-    val wdata_refill    = (0.U((8*OFFSET_DEPTH-32).W) ## wdata_MEM) << block_offset
-    wdata_MEM           := (wmask & wdata_reg_TC_MEM) | (~wmask & ret_buf)
+    val wmask           = Mux(mem_type_MEM(3), 0.U((8 * OFFSET_DEPTH).W), ((0.U((8*OFFSET_DEPTH-32).W) ## (UIntToOH(highest_index)(31, 0) - 1.U)(31, 0)) << block_offset)(8 * OFFSET_DEPTH - 1, 0))
+    val wdata_refill    = ((0.U((8*OFFSET_DEPTH-32).W) ## wdata_reg_TC_MEM) << block_offset)(8 * OFFSET_DEPTH - 1, 0)
+    wdata_MEM           := (wmask & wdata_refill) | (~wmask & ret_buf)
     val wmask_byte      = VecInit(Seq.tabulate(OFFSET_DEPTH)(i => wmask(8*i+7, 8*i).orR)).asUInt
 
     /* return buffer update logic */
@@ -208,9 +208,9 @@ class DCache extends Module{
 
     /* write buffer */
     when(wbuf_we){
-        wrt_buf := Cat(cmem(lru_sel).doutb, addr_MEM)
+        wrt_buf := cmem(lru_sel).doutb ## addr_MEM(31, OFFSET_WIDTH) ## 0.U(OFFSET_WIDTH.W)
     }.elsewhen(io.d_wready && io.d_wvalid){
-        wrt_buf := Cat(0.U(32.W), wrt_buf(8*OFFSET_DEPTH+32-1, 32), wrt_buf(31, 0))
+        wrt_buf := 0.U(32.W) ## wrt_buf(8*OFFSET_DEPTH+32-1, 64) ## wrt_buf(31, 0)
     }
     
     /* read state machine */
@@ -228,14 +228,15 @@ class DCache extends Module{
                 data_sel                    := FROM_CMEM
                 cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM, wmask_byte, 0.U)
                 dirty_we                    := is_store_MEM
-                wbuf_we                     := true.B
-                wfsm_en                     := true.B
+                wbuf_we                     := !cache_hit_MEM
+                wfsm_en                     := !cache_hit_MEM
             }
         }
         is(s_miss){
             d_rvalid            := true.B
             cache_miss_MEM      := true.B
             state               := Mux(io.d_rready && io.d_rlast, s_refill, s_miss)
+            addr_sel            := FROM_SEG
         }
         is(s_refill){
             state                   := s_wait
@@ -245,8 +246,10 @@ class DCache extends Module{
             cmem_we_MEM(lru_sel)    := Fill(OFFSET_DEPTH, 1.U(1.W))
             dirty_clean             := is_load_MEM
             dirty_we                := is_store_MEM
+            addr_sel                := FROM_SEG
         }
         is(s_wait){
+            addr_sel            := Mux(wrt_finish, FROM_PIPE, FROM_SEG)
             state               := Mux(wrt_finish, s_idle, s_wait)
             wfsm_reset          := true.B
             cache_miss_MEM      := false.B
@@ -294,7 +297,7 @@ class DCache extends Module{
     io.d_rvalid         := d_rvalid
     io.d_rsize          := 2.U
     io.d_rburst         := 1.U
-    io.d_rlen           := (OFFSET_DEPTH / 4).U
+    io.d_rlen           := (OFFSET_DEPTH / 4 - 1).U
 
     io.d_awaddr         := wrt_buf(31, 0)
     io.d_wdata          := wrt_buf(63, 32)
@@ -305,6 +308,4 @@ class DCache extends Module{
     io.d_wburst         := 1.U
     io.d_wlen           := wrt_num
     io.d_bready         := d_bready
-
-
 }

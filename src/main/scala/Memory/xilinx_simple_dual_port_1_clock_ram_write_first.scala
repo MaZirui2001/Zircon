@@ -31,24 +31,22 @@ class xilinx_simple_dual_port_1_clock_ram_write_first(RAM_WIDTH: Int, RAM_DEPTH:
 |     output [RAM_WIDTH-1:0] doutb         // RAM output data
 |   );
 |   (*ram_style="block"*)
+|   generate
+|       integer ram_index;
+|       initial
+|         for (ram_index = 0; ram_index < RAM_DEPTH; ram_index = ram_index + 1)
+|           BRAM[ram_index] = {RAM_WIDTH{1'b0}};
+|   endgenerate
 |     reg [RAM_WIDTH-1:0] BRAM [RAM_DEPTH-1:0];
-|     reg [RAM_WIDTH-1:0] ram_data_a = {RAM_WIDTH{1'b0}};
-|     reg [RAM_WIDTH-1:0] ram_data_b = {RAM_WIDTH{1'b0}};
-|   
+|     reg [$clog2(RAM_DEPTH)-1:0] addr_r;
+|     always @(posedge clka)
+|         addr_r <= addra == addrb ? addra : addrb;
+|     
+|     assign doutb = BRAM[addr_r];
 |     // The following code either initializes the memory values to a specified file or to all zeros to match hardware
-|     always @(posedge clka) begin
-|       if (wea) begin
+|     always @(posedge clka) 
+|       if (wea) 
 |         BRAM[addra] <= dina;
-|         ram_data_a <= dina;
-|       end
-|         ram_data_b <= BRAM[addrb];
-|     end
-|      reg last_addr_eq;
-|      always @(posedge clka)
-|        last_addr_eq <= addra==addrb && wea;
-|   
-|     //  The following code generates HIGH_PERFORMANCE (use output register) or LOW_LATENCY (no output register)
-|     assign doutb = last_addr_eq ? ram_data_a : ram_data_b;
 |   endmodule
 """.stripMargin)
 }            

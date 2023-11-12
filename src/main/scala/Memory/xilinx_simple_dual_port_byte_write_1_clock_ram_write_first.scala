@@ -32,9 +32,8 @@ class xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(NB_COL: Int, CO
 |   );
 |   
 |     reg [(NB_COL*COL_WIDTH)-1:0] BRAM [RAM_DEPTH-1:0];
-|     reg [(NB_COL*COL_WIDTH)-1:0] ram_data_a = {(NB_COL*COL_WIDTH){1'b0}};
-|     reg [(NB_COL*COL_WIDTH)-1:0] ram_data_b = {(NB_COL*COL_WIDTH){1'b0}};
-|   
+|     reg [$clog2(RAM_DEPTH)-1:0] addr_r;
+|   (*ram_style="block"*)
 |     // The following code either initializes the memory values to a specified file or to all zeros to match hardware
 |     generate
 |         integer ram_index;
@@ -44,29 +43,17 @@ class xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(NB_COL: Int, CO
 |     endgenerate
 |   
 |     always @(posedge clka)
-|         ram_data_b <= BRAM[addrb];
-|   
+|         addr_r <= addra == addrb ? addra : addrb;
+|     assign doutb = BRAM[addr_r];
+|
 |     generate
 |     genvar i;
 |        for (i = 0; i < NB_COL; i = i+1) begin: byte_write
 |          always @(posedge clka)
-|            if (wea[i]) begin
+|            if (wea[i]) 
 |              BRAM[addra][(i+1)*COL_WIDTH-1:i*COL_WIDTH] <= dina[(i+1)*COL_WIDTH-1:i*COL_WIDTH];
-|              ram_data_a[(i+1)*COL_WIDTH-1:i*COL_WIDTH] <= dina[(i+1)*COL_WIDTH-1:i*COL_WIDTH];
-|            end
 |         end
 |     endgenerate
-|     reg last_addr_eq;
-|     always @(posedge clka)
-|         last_addr_eq <= addra==addrb && (|wea);
-|     //  The following code generates HIGH_PERFORMANCE (use output register) or LOW_LATENCY (no output register)
-|     generate
-|         // The following is a 1 clock cycle read latency at the cost of a longer clock-to-out timing
-|          assign doutb = last_addr_eq ? ram_data_a : ram_data_b;
-|     endgenerate
-| 
-| 
-|   
 |   endmodule
 """.stripMargin)
                           
