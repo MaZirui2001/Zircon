@@ -2,10 +2,10 @@ import chisel3._
 import chisel3.util._
 
 object ICache_Config{
-    val INDEX_WIDTH = 6
+    val INDEX_WIDTH = 2
     val INDEX_DEPTH = 1 << INDEX_WIDTH
 
-    val OFFSET_WIDTH = 6
+    val OFFSET_WIDTH = 4
     val OFFSET_DEPTH = 1 << OFFSET_WIDTH
 
     val TAG_WIDTH = 32 - INDEX_WIDTH - OFFSET_WIDTH
@@ -127,7 +127,11 @@ class ICache extends Module{
         ret_buf := io.i_rdata ## ret_buf(8*OFFSET_DEPTH-1, 32)
     }
     /* lru logic */
-    lru_mem(index_RM) := lru_miss_upd && !lru_sel || lru_hit_upd && !hit_index_RM
+    when(lru_hit_upd){
+        lru_mem(index_RM) := !hit_index_RM
+    }.elsewhen(lru_miss_upd){
+        lru_mem(index_RM) := !lru_sel
+    }
 
     /* FSM for read */
     val s_idle :: s_miss :: s_refill :: s_wait :: Nil = Enum(4)
