@@ -1,10 +1,10 @@
 import chisel3._
 import chisel3.util._
 object DCache_Config{
-    val INDEX_WIDTH = 2
+    val INDEX_WIDTH = 6
     val INDEX_DEPTH = 1 << INDEX_WIDTH
 
-    val OFFSET_WIDTH = 4
+    val OFFSET_WIDTH = 6
     val OFFSET_DEPTH = 1 << OFFSET_WIDTH
 
     val TAG_WIDTH = 32 - INDEX_WIDTH - OFFSET_WIDTH
