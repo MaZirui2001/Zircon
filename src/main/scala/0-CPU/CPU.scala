@@ -89,7 +89,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     /* Previous Decode Stage */
     val pd              = Module(new Prev_Decode)
-    val pf_reg          = Module(new PD_FQ_Reg)
+    // val pf_reg          = Module(new PD_FQ_Reg)
 
     /* Fetch Queue Stage */
     val fq              = Module(new Fetch_Queue)
@@ -155,7 +155,6 @@ class CPU(RESET_VEC: Int) extends Module {
     /* Commit Stage */
     val arat            = Module(new Arch_Rat)
 
-
     val stall_by_iq = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
 
     /* IF Stage */
@@ -184,7 +183,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // PF-IF SegReg
     val pcs_PF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
-    pi_reg.io.flush             := rob.io.predict_fail_cmt || (!pf_reg.io.stall && pd.io.pred_fix)
+    pi_reg.io.flush             := rob.io.predict_fail_cmt || (fq.io.inst_queue_ready && pd.io.pred_fix)
     pi_reg.io.stall             := !fq.io.inst_queue_ready
     pi_reg.io.inst_pack_PF      := VecInit(Seq.tabulate(4)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i))))
 
@@ -193,7 +192,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val inst_IF                 = VecInit(io.inst1_IF, io.inst2_IF, io.inst3_IF, io.inst4_IF)
 
     // IF-PD SegReg
-    ip_reg.io.flush             := rob.io.predict_fail_cmt || (!pf_reg.io.stall && pd.io.pred_fix)
+    ip_reg.io.flush             := rob.io.predict_fail_cmt || (fq.io.inst_queue_ready && pd.io.pred_fix)
     ip_reg.io.stall             := !fq.io.inst_queue_ready 
     ip_reg.io.insts_pack_IF     := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), inst_IF(i))))
 
@@ -201,12 +200,12 @@ class CPU(RESET_VEC: Int) extends Module {
     pd.io.insts_pack_IF         := ip_reg.io.insts_pack_PD
 
     // PD-FQ SegReg
-    pf_reg.io.flush             := rob.io.predict_fail_cmt
-    pf_reg.io.stall             := !fq.io.inst_queue_ready
-    pf_reg.io.insts_pack_PD     := VecInit(Seq.tabulate(4)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i))))
+    // pf_reg.io.flush             := rob.io.predict_fail_cmt
+    // pf_reg.io.stall             := !fq.io.inst_queue_ready
+    // pf_reg.io.insts_pack_PD     := VecInit(Seq.tabulate(4)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i))))
 
     // Fetch_Queue stage && FQ-ID SegReg
-    fq.io.insts_pack    := pf_reg.io.insts_pack_FQ
+    fq.io.insts_pack    := VecInit(Seq.tabulate(4)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i))))
     fq.io.next_ready    := !(rob.io.full || stall_by_iq || rename.io.free_list_empty)
     fq.io.flush         := rob.io.predict_fail_cmt
 
@@ -251,8 +250,8 @@ class CPU(RESET_VEC: Int) extends Module {
     bd.io.rj_valid              := rp_reg.io.insts_pack_DP.map(_.rj_valid)
     bd.io.prk                   := rp_reg.io.insts_pack_DP.map(_.prk)
     bd.io.rk_valid              := rp_reg.io.insts_pack_DP.map(_.rk_valid)
-    bd.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, ls_tc_mem_reg.io.inst_pack_WB.prd, sel4.io.wake_preg)
-    bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, ls_tc_mem_reg.io.inst_pack_WB.rd_valid, sel4.io.inst_issue_valid)
+    bd.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, ls_ex_tc_reg.io.inst_pack_WB.prd, sel4.io.wake_preg)
+    bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, ls_ex_tc_reg.io.inst_pack_WB.rd_valid, sel4.io.inst_issue_valid)
     bd.io.prd_disp              := rp_reg.io.insts_pack_DP.map(_.prd)
     bd.io.prd_disp_valid        := rp_reg.io.insts_pack_DP.map(_.rd_valid)
     val prj_ready               = VecInit(Seq.tabulate(4)(i => !rp_reg.io.insts_pack_DP(i).rj_valid || rp_reg.io.insts_pack_DP(i).prj === 0.U || (!rp_reg.io.insts_pack_DP(i).prj_raw && !bd.io.prj_busy(i))))
@@ -315,10 +314,10 @@ class CPU(RESET_VEC: Int) extends Module {
     sel4.io.stall               := !(iq4.io.issue_req)
 
     // mutual wakeup
-    val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, sel2.io.wake_preg, Mux(ls_tc_mem_reg.io.inst_pack_WB.rd_valid, ls_tc_mem_reg.io.inst_pack_WB.prd, 0.U), sel4.io.wake_preg)
+    val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, sel2.io.wake_preg, Mux(ls_ex_tc_reg.io.inst_pack_WB.rd_valid, ls_ex_tc_reg.io.inst_pack_WB.prd, 0.U), sel4.io.wake_preg)
     val iq_mutual_wake_preg     = VecInit(Mux(ir_reg1.io.inst_pack_RF.rd_valid, ir_reg1.io.inst_pack_RF.prd, 0.U),
                                           Mux(ir_reg2.io.inst_pack_RF.rd_valid, ir_reg2.io.inst_pack_RF.prd, 0.U),
-                                          Mux(ls_tc_mem_reg.io.inst_pack_WB.rd_valid, ls_tc_mem_reg.io.inst_pack_WB.prd, 0.U),
+                                          Mux(ls_ex_tc_reg.io.inst_pack_WB.rd_valid, ls_ex_tc_reg.io.inst_pack_WB.prd, 0.U),
                                           Mux(ir_reg4.io.inst_pack_RF.rd_valid, ir_reg4.io.inst_pack_RF.prd, 0.U))
     
     iq1.io.wake_preg            := VecInit(iq_inline_wake_preg(0), iq_inline_wake_preg(1), iq_mutual_wake_preg(2), iq_mutual_wake_preg(3))
@@ -584,10 +583,10 @@ class CPU(RESET_VEC: Int) extends Module {
         io.commit_stall_by_fetch_queue  := !fq.io.inst_queue_ready
         io.commit_stall_by_rename       := rename.io.free_list_empty
         io.commit_stall_by_rob          := rob.io.full
-        io.commit_stall_by_iq1          := iq1.io.full  && !iq1.io.stall
-        io.commit_stall_by_iq2          := iq2.io.full  && !iq2.io.stall
-        io.commit_stall_by_iq3          := iq3.io.full  && !iq3.io.stall
-        io.commit_stall_by_iq4          := iq4.io.full && !iq4.io.stall
+        io.commit_stall_by_iq1          := iq1.io.full 
+        io.commit_stall_by_iq2          := iq2.io.full 
+        io.commit_stall_by_iq3          := iq3.io.full
+        io.commit_stall_by_iq4          := iq4.io.full
         io.commit_stall_by_sb           := sb.io.full
 
         io.commit_iq1_issue             := sel1.io.inst_issue_valid
