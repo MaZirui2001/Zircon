@@ -79,9 +79,12 @@ class CPU_IO extends Bundle{
 class CPU(RESET_VEC: Int) extends Module {
     val io = IO(new CPU_IO)
 
-    /* Inst Fetch Stage */
+    /* Previous Fetch Stage */
     val pc              = Module(new PC(RESET_VEC))
     val predict         = Module(new Predict)
+    val pi_reg          = Module(new PF_IF_Reg)
+
+    /* Inst Fetch Stage */
     val ip_reg          = Module(new IF_PD_Reg)
 
     /* Previous Decode Stage */
@@ -157,7 +160,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val stall_by_iq = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
 
     /* IF Stage */
-    io.pc_IF                        := pc.io.pc_IF
+    
     pc.io.pc_stall                  := !fq.io.inst_queue_ready 
     pc.io.predict_fail              := rob.io.predict_fail_cmt
     pc.io.branch_target             := rob.io.branch_target_cmt
@@ -180,13 +183,20 @@ class CPU(RESET_VEC: Int) extends Module {
     predict.io.pd_pred_fix_is_bl    := pd.io.pred_fix_is_bl
     predict.io.pd_pc_plus_4         := pd.io.pred_fix_pc_plus_4
 
+    // PF-IF SegReg
+    val pcs_PF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
+    pi_reg.io.flush             := rob.io.predict_fail_cmt || (!pf_reg.io.stall && pd.io.pred_fix)
+    pi_reg.io.stall             := !fq.io.inst_queue_ready
+    pi_reg.io.inst_pack_PF      := VecInit(Seq.tabulate(4)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i))))
+
+    // IF Stage
+    io.pc_IF                   := pi_reg.io.inst_pack_IF(0).pc
+    val inst_IF                 = VecInit(io.inst1_IF, io.inst2_IF, io.inst3_IF, io.inst4_IF)
 
     // IF-PD SegReg
-    val inst_IF                 = VecInit(io.inst1_IF, io.inst2_IF, io.inst3_IF, io.inst4_IF)
-    val pcs_IF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
     ip_reg.io.flush             := rob.io.predict_fail_cmt || (!pf_reg.io.stall && pd.io.pred_fix)
     ip_reg.io.stall             := !fq.io.inst_queue_ready 
-    ip_reg.io.insts_pack_IF     := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pcs_IF(i), inst_IF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i))))
+    ip_reg.io.insts_pack_IF     := VecInit(Seq.tabulate(4)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), inst_IF(i))))
 
     // PD stage
     pd.io.insts_pack_IF         := ip_reg.io.insts_pack_PD

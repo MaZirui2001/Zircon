@@ -59,22 +59,33 @@ object Instructions {
     def BGEU        = BitPat("b011011??????????????????????????")
 }
 object Inst_Pack{
-    class inst_pack_IF_t extends Bundle{
+    class inst_pack_PF_t extends Bundle{
         val pc              = UInt(32.W)
-        val inst            = UInt(32.W)
         val inst_valid      = Bool()
         val predict_jump    = Bool()
         val pred_npc        = UInt(32.W)
         val pred_valid      = Bool()
     }
-    def inst_pack_IF_gen(_pc: UInt, _inst : UInt, _inst_valid : Bool, _predict_jump : Bool, _pred_npc: UInt, _pred_valid: Bool) : inst_pack_IF_t = {
+    def inst_pack_PF_gen(_pc: UInt, _inst_valid: Bool, _predict_jump: Bool, _pred_npc: UInt, _pred_valid: Bool) : inst_pack_PF_t = {
+        val inst_pack_PF = Wire(new inst_pack_PF_t)
+        inst_pack_PF.pc             := _pc
+        inst_pack_PF.inst_valid     := _inst_valid
+        inst_pack_PF.predict_jump   := _predict_jump
+        inst_pack_PF.pred_npc       := _pred_npc
+        inst_pack_PF.pred_valid     := _pred_valid
+        inst_pack_PF
+    }
+    class inst_pack_IF_t extends inst_pack_PF_t{
+        val inst            = UInt(32.W)
+    }
+    def inst_pack_IF_gen(_inst_pack_PF: inst_pack_PF_t, _inst : UInt) : inst_pack_IF_t = {
         val inst_pack_IF = Wire(new inst_pack_IF_t)
-        inst_pack_IF.pc             := _pc
+        inst_pack_IF.pc             := _inst_pack_PF.pc
         inst_pack_IF.inst           := _inst
-        inst_pack_IF.inst_valid     := _inst_valid
-        inst_pack_IF.predict_jump   := _predict_jump
-        inst_pack_IF.pred_npc       := _pred_npc
-        inst_pack_IF.pred_valid     := _pred_valid
+        inst_pack_IF.inst_valid     := _inst_pack_PF.inst_valid
+        inst_pack_IF.predict_jump   := _inst_pack_PF.predict_jump
+        inst_pack_IF.pred_npc       := _inst_pack_PF.pred_npc
+        inst_pack_IF.pred_valid     := _inst_pack_PF.pred_valid
         inst_pack_IF
     }
     class inst_pack_PD_t extends Bundle{

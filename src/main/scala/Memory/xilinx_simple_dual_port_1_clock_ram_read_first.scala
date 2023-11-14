@@ -32,7 +32,7 @@ class xilinx_simple_dual_port_1_clock_ram_read_first(RAM_WIDTH: Int, RAM_DEPTH: 
 |   );
 |   (*ram_style="block"*)
 |     reg [RAM_WIDTH-1:0] BRAM [RAM_DEPTH-1:0];
-|     reg [RAM_WIDTH-1:0] addr_r;
+|     reg [$clog2(RAM_DEPTH)-1:0] addr_r;
 |       
 |   generate
 |       integer ram_index;
