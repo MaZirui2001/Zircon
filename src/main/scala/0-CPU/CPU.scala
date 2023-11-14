@@ -85,11 +85,11 @@ class CPU(RESET_VEC: Int) extends Module {
     val pi_reg          = Module(new PF_IF_Reg)
 
     /* Inst Fetch Stage */
+    val icache          = Module(new ICache)
     val ip_reg          = Module(new IF_PD_Reg)
 
     /* Previous Decode Stage */
     val pd              = Module(new Prev_Decode)
-    // val pf_reg          = Module(new PD_FQ_Reg)
 
     /* Fetch Queue Stage */
     val fq              = Module(new Fetch_Queue)
