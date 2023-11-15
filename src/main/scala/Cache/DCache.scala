@@ -51,6 +51,10 @@ class DCache_IO extends Bundle{
     val d_wlen          = Output(UInt(8.W))
     val d_bvalid        = Input(Bool())
     val d_bready        = Output(Bool())
+
+    // for stat
+    val commit_dcache_visit    = Output(Bool())
+    val commit_dcache_miss     = Output(Bool())
 }
 import DCache_Config._
 class DCache extends Module{
@@ -134,6 +138,10 @@ class DCache extends Module{
     val d_wvalid        = WireDefault(false.B)
     val d_wlast         = WireDefault(false.B)
     val d_bready        = WireDefault(false.B)
+
+    // stat
+    val dcache_miss     = WireDefault(false.B)
+    val dcache_visit    = WireDefault(false.B)
 
     // EX Stage
     for(i <- 0 until 2){
@@ -240,6 +248,9 @@ class DCache extends Module{
                 dirty_we                    := is_store_MEM
                 wbuf_we                     := !cache_hit_MEM && !sb_hit_MEM
                 wfsm_en                     := !cache_hit_MEM && !sb_hit_MEM
+
+                dcache_visit                := true.B
+                dcache_miss                 := !cache_hit_MEM && !sb_hit_MEM
             }
         }
         is(s_miss){
@@ -318,4 +329,7 @@ class DCache extends Module{
     io.d_wburst         := 1.U
     io.d_wlen           := wrt_num
     io.d_bready         := d_bready
+
+    io.commit_dcache_miss   := dcache_miss
+    io.commit_dcache_visit  := dcache_visit
 }

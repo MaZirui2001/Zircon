@@ -39,6 +39,10 @@ class ICache_IO extends Bundle{
     val i_rsize         = Output(UInt(3.W))
     val i_rburst        = Output(UInt(2.W))
     val i_rlen          = Output(UInt(8.W))
+
+    // for stat
+    val commit_icache_visit    = Output(Bool())
+    val commit_icache_miss     = Output(Bool())
 }
 
 import ICache_Config._
@@ -89,6 +93,10 @@ class ICache extends Module{
     val lru_hit_upd         = WireDefault(false.B)
 
     val ret_buf             = RegInit(0.U((8*OFFSET_DEPTH).W))
+
+    // stat
+    val icache_miss         = WireDefault(false.B)
+    val icache_visit        = WireDefault(false.B)
 
     // IF Stage
     for(i <- 0 until 2){
@@ -144,6 +152,9 @@ class ICache extends Module{
                 lru_hit_upd     := cache_hit_RM
                 cache_miss_RM   := !cache_hit_RM
                 data_sel        := FROM_CMEM
+
+                icache_visit    := true.B
+                icache_miss     := !cache_hit_RM
             }
         }
         is(s_miss){
@@ -173,4 +184,7 @@ class ICache extends Module{
     io.i_rsize          := 2.U
     io.i_rburst         := 1.U
     io.i_rlen           := (8*OFFSET_DEPTH/32-1).U
+
+    io.commit_icache_miss    := icache_miss
+    io.commit_icache_visit   := icache_visit
 }

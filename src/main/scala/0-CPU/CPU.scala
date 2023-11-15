@@ -84,6 +84,12 @@ class CPU_IO extends Bundle{
     val commit_stall_by_iq3         = Output(Bool())
     val commit_stall_by_iq4         = Output(Bool())
     val commit_stall_by_sb          = Output(Bool())
+    val commit_stall_by_icache      = Output(Bool())
+    val commit_icache_miss          = Output(Bool())
+    val commit_icache_visit         = Output(Bool())
+    val commit_stall_by_dcache      = Output(Bool())
+    val commit_dcache_miss          = Output(Bool())
+    val commit_dcache_visit         = Output(Bool())
     
     val commit_iq1_issue            = Output(Bool())
     val commit_iq2_issue            = Output(Bool())
@@ -654,6 +660,13 @@ class CPU(RESET_VEC: Int) extends Module {
         io.commit_stall_by_iq4          := iq4.io.full
         io.commit_stall_by_sb           := sb.io.full
 
+        io.commit_stall_by_icache       := icache.io.cache_miss_RM
+        io.commit_stall_by_dcache       := dcache.io.cache_miss_MEM
+        io.commit_icache_miss           := icache.io.commit_icache_miss
+        io.commit_dcache_miss           := dcache.io.commit_dcache_miss
+        io.commit_icache_visit          := icache.io.commit_icache_visit
+        io.commit_dcache_visit          := dcache.io.commit_dcache_visit
+
         io.commit_iq1_issue             := sel1.io.inst_issue_valid
         io.commit_iq2_issue             := sel2.io.inst_issue_valid
         io.commit_iq3_issue             := sel3.io.inst_issue_valid
@@ -712,6 +725,13 @@ class CPU(RESET_VEC: Int) extends Module {
         io.commit_stall_by_iq3          := DontCare
         io.commit_stall_by_iq4          := DontCare
         io.commit_stall_by_sb           := DontCare
+
+        io.commit_stall_by_icache       := DontCare
+        io.commit_stall_by_dcache       := DontCare
+        io.commit_icache_miss           := DontCare
+        io.commit_dcache_miss           := DontCare
+        io.commit_icache_visit          := DontCare
+        io.commit_dcache_visit          := DontCare
 
         io.commit_iq1_issue             := DontCare
         io.commit_iq2_issue             := DontCare
