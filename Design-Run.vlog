@@ -1,32 +1,33 @@
 
-2023-10-20 23:33 LUT: 41299 FF: 13634 BRAM: 4 DSP: 8 
-2023-10-21 00:40 LUT: 41413 FF: 13634 BRAM: 4 DSP: 8                update chisel to 6.0.0-M3
-2023-10-21 12:28 LUT: 42509 FF: 13626 BRAM: 4 DSP: 8                change scala inheritance, but abort
-2023-10-21 17:55 LUT: 40234 FF: 13711 BRAM: 4 DSP: 8                update store buffer
-2023-10-21 19:11 LUT: 40124 FF: 13690 BRAM: 4 DSP: 8                fix empty bugs in rob and store buffer
-2023-10-22 21:31 LUT: 40129 FF: 13676 BRAM: 4 DSP: 8                update commit logic by delete branch update restrict
-2023-10-22 23:59 LUT: 47854 FF: 15572 BRAM: 4 DSP: 8                add 32 physical register
-2023-10-23 08:53 LUT: 46944 FF: 15851 BRAM: 4 DSP: 8                reduced to 80 register, but add to 32 fetch queue items
-2023-10-23 12:03 LUT: 46311 FF: 17390 BRAM: 4 DSP: 8                start to predict jirl, but not use RAS
-2023-10-24 02:54 LUT: 50840 FF: 18225 BRAM: 4 DSP: 8                RAS is so bad, add previous decode stage to predict jump
-2023-10-24 18:13 LUT: 54635 FF: 20240 BRAM: 4 DSP: 8                add 16 rob items
-2023-10-24 15:20 LUT: 53344 FF: 20779 BRAM: 4 DSP: 8                update inst queue by chage into one hot code
-2023-10-29 15:19 LUT: 53384 FF: 20786 BRAM: 4 DSP: 8                update SegReg
-2023-10-29 16:51 LUT: 53380 FF: 20683 BRAM: 4 DSP: 8                delete some useless items in ROB
-2023-10-29 17:17 LUT: 53375 FF: 20683 BRAM: 4 DSP: 8                delete prev deocde unused logic 
-2023-10-29 22:34 LUT: 53172 FF: 20662 BRAM: 4 DSP: 8                delete unused item in issue queue
-2023-10-30 12:44 LUT: 55267 FF: 21458 BRAM: 4 DSP: 8                change LS issue queue to unorder, and fix branch secure
-2023-10-30 15:34 LUT: 53988 FF: 21438 BRAM: 4 DSP: 8                optimize load and store decode logic 
-2023-10-30 16:29 LUT: 53608 FF: 21433 BRAM: 4 DSP: 8                optimize logic in iq 
-2023-10-30 16:37 LUT: 53183 FF: 21433 BRAM: 4 DSP: 8                optimize logic in iq again
-2023-10-31 16:13 LUT: 53146 FF: 21522 BRAM: 4 DSP: 8                add busy board
-2023-10-31 17:13 LUT: 53153 FF: 21513 BRAM: 4 DSP: 8                convert dipatch algorithm
-2023-10-31 20:53 LUT: 53183 FF: 21999 BRAM: 4 DSP: 8                del 8 ROB item and add predict to 128
-2023-10-31 21:18 LUT: 53062 FF: 21985 BRAM: 4 DSP: 8                simplify some logic in dispatch
-2023-11-01 18:43 LUT: 54614 FF: 21915 BRAM: 4 DSP: 8                strange!
-2023-11-01 19:43 LUT: 53933 FF: 22068 BRAM: 4 DSP: 8                add to 81 physical regs
-2023-11-07 16:53 LUT: 53164 FF: 21579 BRAM: 4 DSP: 8                strip to 36 rob items 
+2023-10-20 23:33 LUT: 41299 FF: 13634 BRAM: 4  DSP: 8 
+2023-10-21 00:40 LUT: 41413 FF: 13634 BRAM: 4  DSP: 8               update chisel to 6.0.0-M3
+2023-10-21 12:28 LUT: 42509 FF: 13626 BRAM: 4  DSP: 8               change scala inheritance, but abort
+2023-10-21 17:55 LUT: 40234 FF: 13711 BRAM: 4  DSP: 8               update store buffer
+2023-10-21 19:11 LUT: 40124 FF: 13690 BRAM: 4  DSP: 8               fix empty bugs in rob and store buffer
+2023-10-22 21:31 LUT: 40129 FF: 13676 BRAM: 4  DSP: 8               update commit logic by delete branch update restrict
+2023-10-22 23:59 LUT: 47854 FF: 15572 BRAM: 4  DSP: 8               add 32 physical register
+2023-10-23 08:53 LUT: 46944 FF: 15851 BRAM: 4  DSP: 8               reduced to 80 register, but add to 32 fetch queue items
+2023-10-23 12:03 LUT: 46311 FF: 17390 BRAM: 4  DSP: 8               start to predict jirl, but not use RAS
+2023-10-24 02:54 LUT: 50840 FF: 18225 BRAM: 4  DSP: 8               RAS is so bad, add previous decode stage to predict jump
+2023-10-24 18:13 LUT: 54635 FF: 20240 BRAM: 4  DSP: 8               add 16 rob items
+2023-10-24 15:20 LUT: 53344 FF: 20779 BRAM: 4  DSP: 8               update inst queue by chage into one hot code
+2023-10-29 15:19 LUT: 53384 FF: 20786 BRAM: 4  DSP: 8               update SegReg
+2023-10-29 16:51 LUT: 53380 FF: 20683 BRAM: 4  DSP: 8               delete some useless items in ROB
+2023-10-29 17:17 LUT: 53375 FF: 20683 BRAM: 4  DSP: 8               delete prev deocde unused logic 
+2023-10-29 22:34 LUT: 53172 FF: 20662 BRAM: 4  DSP: 8               delete unused item in issue queue
+2023-10-30 12:44 LUT: 55267 FF: 21458 BRAM: 4  DSP: 8               change LS issue queue to unorder, and fix branch secure
+2023-10-30 15:34 LUT: 53988 FF: 21438 BRAM: 4  DSP: 8               optimize load and store decode logic 
+2023-10-30 16:29 LUT: 53608 FF: 21433 BRAM: 4  DSP: 8               optimize logic in iq 
+2023-10-30 16:37 LUT: 53183 FF: 21433 BRAM: 4  DSP: 8               optimize logic in iq again
+2023-10-31 16:13 LUT: 53146 FF: 21522 BRAM: 4  DSP: 8               add busy board
+2023-10-31 17:13 LUT: 53153 FF: 21513 BRAM: 4  DSP: 8               convert dipatch algorithm
+2023-10-31 20:53 LUT: 53183 FF: 21999 BRAM: 4  DSP: 8               del 8 ROB item and add predict to 128
+2023-10-31 21:18 LUT: 53062 FF: 21985 BRAM: 4  DSP: 8               simplify some logic in dispatch
+2023-11-01 18:43 LUT: 54614 FF: 21915 BRAM: 4  DSP: 8               strange!
+2023-11-01 19:43 LUT: 53933 FF: 22068 BRAM: 4  DSP: 8               add to 81 physical regs
+2023-11-07 16:53 LUT: 53164 FF: 21579 BRAM: 4  DSP: 8               strip to 36 rob items 
 
-2023-11-07 19:18 LUT: 49320 FF: 20167 BRAM: 4 DSP: 8                get how to compile without sim
-2023-11-07 20:12 LUT: 47664 FF: 20115 BRAM: 4 DSP: 8                BOOM is so bad! 
-2023-11-14 18:27 LUT: 48165 FF: 19636 BRAM: 4 DSP: 8                Reduce pipeline in load-store
+2023-11-07 19:18 LUT: 49320 FF: 20167 BRAM: 4  DSP: 8               get how to compile without sim
+2023-11-07 20:12 LUT: 47664 FF: 20115 BRAM: 4  DSP: 8               BOOM is so bad! 
+2023-11-14 18:27 LUT: 48165 FF: 19636 BRAM: 4  DSP: 8               Reduce pipeline in load-store
+2023-11-15 11:45 LUT: 51797 FF: 21624 BRAM: 37 DSP: 8               add cache   
