@@ -17,21 +17,21 @@ object CPU_Main extends App {
                             )
     )
 }
-object Cache_Main extends App {
-    ChiselStage.emitSystemVerilogFile(
-        new Cache_Top, 
-        Array("-td", "build/"),
-        firtoolOpts = Array("-disable-all-randomization", 
-                            "-strip-debug-info",
-                            "-strip-fir-debug-info",
-                            "-O=release",
-                            "--ignore-read-enable-mem",
-                            "--lower-memories",
-                            "--lowering-options= disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug, disallowMuxInlining",
-                            "-o=verilog/",
-                            "-split-verilog",
-                            )
-    )
-}
+// object Cache_Main extends App {
+//     ChiselStage.emitSystemVerilogFile(
+//         new Cache_Top, 
+//         Array("-td", "build/"),
+//         firtoolOpts = Array("-disable-all-randomization", 
+//                             "-strip-debug-info",
+//                             "-strip-fir-debug-info",
+//                             "-O=release",
+//                             "--ignore-read-enable-mem",
+//                             "--lower-memories",
+//                             "--lowering-options= disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug, disallowMuxInlining",
+//                             "-o=verilog/",
+//                             "-split-verilog",
+//                             )
+//     )
+// }
 
 

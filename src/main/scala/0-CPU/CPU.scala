@@ -137,8 +137,8 @@ class CPU(RESET_VEC: Int) extends Module {
     val sel2            = Module(new Unorder_Select(8, new inst_pack_DP_FU2_t))
     val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
 
-    val iq3             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_LS_t))
-    val sel3            = Module(new Unorder_Select(8, new inst_pack_DP_LS_t))
+    val iq3             = Module(new Unorder_Issue_Queue(12, new inst_pack_DP_LS_t))
+    val sel3            = Module(new Unorder_Select(12, new inst_pack_DP_LS_t))
     val ir_reg3         = Module(new IS_RF_Reg(new inst_pack_IS_LS_t))
 
     val iq4             = Module(new Order_Issue_Queue(8, new inst_pack_DP_MD_t))
@@ -172,7 +172,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val ew_reg4         = Module(new MD_EX_WB_Reg)
 
     /* Write Back Stage */
-    val rob             = Module(new ROB(36))
+    val rob             = Module(new ROB(40))
 
     /* Commit Stage */
     val arat            = Module(new Arch_Rat)
@@ -450,7 +450,6 @@ class CPU(RESET_VEC: Int) extends Module {
     ew_reg2.io.real_jump_EX       := br.io.real_jump
 
     // 3. load-store fu, include cache
-
     // EX stage
     // dcache
     dcache.io.addr_RF             := Mux(sb.io.st_cmt_valid, sb.io.st_addr_cmt, re_reg3.io.src1_RF)
@@ -468,10 +467,8 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // store_buf
     sb.io.flush             := rob.io.predict_fail_cmt
-    // sb.io.is_store_ex       := re_reg3.io.inst_pack_EX.mem_type(4) && !dcache.io.cache_miss_MEM //// 
     sb.io.addr_ex           := re_reg3.io.src1_EX
     sb.io.st_data_ex        := re_reg3.io.src2_EX
-    // sb.io.st_wlen_ex        := re_reg3.io.inst_pack_EX.mem_type(1, 0)
     sb.io.mem_type_ex       := Mux(dcache.io.cache_miss_MEM, 0.U, re_reg3.io.inst_pack_EX.mem_type)
     sb.io.is_store_num_cmt  := rob.io.is_store_num_cmt
     sb.io.dcache_miss       := dcache.io.cache_miss_MEM
