@@ -18,11 +18,12 @@ object DCache_Config{
 
 class DCache_IO extends Bundle{
     // EX stage
-    val addr_EX         = Input(UInt(32.W))
-    val mem_type_EX     = Input(UInt(5.W))
-    val wdata_EX        = Input(UInt(32.W))
+    val addr_RF         = Input(UInt(32.W))
+    val mem_type_RF     = Input(UInt(5.W))
+    val wdata_RF        = Input(UInt(32.W))
 
     // MEM stage
+    val sb_hit_MEM      = Input(Bool())
     val cache_miss_MEM  = Output(Bool())
     val rdata_MEM       = Output(UInt(32.W))
 
@@ -55,41 +56,42 @@ import DCache_Config._
 class DCache extends Module{
     val io = IO(new DCache_IO)
     val stall = io.stall
+    val sb_hit_MEM = io.sb_hit_MEM
 
     // address decode EX
-    val addr_EX             = io.addr_EX
-    val tag_EX              = addr_EX(31, 32-TAG_WIDTH)
-    val index_EX            = addr_EX(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
-    val offset_EX           = addr_EX(OFFSET_WIDTH-1, 0)
+    val addr_RF             = io.addr_RF
+    val tag_RF              = addr_RF(31, 32-TAG_WIDTH)
+    val index_RF            = addr_RF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
+    val offset_RF           = addr_RF(OFFSET_WIDTH-1, 0)
 
     // EX-TC SegReg
-    val addr_reg_EX_TC      = RegInit(0.U(32.W))
-    val mem_type_reg_EX_TC  = RegInit(0.U(5.W))
-    val wdata_reg_EX_TC     = RegInit(0.U(32.W))
+    val addr_reg_RF_EX      = RegInit(0.U(32.W))
+    val mem_type_reg_RF_EX  = RegInit(0.U(5.W))
+    val wdata_reg_RF_EX     = RegInit(0.U(32.W))
 
     // TC Stage
     val tagv        = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_write_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
-    val tag_r_TC    = VecInit(Seq.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH-1, 0)))
-    val valid_r_TC  = VecInit(Seq.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH)))
+    val tag_r_EX    = VecInit(Seq.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH-1, 0)))
+    val valid_r_EX  = VecInit(Seq.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH)))
     
     // decode
-    val addr_TC     = addr_reg_EX_TC
-    val tag_TC      = addr_TC(31, 32-TAG_WIDTH)
-    val index_TC    = addr_TC(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
-    val offset_TC   = addr_TC(OFFSET_WIDTH-1, 0)
+    val addr_EX     = addr_reg_RF_EX
+    val tag_EX      = addr_EX(31, 32-TAG_WIDTH)
+    val index_EX    = addr_EX(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
+    val offset_EX   = addr_EX(OFFSET_WIDTH-1, 0)
 
     // TC-MEM SegReg
-    val addr_reg_TC_MEM     = RegInit(0.U(32.W))
-    val mem_type_reg_TC_MEM = RegInit(0.U(5.W))
-    val wdata_reg_TC_MEM    = RegInit(0.U(32.W))
-    val hit_reg_TC_MEM      = RegInit(0.U(2.W))
-    val tag_reg_TC_MEM      = RegInit(VecInit(Seq.fill(2)(0.U(TAG_WIDTH.W))))
+    val addr_reg_EX_MEM     = RegInit(0.U(32.W))
+    val mem_type_reg_EX_MEM = RegInit(0.U(5.W))
+    val wdata_reg_EX_MEM    = RegInit(0.U(32.W))
+    val hit_reg_EX_MEM      = RegInit(0.U(2.W))
+    val tag_reg_EX_MEM      = RegInit(VecInit(Seq.fill(2)(0.U(TAG_WIDTH.W))))
 
     // MEM Stage
     val cmem            = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(OFFSET_DEPTH, 8, INDEX_DEPTH)).io))
-    val addr_MEM        = addr_reg_TC_MEM
-    val mem_type_MEM    = mem_type_reg_TC_MEM
-    val wdata_MEM       = WireDefault(wdata_reg_TC_MEM)
+    val addr_MEM        = addr_reg_EX_MEM
+    val mem_type_MEM    = mem_type_reg_EX_MEM
+    val wdata_MEM       = WireDefault(wdata_reg_EX_MEM)
 
     val cache_miss_MEM  = WireDefault(false.B)
     val data_sel        = WireDefault(FROM_RBUF)
@@ -97,14 +99,14 @@ class DCache extends Module{
     val addr_sel        = WireDefault(FROM_PIPE)
 
     // mem we
-    val tagv_we_TC      = WireDefault(VecInit(Seq.fill(2)(false.B)))
+    val tagv_we_EX      = WireDefault(VecInit(Seq.fill(2)(false.B)))
     val cmem_we_MEM     = WireDefault(VecInit(Seq.fill(2)(0.U(OFFSET_DEPTH.W))))
 
     // addr decode
     val tag_MEM         = addr_MEM(31, 32-TAG_WIDTH)
     val index_MEM       = addr_MEM(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
     val offset_MEM      = addr_MEM(OFFSET_WIDTH-1, 0)
-    val tag_r_MEM       = tag_reg_TC_MEM
+    val tag_r_MEM       = tag_reg_EX_MEM
 
     // lru
     val lru_mem         = RegInit(VecInit(Seq.fill(INDEX_DEPTH)(0.U(1.W))))
@@ -136,14 +138,14 @@ class DCache extends Module{
     // EX Stage
     for(i <- 0 until 2){
         tagv(i).addra   := index_MEM
-        tagv(i).addrb   := Mux(addr_sel === FROM_PIPE, index_EX, index_TC)
+        tagv(i).addrb   := Mux(addr_sel === FROM_PIPE, index_RF, index_EX)
         tagv(i).dina    := true.B ## tag_MEM
         tagv(i).clka    := clock
-        tagv(i).wea     := tagv_we_TC(i)
+        tagv(i).wea     := tagv_we_EX(i)
     }
     for(i <- 0 until 2){
         cmem(i).addra   := index_MEM
-        cmem(i).addrb   := Mux(addr_sel === FROM_PIPE, index_TC, index_MEM)
+        cmem(i).addrb   := Mux(addr_sel === FROM_PIPE, index_EX, index_MEM)
         cmem(i).dina    := wdata_MEM
         cmem(i).clka    := clock
         cmem(i).wea     := cmem_we_MEM(i)
@@ -151,26 +153,26 @@ class DCache extends Module{
 
     // EX-TC SegReg
     when(!(stall || cache_miss_MEM)){
-        addr_reg_EX_TC      := io.addr_EX
-        mem_type_reg_EX_TC  := io.mem_type_EX
-        wdata_reg_EX_TC     := io.wdata_EX
+        addr_reg_RF_EX      := io.addr_RF
+        mem_type_reg_RF_EX  := io.mem_type_RF
+        wdata_reg_RF_EX     := io.wdata_RF
     }
 
     // TC Stage
     /* hit logic */
-    val hit_TC          = VecInit(Seq.tabulate(2)(i => valid_r_TC(i) && tag_r_TC(i) === tag_TC)).asUInt
+    val hit_EX          = VecInit(Seq.tabulate(2)(i => valid_r_EX(i) && tag_r_EX(i) === tag_EX)).asUInt
     
     // TC-MEM SegReg
     when(!(stall || cache_miss_MEM)){
-        addr_reg_TC_MEM     := addr_reg_EX_TC
-        mem_type_reg_TC_MEM := mem_type_reg_EX_TC
-        wdata_reg_TC_MEM    := wdata_reg_EX_TC
-        hit_reg_TC_MEM      := hit_TC
-        tag_reg_TC_MEM      := tag_r_TC
+        addr_reg_EX_MEM     := addr_reg_RF_EX
+        mem_type_reg_EX_MEM := mem_type_reg_RF_EX
+        wdata_reg_EX_MEM    := wdata_reg_RF_EX
+        hit_reg_EX_MEM      := hit_EX
+        tag_reg_EX_MEM      := tag_r_EX
     }
 
     // MEM Stage
-    val hit_MEM         = hit_reg_TC_MEM
+    val hit_MEM         = hit_reg_EX_MEM
     val hit_index_MEM   = OHToUInt(hit_MEM)
     val cache_hit_MEM   = hit_MEM.orR
     
@@ -188,7 +190,7 @@ class DCache extends Module{
 
     /* write logic */
     val wmask           = Mux(mem_type_MEM(3), 0.U((8*OFFSET_DEPTH).W), ((0.U((8*OFFSET_DEPTH-32).W) ## highest_mask) << block_offset))
-    val wdata_refill    = ((0.U((8*OFFSET_DEPTH-32).W) ## wdata_reg_TC_MEM) << block_offset)
+    val wdata_refill    = ((0.U((8*OFFSET_DEPTH-32).W) ## wdata_reg_EX_MEM) << block_offset)
     wdata_MEM           := (wmask & wdata_refill) | (~wmask & ret_buf)
     val wmask_byte      = VecInit(Seq.tabulate(OFFSET_DEPTH)(i => wmask(8*i))).asUInt
 
@@ -230,14 +232,14 @@ class DCache extends Module{
             addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
             // has req
             when(mem_type_MEM(4, 3).orR){
-                state                       := Mux(cache_hit_MEM, s_idle, s_miss)
-                lru_hit_upd                 := cache_hit_MEM
-                cache_miss_MEM              := !cache_hit_MEM
+                state                       := Mux(cache_hit_MEM || sb_hit_MEM, s_idle, s_miss)
+                lru_hit_upd                 := cache_hit_MEM && !sb_hit_MEM
+                cache_miss_MEM              := !cache_hit_MEM && !sb_hit_MEM
                 data_sel                    := FROM_CMEM
-                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM, wmask_byte, 0.U)
+                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM && !sb_hit_MEM, wmask_byte, 0.U)
                 dirty_we                    := is_store_MEM
-                wbuf_we                     := !cache_hit_MEM
-                wfsm_en                     := !cache_hit_MEM
+                wbuf_we                     := !cache_hit_MEM && !sb_hit_MEM
+                wfsm_en                     := !cache_hit_MEM && !sb_hit_MEM
             }
         }
         is(s_miss){
@@ -250,7 +252,7 @@ class DCache extends Module{
             state                   := s_wait
             cache_miss_MEM          := true.B
             lru_miss_upd            := true.B
-            tagv_we_TC(lru_sel)     := true.B
+            tagv_we_EX(lru_sel)     := true.B
             cmem_we_MEM(lru_sel)    := Fill(OFFSET_DEPTH, 1.U(1.W))
             dirty_clean             := is_load_MEM
             dirty_we                := is_store_MEM

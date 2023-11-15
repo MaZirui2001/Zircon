@@ -170,7 +170,7 @@ class AXI_Arbiter extends Module{
             w_state     := Mux(io.wready && io.wlast && io.wvalid, w_db, w_dw)
         }
         is(w_db){
-            io.bready   := io.d_bvalid
+            io.bready   := io.d_bready
             io.d_bvalid := io.bvalid
             w_state     := Mux(io.bready && io.bvalid, w_idle, w_db)
         }

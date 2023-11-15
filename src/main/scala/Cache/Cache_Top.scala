@@ -57,9 +57,9 @@ class Cache_Top extends Module{
     ic.io.stall             := false.B
     ic.io.flush             := false.B
 
-    dc.io.addr_EX           := io.d_addr_pipe
-    dc.io.mem_type_EX       := io.mem_type_pipe
-    dc.io.wdata_EX          := io.wdata_pipe
+    dc.io.addr_RF           := io.d_addr_pipe
+    dc.io.mem_type_RF       := io.mem_type_pipe
+    dc.io.wdata_RF          := io.wdata_pipe
     io.cache_miss_MEM       := dc.io.cache_miss_MEM
     io.rdata_MEM            := dc.io.rdata_MEM
 
