@@ -172,7 +172,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val ew_reg4         = Module(new MD_EX_WB_Reg)
 
     /* Write Back Stage */
-    val rob             = Module(new ROB(40))
+    val rob             = Module(new ROB(44))
 
     /* Commit Stage */
     val arat            = Module(new Arch_Rat)
