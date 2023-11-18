@@ -585,7 +585,7 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.stall                := dr_reg.io.stall
     rob.io.br_type_pred_rn      := br_type_pred
 
-    rob.io.inst_valid_wb        := VecInit(ew_reg1.io.inst_pack_WB.inst_valid, ew_reg2.io.inst_pack_WB.inst_valid, ew_reg3.io.inst_pack_WB.inst_valid, ew_reg4.io.inst_pack_WB.inst_valid, ew_reg5.io.inst_pack_WB.inst_valid)
+    rob.io.inst_valid_wb        := VecInit(ew_reg1.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg2.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg3.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg4.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg5.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall)
     rob.io.rob_index_wb         := VecInit(ew_reg1.io.inst_pack_WB.rob_index, ew_reg2.io.inst_pack_WB.rob_index, ew_reg3.io.inst_pack_WB.rob_index, ew_reg4.io.inst_pack_WB.rob_index, ew_reg5.io.inst_pack_WB.rob_index)
     rob.io.predict_fail_wb      := VecInit(false.B, ew_reg2.io.predict_fail_WB, false.B, false.B, false.B)
     rob.io.real_jump_wb         := VecInit(false.B, ew_reg2.io.real_jump_WB, false.B, false.B, false.B)
