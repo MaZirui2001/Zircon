@@ -4,6 +4,7 @@ import chisel3.util._
 object RF_Func{
     def Write_First_Read(rf_we: Vec[Bool], wdata: Vec[UInt], prd: Vec[UInt], pr: UInt, rf: Vec[UInt]) : UInt = {
         val wf = Cat(
+                    pr === prd(4) && rf_we(4),
                     pr === prd(3) && rf_we(3), 
                     pr === prd(2) && rf_we(2),
                     pr === prd(1) && rf_we(1),
@@ -14,17 +15,17 @@ object RF_Func{
     }
 }
 class Physical_Regfile_IO extends Bundle{
-    // 8 read ports
-    val prj       = Input(Vec(4, UInt(7.W)))
-    val prk       = Input(Vec(4, UInt(7.W)))
+    // 10 read ports
+    val prj       = Input(Vec(5, UInt(7.W)))
+    val prk       = Input(Vec(5, UInt(7.W)))
 
-    val prj_data  = Output(Vec(4, UInt(32.W)))
-    val prk_data  = Output(Vec(4, UInt(32.W)))
+    val prj_data  = Output(Vec(5, UInt(32.W)))
+    val prk_data  = Output(Vec(5, UInt(32.W)))
 
-    // 4 write ports
-    val prd       = Input(Vec(4, UInt(7.W)))
-    val wdata     = Input(Vec(4, UInt(32.W)))
-    val rf_we     = Input(Vec(4, Bool()))
+    // 5 write ports
+    val prd       = Input(Vec(5, UInt(7.W)))
+    val wdata     = Input(Vec(5, UInt(32.W)))
+    val rf_we     = Input(Vec(5, Bool()))
 }
 
 class Physical_Regfile extends Module{
@@ -40,11 +41,11 @@ class Physical_Regfile extends Module{
     val wdata = io.wdata
     val prd = io.prd
 
-    for(i <- 0 until 4){
+    for(i <- 0 until 5){
         io.prj_data(i) := Write_First_Read(rf_we, wdata, prd, io.prj(i), rf)
         io.prk_data(i) := Write_First_Read(rf_we, wdata, prd, io.prk(i), rf)
     }
-    for(i <- 0 until 4){
+    for(i <- 0 until 5){
         when(io.rf_we(i)){
             rf(io.prd(i)) := io.wdata(i)
         }

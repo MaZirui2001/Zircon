@@ -14,7 +14,7 @@ class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends 
     val queue_ready      = Output(Bool())
 
     // input from wakeup
-    val wake_preg        = Input(Vec(4, UInt(7.W)))
+    val wake_preg        = Input(Vec(5, UInt(7.W)))
 
     // input for issue ack
     val issue_ack        = Input(Bool())

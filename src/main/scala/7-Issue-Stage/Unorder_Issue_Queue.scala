@@ -13,6 +13,7 @@ object Issue_Queue_Pack{
     }
     def Wake_Up(wake_preg: Vec[UInt], pr: UInt) : Bool = {
         val wf = Cat(
+                    pr === wake_preg(4),
                     pr === wake_preg(3), 
                     pr === wake_preg(2),
                     pr === wake_preg(1),
@@ -33,7 +34,7 @@ class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extend
     val queue_ready      = Output(Bool())
 
     // input from wakeup
-    val wake_preg        = Input(Vec(4, UInt(7.W)))
+    val wake_preg        = Input(Vec(5, UInt(7.W)))
 
     // input for issue ack
     val issue_ack        = Input(Vec(n, Bool()))

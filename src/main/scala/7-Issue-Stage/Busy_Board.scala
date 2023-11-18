@@ -12,8 +12,8 @@ class Busy_Board_IO extends Bundle{
     val prk_busy        = Output(Vec(4, Bool()))
 
     // write by wakeup
-    val prd_wake        = Input(Vec(4, UInt(7.W)))
-    val prd_wake_valid  = Input(Vec(4, Bool()))
+    val prd_wake        = Input(Vec(5, UInt(7.W)))
+    val prd_wake_valid  = Input(Vec(5, Bool()))
 
     // write by dispatch 
     val prd_disp        = Input(Vec(4, UInt(7.W)))
@@ -34,7 +34,7 @@ class Busy_Board extends Module {
     }
 
     // write by wakeup
-    for(i <- 0 until 4){
+    for(i <- 0 until 5){
         when(io.prd_wake_valid(i)){
             busy_board(io.prd_wake(i)) := false.B
         }

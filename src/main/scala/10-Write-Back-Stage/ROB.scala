@@ -37,13 +37,13 @@ class ROB_IO(n: Int) extends Bundle{
     val stall                   = Input(Bool())
 
     // for wb stage 
-    val inst_valid_wb           = Input(Vec(4, Bool()))
-    val rob_index_wb            = Input(Vec(4, UInt(log2Ceil(n).W)))
-    val is_ucread_wb            = Input(Vec(4, Bool()))
-    val predict_fail_wb         = Input(Vec(4, Bool()))
-    val real_jump_wb            = Input(Vec(4, Bool()))
-    val branch_target_wb        = Input(Vec(4, UInt(32.W)))
-    val rf_wdata_wb             = Input(Vec(4, UInt(32.W)))
+    val inst_valid_wb           = Input(Vec(5, Bool()))
+    val rob_index_wb            = Input(Vec(5, UInt(log2Ceil(n).W)))
+    val is_ucread_wb            = Input(Vec(5, Bool()))
+    val predict_fail_wb         = Input(Vec(5, Bool()))
+    val real_jump_wb            = Input(Vec(5, Bool()))
+    val branch_target_wb        = Input(Vec(5, UInt(32.W)))
+    val rf_wdata_wb             = Input(Vec(5, UInt(32.W)))
 
     // for cpu state: arch rat
     val cmt_en                  = Output(Vec(4, Bool()))
@@ -108,7 +108,7 @@ class ROB(n: Int) extends Module{
     }
 
     // wb stage
-    for(i <- 0 until 4){
+    for(i <- 0 until 5){
         when(io.inst_valid_wb(i)){
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).complete        := true.B
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).predict_fail    := io.predict_fail_wb(i)
