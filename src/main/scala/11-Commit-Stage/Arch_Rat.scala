@@ -12,7 +12,7 @@ class Arch_Rat_IO extends Bundle {
     val predict_fail    = Input(Bool())
 
     // for reg rename
-    val arch_rat        = Output(Vec(81, UInt(1.W)))
+    val arch_rat        = Output(Vec(85, UInt(1.W)))
     val head_arch       = Output(Vec(4, UInt(5.W)))
 
     // for ras
@@ -24,8 +24,8 @@ class Arch_Rat_IO extends Bundle {
 class Arch_Rat extends Module {
     val io = IO(new Arch_Rat_IO)
 
-    val arat = RegInit(VecInit(Seq.fill(81)(false.B)))
-    val arat_next = Wire(Vec(81, Bool()))
+    val arat = RegInit(VecInit(Seq.fill(85)(false.B)))
+    val arat_next = Wire(Vec(85, Bool()))
 
 
     val head = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
@@ -44,7 +44,7 @@ class Arch_Rat extends Module {
     val cmt_en = io.cmt_en.reduce(_||_)
     head_next := head
     for(i <- 0 until 4){
-        head_next(head_sel+i.U) := Mux(head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)) === 21.U, 0.U, head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)))
+        head_next(head_sel+i.U) := Mux(head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)) === 22.U, 0.U, head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)))
     }
     head := head_next
     head_sel := Mux(io.predict_fail, 0.U, head_sel + PopCount(io.cmt_en))
@@ -53,20 +53,15 @@ class Arch_Rat extends Module {
     val top = RegInit(0.U(4.W))
     val top_next = Wire(UInt(4.W))
     top_next := top
-    when(io.br_type_pred_cmt === JIRL && io.ras_update_en_cmt){
+    when(io.br_type_pred_cmt === RET && io.ras_update_en_cmt){
         top_next := top - 1.U
-    }.elsewhen(io.br_type_pred_cmt === BL && io.ras_update_en_cmt){
+    }.elsewhen((io.br_type_pred_cmt === BL || io.br_type_pred_cmt === ICALL) && io.ras_update_en_cmt){
         top_next := top + 1.U
     }
     top := top_next
     io.top_arch := top_next
-
-    for(i <- 0 until 81){
-        io.arch_rat(i) := arat_next(i)
-    }
-    for(i <- 0 until 4){
-        io.head_arch(i) := head_next(i)
-    }
+    io.arch_rat := arat_next
+    io.head_arch := head_next
 }
 
 // object ARCH_RAT_Func{

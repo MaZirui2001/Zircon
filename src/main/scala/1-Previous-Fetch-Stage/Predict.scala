@@ -15,8 +15,9 @@ object PRED_Config{
     val PHT_INDEX_WIDTH = 7
     val PHT_DEPTH = 1 << PHT_INDEX_WIDTH
 
-    val JIRL = 1.U(2.W)
+    val RET = 1.U(2.W)
     val BL = 2.U(2.W)
+    val ICALL = 3.U(2.W)
     val ELSE = 0.U(2.W)
 }
 
@@ -42,6 +43,9 @@ class Predict_IO extends Bundle{
     val pd_pred_fix = Input(Bool())
     val pd_pred_fix_is_bl = Input(Bool())
     val pd_pc_plus_4 = Input(UInt(32.W))
+    
+    // return
+    val ret_address = Input(UInt(32.W))
 }
 
 import PRED_Config._
@@ -55,7 +59,7 @@ class Predict extends Module{
 
     val ras = RegInit(VecInit(Seq.fill(16)(0x1c000000.U(32.W))))
     val top = RegInit(0.U(4.W))
-    val jirl_sel = RegInit(0.U(2.W))
+    // val jirl_sel = RegInit(0.U(2.W))
 
     // check
     val npc             = io.npc
@@ -69,7 +73,7 @@ class Predict extends Module{
     val pht_rindex      = VecInit(Seq.tabulate(4)(i => (bht_rdata(i) ^ pc(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## Mux(pc(3, 2) > i.U(2.W), pc(PHT_INDEX_WIDTH-1, 4) + 1.U, pc(PHT_INDEX_WIDTH-1, 4))))
     val pht_rdata       = VecInit(Seq.tabulate(4)(i => pht(i)(pht_rindex(i))))
 
-    val predict_jump    = VecInit(Seq.tabulate(4)(i => pht_rdata(i)(1) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
+    val predict_jump    = VecInit(Seq.tabulate(4)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
     val predict_valid   = VecInit(Seq.tabulate(4)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
 
     val pred_valid      = (15.U(4.W) >> (Mux(pc(5, 4) === 3.U, pc(3, 2), 0.U)))
@@ -86,7 +90,8 @@ class Predict extends Module{
 
     io.predict_jump     := pred_hit_oh.asBools
     io.pred_valid       := pred_valid_hit
-    io.pred_npc         := Mux(btb_rdata(pred_hit_index_raw).typ === JIRL && !jirl_sel(1), ras(top-1.U), btb_rdata(pred_hit_index_raw).target ## 0.U(2.W)) 
+    io.pred_npc         := Mux(btb_rdata(pred_hit_index_raw).typ === RET, ras(top-1.U), btb_rdata(pred_hit_index_raw).target ## 0.U(2.W)) 
+    
     // update
     val update_en       = io.update_en
     // btb
@@ -134,28 +139,25 @@ class Predict extends Module{
                                             pht(io.pc_cmt(3, 2))(pht_windex) - (pht(io.pc_cmt(3, 2))(pht_windex) =/= 0.U))
     }
 
-
     // RAS
     when(io.predict_fail){
-        when(io.br_type === JIRL){
-            top := io.top_arch
-        }
+        top := io.top_arch
     }
     .elsewhen(io.pd_pred_fix){
         when(io.pd_pred_fix_is_bl){
             top := top + 1.U
             ras(top) := io.pd_pc_plus_4
         }
-    }.elsewhen(btb_rdata(pred_hit_index_raw).typ === BL){
+    }.elsewhen((btb_rdata(pred_hit_index_raw).typ === BL || btb_rdata(pred_hit_index_raw).typ === ICALL) && io.pred_valid(pred_hit_index)){
         top := top + 1.U
         ras(top) := pc + (pred_hit_index ## 0.U(2.W)) + 4.U
-    }.elsewhen(btb_rdata(pred_hit_index_raw).typ === JIRL){
+    }.elsewhen(btb_rdata(pred_hit_index_raw).typ === RET && io.pred_valid(pred_hit_index)){
         top := top - 1.U
     }
 
-    when(io.ras_update_en && io.br_type === JIRL){
-        jirl_sel := Mux(io.predict_fail, Mux(jirl_sel(0), 2.U, 1.U), Mux(jirl_sel(1), 3.U, 0.U))
-    }
+    // when(io.ras_update_en && io.br_type === RET){
+    //     jirl_sel := Mux(io.predict_fail, Mux(jirl_sel(0), 2.U, 1.U), Mux(jirl_sel(1), 3.U, 0.U))
+    // }
 
 }
 

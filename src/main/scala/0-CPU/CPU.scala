@@ -135,8 +135,8 @@ class CPU(RESET_VEC: Int) extends Module {
     val sel1            = Module(new Unorder_Select(8, new inst_pack_DP_FU1_t))
     val ir_reg1         = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
 
-    val iq2             = Module(new Unorder_Issue_Queue(12, new inst_pack_DP_FU2_t))
-    val sel2            = Module(new Unorder_Select(12, new inst_pack_DP_FU2_t))
+    val iq2             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_FU2_t))
+    val sel2            = Module(new Unorder_Select(8, new inst_pack_DP_FU2_t))
     val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
 
     val iq3             = Module(new Unorder_Issue_Queue(12, new inst_pack_DP_LS_t))
@@ -169,7 +169,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val ew_reg2         = Module(new FU2_EX_WB_Reg)
 
     // val bypass3         = Module(new Bypass)
-    val sb              = Module(new SB(8))
+    val sb              = Module(new SB(16))
     val dcache          = Module(new DCache)
     val ls_ex_mem_reg   = Module(new LS_EX_MEM_Reg) 
     val ew_reg3         = Module(new LS_EX2_WB_Reg)
@@ -211,6 +211,7 @@ class CPU(RESET_VEC: Int) extends Module {
     predict.io.pd_pred_fix          := pd.io.pred_fix
     predict.io.pd_pred_fix_is_bl    := pd.io.pred_fix_is_bl
     predict.io.pd_pc_plus_4         := pd.io.pred_fix_pc_plus_4
+    predict.io.ret_address          := rob.io.ret_address
 
     // PF-IF SegReg
     val pcs_PF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
@@ -572,9 +573,10 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // WB stage
     val is_store_rn = VecInit(Seq.tabulate(4)(i => (dr_reg.io.insts_pack_RN(i).mem_type(4))))
-    val br_type_pred = VecInit(Seq.tabulate(4)(i => Mux(dr_reg.io.insts_pack_RN(i).br_type === NO_BR, 3.U, 
+    val br_type_pred = VecInit(Seq.tabulate(4)(i => Mux(dr_reg.io.insts_pack_RN(i).br_type === BR_JIRL && dr_reg.io.insts_pack_RN(i).rd === 1.U, 3.U, 
                                                     Mux(dr_reg.io.insts_pack_RN(i).br_type === BR_JIRL && dr_reg.io.insts_pack_RN(i).rj === 1.U, 1.U(2.W), 
                                                     Mux(dr_reg.io.insts_pack_RN(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W))))))
+    val pred_update_en = VecInit(Seq.tabulate(4)(i => (dr_reg.io.insts_pack_RN(i).br_type =/= NO_BR)))
     rob.io.inst_valid_rn        := dr_reg.io.insts_pack_RN.map(_.inst_valid)
     rob.io.rd_rn                := dr_reg.io.insts_pack_RN.map(_.rd)
     rob.io.rd_valid_rn          := dr_reg.io.insts_pack_RN.map(_.rd_valid)
@@ -583,6 +585,7 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.pc_rn                := dr_reg.io.insts_pack_RN.map(_.pc)
     rob.io.is_store_rn          := is_store_rn
     rob.io.stall                := dr_reg.io.stall
+    rob.io.pred_update_en_rn    := pred_update_en
     rob.io.br_type_pred_rn      := br_type_pred
 
     rob.io.inst_valid_wb        := VecInit(ew_reg1.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg2.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg3.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg4.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg5.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall)

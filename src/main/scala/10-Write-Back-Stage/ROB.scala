@@ -13,6 +13,7 @@ object ROB_Pack{
         val predict_fail        = Bool()
         val branch_target       = UInt(30.W)
         val real_jump           = Bool()
+        val pred_update_en      = Bool()
         val br_type_pred        = UInt(2.W)
         val complete            = Bool()
         val pc                  = UInt(30.W)
@@ -33,6 +34,7 @@ class ROB_IO(n: Int) extends Bundle{
     val pc_rn                   = Input(Vec(4, UInt(32.W)))
     val is_store_rn             = Input(Vec(4, Bool()))
     val br_type_pred_rn         = Input(Vec(4, UInt(2.W)))
+    val pred_update_en_rn       = Input(Vec(4, Bool()))
     val full                    = Output(Bool())
     val stall                   = Input(Bool())
 
@@ -67,6 +69,8 @@ class ROB_IO(n: Int) extends Bundle{
 
     val rf_wdata_cmt            = Output(Vec(4, UInt(32.W)))
 
+    val ret_address             = Output(UInt(32.W))
+
     // stat
     val predict_fail_stat       = Output(Vec(4, Bool()))
     val br_type_stat            = Output(Vec(4, UInt(2.W)))
@@ -86,6 +90,8 @@ class ROB(n: Int) extends Module{
     val empty       = VecInit(elem_num.map(_ === 0.U))
     val full        = VecInit(elem_num.map(_ === neach.U)).reduce(_||_)
 
+    val ret_addr_reg = RegInit(0x1c000000.U)
+
     val inst_valid_rn = io.inst_valid_rn.reduce(_||_)
     // rn stage
     when(!full){
@@ -98,6 +104,7 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).pc              := io.pc_rn(i)(31, 2)
                 rob(i)(tail).is_store        := io.is_store_rn(i)
                 rob(i)(tail).br_type_pred    := io.br_type_pred_rn(i)
+                rob(i)(tail).pred_update_en  := io.pred_update_en_rn(i)
                 rob(i)(tail).complete        := false.B
             }
         }
@@ -128,7 +135,7 @@ class ROB(n: Int) extends Module{
     val rob_update_items        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U))))
     io.full                     := full
     val predict_fail_bit        = VecInit(Seq.tabulate(4)(i => rob_update_items(i).predict_fail && io.cmt_en(i)))
-    val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob_update_items(i).br_type_pred =/= 3.U && io.cmt_en(i)))
+    val pred_update_en_bit      = VecInit(Seq.tabulate(4)(i => rob_update_items(i).pred_update_en && io.cmt_en(i)))
     val ras_update_en_bit       = VecInit(Seq.tabulate(4)(i => pred_update_en_bit(i) && rob_update_items(i).br_type_pred =/= 0.U))
 
     val pred_fail_index         = OHToUInt(predict_fail_bit.asUInt)
@@ -153,6 +160,11 @@ class ROB(n: Int) extends Module{
     io.ras_type_pred_cmt        := rob_ras_update_item.br_type_pred
     io.pred_pc_cmt              := rob_jump_update_item.pc ## 0.U(2.W)
     io.pred_real_jump_cmt       := rob_jump_update_item.real_jump
+
+    when(io.ras_type_pred_cmt === 2.U && io.ras_update_en_cmt){
+        ret_addr_reg := (rob_ras_update_item.pc ## 0.U(2.W)) + 4.U
+    }
+    io.ret_address              := ret_addr_reg
 
     // update store buffer
     val is_store_cmt_bit        = VecInit(Seq.tabulate(4)(i => rob_update_items(i).is_store && io.cmt_en(i)))
