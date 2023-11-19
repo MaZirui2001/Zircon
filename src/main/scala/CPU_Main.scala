@@ -11,7 +11,7 @@ object CPU_Main extends App {
                             "-O=release",
                             "--ignore-read-enable-mem",
                             "--lower-memories",
-                            "--lowering-options=disallowLocalVariables, explicitBitcast, mitigateVivadoArrayIndexConstPropBug",
+                            "--lowering-options=disallowLocalVariables, explicitBitcast, disallowMuxInlining, disallowExpressionInliningInPorts, verifLabels",
                             "-o=verilog/",
                             "-split-verilog",
                             )

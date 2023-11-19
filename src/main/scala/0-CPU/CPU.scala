@@ -169,7 +169,7 @@ class CPU(RESET_VEC: Int) extends Module {
     val ew_reg2         = Module(new FU2_EX_WB_Reg)
 
     // val bypass3         = Module(new Bypass)
-    val sb              = Module(new SB(16))
+    val sb              = Module(new SB(8))
     val dcache          = Module(new DCache)
     val ls_ex_mem_reg   = Module(new LS_EX_MEM_Reg) 
     val ew_reg3         = Module(new LS_EX2_WB_Reg)
@@ -211,7 +211,6 @@ class CPU(RESET_VEC: Int) extends Module {
     predict.io.pd_pred_fix          := pd.io.pred_fix
     predict.io.pd_pred_fix_is_bl    := pd.io.pred_fix_is_bl
     predict.io.pd_pc_plus_4         := pd.io.pred_fix_pc_plus_4
-    predict.io.ret_address          := rob.io.ret_address
 
     // PF-IF SegReg
     val pcs_PF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)

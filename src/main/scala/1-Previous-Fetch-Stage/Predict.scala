@@ -44,8 +44,6 @@ class Predict_IO extends Bundle{
     val pd_pred_fix_is_bl = Input(Bool())
     val pd_pc_plus_4 = Input(UInt(32.W))
     
-    // return
-    val ret_address = Input(UInt(32.W))
 }
 
 import PRED_Config._

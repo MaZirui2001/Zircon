@@ -12,10 +12,8 @@ object SB_Pack {
 
 class SB_IO extends Bundle {
     // for write in ex stage
-    // val is_store_ex     = Input(Bool())
     val addr_ex         = Input(UInt(32.W))
     val st_data_ex      = Input(UInt(32.W))
-    // val st_wlen_ex      = Input(UInt(2.W))
     val mem_type_ex     = Input(UInt(5.W))
     val full            = Output(Bool())
 
@@ -23,7 +21,6 @@ class SB_IO extends Bundle {
     val is_store_num_cmt = Input(UInt(2.W))
     val st_cmt_valid     = Output(Bool())
     val dcache_miss      = Input(Bool())
-    // val st_cmt_ready     = Input(Bool())
     val st_addr_cmt      = Output(UInt(32.W))
     val st_data_cmt      = Output(UInt(32.W))
     val st_wlen_cmt      = Output(UInt(2.W))
@@ -98,5 +95,4 @@ class SB(n: Int) extends Module {
         MEM_LDBU -> Fill(24, 0.U) ## ld_data_ex(7, 0),
         MEM_LDHU -> Fill(16, 0.U) ## ld_data_ex(15, 0),
     ))
-    // io.ld_data_ex := rdata(OHToUInt(ld_hit_index))
 }
