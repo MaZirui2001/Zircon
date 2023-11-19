@@ -62,8 +62,9 @@ object Control_Signal{
     // fu_id
     val ARITH    = 0.U(2.W)
     val BR       = 1.U(2.W)
-    val LS       = 2.U(2.W)
-    val MD       = 3.U(2.W)
+    val MD       = 2.U(2.W)
+    val LS       = 3.U(2.W)
+
 
     // rk_sel
     val RD       = 0.U(1.W)
