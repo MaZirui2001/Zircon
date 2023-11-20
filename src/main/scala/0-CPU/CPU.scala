@@ -281,10 +281,10 @@ class CPU(RESET_VEC: Int) extends Module {
     bd.io.prk                   := rp_reg.io.insts_pack_DP.map(_.prk)
     bd.io.rk_valid              := rp_reg.io.insts_pack_DP.map(_.rk_valid)
     bd.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, sel3.io.wake_preg, sel4.io.wake_preg, re_reg5.io.inst_pack_EX.prd)
-    bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid && !dcache.io.cache_miss_MEM, 
-                                           sel2.io.inst_issue_valid && !dcache.io.cache_miss_MEM, 
-                                           sel3.io.inst_issue_valid && !dcache.io.cache_miss_MEM, 
-                                           sel4.io.inst_issue_valid && !dcache.io.cache_miss_MEM,
+    bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid,
+                                           sel2.io.inst_issue_valid,
+                                           sel3.io.inst_issue_valid,
+                                           sel4.io.inst_issue_valid,
                                            re_reg5.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM)
     bd.io.prd_disp              := rp_reg.io.insts_pack_DP.map(_.prd)
     bd.io.prd_disp_valid        := rp_reg.io.insts_pack_DP.map(_.rd_valid)
@@ -300,12 +300,15 @@ class CPU(RESET_VEC: Int) extends Module {
     iq1.io.issue_ack            := sel1.io.issue_ack
     iq1.io.flush                := rob.io.predict_fail_cmt
     iq1.io.stall                := stall_by_iq
+    iq1.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq1.io.dcache_miss          := dcache.io.cache_miss_MEM
+
     
     sel1.io.insts_issue         := iq1.io.insts_issue
     sel1.io.issue_req           := iq1.io.issue_req
     sel1.io.stall               := !(iq1.io.issue_req.reduce(_||_)) || ir_reg1.io.stall || ShiftRegister(ir_reg1.io.stall, 1, false.B, true.B)////
 
-    // 2. arith2, calculate and branch 
+    // 2. arith2, common calculate
     iq2.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_FU1_gen(rp_reg.io.insts_pack_DP(i))))
     iq2.io.insts_disp_index     := dp.io.insts_disp_index(1)
     iq2.io.insts_disp_valid     := dp.io.insts_disp_valid(1)
@@ -314,12 +317,14 @@ class CPU(RESET_VEC: Int) extends Module {
     iq2.io.issue_ack            := sel2.io.issue_ack
     iq2.io.flush                := rob.io.predict_fail_cmt
     iq2.io.stall                := stall_by_iq
+    iq2.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq2.io.dcache_miss          := dcache.io.cache_miss_MEM
 
     sel2.io.insts_issue         := iq2.io.insts_issue
     sel2.io.issue_req           := iq2.io.issue_req
     sel2.io.stall               := !(iq2.io.issue_req.reduce(_||_)) || ir_reg2.io.stall || ShiftRegister(ir_reg2.io.stall, 1, false.B, true.B)////
 
-    // 3. load, load and store
+    // 3. arith3, calculate and branch
     iq3.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i))))
     iq3.io.insts_disp_index     := dp.io.insts_disp_index(2)
     iq3.io.insts_disp_valid     := dp.io.insts_disp_valid(2)
@@ -328,6 +333,8 @@ class CPU(RESET_VEC: Int) extends Module {
     iq3.io.issue_ack            := sel3.io.issue_ack
     iq3.io.flush                := rob.io.predict_fail_cmt
     iq3.io.stall                := stall_by_iq
+    iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq3.io.dcache_miss          := dcache.io.cache_miss_MEM
 
     sel3.io.insts_issue         := iq3.io.insts_issue
     sel3.io.issue_req           := iq3.io.issue_req
@@ -342,12 +349,14 @@ class CPU(RESET_VEC: Int) extends Module {
     iq4.io.issue_ack            := sel4.io.issue_ack
     iq4.io.flush                := rob.io.predict_fail_cmt
     iq4.io.stall                := stall_by_iq 
+    iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq4.io.dcache_miss          := dcache.io.cache_miss_MEM
 
     sel4.io.insts_issue         := iq4.io.insts_issue
     sel4.io.issue_req           := iq4.io.issue_req
     sel4.io.stall               := !(iq4.io.issue_req) || ir_reg4.io.stall || ShiftRegister(ir_reg4.io.stall, 1, false.B, true.B)////
 
-    // 5. ALU and logic
+    // 5. load and store
     iq5.io.insts_dispatch       := VecInit(Seq.tabulate(4)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i))))
     iq5.io.insts_disp_index     := dp.io.insts_disp_index(4)
     iq5.io.insts_disp_valid     := dp.io.insts_disp_valid(4)
@@ -356,22 +365,24 @@ class CPU(RESET_VEC: Int) extends Module {
     iq5.io.issue_ack            := sel5.io.issue_ack
     iq5.io.flush                := rob.io.predict_fail_cmt
     iq5.io.stall                := stall_by_iq
+    iq5.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq5.io.dcache_miss          := dcache.io.cache_miss_MEM
 
     sel5.io.insts_issue         := iq5.io.insts_issue
     sel5.io.issue_req           := iq5.io.issue_req
     sel5.io.stall               := !(iq5.io.issue_req.reduce(_||_)) || ir_reg5.io.stall || ShiftRegister(ir_reg5.io.stall, 1, false.B, true.B)////
 
     // mutual wakeup
-    val iq_inline_wake_preg     = VecInit(Mux(!dcache.io.cache_miss_MEM, sel1.io.wake_preg, 0.U), 
-                                          Mux(!dcache.io.cache_miss_MEM, sel2.io.wake_preg, 0.U), 
-                                          Mux(!dcache.io.cache_miss_MEM, sel3.io.wake_preg, 0.U),
-                                          Mux(!dcache.io.cache_miss_MEM, sel4.io.wake_preg, 0.U),
-                                          Mux(re_reg5.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM, re_reg5.io.inst_pack_EX.prd, 0.U))
+    val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, 
+                                          sel2.io.wake_preg, 
+                                          sel3.io.wake_preg,
+                                          sel4.io.wake_preg,
+                                          Mux(re_reg5.io.inst_pack_EX.rd_valid, re_reg5.io.inst_pack_EX.prd, 0.U))
 
-    val iq_mutual_wake_preg     = VecInit(Mux(ir_reg1.io.inst_pack_RF.rd_valid && !dcache.io.cache_miss_MEM, ir_reg1.io.inst_pack_RF.prd, 0.U),
-                                          Mux(ir_reg2.io.inst_pack_RF.rd_valid && !dcache.io.cache_miss_MEM, ir_reg2.io.inst_pack_RF.prd, 0.U),
-                                          Mux(ir_reg3.io.inst_pack_RF.rd_valid && !dcache.io.cache_miss_MEM, ir_reg3.io.inst_pack_RF.prd, 0.U),
-                                          Mux(ir_reg4.io.inst_pack_RF.rd_valid && !dcache.io.cache_miss_MEM, ir_reg4.io.inst_pack_RF.prd, 0.U),
+    val iq_mutual_wake_preg     = VecInit(Mux(ir_reg1.io.inst_pack_RF.rd_valid, ir_reg1.io.inst_pack_RF.prd, 0.U),
+                                          Mux(ir_reg2.io.inst_pack_RF.rd_valid, ir_reg2.io.inst_pack_RF.prd, 0.U),
+                                          Mux(ir_reg3.io.inst_pack_RF.rd_valid, ir_reg3.io.inst_pack_RF.prd, 0.U),
+                                          Mux(ir_reg4.io.inst_pack_RF.rd_valid, ir_reg4.io.inst_pack_RF.prd, 0.U),
                                           Mux(re_reg5.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM, re_reg5.io.inst_pack_EX.prd, 0.U))
     
     iq1.io.wake_preg            := VecInit(iq_inline_wake_preg(0), iq_inline_wake_preg(1), iq_inline_wake_preg(2), iq_mutual_wake_preg(3), iq_mutual_wake_preg(4))
@@ -382,19 +393,19 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // IS-RF SegReg
     ir_reg1.io.flush         := rob.io.predict_fail_cmt
-    ir_reg1.io.stall         := false.B || dcache.io.cache_miss_MEM ////
+    ir_reg1.io.stall         := false.B
     ir_reg1.io.inst_pack_IS  := inst_pack_IS_FU1_gen(sel1.io.inst_issue.inst, sel1.io.inst_issue_valid)
 
     ir_reg2.io.flush         := rob.io.predict_fail_cmt
-    ir_reg2.io.stall         := false.B || dcache.io.cache_miss_MEM ////
+    ir_reg2.io.stall         := false.B
     ir_reg2.io.inst_pack_IS  := inst_pack_IS_FU1_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
 
     ir_reg3.io.flush         := rob.io.predict_fail_cmt
-    ir_reg3.io.stall         := false.B || dcache.io.cache_miss_MEM ////
+    ir_reg3.io.stall         := false.B
     ir_reg3.io.inst_pack_IS  := inst_pack_IS_FU2_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
 
     ir_reg4.io.flush         := rob.io.predict_fail_cmt
-    ir_reg4.io.stall         := false.B || dcache.io.cache_miss_MEM ////
+    ir_reg4.io.stall         := false.B
     ir_reg4.io.inst_pack_IS  := inst_pack_IS_MD_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid)
 
     ir_reg5.io.flush         := rob.io.predict_fail_cmt
@@ -410,31 +421,31 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // RF-EX SegReg
     re_reg1.io.flush         := rob.io.predict_fail_cmt
-    re_reg1.io.stall         := false.B || dcache.io.cache_miss_MEM ////
+    re_reg1.io.stall         := false.B
     re_reg1.io.inst_pack_RF  := ir_reg1.io.inst_pack_RF
     re_reg1.io.src1_RF       := rf.io.prj_data(0)
     re_reg1.io.src2_RF       := rf.io.prk_data(0)
 
     re_reg2.io.flush         := rob.io.predict_fail_cmt
-    re_reg2.io.stall         := false.B || dcache.io.cache_miss_MEM ////
+    re_reg2.io.stall         := false.B
     re_reg2.io.inst_pack_RF  := ir_reg2.io.inst_pack_RF
     re_reg2.io.src1_RF       := rf.io.prj_data(1)
     re_reg2.io.src2_RF       := rf.io.prk_data(1)
 
     re_reg3.io.flush         := rob.io.predict_fail_cmt
-    re_reg3.io.stall         := false.B || dcache.io.cache_miss_MEM
+    re_reg3.io.stall         := false.B
     re_reg3.io.inst_pack_RF  := ir_reg3.io.inst_pack_RF
     re_reg3.io.src1_RF       := rf.io.prj_data(2) 
     re_reg3.io.src2_RF       := rf.io.prk_data(2)
 
     re_reg4.io.flush         := rob.io.predict_fail_cmt
-    re_reg4.io.stall         := false.B || dcache.io.cache_miss_MEM ////
+    re_reg4.io.stall         := false.B
     re_reg4.io.inst_pack_RF  := ir_reg4.io.inst_pack_RF
     re_reg4.io.src1_RF       := rf.io.prj_data(3)
     re_reg4.io.src2_RF       := rf.io.prk_data(3)
 
     re_reg5.io.flush         := rob.io.predict_fail_cmt || !re_reg5.io.stall && (sb.io.st_cmt_valid && ir_reg5.io.inst_pack_RF.mem_type(3))
-    re_reg5.io.stall         := sb.io.full || dcache.io.cache_miss_MEM ////
+    re_reg5.io.stall         := sb.io.full || dcache.io.cache_miss_MEM
     re_reg5.io.inst_pack_RF  := ir_reg5.io.inst_pack_RF
     re_reg5.io.src1_RF       := rf.io.prj_data(4) + ir_reg5.io.inst_pack_RF.imm
     re_reg5.io.src2_RF       := rf.io.prk_data(4)
@@ -454,7 +465,7 @@ class CPU(RESET_VEC: Int) extends Module {
     )
     
     ew_reg1.io.flush          := rob.io.predict_fail_cmt
-    ew_reg1.io.stall          := false.B || dcache.io.cache_miss_MEM ////
+    ew_reg1.io.stall          := false.B
     ew_reg1.io.inst_pack_EX   := re_reg1.io.inst_pack_EX
     ew_reg1.io.alu_out_EX     := alu1.io.alu_out
 
@@ -472,7 +483,7 @@ class CPU(RESET_VEC: Int) extends Module {
     )
 
     ew_reg2.io.flush            := rob.io.predict_fail_cmt
-    ew_reg2.io.stall            := false.B || dcache.io.cache_miss_MEM ////
+    ew_reg2.io.stall            := false.B
     ew_reg2.io.inst_pack_EX     := re_reg2.io.inst_pack_EX
     ew_reg2.io.alu_out_EX       := alu2.io.alu_out
 
@@ -505,7 +516,7 @@ class CPU(RESET_VEC: Int) extends Module {
     bypass123.io.rd_valid_wb   := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg3.io.inst_pack_WB.rd_valid)
 
     ew_reg3.io.flush              := rob.io.predict_fail_cmt
-    ew_reg3.io.stall              := false.B || dcache.io.cache_miss_MEM ////
+    ew_reg3.io.stall              := false.B
     ew_reg3.io.inst_pack_EX       := re_reg3.io.inst_pack_EX
     ew_reg3.io.alu_out_EX         := alu3.io.alu_out
     ew_reg3.io.predict_fail_EX    := br.io.predict_fail
@@ -518,7 +529,7 @@ class CPU(RESET_VEC: Int) extends Module {
     mdu.io.src2                 := Mux(bypass4.io.forward_prk_en, bypass4.io.forward_prk_data, re_reg4.io.src2_EX)
 
     ew_reg4.io.flush            := rob.io.predict_fail_cmt
-    ew_reg4.io.stall            := false.B || dcache.io.cache_miss_MEM ////
+    ew_reg4.io.stall            := false.B
     ew_reg4.io.inst_pack_EX     := re_reg4.io.inst_pack_EX
     ew_reg4.io.md_out_EX        := mdu.io.md_out
 
@@ -562,8 +573,8 @@ class CPU(RESET_VEC: Int) extends Module {
     ls_ex_mem_reg.io.is_ucread_EX       := re_reg5.io.src1_EX(31, 28) === 0xa.U
 
     // MEM-WB SegReg
-    ew_reg5.io.flush                   := rob.io.predict_fail_cmt
-    ew_reg5.io.stall                   := false.B || dcache.io.cache_miss_MEM ////
+    ew_reg5.io.flush                   := rob.io.predict_fail_cmt || dcache.io.cache_miss_MEM
+    ew_reg5.io.stall                   := false.B  ////
     ew_reg5.io.inst_pack_EX2           := ls_ex_mem_reg.io.inst_pack_MEM
     ew_reg5.io.mem_rdata_EX2           := Mux(ls_ex_mem_reg.io.sb_hit_MEM, ls_ex_mem_reg.io.sb_rdata_MEM, dcache.io.rdata_MEM)
     ew_reg5.io.is_ucread_EX2           := ls_ex_mem_reg.io.is_ucread_MEM
