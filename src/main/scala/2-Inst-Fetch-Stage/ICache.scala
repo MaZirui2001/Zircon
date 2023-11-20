@@ -153,7 +153,7 @@ class ICache extends Module{
                 cache_miss_RM   := !cache_hit_RM
                 data_sel        := FROM_CMEM
 
-                icache_visit    := true.B
+                icache_visit    := !stall
                 icache_miss     := !cache_hit_RM
             }
         }
