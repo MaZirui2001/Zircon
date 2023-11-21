@@ -245,11 +245,8 @@ class DCache extends Module{
                 lru_hit_upd                 := cache_hit_MEM && !sb_all_hit
                 cache_miss_MEM              := !cache_hit_MEM && !sb_all_hit
                 data_sel                    := FROM_CMEM
-                //cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM && !sb_all_hit, wmask_byte, 0.U)
-                //dirty_we                    := is_store_MEM
                 wbuf_we                     := !cache_hit_MEM && !sb_all_hit
                 wfsm_en                     := !cache_hit_MEM && !sb_all_hit
-
                 dcache_visit                := true.B
                 dcache_miss                 := !cache_hit_MEM && !sb_all_hit
             }.elsewhen(mem_type_MEM(4)){
@@ -261,7 +258,6 @@ class DCache extends Module{
                 dirty_we                    := is_store_MEM
                 wbuf_we                     := !cache_hit_MEM
                 wfsm_en                     := !cache_hit_MEM
-
                 dcache_visit                := true.B
                 dcache_miss                 := !cache_hit_MEM
             }
