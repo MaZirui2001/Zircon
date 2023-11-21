@@ -11,7 +11,7 @@ object ROB_Pack{
         val prd                 = UInt(7.W)
         val pprd                = UInt(7.W)
         val predict_fail        = Bool()
-        val branch_target       = UInt(30.W)
+        val branch_target       = UInt(32.W)
         val real_jump           = Bool()
         val pred_update_en      = Bool()
         val br_type_pred        = UInt(2.W)
@@ -117,7 +117,7 @@ class ROB(n: Int) extends Module{
         when(io.inst_valid_wb(i)){
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).complete        := true.B
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).predict_fail    := io.predict_fail_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).branch_target   := io.branch_target_wb(i)(31, 2)
+            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).branch_target   := io.branch_target_wb(i)
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).rf_wdata        := io.rf_wdata_wb(i)
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).real_jump       := io.real_jump_wb(i)
             rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).is_ucread       := io.is_ucread_wb(i)
@@ -138,9 +138,9 @@ class ROB(n: Int) extends Module{
 
     io.ras_update_en_cmt        :=  pred_update_item.br_type_pred =/= ELSE && pred_update_item.pred_update_en
     io.predict_fail_cmt         :=  pred_update_item.predict_fail
-    io.branch_target_cmt        :=  Mux(pred_update_item.real_jump, pred_update_item.branch_target ## 0.U(2.W), (pred_update_item.pc ## 0.U(2.W)) + 4.U)
+    io.branch_target_cmt        :=  Mux(pred_update_item.real_jump, pred_update_item.branch_target, (pred_update_item.pc ## 0.U(2.W)) + 4.U)
     io.pred_update_en_cmt       :=  pred_update_item.pred_update_en
-    io.pred_branch_target_cmt   :=  pred_update_item.branch_target ## 0.U(2.W)
+    io.pred_branch_target_cmt   :=  pred_update_item.branch_target
     io.br_type_pred_cmt         :=  pred_update_item.br_type_pred
     io.ras_type_pred_cmt        :=  pred_update_item.br_type_pred
     io.pred_pc_cmt              :=  pred_update_item.pc ## 0.U(2.W)
@@ -155,7 +155,7 @@ class ROB(n: Int) extends Module{
     io.rd_valid_cmt             := rob_commit_items.map(_.rd_valid)
     io.prd_cmt                  := rob_commit_items.map(_.prd)
     io.pprd_cmt                 := rob_commit_items.map(_.pprd)
-    io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob_commit_items(i).real_jump, rob_commit_items(i).branch_target ## 0.U(2.W), (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U)))
+    io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U)))
     io.rf_wdata_cmt             := rob_commit_items.map(_.rf_wdata)
     io.is_ucread_cmt            := VecInit(Seq.tabulate(4)(i => rob_commit_items(i).is_ucread && io.cmt_en(i)))
     
