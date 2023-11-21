@@ -69,7 +69,6 @@ class ROB_IO(n: Int) extends Bundle{
 
     val rf_wdata_cmt            = Output(Vec(4, UInt(32.W)))
 
-    // val ret_address             = Output(UInt(32.W))
 
     // stat
     val predict_fail_stat       = Output(Vec(4, Bool()))

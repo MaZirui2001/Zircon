@@ -23,7 +23,7 @@ class DCache_IO extends Bundle{
     val wdata_RF        = Input(UInt(32.W))
 
     // MEM stage
-    val sb_hit_MEM      = Input(Bool())
+    val sb_hit_MEM      = Input(Vec(4, Bool()))
     val cache_miss_MEM  = Output(Bool())
     val rdata_MEM       = Output(UInt(32.W))
 
@@ -193,8 +193,8 @@ class DCache extends Module{
     val highest_index   = (1.U << mem_type_MEM(1, 0)) ## 0.U(3.W)
     val highest_mask    = (UIntToOH(highest_index)(31, 0) - 1.U)(31, 0)
     val rmask           = highest_mask
-    val rfill           = Mux(mem_type_MEM(2), 0.U(1.W), rdata_MEM_temp((highest_index - 1.U)(4, 0)))
-    val rdata_MEM       = (rmask & rdata_MEM_temp) | (~rmask & Fill(32, rfill))
+    // val rfill           = Mux(mem_type_MEM(2), 0.U(1.W), rdata_MEM_temp((highest_index - 1.U)(4, 0)))
+    val rdata_MEM       = (rmask & rdata_MEM_temp) //| (~rmask & Fill(32, rfill))
 
     /* write logic */
     val wmask           = Mux(mem_type_MEM(3), 0.U((8*OFFSET_DEPTH).W), ((0.U((8*OFFSET_DEPTH-32).W) ## highest_mask) << block_offset))
@@ -234,23 +234,36 @@ class DCache extends Module{
     /* read state machine */
     val s_idle :: s_miss :: s_refill :: s_wait :: Nil = Enum(4)
     val state = RegInit(s_idle)
+    val sb_all_hit = sb_hit_MEM.reduce(_&&_)
 
     switch(state){
         is(s_idle){
             addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
             // has req
-            when(mem_type_MEM(4, 3).orR){
-                state                       := Mux(cache_hit_MEM || sb_hit_MEM, s_idle, s_miss)
-                lru_hit_upd                 := cache_hit_MEM && !sb_hit_MEM
-                cache_miss_MEM              := !cache_hit_MEM && !sb_hit_MEM
+            when(mem_type_MEM(3).orR){
+                state                       := Mux(cache_hit_MEM || sb_all_hit, s_idle, s_miss)
+                lru_hit_upd                 := cache_hit_MEM && !sb_all_hit
+                cache_miss_MEM              := !cache_hit_MEM && !sb_all_hit
                 data_sel                    := FROM_CMEM
-                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM && !sb_hit_MEM, wmask_byte, 0.U)
-                dirty_we                    := is_store_MEM
-                wbuf_we                     := !cache_hit_MEM && !sb_hit_MEM
-                wfsm_en                     := !cache_hit_MEM && !sb_hit_MEM
+                //cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM && !sb_all_hit, wmask_byte, 0.U)
+                //dirty_we                    := is_store_MEM
+                wbuf_we                     := !cache_hit_MEM && !sb_all_hit
+                wfsm_en                     := !cache_hit_MEM && !sb_all_hit
 
                 dcache_visit                := true.B
-                dcache_miss                 := !cache_hit_MEM && !sb_hit_MEM
+                dcache_miss                 := !cache_hit_MEM && !sb_all_hit
+            }.elsewhen(mem_type_MEM(4)){
+                state                       := Mux(cache_hit_MEM, s_idle, s_miss)
+                lru_hit_upd                 := cache_hit_MEM
+                cache_miss_MEM              := !cache_hit_MEM
+                data_sel                    := FROM_CMEM
+                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM, wmask_byte, 0.U)
+                dirty_we                    := is_store_MEM
+                wbuf_we                     := !cache_hit_MEM
+                wfsm_en                     := !cache_hit_MEM
+
+                dcache_visit                := true.B
+                dcache_miss                 := !cache_hit_MEM
             }
         }
         is(s_miss){

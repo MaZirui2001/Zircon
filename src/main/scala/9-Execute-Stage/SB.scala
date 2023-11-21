@@ -28,7 +28,7 @@ class SB_IO extends Bundle {
 
     // for read in ex stage
     val ld_data_ex       = Output(UInt(32.W))
-    val ld_hit           = Output(Bool())
+    val ld_hit           = Output(Vec(4, Bool()))
 }
 
 class SB(n: Int) extends Module {
@@ -78,21 +78,59 @@ class SB(n: Int) extends Module {
 
     // read from ex
     val ld_addr_ex = io.addr_ex
-    val ld_hit = Wire(Vec(n, Bool()))
-    for(i <- 0 until n){
-        ld_hit(i) := (sb(tail(log2Ceil(n)-1, 0)-i.U).addr <= ld_addr_ex && ld_addr_ex < sb(tail(log2Ceil(n)-1, 0)-i.U).addr + (1.U(32.W) << sb(tail(log2Ceil(n)-1, 0)-i.U).wlen) 
-                        && Mux(head(log2Ceil(n)) ^ tail(log2Ceil(n)), tail(log2Ceil(n)-1, 0)-i.U >= head(log2Ceil(n)-1, 0) || tail(log2Ceil(n)-1, 0)-i.U < tail(log2Ceil(n)-1, 0), tail(log2Ceil(n)-1, 0)-i.U >= head(log2Ceil(n)-1, 0) && tail(log2Ceil(n)-1, 0)-i.U < tail(log2Ceil(n)-1, 0)))
+    val ld_hit = Wire(Vec(4, Vec(n, Bool())))
+    val ld_mask = (UIntToOH(UIntToOH(io.mem_type_ex(1, 0))) - 1.U)(3, 0)
+    val hit_item = Wire(Vec(4, new sb_t))
+    val sb_tail_first = VecInit(Seq.tabulate(n)(i => sb(tail(log2Ceil(n)-1, 0)-i.U)))
+    val ld_bit_hit = VecInit(Seq.tabulate(4)(i => ld_hit(i).reduce(_||_) && ld_mask(i)))
+    for(i <- 0 until 4){
+        val addr_ex = ld_addr_ex + i.U
+        for(j <- 0 until n){
+            val in_queue = Mux(head(log2Ceil(n)) ^ tail(log2Ceil(n)), tail(log2Ceil(n)-1, 0)-j.U >= head(log2Ceil(n)-1, 0) || tail(log2Ceil(n)-1, 0)-j.U < tail(log2Ceil(n)-1, 0), tail(log2Ceil(n)-1, 0)-j.U >= head(log2Ceil(n)-1, 0) && tail(log2Ceil(n)-1, 0)-j.U < tail(log2Ceil(n)-1, 0))
+            ld_hit(i)(j) := (sb_tail_first(j).addr <= addr_ex && sb_tail_first(j).addr + UIntToOH(sb_tail_first(j).wlen) > addr_ex) && in_queue 
+        }
+        val ld_hit_index = PriorityEncoder(ld_hit(i).asUInt)
+        hit_item(i) := Mux(ld_bit_hit(i), sb_tail_first(ld_hit_index), 0.U.asTypeOf(new sb_t))
     }
 
-    io.ld_hit := ld_hit.exists(_ === true.B) && io.mem_type_ex(3)
-    val ld_hit_index = PriorityEncoderOH(ld_hit)
-    val rdata = VecInit.tabulate(n)(i => sb(tail(log2Ceil(n)-1,0)-i.U).data)
-    val ld_data_ex = rdata(OHToUInt(ld_hit_index))
-    io.ld_data_ex := MuxLookup(io.mem_type_ex, 0.U)(Seq(
-        MEM_LDB -> Fill(24, ld_data_ex(7)) ## ld_data_ex(7, 0),
-        MEM_LDH -> Fill(16, ld_data_ex(15)) ## ld_data_ex(15, 0),
-        MEM_LDW -> ld_data_ex,
-        MEM_LDBU -> Fill(24, 0.U) ## ld_data_ex(7, 0),
-        MEM_LDHU -> Fill(16, 0.U) ## ld_data_ex(15, 0),
-    ))
+    val ld_hit_data = Wire(Vec(4, UInt(8.W)))
+
+    for(i <- 0 until 4){
+        val hit_byte = (hit_item(i).data >> ((ld_addr_ex + i.U - hit_item(i).addr) ## 0.U(3.W)))(7, 0)
+        ld_hit_data(i) := Mux(ld_bit_hit(i), hit_byte, 0.U)
+    }
+    val ld_hit_mask = (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0) & Fill(4, io.mem_type_ex(3))
+    io.ld_data_ex := ld_hit_data.asUInt
+    io.ld_hit := (ld_hit_mask | ld_bit_hit.asUInt).asBools
+    //val ld_hit = Wire(Vec(4, Vec(n, Bool())))
+    //val ld_byte_hit = Wire(Vec(4, Vec(n, Bool())))
+    // for(j <- 0 until 4){
+    //     for(i <- 0 until n){
+    //         ld_hit(j)(i) := (sb(tail(log2Ceil(n)-1, 0)-i.U).addr === ld_addr_ex + j.U) && Mux(head(log2Ceil(n)) ^ tail(log2Ceil(n)), tail(log2Ceil(n)-1, 0)-i.U >= head(log2Ceil(n)-1, 0) || tail(log2Ceil(n)-1, 0)-i.U < tail(log2Ceil(n)-1, 0), tail(log2Ceil(n)-1, 0)-i.U >= head(log2Ceil(n)-1, 0) && tail(log2Ceil(n)-1, 0)-i.U < tail(log2Ceil(n)-1, 0))
+    //         //ld_byte_hit(j)(i) := (sb(tail(log2Ceil(n)-1, 0)-i.U).addr === ld_addr_ex + j.U) && Mux(head(log2Ceil(n)) ^ tail(log2Ceil(n)), tail(log2Ceil(n)-1, 0)-i.U >= head(log2Ceil(n)-1, 0) || tail(log2Ceil(n)-1, 0)-i.U < tail(log2Ceil(n)-1, 0), tail(log2Ceil(n)-1, 0)-i.U >= head(log2Ceil(n)-1, 0) && tail(log2Ceil(n)-1, 0)-i.U < tail(log2Ceil(n)-1, 0))
+    //     }
+    // }
+    // val ld_mask = (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0) & Fill(4, io.mem_type_ex(3))
+    // val byte_hit = VecInit(ld_hit.map(_.reduce(_||_) && io.mem_type_ex(3)))
+
+    // val ld_hit_index = VecInit(Seq.tabulate(4)(i => PriorityEncoder(ld_hit(i).asUInt)))
+    // val data_all = VecInit(Seq.tabulate(n)(i => sb(tail(log2Ceil(n)-1,0)-i.U).data))
+    // val wlen_all = VecInit(Seq.tabulate(n)(i => sb(tail(log2Ceil(n)-1,0)-i.U).wlen))
+    // val rdata = VecInit(Seq.tabulate(4)(i => Mux(byte_hit(i), (data_all(ld_hit_index(i)) << (i.U ## 0.U(3.W))) , 0.U)))
+    // val ld_data_ex = rdata.reduce(_|_)
+    // val ld_hit_mask = (((1.U << VecInit(Seq.tabulate(4)(i => Mux(byte_hit(i), 1.U << (wlen_all(ld_hit_index(i))), 0.U))).reduce(_+_)) - 1.U) << )(3, 0)
+    // io.ld_hit := (ld_hit_mask | ld_mask.asUInt).asBools
+
+    // // io.ld_data_ex := MuxLookup(io.mem_type_ex, 0.U)(Seq(
+    // //     MEM_LDB -> Fill(24, ld_data_ex(7)) ## ld_data_ex(7, 0),
+    // //     MEM_LDH -> Fill(16, ld_data_ex(15)) ## ld_data_ex(15, 0),
+    // //     MEM_LDW -> ld_data_ex,
+    // //     MEM_LDBU -> Fill(24, 0.U) ## ld_data_ex(7, 0),
+    // //     MEM_LDHU -> Fill(16, 0.U) ## ld_data_ex(15, 0),
+    // // ))
+    // io.ld_data_ex := MuxLookup(io.mem_type_ex(1, 0), 0.U)(Seq(
+    //     0.U(2.W) -> ld_data_ex(7, 0),
+    //     1.U(2.W) -> ld_data_ex(15, 0),
+    //     2.U(2.W) -> ld_data_ex(31, 0)
+    // ))
 }

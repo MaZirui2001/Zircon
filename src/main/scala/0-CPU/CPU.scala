@@ -567,16 +567,25 @@ class CPU(RESET_VEC: Int) extends Module {
     ls_ex_mem_reg.io.flush              := rob.io.predict_fail_cmt
     ls_ex_mem_reg.io.stall              := dcache.io.cache_miss_MEM
     ls_ex_mem_reg.io.inst_pack_EX       := re_reg5.io.inst_pack_EX
+    ls_ex_mem_reg.io.mem_type_EX        := re_reg5.io.inst_pack_EX.mem_type
     ls_ex_mem_reg.io.sb_hit_EX          := sb.io.ld_hit
     ls_ex_mem_reg.io.sb_rdata_EX        := sb.io.ld_data_ex
     ls_ex_mem_reg.io.sb_st_cmt_valid_EX := sb.io.st_cmt_valid
     ls_ex_mem_reg.io.is_ucread_EX       := re_reg5.io.src1_EX(31, 28) === 0xa.U
 
     // MEM-WB SegReg
+    val mem_rdata_raw                  = VecInit(Seq.tabulate(32)(i => Mux(ls_ex_mem_reg.io.sb_hit_MEM(i.U(4, 3)), ls_ex_mem_reg.io.sb_rdata_MEM(i), dcache.io.rdata_MEM(i)))).asUInt 
+    val mem_rdata                      = MuxLookup(ls_ex_mem_reg.io.mem_type_MEM, 0.U)(Seq(
+        MEM_LDB -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
+        MEM_LDH -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
+        MEM_LDW -> mem_rdata_raw,
+        MEM_LDBU -> 0.U(24.W) ## mem_rdata_raw(7, 0),
+        MEM_LDHU -> 0.U(16.W) ## mem_rdata_raw(15, 0)
+    ))
     ew_reg5.io.flush                   := rob.io.predict_fail_cmt || dcache.io.cache_miss_MEM
     ew_reg5.io.stall                   := false.B  ////
     ew_reg5.io.inst_pack_EX2           := ls_ex_mem_reg.io.inst_pack_MEM
-    ew_reg5.io.mem_rdata_EX2           := Mux(ls_ex_mem_reg.io.sb_hit_MEM, ls_ex_mem_reg.io.sb_rdata_MEM, dcache.io.rdata_MEM)
+    ew_reg5.io.mem_rdata_EX2           := mem_rdata//VecInit(Seq.tabulate(32)(i => Mux(ls_ex_mem_reg.io.sb_hit_MEM(i.U(4, 3)), ls_ex_mem_reg.io.sb_rdata_MEM(i), dcache.io.rdata_MEM(i)))).asUInt //ls_ex_mem_reg.io.sb_hit_MEM.asUInt & ls_ex_mem_reg.io.sb_rdata_MEM dcache.io.rdata_MEM)
     ew_reg5.io.is_ucread_EX2           := ls_ex_mem_reg.io.is_ucread_MEM
 
     // WB stage
