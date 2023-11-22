@@ -34,3 +34,4 @@
 2023-11-15 18:38 LUT: 53524 FF: 22641 BRAM: 37 DSP: 8               add ROB to 44 items and add iq3 to 12 items
 2023-11-18 21:29 LUT: 61650 FF: 24329 BRAM: 37 DSP: 8               add fifth issue queue
 2023-11-19 17:55 LUT: 59536 FF: 24212 BRAM: 37 DSP: 8               add to 85 physical regs, and fix bugs of ras
+2023-11-22 14:08 LUT: 62101 FF: 24358 BRAM: 37 DSP: 8               fix store buffer bugs

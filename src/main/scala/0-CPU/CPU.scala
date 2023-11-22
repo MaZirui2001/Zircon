@@ -206,7 +206,6 @@ class CPU(RESET_VEC: Int) extends Module {
     predict.io.br_type              := rob.io.br_type_pred_cmt
     predict.io.predict_fail         := rob.io.predict_fail_cmt
     predict.io.top_arch             := arat.io.top_arch
-    predict.io.ras_update_en        := rob.io.ras_update_en_cmt
     predict.io.pd_pred_fix          := pd.io.pred_fix
     predict.io.pd_pred_fix_is_bl    := pd.io.pred_fix_is_bl
     predict.io.pd_pc_plus_4         := pd.io.pred_fix_pc_plus_4
@@ -306,7 +305,7 @@ class CPU(RESET_VEC: Int) extends Module {
     
     sel1.io.insts_issue         := iq1.io.insts_issue
     sel1.io.issue_req           := iq1.io.issue_req
-    sel1.io.stall               := !(iq1.io.issue_req.reduce(_||_)) || ir_reg1.io.stall || ShiftRegister(ir_reg1.io.stall, 1, false.B, true.B)////
+    sel1.io.stall               := !(iq1.io.issue_req.reduce(_||_)) || ir_reg1.io.stall || ShiftRegister(ir_reg1.io.stall, 1, false.B, true.B)
 
     // 2. arith2, common calculate
     iq2.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU1_gen(rp_reg.io.insts_pack_DP(i)))
@@ -322,7 +321,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     sel2.io.insts_issue         := iq2.io.insts_issue
     sel2.io.issue_req           := iq2.io.issue_req
-    sel2.io.stall               := !(iq2.io.issue_req.reduce(_||_)) || ir_reg2.io.stall || ShiftRegister(ir_reg2.io.stall, 1, false.B, true.B)////
+    sel2.io.stall               := !(iq2.io.issue_req.reduce(_||_)) || ir_reg2.io.stall || ShiftRegister(ir_reg2.io.stall, 1, false.B, true.B)
 
     // 3. arith3, calculate and branch
     iq3.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i)))
@@ -338,7 +337,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     sel3.io.insts_issue         := iq3.io.insts_issue
     sel3.io.issue_req           := iq3.io.issue_req
-    sel3.io.stall               := !(iq3.io.issue_req.reduce(_||_)) || ir_reg3.io.stall || ShiftRegister(ir_reg3.io.stall, 1, false.B, true.B)////
+    sel3.io.stall               := !(iq3.io.issue_req.reduce(_||_)) || ir_reg3.io.stall || ShiftRegister(ir_reg3.io.stall, 1, false.B, true.B)
 
     // 4. multiply, multiply and divide
     iq4.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_MD_gen(rp_reg.io.insts_pack_DP(i)))
@@ -354,7 +353,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     sel4.io.insts_issue         := iq4.io.insts_issue
     sel4.io.issue_req           := iq4.io.issue_req
-    sel4.io.stall               := !(iq4.io.issue_req) || ir_reg4.io.stall || ShiftRegister(ir_reg4.io.stall, 1, false.B, true.B)////
+    sel4.io.stall               := !(iq4.io.issue_req) || ir_reg4.io.stall || ShiftRegister(ir_reg4.io.stall, 1, false.B, true.B)
 
     // 5. load and store
     iq5.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i)))
@@ -370,7 +369,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     sel5.io.insts_issue         := iq5.io.insts_issue
     sel5.io.issue_req           := iq5.io.issue_req
-    sel5.io.stall               := !(iq5.io.issue_req.reduce(_||_)) || ir_reg5.io.stall || ShiftRegister(ir_reg5.io.stall, 1, false.B, true.B)////
+    sel5.io.stall               := !(iq5.io.issue_req.reduce(_||_)) || ir_reg5.io.stall || ShiftRegister(ir_reg5.io.stall, 1, false.B, true.B)
 
     // mutual wakeup
     val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, 
@@ -583,9 +582,9 @@ class CPU(RESET_VEC: Int) extends Module {
         MEM_LDHU -> 0.U(16.W) ## mem_rdata_raw(15, 0)
     ))
     ew_reg5.io.flush                   := rob.io.predict_fail_cmt || dcache.io.cache_miss_MEM
-    ew_reg5.io.stall                   := false.B  ////
+    ew_reg5.io.stall                   := false.B  
     ew_reg5.io.inst_pack_EX2           := ls_ex_mem_reg.io.inst_pack_MEM
-    ew_reg5.io.mem_rdata_EX2           := mem_rdata//VecInit.tabulate(32)(i => Mux(ls_ex_mem_reg.io.sb_hit_MEM(i.U(4, 3)), ls_ex_mem_reg.io.sb_rdata_MEM(i), dcache.io.rdata_MEM(i)))).asUInt //ls_ex_mem_reg.io.sb_hit_MEM.asUInt & ls_ex_mem_reg.io.sb_rdata_MEM dcache.io.rdata_MEM)
+    ew_reg5.io.mem_rdata_EX2           := mem_rdata
     ew_reg5.io.is_ucread_EX2           := ls_ex_mem_reg.io.is_ucread_MEM
 
     // WB stage
@@ -619,8 +618,8 @@ class CPU(RESET_VEC: Int) extends Module {
     arat.io.pprd_cmt            := rob.io.pprd_cmt
     arat.io.rd_valid_cmt        := rob.io.rd_valid_cmt
     arat.io.predict_fail        := rob.io.predict_fail_cmt
-    arat.io.br_type_pred_cmt    := rob.io.ras_type_pred_cmt
-    arat.io.ras_update_en_cmt   := rob.io.ras_update_en_cmt
+    arat.io.br_type_pred_cmt    := rob.io.br_type_pred_cmt
+    arat.io.pred_update_en_cmt  := rob.io.pred_update_en_cmt
 
     // arbiter
     arb.io.i_araddr             := icache.io.i_araddr

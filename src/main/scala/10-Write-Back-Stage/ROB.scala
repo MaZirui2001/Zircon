@@ -49,26 +49,28 @@ class ROB_IO(n: Int) extends Bundle{
 
     // for cpu state: arch rat
     val cmt_en                  = Output(Vec(4, Bool()))
-    val is_ucread_cmt           = Output(Vec(4, Bool()))
-    val rd_cmt                  = Output(Vec(4, UInt(5.W)))
+
     val prd_cmt                 = Output(Vec(4, UInt(7.W)))
     val rd_valid_cmt            = Output(Vec(4, Bool()))
     val pprd_cmt                = Output(Vec(4, UInt(7.W)))
-    val pc_cmt                  = Output(Vec(4, UInt(32.W)))
+
+    // for store buffer
     val is_store_num_cmt        = Output(UInt(2.W))
 
+    // for predict and ras
     val predict_fail_cmt        = Output(Bool())
-    val branch_target_cmt       = Output(UInt(32.W))
     val pred_update_en_cmt      = Output(Bool())
-    val ras_update_en_cmt       = Output(Bool())
     val pred_branch_target_cmt  = Output(UInt(32.W))
     val pred_pc_cmt             = Output(UInt(32.W))
     val pred_real_jump_cmt      = Output(Bool())
     val br_type_pred_cmt        = Output(UInt(2.W))
-    val ras_type_pred_cmt       = Output(UInt(2.W))
 
+    // diff
+    val is_ucread_cmt           = Output(Vec(4, Bool()))
+    val rd_cmt                  = Output(Vec(4, UInt(5.W)))
     val rf_wdata_cmt            = Output(Vec(4, UInt(32.W)))
-
+    val branch_target_cmt       = Output(UInt(32.W))
+    val pc_cmt                  = Output(Vec(4, UInt(32.W)))
 
     // stat
     val predict_fail_stat       = Output(Vec(4, Bool()))
@@ -110,20 +112,19 @@ class ROB(n: Int) extends Module{
             }
         }
     }
-
-    for(i <- 0 until 4){
-        io.rob_index_rn(i) := tail ## i.U(2.W)
-    }
+    io.rob_index_rn := VecInit.tabulate(4)(i => tail ## i.U(2.W))
 
     // wb stage
     for(i <- 0 until 5){
         when(io.inst_valid_wb(i)){
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).complete        := true.B
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).predict_fail    := io.predict_fail_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).branch_target   := io.branch_target_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).rf_wdata        := io.rf_wdata_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).real_jump       := io.real_jump_wb(i)
-            rob(io.rob_index_wb(i)(1, 0))(io.rob_index_wb(i)(log2Ceil(neach)+1, 2)).is_ucread       := io.is_ucread_wb(i)
+            val col_idx = io.rob_index_wb(i)(1, 0)
+            val row_idx = io.rob_index_wb(i)(log2Ceil(n)-1, 2)
+            rob(col_idx)(row_idx).complete        := true.B
+            rob(col_idx)(row_idx).predict_fail    := io.predict_fail_wb(i)
+            rob(col_idx)(row_idx).branch_target   := io.branch_target_wb(i)
+            rob(col_idx)(row_idx).rf_wdata        := io.rf_wdata_wb(i)
+            rob(col_idx)(row_idx).real_jump       := io.real_jump_wb(i)
+            rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
         }
     }
     
@@ -139,13 +140,11 @@ class ROB(n: Int) extends Module{
     val pred_update_bits        = VecInit.tabulate(4)(i => rob_commit_items(i).pred_update_en && io.cmt_en(i)).asUInt
     val pred_update_item        = Mux(pred_update_bits.orR, rob_commit_items(OHToUInt(pred_update_bits)), 0.U.asTypeOf(new rob_t))
 
-    io.ras_update_en_cmt        :=  pred_update_item.br_type_pred =/= ELSE && pred_update_item.pred_update_en
     io.predict_fail_cmt         :=  pred_update_item.predict_fail
     io.branch_target_cmt        :=  Mux(pred_update_item.real_jump, pred_update_item.branch_target, (pred_update_item.pc ## 0.U(2.W)) + 4.U)
     io.pred_update_en_cmt       :=  pred_update_item.pred_update_en
     io.pred_branch_target_cmt   :=  pred_update_item.branch_target
     io.br_type_pred_cmt         :=  pred_update_item.br_type_pred
-    io.ras_type_pred_cmt        :=  pred_update_item.br_type_pred
     io.pred_pc_cmt              :=  pred_update_item.pc ## 0.U(2.W)
     io.pred_real_jump_cmt       :=  pred_update_item.real_jump
 

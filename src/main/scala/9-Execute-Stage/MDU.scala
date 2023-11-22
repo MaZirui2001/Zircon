@@ -34,7 +34,7 @@ class MDU extends Module {
             md_out := src1 / src2
         }
         is(ALU_MOD) {
-            md_out := (src1.asSInt % src2.asSInt).asUInt
+            md_out := ((Fill(32, src1(31)) ## src1)(63, 0).asSInt % (Fill(32, src2(31)) ## src2)(63, 0).asSInt)(31, 0).asUInt
         }
         is(ALU_MODU) {
             md_out := src1 % src2

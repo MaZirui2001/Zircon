@@ -35,7 +35,6 @@ class Predict_IO extends Bundle{
     val branch_target       = Input(UInt(32.W))
     val update_en           = Input(Bool())
     val br_type             = Input(UInt(2.W))
-    val ras_update_en       = Input(Bool())
 
     // recover 
     val top_arch            = Input(UInt(4.W))
@@ -73,12 +72,12 @@ class Predict extends Module{
     val pht_rindex      = VecInit.tabulate(4)(i => (bht_rdata(i) ^ pc(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## Mux(pc(3, 2) > i.U(2.W), pc(PHT_INDEX_WIDTH-1, 4) + 1.U, pc(PHT_INDEX_WIDTH-1, 4)))
     val pht_rdata       = VecInit.tabulate(4)(i => pht(i)(pht_rindex(i)))
 
-    val predict_jump    = VecInit.tabulate(4)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
     val predict_valid   = VecInit.tabulate(4)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
+    val predict_jump    = VecInit.tabulate(4)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && predict_valid(i))
 
-    val pred_valid      = (15.U(4.W) >> (Mux(pc(5, 4) === 3.U, pc(3, 2), 0.U)))
-    val pred_hit        = VecInit.tabulate(4)(i => predict_jump((i.U + pc(3, 2)) & 3.U) && pred_valid(i))
-    val pred_valid_hit  = VecInit.tabulate(4)(i => predict_valid((i.U + pc(3, 2)) & 3.U) && pred_valid(i))
+    val valid_mask      = (15.U(4.W) >> (Mux(pc(5, 4) === 3.U, pc(3, 2), 0.U)))
+    val pred_hit        = VecInit.tabulate(4)(i => predict_jump((i.U + pc(3, 2))(1, 0)) && valid_mask(i))
+    val pred_valid_hit  = VecInit.tabulate(4)(i => predict_valid((i.U + pc(3, 2))(1, 0)) && valid_mask(i))
 
     val pred_hit_index  = PriorityEncoder(pred_hit)
     val hit_index_raw   = pred_hit_index + pc(3, 2)
@@ -131,8 +130,8 @@ class Predict extends Module{
 
     when(update_en){
         pht(cmt_col)(pht_windex) := Mux(io.real_jump, 
-                                            pht(cmt_col)(pht_windex) + (pht(cmt_col)(pht_windex) =/= 3.U), 
-                                            pht(cmt_col)(pht_windex) - (pht(cmt_col)(pht_windex) =/= 0.U))
+                                        pht(cmt_col)(pht_windex) + (pht(cmt_col)(pht_windex) =/= 3.U), 
+                                        pht(cmt_col)(pht_windex) - (pht(cmt_col)(pht_windex) =/= 0.U))
     }
 
     // RAS
@@ -141,14 +140,14 @@ class Predict extends Module{
     }
     .elsewhen(io.pd_pred_fix){
         when(io.pd_pred_fix_is_bl){
-            top := top + 1.U
-            ras(top) := io.pd_pc_plus_4
+            top         := top + 1.U
+            ras(top)    := io.pd_pc_plus_4
         }
     }.elsewhen((btb_rdata(hit_index_raw).typ === BL || btb_rdata(hit_index_raw).typ === ICALL) && io.pred_valid(pred_hit_index)){
-        top := top + 1.U
-        ras(top) := pc + (pred_hit_index ## 0.U(2.W)) + 4.U
+        top             := top + 1.U
+        ras(top)        := pc + (pred_hit_index ## 0.U(2.W)) + 4.U
     }.elsewhen(btb_rdata(hit_index_raw).typ === RET && io.pred_valid(pred_hit_index)){
-        top := top - 1.U
+        top             := top - 1.U
     }
 
     // when(io.ras_update_en && io.br_type === RET){

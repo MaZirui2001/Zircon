@@ -16,9 +16,9 @@ class Arch_Rat_IO extends Bundle {
     val head_arch       = Output(Vec(4, UInt(5.W)))
 
     // for ras
-    val top_arch         = Output(UInt(4.W))
-    val br_type_pred_cmt = Input(UInt(2.W))
-    val ras_update_en_cmt = Input(Bool())
+    val top_arch            = Output(UInt(4.W))
+    val br_type_pred_cmt    = Input(UInt(2.W))
+    val pred_update_en_cmt  = Input(Bool())
 }
 
 class Arch_Rat extends Module {
@@ -53,9 +53,9 @@ class Arch_Rat extends Module {
     val top = RegInit(0.U(4.W))
     val top_next = Wire(UInt(4.W))
     top_next := top
-    when(io.br_type_pred_cmt === RET && io.ras_update_en_cmt){
+    when(io.br_type_pred_cmt === RET && io.pred_update_en_cmt){
         top_next := top - 1.U
-    }.elsewhen((io.br_type_pred_cmt === BL || io.br_type_pred_cmt === ICALL) && io.ras_update_en_cmt){
+    }.elsewhen((io.br_type_pred_cmt === BL || io.br_type_pred_cmt === ICALL) && io.pred_update_en_cmt){
         top_next := top + 1.U
     }
     top := top_next
@@ -63,23 +63,3 @@ class Arch_Rat extends Module {
     io.arch_rat := arat_next
     io.head_arch := head_next
 }
-
-// object ARCH_RAT_Func{
-//     def Valid_Write_First_Read(cmt_en: Vec[Bool], rd_valid_cmt: Vec[Bool], prd_cmt: Vec[UInt], pprd_cmt: Vec[UInt], arat: Vec[rat_t], rindex: Int) : Bool = {
-//         val prd_wf = Cat(
-//                     rindex.U === prd_cmt(3) && cmt_en(3) && rd_valid_cmt(3),
-//                     rindex.U === prd_cmt(2) && cmt_en(2) && rd_valid_cmt(2),
-//                     rindex.U === prd_cmt(1) && cmt_en(1) && rd_valid_cmt(1),
-//                     rindex.U === prd_cmt(0) && cmt_en(0) && rd_valid_cmt(0)
-//                     )
-
-//         val pprd_wf = Cat(
-//                     rindex.U === pprd_cmt(3) && cmt_en(3) && rd_valid_cmt(3),
-//                     rindex.U === pprd_cmt(2) && cmt_en(2) && rd_valid_cmt(2),
-//                     rindex.U === pprd_cmt(1) && cmt_en(1) && rd_valid_cmt(1),
-//                     rindex.U === pprd_cmt(0) && cmt_en(0) && rd_valid_cmt(0)
-//                     )
-//         Mux(prd_wf.orR, true.B, Mux(pprd_wf.orR, false.B, arat(rindex).valid))
-//     }
-// }
-// import ARCH_RAT_Func._
