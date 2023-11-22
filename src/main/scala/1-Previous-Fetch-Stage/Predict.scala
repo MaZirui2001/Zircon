@@ -65,21 +65,21 @@ class Predict extends Module{
     val pc_cmt          = io.pc_cmt
     val cmt_col         = pc_cmt(3, 2)
     
-    val btb_rindex      = VecInit(Seq.tabulate(4)(i => Mux(npc(3, 2) > i.U(2.W), npc(4-1+BTB_INDEX_WIDTH, 4)+1.U, npc(4-1+BTB_INDEX_WIDTH, 4))))
+    val btb_rindex      = VecInit.tabulate(4)(i => Mux(npc(3, 2) > i.U(2.W), npc(4-1+BTB_INDEX_WIDTH, 4)+1.U, npc(4-1+BTB_INDEX_WIDTH, 4)))
     val btb_rdata       = Wire(Vec(4, new btb_t))
 
-    val bht_rindex      = VecInit(Seq.tabulate(4)(i => Mux(pc(3, 2) > i.U(2.W), pc(4-1+BHT_INDEX_WIDTH, 4)+1.U, pc(4-1+BHT_INDEX_WIDTH, 4)))) 
-    val bht_rdata       = VecInit(Seq.tabulate(4)(i => bht(i)(bht_rindex(i))))
+    val bht_rindex      = VecInit.tabulate(4)(i => Mux(pc(3, 2) > i.U(2.W), pc(4-1+BHT_INDEX_WIDTH, 4)+1.U, pc(4-1+BHT_INDEX_WIDTH, 4)))
+    val bht_rdata       = VecInit.tabulate(4)(i => bht(i)(bht_rindex(i)))
 
-    val pht_rindex      = VecInit(Seq.tabulate(4)(i => (bht_rdata(i) ^ pc(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## Mux(pc(3, 2) > i.U(2.W), pc(PHT_INDEX_WIDTH-1, 4) + 1.U, pc(PHT_INDEX_WIDTH-1, 4))))
-    val pht_rdata       = VecInit(Seq.tabulate(4)(i => pht(i)(pht_rindex(i))))
+    val pht_rindex      = VecInit.tabulate(4)(i => (bht_rdata(i) ^ pc(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## Mux(pc(3, 2) > i.U(2.W), pc(PHT_INDEX_WIDTH-1, 4) + 1.U, pc(PHT_INDEX_WIDTH-1, 4)))
+    val pht_rdata       = VecInit.tabulate(4)(i => pht(i)(pht_rindex(i)))
 
-    val predict_jump    = VecInit(Seq.tabulate(4)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
-    val predict_valid   = VecInit(Seq.tabulate(4)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH))))
+    val predict_jump    = VecInit.tabulate(4)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
+    val predict_valid   = VecInit.tabulate(4)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
 
     val pred_valid      = (15.U(4.W) >> (Mux(pc(5, 4) === 3.U, pc(3, 2), 0.U)))
-    val pred_hit        = VecInit(Seq.tabulate(4)(i => predict_jump((i.U + pc(3, 2)) & 3.U) && pred_valid(i)))
-    val pred_valid_hit  = VecInit(Seq.tabulate(4)(i => predict_valid((i.U + pc(3, 2)) & 3.U) && pred_valid(i)))
+    val pred_hit        = VecInit.tabulate(4)(i => predict_jump((i.U + pc(3, 2)) & 3.U) && pred_valid(i))
+    val pred_valid_hit  = VecInit.tabulate(4)(i => predict_valid((i.U + pc(3, 2)) & 3.U) && pred_valid(i))
 
     val pred_hit_index      = PriorityEncoder(pred_hit)
     val pred_hit_index_raw  = pred_hit_index + pc(3, 2)

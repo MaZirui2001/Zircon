@@ -16,7 +16,7 @@ class Free_List extends Module{
         val head_arch           = Input(Vec(4, UInt(5.W)))
     })
 
-    val free_list = RegInit(VecInit(Seq.tabulate(4)(i => VecInit(Seq.tabulate(22)(j => (j * 4 + i + 1).asUInt)))))
+    val free_list = RegInit(VecInit.tabulate(4)(i => VecInit.tabulate(22)(j => (j * 4 + i + 1).asUInt)))
 
     val head = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
     val tail = RegInit(VecInit(Seq.fill(4)(21.U(5.W))))

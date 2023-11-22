@@ -59,8 +59,8 @@ class ICache extends Module{
 
     // IF Stage
     val tagv                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_read_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
-    val tag_r_RM            = VecInit(Seq.tabulate(2)(i => tagv(i).douta(TAG_WIDTH-1, 0)))
-    val valid_r_RM          = VecInit(Seq.tabulate(2)(i => tagv(i).douta(TAG_WIDTH)))
+    val tag_r_RM            = VecInit.tabulate(2)(i => tagv(i).douta(TAG_WIDTH-1, 0))
+    val valid_r_RM          = VecInit.tabulate(2)(i => tagv(i).douta(TAG_WIDTH))
 
     val cmem                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_read_first(8 * OFFSET_DEPTH, INDEX_DEPTH)).io))
     
@@ -120,7 +120,7 @@ class ICache extends Module{
 
     // RM Stage
     /* hit logic */
-    val hit_RM          = VecInit(Seq.tabulate(2)(i => valid_r_RM(i) && tag_r_RM(i) === tag_RM))
+    val hit_RM          = VecInit.tabulate(2)(i => valid_r_RM(i) && tag_r_RM(i) === tag_RM)
     val hit_index_RM    = OHToUInt(hit_RM)
     val cache_hit_RM    = hit_RM.reduce(_||_)
 
@@ -128,7 +128,7 @@ class ICache extends Module{
     val block_offset    = offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(5.W)
     val cmem_rdata_RM   = (cmem(hit_index_RM).douta >> block_offset)(127, 0)
     val rbuf_rdata_RM   = (ret_buf >> block_offset)(127, 0)
-    val rdata_RM        = VecInit(Seq.tabulate(4)(i => (Mux(data_sel === FROM_CMEM, cmem_rdata_RM(32*i+31, 32*i), rbuf_rdata_RM(32*i+31, 32*i)))))
+    val rdata_RM        = VecInit.tabulate(4)(i => (Mux(data_sel === FROM_CMEM, cmem_rdata_RM(32*i+31, 32*i), rbuf_rdata_RM(32*i+31, 32*i))))
 
     /* return buffer update logic */
     when(io.i_rready){

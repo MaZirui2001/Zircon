@@ -75,8 +75,8 @@ class DCache extends Module{
 
     // TC Stage
     val tagv        = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_write_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
-    val tag_r_EX    = VecInit(Seq.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH-1, 0)))
-    val valid_r_EX  = VecInit(Seq.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH)))
+    val tag_r_EX    = VecInit.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH-1, 0))
+    val valid_r_EX  = VecInit.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH))
     
     // decode
     val addr_EX     = addr_reg_RF_EX
@@ -168,7 +168,7 @@ class DCache extends Module{
 
     // TC Stage
     /* hit logic */
-    val hit_EX          = VecInit(Seq.tabulate(2)(i => valid_r_EX(i) && tag_r_EX(i) === tag_EX)).asUInt
+    val hit_EX          = VecInit.tabulate(2)(i => valid_r_EX(i) && tag_r_EX(i) === tag_EX).asUInt
     
     // TC-MEM SegReg
     when(!(stall || cache_miss_MEM)){
@@ -200,7 +200,7 @@ class DCache extends Module{
     val wmask           = Mux(mem_type_MEM(3), 0.U((8*OFFSET_DEPTH).W), ((0.U((8*OFFSET_DEPTH-32).W) ## highest_mask) << block_offset))
     val wdata_refill    = ((0.U((8*OFFSET_DEPTH-32).W) ## wdata_reg_EX_MEM) << block_offset)
     wdata_MEM           := (wmask & wdata_refill) | (~wmask & ret_buf)
-    val wmask_byte      = VecInit(Seq.tabulate(OFFSET_DEPTH)(i => wmask(8*i))).asUInt
+    val wmask_byte      = VecInit.tabulate(OFFSET_DEPTH)(i => wmask(8*i)).asUInt
 
     /* return buffer update logic */
     when(io.d_rready){
@@ -234,32 +234,23 @@ class DCache extends Module{
     /* read state machine */
     val s_idle :: s_miss :: s_refill :: s_wait :: Nil = Enum(4)
     val state = RegInit(s_idle)
-    val sb_all_hit = sb_hit_MEM.reduce(_&&_)
+    val sb_all_hit = sb_hit_MEM.reduce(_&&_) && is_load_MEM
 
     switch(state){
         is(s_idle){
             addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
             // has req
-            when(mem_type_MEM(3).orR){
+            when(mem_type_MEM(4, 3).orR){
                 state                       := Mux(cache_hit_MEM || sb_all_hit, s_idle, s_miss)
                 lru_hit_upd                 := cache_hit_MEM && !sb_all_hit
                 cache_miss_MEM              := !cache_hit_MEM && !sb_all_hit
                 data_sel                    := FROM_CMEM
+                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM, wmask_byte, 0.U)
+                dirty_we                    := is_store_MEM
                 wbuf_we                     := !cache_hit_MEM && !sb_all_hit
                 wfsm_en                     := !cache_hit_MEM && !sb_all_hit
                 dcache_visit                := true.B
                 dcache_miss                 := !cache_hit_MEM && !sb_all_hit
-            }.elsewhen(mem_type_MEM(4)){
-                state                       := Mux(cache_hit_MEM, s_idle, s_miss)
-                lru_hit_upd                 := cache_hit_MEM
-                cache_miss_MEM              := !cache_hit_MEM
-                data_sel                    := FROM_CMEM
-                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM, wmask_byte, 0.U)
-                dirty_we                    := is_store_MEM
-                wbuf_we                     := !cache_hit_MEM
-                wfsm_en                     := !cache_hit_MEM
-                dcache_visit                := true.B
-                dcache_miss                 := !cache_hit_MEM
             }
         }
         is(s_miss){

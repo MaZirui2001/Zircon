@@ -131,8 +131,8 @@ class ROB(n: Int) extends Module{
     io.full                     := full
 
     // update predict and ras
-    val rob_commit_items        = VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U))))
-    val pred_update_bits        = VecInit(Seq.tabulate(4)(i => rob_commit_items(i).pred_update_en && io.cmt_en(i))).asUInt
+    val rob_commit_items        = VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)))
+    val pred_update_bits        = VecInit.tabulate(4)(i => rob_commit_items(i).pred_update_en && io.cmt_en(i)).asUInt
     val pred_update_item        = Mux(pred_update_bits.orR, rob_commit_items(OHToUInt(pred_update_bits)), 0.U.asTypeOf(new rob_t))
 
     io.ras_update_en_cmt        :=  pred_update_item.br_type_pred =/= ELSE && pred_update_item.pred_update_en
@@ -147,16 +147,16 @@ class ROB(n: Int) extends Module{
 
 
     // update store buffer
-    val is_store_cmt_bit        = VecInit(Seq.tabulate(4)(i => rob_commit_items(i).is_store && io.cmt_en(i)))
+    val is_store_cmt_bit        = VecInit.tabulate(4)(i => rob_commit_items(i).is_store && io.cmt_en(i))
     io.is_store_num_cmt         := PopCount(is_store_cmt_bit)
 
     io.rd_cmt                   := rob_commit_items.map(_.rd)
     io.rd_valid_cmt             := rob_commit_items.map(_.rd_valid)
     io.prd_cmt                  := rob_commit_items.map(_.prd)
     io.pprd_cmt                 := rob_commit_items.map(_.pprd)
-    io.pc_cmt                   := VecInit(Seq.tabulate(4)(i => Mux(rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U)))
+    io.pc_cmt                   := VecInit.tabulate(4)(i => Mux(rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U))
     io.rf_wdata_cmt             := rob_commit_items.map(_.rf_wdata)
-    io.is_ucread_cmt            := VecInit(Seq.tabulate(4)(i => rob_commit_items(i).is_ucread && io.cmt_en(i)))
+    io.is_ucread_cmt            := VecInit.tabulate(4)(i => rob_commit_items(i).is_ucread && io.cmt_en(i))
     
     // update ptrs
     head_sel                    := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
@@ -172,7 +172,7 @@ class ROB(n: Int) extends Module{
 
 
     // stat
-    io.predict_fail_stat        := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail & io.cmt_en(i)))
-    io.br_type_stat             := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).br_type_pred))
-    io.is_br_stat               := VecInit(Seq.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en & io.cmt_en(i)))
+    io.predict_fail_stat        := VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail & io.cmt_en(i))
+    io.br_type_stat             := VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).br_type_pred)
+    io.is_br_stat               := VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en & io.cmt_en(i))
 } 

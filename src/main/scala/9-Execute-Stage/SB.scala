@@ -36,37 +36,39 @@ class SB(n: Int) extends Module {
     import SB_Pack._
     val sb = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new sb_t))))
 
-    val head = RegInit(0.U((log2Ceil(n)+1).W))
-    val head_idx = head(log2Ceil(n)-1, 0)
-    val head_flg = head(log2Ceil(n))
+    val head            = RegInit(0.U((log2Ceil(n)+1).W))
+    val head_idx        = head(log2Ceil(n)-1, 0)
+    val head_flg        = head(log2Ceil(n))
 
-    val tail = RegInit(0.U((log2Ceil(n)+1).W))
-    val tail_idx = tail(log2Ceil(n)-1, 0)
-    val tail_flg = tail(log2Ceil(n))
+    val tail            = RegInit(0.U((log2Ceil(n)+1).W))
+    val tail_idx        = tail(log2Ceil(n)-1, 0)
+    val tail_flg        = tail(log2Ceil(n))
 
-    val elem_num = RegInit(0.U((log2Ceil(n)+1).W))
+    val elem_num        = RegInit(0.U((log2Ceil(n)+1).W))
 
-    val flush_buf = RegInit(false.B)
-    val full = elem_num === n.U || flush_buf
-    val wait_to_cmt = RegInit(0.U(log2Ceil(n).W))
+    val flush_buf       = RegInit(false.B)
+    val full            = elem_num === n.U || flush_buf
 
-    val has_store_cmt = io.is_store_num_cmt =/= 0.U
+    val empty           = elem_num === 0.U
+    val wait_to_cmt     = RegInit(0.U(log2Ceil(n).W))
 
-    wait_to_cmt := wait_to_cmt + io.is_store_num_cmt - (io.st_cmt_valid && !io.dcache_miss)
-    io.st_cmt_valid := wait_to_cmt.orR
+    val has_store_cmt   = io.is_store_num_cmt =/= 0.U
+
+    wait_to_cmt         := wait_to_cmt + io.is_store_num_cmt - (io.st_cmt_valid && !io.dcache_miss)
+    io.st_cmt_valid     := wait_to_cmt.orR
+    io.full             := full
     when(io.flush){
         flush_buf := true.B
     }.elsewhen(wait_to_cmt === 0.U){
         flush_buf := false.B
     }
-    io.full := full
-    val empty = elem_num === 0.U
+
 
     // write from ex
-    val is_store_ex = io.mem_type_ex(4)
-    val st_addr_ex  = io.addr_ex
-    val st_data_ex  = io.st_data_ex
-    val st_addr_ex_valid = is_store_ex && !full
+    val is_store_ex         = io.mem_type_ex(4)
+    val st_addr_ex          = io.addr_ex
+    val st_data_ex          = io.st_data_ex
+    val st_addr_ex_valid    = is_store_ex && !full
     when(!io.flush && st_addr_ex_valid){
         sb(tail_idx).addr := st_addr_ex
         sb(tail_idx).data := st_data_ex
@@ -74,9 +76,9 @@ class SB(n: Int) extends Module {
     }
 
 
-    head        := Mux(flush_buf && !wait_to_cmt.orR, 0.U, head + (io.st_cmt_valid && !io.dcache_miss))
-    elem_num    := Mux(flush_buf && !wait_to_cmt.orR, 0.U, elem_num - (io.st_cmt_valid && !io.dcache_miss) + Mux(full, 0.U, st_addr_ex_valid))
-    tail        := Mux(flush_buf, 0.U, tail + Mux(full, 0.U, st_addr_ex_valid))
+    head            := Mux(flush_buf && !wait_to_cmt.orR, 0.U, head + (io.st_cmt_valid && !io.dcache_miss))
+    elem_num        := Mux(flush_buf && !wait_to_cmt.orR, 0.U, elem_num - (io.st_cmt_valid && !io.dcache_miss) + Mux(full, 0.U, st_addr_ex_valid))
+    tail            := Mux(flush_buf, 0.U, tail + Mux(full, 0.U, st_addr_ex_valid))
 
     io.st_addr_cmt := sb(head_idx).addr
     io.st_data_cmt := sb(head_idx).data
@@ -84,28 +86,22 @@ class SB(n: Int) extends Module {
 
     // read from ex
     val ld_addr_ex      = io.addr_ex
-    val ld_hit          = Wire(Vec(4, Vec(n, Bool())))
     val ld_mask         = (UIntToOH(UIntToOH(io.mem_type_ex(1, 0))) - 1.U)(3, 0)
-    val sb_order        = VecInit(Seq.tabulate(n)(i => sb(tail_idx-1.U-i.U)))
-    val ld_bit_hit      = VecInit(Seq.tabulate(4)(i => ld_hit(i).reduce(_||_) && ld_mask(i)))
+    val sb_order        = VecInit.tabulate(n)(i => sb(tail_idx-1.U-i.U))
     val ld_hit_data     = Wire(Vec(4, UInt(8.W)))
-
-
+    val ld_hit_mask     = (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0)
+    val is_in_queue     = VecInit.tabulate(n)(i => Mux(head_flg ^ tail_flg, 
+                                                           tail_idx-i.U-1.U >= head_idx || tail_idx-i.U-1.U < tail_idx, 
+                                                           tail_idx-i.U-1.U >= head_idx && tail_idx-i.U-1.U < tail_idx))
+    // check for each bit
     for(i <- 0 until 4){
-        val addr_ex = ld_addr_ex + i.U
-        for(j <- 0 until n){
-            val in_queue = Mux(head_flg ^ tail_flg, 
-                               tail_idx-j.U-1.U >= head_idx || tail_idx-j.U-1.U < tail_idx, 
-                               tail_idx-j.U-1.U >= head_idx && tail_idx-j.U-1.U < tail_idx)
-            ld_hit(i)(j) := (sb_order(j).addr <= addr_ex && sb_order(j).addr + UIntToOH(sb_order(j).wlen) > addr_ex) && in_queue
-        }
-        val ld_hit_index    = PriorityEncoder(ld_hit(i).asUInt)
-        val hit_byte        = (sb_order(ld_hit_index).data >> ((ld_addr_ex + i.U - sb_order(ld_hit_index).addr) ## 0.U(3.W)))(7, 0)
-        ld_hit_data(i)      := Mux(ld_bit_hit(i), hit_byte, 0.U)
+        val addr_ex         = ld_addr_ex + i.U
+        val ld_hit          = VecInit.tabulate(n)(j => (sb_order(j).addr <= addr_ex && sb_order(j).addr + UIntToOH(sb_order(j).wlen) > addr_ex) && is_in_queue(j))
+        val ld_bit_hit      = ld_hit.reduce(_||_) && ld_mask(i)
+        val ld_hit_index    = PriorityEncoder(ld_hit.asUInt)
+        val hit_byte        = (sb_order(ld_hit_index).data >> ((addr_ex - sb_order(ld_hit_index).addr) ## 0.U(3.W)))(7, 0)
+        ld_hit_data(i)      := Mux(ld_bit_hit, hit_byte, 0.U)
+        io.ld_hit(i)        := ld_hit_mask(i) | ld_bit_hit
     }
-
-
-    val ld_hit_mask     = (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0) & Fill(4, io.mem_type_ex(3))
     io.ld_data_ex       := ld_hit_data.asUInt
-    io.ld_hit           := (ld_hit_mask | ld_bit_hit.asUInt).asBools
 }
