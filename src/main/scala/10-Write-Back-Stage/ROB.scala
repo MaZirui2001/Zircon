@@ -82,9 +82,13 @@ class ROB(n: Int) extends Module{
     import ROB_Pack._
     val rob         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
     val head        = RegInit(VecInit(Seq.fill(4)(0.U(log2Ceil(neach).W))))
+   
     val tail        = RegInit((0.U(log2Ceil(neach).W)))
     val elem_num    = RegInit(VecInit(Seq.fill(4)(0.U((log2Ceil(neach)+1).W))))
     val head_sel    = RegInit(0.U(2.W))
+    
+    val hsel_idx    = VecInit.tabulate(4)(i => head_sel+i.U)
+    val head_idx    = VecInit.tabulate(4)(i => head(hsel_idx(i)))
 
     val empty       = VecInit(elem_num.map(_ === 0.U))
     val full        = VecInit(elem_num.map(_ === neach.U)).reduce(_||_)
@@ -124,14 +128,14 @@ class ROB(n: Int) extends Module{
     }
     
     // cmt stage
-    io.cmt_en(0) := rob(head_sel)(head(head_sel)).complete && !empty(head_sel)
+    io.cmt_en(0) := rob(hsel_idx(0))(head_idx(0)).complete && !empty(head_sel)
     for(i <- 1 until 4){
-        io.cmt_en(i) := (io.cmt_en(i-1) && rob(head_sel+i.U)(head(head_sel+i.U)).complete && !rob(head_sel+(i-1).U)(head(head_sel+(i-1).U)).pred_update_en && !empty(head_sel+i.U))
+        io.cmt_en(i) := (io.cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete && !rob(hsel_idx(i-1))(head_idx(i-1)).pred_update_en && !empty(hsel_idx(i)))
     }
     io.full                     := full
 
     // update predict and ras
-    val rob_commit_items        = VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)))
+    val rob_commit_items        = VecInit.tabulate(4)(i => rob(hsel_idx(i))(head_idx(i)))
     val pred_update_bits        = VecInit.tabulate(4)(i => rob_commit_items(i).pred_update_en && io.cmt_en(i)).asUInt
     val pred_update_item        = Mux(pred_update_bits.orR, rob_commit_items(OHToUInt(pred_update_bits)), 0.U.asTypeOf(new rob_t))
 
@@ -162,11 +166,10 @@ class ROB(n: Int) extends Module{
     head_sel                    := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
     val head_inc                = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
-        head(head_sel+i.U)      := Mux(io.predict_fail_cmt, 0.U, Mux(head(head_sel+i.U) + io.cmt_en(i) === neach.U, 0.U, head(head_sel+i.U) + io.cmt_en(i)))
-        head_inc(head_sel+i.U)  := io.cmt_en(i)
-    }
-    for(i <- 0 until 4){
-        elem_num(i)             := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + io.inst_valid_rn(i) - head_inc(i), elem_num(i) - head_inc(i)))
+        head(hsel_idx(i))      := Mux(io.predict_fail_cmt, 0.U, Mux(head_idx(i) + io.cmt_en(i) === neach.U, 0.U, head_idx(i) + io.cmt_en(i)))
+        head_inc(hsel_idx(i))  := io.cmt_en(i)
+        elem_num(i)            := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + io.inst_valid_rn(i) - head_inc(i), elem_num(i) - head_inc(i)))
+        
     }
     tail := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_rn === neach.U, 0.U, tail + inst_valid_rn), tail))
 
