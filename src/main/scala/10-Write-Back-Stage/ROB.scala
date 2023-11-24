@@ -82,24 +82,26 @@ class ROB(n: Int) extends Module{
     val io = IO(new ROB_IO(n))
     val neach = n / 4
     import ROB_Pack._
+    /* ROB items */
     val rob         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
+
+    /* ROB ptrs */
     val head        = RegInit(VecInit(Seq.fill(4)(0.U(log2Ceil(neach).W))))
-   
     val tail        = RegInit((0.U(log2Ceil(neach).W)))
     val elem_num    = RegInit(VecInit(Seq.fill(4)(0.U((log2Ceil(neach)+1).W))))
     val head_sel    = RegInit(0.U(2.W))
-    
     val hsel_idx    = VecInit.tabulate(4)(i => head_sel+i.U)
     val head_idx    = VecInit.tabulate(4)(i => head(hsel_idx(i)))
 
+    /* ROB status */
     val empty       = VecInit(elem_num.map(_ === 0.U))
     val full        = VecInit(elem_num.map(_ === neach.U)).reduce(_||_)
 
-    val inst_valid_rn = io.inst_valid_rn.reduce(_||_)
+    val inst_valid_rn = io.inst_valid_rn(0)
     // rn stage
     when(!full){
         for(i <- 0 until 4){
-            when(io.inst_valid_rn(i)){
+            when(inst_valid_rn){
                 rob(i)(tail).rd              := io.rd_rn(i)
                 rob(i)(tail).rd_valid        := io.rd_valid_rn(i)
                 rob(i)(tail).prd             := io.prd_rn(i)
@@ -133,7 +135,7 @@ class ROB(n: Int) extends Module{
     for(i <- 1 until 4){
         io.cmt_en(i) := (io.cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete && !rob(hsel_idx(i-1))(head_idx(i-1)).pred_update_en && !empty(hsel_idx(i)))
     }
-    io.full                     := full
+    io.full := full
 
     // update predict and ras
     val rob_commit_items        = VecInit.tabulate(4)(i => rob(hsel_idx(i))(head_idx(i)))
@@ -167,7 +169,7 @@ class ROB(n: Int) extends Module{
     for(i <- 0 until 4){
         head(hsel_idx(i))      := Mux(io.predict_fail_cmt, 0.U, Mux(head_idx(i) + io.cmt_en(i) === neach.U, 0.U, head_idx(i) + io.cmt_en(i)))
         head_inc(hsel_idx(i))  := io.cmt_en(i)
-        elem_num(i)            := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + io.inst_valid_rn(i) - head_inc(i), elem_num(i) - head_inc(i)))
+        elem_num(i)            := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_rn - head_inc(i), elem_num(i) - head_inc(i)))
         
     }
     tail := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_rn === neach.U, 0.U, tail + inst_valid_rn), tail))
