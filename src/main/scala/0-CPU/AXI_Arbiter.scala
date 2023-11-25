@@ -73,6 +73,7 @@ class AXI_Arbiter_IO extends Bundle {
 class AXI_Arbiter extends Module{
     val io = IO(new AXI_Arbiter_IO)
 
+    // default signals
     io.i_rready := false.B
     io.i_rdata  := io.rdata
     io.i_rlast  := false.B
@@ -112,9 +113,11 @@ class AXI_Arbiter extends Module{
     val r_state = RegInit(r_idle)
     switch(r_state){
         is(r_idle){
+            // idle state
             r_state := Mux(io.i_rvalid, r_iar, Mux(io.d_rvalid, r_dar, r_idle))
         }
         is(r_iar){
+            // icache ar shake hand state
             io.arvalid  := true.B
             io.araddr   := io.i_araddr
             io.arburst  := io.i_rburst
@@ -123,6 +126,7 @@ class AXI_Arbiter extends Module{
             r_state     := Mux(io.arready, r_ir, r_iar)
         }
         is(r_ir){
+            // icache read data state
             io.i_rready := io.rvalid
             io.i_rdata  := io.rdata
             io.i_rlast  := io.rlast
@@ -130,6 +134,7 @@ class AXI_Arbiter extends Module{
             r_state     := Mux(io.i_rvalid && io.rlast, r_idle, r_ir)
         }
         is(r_dar){
+            // dcache ar shake hand state
             io.arvalid  := true.B
             io.araddr   := io.d_araddr
             io.arburst  := io.d_rburst
@@ -138,6 +143,7 @@ class AXI_Arbiter extends Module{
             r_state     := Mux(io.arready, r_dr, r_dar)
         }
         is(r_dr){
+            // dcache read data state
             io.d_rready := io.rvalid
             io.d_rdata  := io.rdata
             io.d_rlast  := io.rlast
@@ -151,9 +157,11 @@ class AXI_Arbiter extends Module{
     val w_state = RegInit(w_idle)
     switch(w_state){
         is(w_idle){
+            // idle state
             w_state := Mux(io.d_wvalid, w_daw, w_idle)
         }
         is(w_daw){
+            // dcache aw shake hand state
             io.awvalid  := true.B
             io.awaddr   := io.d_awaddr
             io.awburst  := io.d_wburst
@@ -162,6 +170,7 @@ class AXI_Arbiter extends Module{
             w_state     := Mux(io.awready, w_dw, w_daw)
         }
         is(w_dw){
+            // dcache write data state
             io.wvalid   := io.d_wvalid
             io.d_wready := io.wready
             io.wdata    := io.d_wdata
@@ -170,6 +179,7 @@ class AXI_Arbiter extends Module{
             w_state     := Mux(io.wready && io.wlast && io.wvalid, w_db, w_dw)
         }
         is(w_db){
+            // dcache write response state
             io.bready   := io.d_bready
             io.d_bvalid := io.bvalid
             w_state     := Mux(io.bready && io.bvalid, w_idle, w_db)
