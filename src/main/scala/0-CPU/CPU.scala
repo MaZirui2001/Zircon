@@ -198,7 +198,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // Branch Prediction
     predict.io.npc                  := pc.io.npc
-    predict.io.pc                   := pc.io.pc_IF
+    predict.io.pc                   := pc.io.pc_PF
     predict.io.pc_cmt               := rob.io.pred_pc_cmt
     predict.io.real_jump            := rob.io.pred_real_jump_cmt
     predict.io.branch_target        := rob.io.pred_branch_target_cmt
@@ -211,14 +211,14 @@ class CPU(RESET_VEC: Int) extends Module {
     predict.io.pd_pc_plus_4         := pd.io.pred_fix_pc_plus_4
 
     /* ---------- PF-IF SegReg ---------- */
-    val pcs_PF                  = VecInit(pc.io.pc_IF, pc.io.pc_IF+4.U, pc.io.pc_IF+8.U, pc.io.pc_IF+12.U)
+    val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U, pc.io.pc_PF+8.U, pc.io.pc_PF+12.U)
     pi_reg.io.flush             := rob.io.predict_fail_cmt || (fq.io.inst_queue_ready && pd.io.pred_fix)
     pi_reg.io.stall             := !fq.io.inst_queue_ready || icache.io.cache_miss_RM
-    pi_reg.io.inst_pack_PF      := VecInit.tabulate(4)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_IF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i)))
+    pi_reg.io.inst_pack_PF      := VecInit.tabulate(4)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i)))
 
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
-    icache.io.addr_IF           := pc.io.pc_IF
+    icache.io.addr_IF           := pc.io.pc_PF
     icache.io.rvalid_IF         := !reset.asBool
     icache.io.stall             := !fq.io.inst_queue_ready
     icache.io.flush             := false.B

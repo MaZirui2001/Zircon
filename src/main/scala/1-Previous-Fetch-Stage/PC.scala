@@ -2,14 +2,14 @@ import chisel3._
 import chisel3.util._
 
 class PC_IO extends Bundle {
-    val pc_IF           = Output(UInt(32.W))
+    val pc_PF           = Output(UInt(32.W))
     val pc_stall        = Input(Bool())
     val predict_fail    = Input(Bool())
     val npc             = Output(UInt(32.W))
     val pred_jump       = Input(Vec(4, Bool()))
     val pred_npc        = Input(UInt(32.W))
     val branch_target   = Input(UInt(32.W))
-    val inst_valid_IF   = Output(Vec(4, Bool()))
+    val inst_valid_PF   = Output(Vec(4, Bool()))
 
     val flush_by_pd     = Input(Bool())
     val flush_pd_target = Input(UInt(32.W))
@@ -37,11 +37,11 @@ class PC(reset_val: Int) extends Module {
         io.npc := pc
     }
 
-    io.pc_IF := pc
+    io.pc_PF := pc
     pc := io.npc
 
     val inst_valid_temp = VecInit(PriorityEncoderOH(io.pred_jump))
 
-    io.inst_valid_IF := (((inst_valid_temp.asUInt << 1.U)(3, 0) - 1.U) & (15.U(4.W) >> (Mux(pc(5, 4) === 3.U, pc(3, 2), 0.U)))).asBools
+    io.inst_valid_PF := (((inst_valid_temp.asUInt << 1.U)(3, 0) - 1.U) & (15.U(4.W) >> (Mux(pc(5, 4) === 3.U, pc(3, 2), 0.U)))).asBools
 
 }
