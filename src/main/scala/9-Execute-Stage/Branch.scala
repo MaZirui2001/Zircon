@@ -19,54 +19,54 @@ class Branch_IO extends Bundle {
 
 class Branch extends Module {
     val io = IO(new Branch_IO)
-    io.predict_fail := false.B
-    io.branch_target := io.pc_ex + io.imm_ex
-    io.real_jump := false.B
+    io.predict_fail     := false.B
+    io.branch_target    := io.pc_ex + io.imm_ex
+    io.real_jump        := false.B
     switch(io.br_type) {
         is(BR_BEQ){
-            io.predict_fail := ((io.src1 === io.src2) ^ io.predict_jump) || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.pc_ex + io.imm_ex
-            io.real_jump := (io.src1 === io.src2)
+            io.predict_fail     := ((io.src1 === io.src2) ^ io.predict_jump) || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.pc_ex + io.imm_ex
+            io.real_jump        := (io.src1 === io.src2)
         }
         is(BR_BNE){
-            io.predict_fail := (io.src1 =/= io.src2) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.pc_ex + io.imm_ex
-            io.real_jump := (io.src1 =/= io.src2)
+            io.predict_fail     := (io.src1 =/= io.src2) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.pc_ex + io.imm_ex
+            io.real_jump        := (io.src1 =/= io.src2)
         }
         is(BR_BLT){
-            io.predict_fail := (io.src1.asSInt < io.src2.asSInt) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.pc_ex + io.imm_ex
-            io.real_jump := (io.src1.asSInt < io.src2.asSInt)
+            io.predict_fail     := (io.src1.asSInt < io.src2.asSInt) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.pc_ex + io.imm_ex
+            io.real_jump        := (io.src1.asSInt < io.src2.asSInt)
         }
         is(BR_BGE){
-            io.predict_fail := (io.src1.asSInt >= io.src2.asSInt) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.pc_ex + io.imm_ex 
-            io.real_jump := (io.src1.asSInt >= io.src2.asSInt)
+            io.predict_fail     := (io.src1.asSInt >= io.src2.asSInt) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.pc_ex + io.imm_ex 
+            io.real_jump        := (io.src1.asSInt >= io.src2.asSInt)
         }
         is(BR_BLTU){
-            io.predict_fail := (io.src1 < io.src2) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.pc_ex + io.imm_ex
-            io.real_jump := (io.src1 < io.src2)
+            io.predict_fail     := (io.src1 < io.src2) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.pc_ex + io.imm_ex
+            io.real_jump        := (io.src1 < io.src2)
         }
         is(BR_BGEU){
-            io.predict_fail := (io.src1 >= io.src2) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.pc_ex + io.imm_ex
-            io.real_jump := (io.src1 >= io.src2)
+            io.predict_fail     := (io.src1 >= io.src2) ^ io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.pc_ex + io.imm_ex
+            io.real_jump        := (io.src1 >= io.src2)
         }
         is(BR_JIRL){
-            io.predict_fail := ~io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.src1 + io.imm_ex
-            io.real_jump := true.B
+            io.predict_fail     := ~io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.src1 + io.imm_ex
+            io.real_jump        := true.B
         }
         is(BR_B){
-            io.predict_fail := ~io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.pc_ex + io.imm_ex
-            io.real_jump := true.B
+            io.predict_fail     := ~io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.pc_ex + io.imm_ex
+            io.real_jump        := true.B
         }
         is(BR_BL){
-            io.predict_fail := ~io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
-            io.branch_target := io.pc_ex + io.imm_ex
-            io.real_jump := true.B
+            io.predict_fail     := ~io.predict_jump || (io.predict_jump && (io.pred_npc =/= (io.branch_target)))
+            io.branch_target    := io.pc_ex + io.imm_ex
+            io.real_jump        := true.B
         }
     }
 }

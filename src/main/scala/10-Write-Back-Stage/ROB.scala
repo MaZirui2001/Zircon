@@ -142,13 +142,13 @@ class ROB(n: Int) extends Module{
     val pred_update_bits        = VecInit.tabulate(4)(i => rob_commit_items(i).pred_update_en && io.cmt_en(i)).asUInt
     val pred_update_item        = Mux(pred_update_bits.orR, rob_commit_items(OHToUInt(pred_update_bits)), 0.U.asTypeOf(new rob_t))
 
-    io.predict_fail_cmt         :=  pred_update_item.predict_fail
-    io.branch_target_cmt        :=  Mux(pred_update_item.real_jump, pred_update_item.branch_target, (pred_update_item.pc ## 0.U(2.W)) + 4.U)
-    io.pred_update_en_cmt       :=  pred_update_item.pred_update_en
-    io.pred_branch_target_cmt   :=  pred_update_item.branch_target
-    io.br_type_pred_cmt         :=  pred_update_item.br_type_pred
-    io.pred_pc_cmt              :=  pred_update_item.pc ## 0.U(2.W)
-    io.pred_real_jump_cmt       :=  pred_update_item.real_jump
+    io.predict_fail_cmt         := pred_update_item.predict_fail
+    io.branch_target_cmt        := Mux(pred_update_item.real_jump, pred_update_item.branch_target, (pred_update_item.pc ## 0.U(2.W)) + 4.U)
+    io.pred_update_en_cmt       := pred_update_item.pred_update_en
+    io.pred_branch_target_cmt   := pred_update_item.branch_target
+    io.br_type_pred_cmt         := pred_update_item.br_type_pred
+    io.pred_pc_cmt              := pred_update_item.pc ## 0.U(2.W)
+    io.pred_real_jump_cmt       := pred_update_item.real_jump
 
 
     // update store buffer
@@ -167,10 +167,9 @@ class ROB(n: Int) extends Module{
     head_sel                    := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
     val head_inc                = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
-        head(hsel_idx(i))      := Mux(io.predict_fail_cmt, 0.U, Mux(head_idx(i) + io.cmt_en(i) === neach.U, 0.U, head_idx(i) + io.cmt_en(i)))
-        head_inc(hsel_idx(i))  := io.cmt_en(i)
-        elem_num(i)            := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_rn - head_inc(i), elem_num(i) - head_inc(i)))
-        
+        head(hsel_idx(i))       := Mux(io.predict_fail_cmt, 0.U, Mux(head_idx(i) + io.cmt_en(i) === neach.U, 0.U, head_idx(i) + io.cmt_en(i)))
+        head_inc(hsel_idx(i))   := io.cmt_en(i)
+        elem_num(i)             := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_rn - head_inc(i), elem_num(i) - head_inc(i)))
     }
     tail := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_rn === neach.U, 0.U, tail + inst_valid_rn), tail))
 

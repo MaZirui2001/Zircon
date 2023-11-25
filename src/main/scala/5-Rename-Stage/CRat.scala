@@ -48,18 +48,21 @@ class CRat extends Module{
         }
     }
     // read for rj, rk, rd
-    val rj_hit_oh = Wire(Vec(4, Vec(85, Bool())))
-    val rk_hit_oh = Wire(Vec(4, Vec(85, Bool())))
-    val rd_hit_oh = Wire(Vec(4, Vec(85, Bool())))
+    // val rj_hit_oh = Wire(Vec(4, Vec(85, Bool())))
+    // val rk_hit_oh = Wire(Vec(4, Vec(85, Bool())))
+    // val rd_hit_oh = Wire(Vec(4, Vec(85, Bool())))
     for(i <- 0 until 4){
+        val rj_hit_oh = Wire(Vec(85, Bool()))
+        val rk_hit_oh = Wire(Vec(85, Bool()))
+        val rd_hit_oh = Wire(Vec(85, Bool()))
         for(j <- 0 until 85){
-            rj_hit_oh(i)(j) := crat(j).valid && (crat(j).lr === io.rj(i))
-            rk_hit_oh(i)(j) := crat(j).valid && (crat(j).lr === io.rk(i))
-            rd_hit_oh(i)(j) := crat(j).valid && (crat(j).lr === io.rd(i))
-            io.prj(i) := OHToUInt(rj_hit_oh(i))
-            io.prk(i) := OHToUInt(rk_hit_oh(i))
-            io.pprd(i) := OHToUInt(rd_hit_oh(i))
+            rj_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rj(i))
+            rk_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rk(i))
+            rd_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rd(i))
         }
+        io.prj(i) := OHToUInt(rj_hit_oh)
+        io.prk(i) := OHToUInt(rk_hit_oh)
+        io.pprd(i) := OHToUInt(rd_hit_oh)
     }
 }
 
