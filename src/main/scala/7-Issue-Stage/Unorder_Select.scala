@@ -18,22 +18,20 @@ class Unorder_Select_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bun
 }
 
 class Unorder_Select[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Module {
-    val io = IO(new Unorder_Select_IO(n, inst_pack_t))
+    val io                  = IO(new Unorder_Select_IO(n, inst_pack_t))
 
-    val issue_ack = PriorityEncoderOH(io.issue_req.asUInt)
-    val issue_ack_vec = Wire(Vec(n, Bool()))
-    for(i <- 0 until n){
-        issue_ack_vec(i) := issue_ack(i)
-    }
-    io.issue_ack := Mux(io.issue_req.reduce(_||_) && !io.stall, issue_ack_vec, 0.U.asTypeOf(Vec(n, Bool())))
+    val select_index        = PriorityEncoder(io.issue_req)
+    val issue_ack           = UIntToOH(select_index)(n-1, 0)
+    val issue_ack_vec       = VecInit(issue_ack.asBools)
+    io.issue_ack            := Mux(io.issue_req.reduce(_||_) && !io.stall, issue_ack_vec, 0.U.asTypeOf(Vec(n, Bool())))
 
-    val select_index = OHToUInt(issue_ack)
-    io.wake_preg := Mux(io.issue_ack.reduce(_||_) && io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_t].rd_valid, io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
     
-    val inst_issue = io.insts_issue(select_index)
-    val bubble_inst_issue = 0.U.asTypeOf(new issue_queue_t(inst_pack_t))
-    io.inst_issue := Mux(io.issue_ack.reduce(_||_), inst_issue, bubble_inst_issue)
-    io.inst_issue_valid := io.issue_ack.reduce(_||_)
+    io.wake_preg            := Mux(io.issue_ack.reduce(_||_) && io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_t].rd_valid, io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
+    
+    val inst_issue          = io.insts_issue(select_index)
+    val bubble_inst_issue   = 0.U.asTypeOf(new issue_queue_t(inst_pack_t))
+    io.inst_issue           := Mux(io.issue_ack.reduce(_||_), inst_issue, bubble_inst_issue)
+    io.inst_issue_valid     := io.issue_ack.reduce(_||_)
 
 }
 

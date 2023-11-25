@@ -28,125 +28,120 @@ class Reg_rename_IO extends Bundle{
 }
 
 class Reg_Rename extends Module{
-    val io = IO(new Reg_rename_IO)
-    val crat = Module(new CRat)
-    val free_list = Module(new Free_List)
+    val io              = IO(new Reg_rename_IO)
+    val crat            = Module(new CRat)
+    val free_list       = Module(new Free_List)
     
-    val prj_temp = Wire(Vec(4, UInt(7.W)))
-    val prk_temp = Wire(Vec(4, UInt(7.W)))
-    val pprd_temp = Wire(Vec(4, UInt(7.W)))
-    val rd_valid_temp = Wire(Vec(4, Bool()))
+    val prj_temp        = Wire(Vec(4, UInt(7.W)))
+    val prk_temp        = Wire(Vec(4, UInt(7.W)))
+    val pprd_temp       = Wire(Vec(4, UInt(7.W)))
+    val rd_valid_temp   = Wire(Vec(4, Bool()))
 
-    prj_temp := crat.io.prj
-    prk_temp := crat.io.prk
-    pprd_temp := crat.io.pprd
+    prj_temp            := crat.io.prj
+    prk_temp            := crat.io.prk
+    pprd_temp           := crat.io.pprd
 
-    val alloc_preg = Wire(Vec(4, UInt(7.W)))
-    alloc_preg := free_list.io.alloc_preg
-    io.prd := alloc_preg
+    val alloc_preg      = free_list.io.alloc_preg
+    io.prd              := alloc_preg
 
     // RAW
-    io.prj := prj_temp
-    io.prj_raw := VecInit(Seq.fill(4)(false.B))
+    io.prj              := prj_temp
+    io.prj_raw          := VecInit(Seq.fill(4)(false.B))
     when (io.rd_valid(0) & (io.rd(0) === io.rj(1))){
-        io.prj(1) := alloc_preg(0)
-        io.prj_raw(1) := true.B
+        io.prj(1)       := alloc_preg(0)
+        io.prj_raw(1)   := true.B
     }
     when (io.rd_valid(1) & (io.rd(1) === io.rj(2))){
-        io.prj(2) := alloc_preg(1)
-        io.prj_raw(2) := true.B
+        io.prj(2)       := alloc_preg(1)
+        io.prj_raw(2)   := true.B
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rj(2))){
-        io.prj(2) := alloc_preg(0)
-        io.prj_raw(2) := true.B
+        io.prj(2)       := alloc_preg(0)
+        io.prj_raw(2)   := true.B
     }
     when (io.rd_valid(2) & (io.rd(2) === io.rj(3))){
-        io.prj(3) := alloc_preg(2)
-        io.prj_raw(3) := true.B
+        io.prj(3)       := alloc_preg(2)
+        io.prj_raw(3)   := true.B
     }
     .elsewhen(io.rd_valid(1) & (io.rd(1) === io.rj(3))){
-        io.prj(3) := alloc_preg(1)
-        io.prj_raw(3) := true.B
+        io.prj(3)       := alloc_preg(1)
+        io.prj_raw(3)   := true.B
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rj(3))){
-        io.prj(3) := alloc_preg(0)
-        io.prj_raw(3) := true.B
+        io.prj(3)       := alloc_preg(0)
+        io.prj_raw(3)   := true.B
     }
 
-    io.prk := prk_temp
-    io.prk_raw := VecInit(Seq.fill(4)(false.B))
+    io.prk              := prk_temp
+    io.prk_raw          := VecInit(Seq.fill(4)(false.B))
     when (io.rd_valid(0) & (io.rd(0) === io.rk(1))){
-        io.prk(1) := alloc_preg(0)
-        io.prk_raw(1) := true.B
+        io.prk(1)       := alloc_preg(0)
+        io.prk_raw(1)   := true.B
     }
     when (io.rd_valid(1) & (io.rd(1) === io.rk(2))){
-        io.prk(2) := alloc_preg(1)
-        io.prk_raw(2) := true.B
+        io.prk(2)       := alloc_preg(1)
+        io.prk_raw(2)   := true.B
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rk(2))){
-        io.prk(2) := alloc_preg(0)
-        io.prk_raw(2) := true.B
+        io.prk(2)       := alloc_preg(0)
+        io.prk_raw(2)   := true.B
     }
     when (io.rd_valid(2) & (io.rd(2) === io.rk(3))){
-        io.prk(3) := alloc_preg(2)
-        io.prk_raw(3) := true.B
+        io.prk(3)       := alloc_preg(2)
+        io.prk_raw(3)   := true.B
     }
     .elsewhen(io.rd_valid(1) & (io.rd(1) === io.rk(3))){
-        io.prk(3) := alloc_preg(1)
-        io.prk_raw(3) := true.B
+        io.prk(3)       := alloc_preg(1)
+        io.prk_raw(3)   := true.B
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rk(3))){
-        io.prk(3) := alloc_preg(0)
-        io.prk_raw(3) := true.B
+        io.prk(3)       := alloc_preg(0)
+        io.prk_raw(3)   := true.B
     }
 
     // WAW
-    rd_valid_temp(3) := io.rd_valid(3)
-    rd_valid_temp(2) := io.rd_valid(2) & ~((io.rd(2) === io.rd(3)) & io.rd_valid(3))
-    rd_valid_temp(1) := io.rd_valid(1) & ~((io.rd(1) === io.rd(2)) & io.rd_valid(2)) & ~((io.rd(1) === io.rd(3)) & io.rd_valid(3))
-    rd_valid_temp(0) := io.rd_valid(0) & ~((io.rd(0) === io.rd(1)) & io.rd_valid(1)) & ~((io.rd(0) === io.rd(2)) & io.rd_valid(2)) & ~((io.rd(0) === io.rd(3)) & io.rd_valid(3))
+    rd_valid_temp(3)    := io.rd_valid(3)
+    rd_valid_temp(2)    := io.rd_valid(2) & ~((io.rd(2) === io.rd(3)) & io.rd_valid(3))
+    rd_valid_temp(1)    := io.rd_valid(1) & ~((io.rd(1) === io.rd(2)) & io.rd_valid(2)) & ~((io.rd(1) === io.rd(3)) & io.rd_valid(3))
+    rd_valid_temp(0)    := io.rd_valid(0) & ~((io.rd(0) === io.rd(1)) & io.rd_valid(1)) & ~((io.rd(0) === io.rd(2)) & io.rd_valid(2)) & ~((io.rd(0) === io.rd(3)) & io.rd_valid(3))
 
-    io.pprd := pprd_temp
+    io.pprd             := pprd_temp
     when(io.rd_valid(0) & (io.rd(0) === io.rd(1))){
-        io.pprd(1) := alloc_preg(0)
+        io.pprd(1)      := alloc_preg(0)
     }
     when(io.rd_valid(1) & (io.rd(1) === io.rd(2))){
-        io.pprd(2) := alloc_preg(1)
+        io.pprd(2)      := alloc_preg(1)
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rd(2))){
-        io.pprd(2) := alloc_preg(0)
+        io.pprd(2)      := alloc_preg(0)
     }
     when(io.rd_valid(2) & (io.rd(2) === io.rd(3))){
-        io.pprd(3) := alloc_preg(2)
+        io.pprd(3)      := alloc_preg(2)
     }
     .elsewhen(io.rd_valid(1) & (io.rd(1) === io.rd(3))){
-        io.pprd(3) := alloc_preg(1)
+        io.pprd(3)      := alloc_preg(1)
     }
     .elsewhen(io.rd_valid(0) & (io.rd(0) === io.rd(3))){
-        io.pprd(3) := alloc_preg(0)
+        io.pprd(3)      := alloc_preg(0)
     }
-    crat.io.rj := io.rj
-    crat.io.rk := io.rk
-    crat.io.rd := io.rd
-    crat.io.rd_valid := (rd_valid_temp.asUInt & io.rename_en.asUInt).asBools
-    crat.io.alloc_preg := free_list.io.alloc_preg
-    crat.io.arch_rat := io.arch_rat
-    crat.io.predict_fail := io.predict_fail
-    crat.io.stall := io.free_list_empty
+    // crat
+    crat.io.rj              := io.rj
+    crat.io.rk              := io.rk
+    crat.io.rd              := io.rd
+    crat.io.rd_valid        := (rd_valid_temp.asUInt & io.rename_en.asUInt).asBools
+    crat.io.alloc_preg      := free_list.io.alloc_preg
+    crat.io.arch_rat        := io.arch_rat
+    crat.io.predict_fail    := io.predict_fail
+    crat.io.stall           := io.free_list_empty
 
-    val commit_pprd_nez = VecInit(io.commit_pprd.map(_ =/= 0.U))
-    free_list.io.rd_valid := io.rd_valid
-    free_list.io.rename_en := io.rename_en
-    free_list.io.commit_en := io.commit_en
-    free_list.io.commit_pprd_valid := (io.commit_pprd_valid.asUInt & commit_pprd_nez.asUInt).asBools
-    free_list.io.commit_pprd := io.commit_pprd
-    free_list.io.head_arch := io.head_arch
-    free_list.io.predict_fail := io.predict_fail
-    io.free_list_empty := free_list.io.empty
+    // free list
+    free_list.io.rd_valid           := io.rd_valid
+    free_list.io.rename_en          := io.rename_en
+    free_list.io.commit_en          := io.commit_en
+    free_list.io.commit_pprd_valid  := (io.commit_pprd_valid.asUInt & VecInit(io.commit_pprd.map(_ =/= 0.U)).asUInt).asBools
+    free_list.io.commit_pprd        := io.commit_pprd
+    free_list.io.head_arch          := io.head_arch
+    free_list.io.predict_fail       := io.predict_fail
+    io.free_list_empty              := free_list.io.empty
 }
 
-// object Reg_Rename extends App{
-//     emitVerilog(new Reg_Rename, Array("-td", "build/"))
-//     // emitVerilog(new Reg_Rename, Array("--help"))
-
-// }

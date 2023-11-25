@@ -48,9 +48,6 @@ class CRat extends Module{
         }
     }
     // read for rj, rk, rd
-    // val rj_hit_oh = Wire(Vec(4, Vec(85, Bool())))
-    // val rk_hit_oh = Wire(Vec(4, Vec(85, Bool())))
-    // val rd_hit_oh = Wire(Vec(4, Vec(85, Bool())))
     for(i <- 0 until 4){
         val rj_hit_oh = Wire(Vec(85, Bool()))
         val rk_hit_oh = Wire(Vec(85, Bool()))
@@ -60,9 +57,9 @@ class CRat extends Module{
             rk_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rk(i))
             rd_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rd(i))
         }
-        io.prj(i) := OHToUInt(rj_hit_oh)
-        io.prk(i) := OHToUInt(rk_hit_oh)
-        io.pprd(i) := OHToUInt(rd_hit_oh)
+        io.prj(i)   := OHToUInt(rj_hit_oh)
+        io.prk(i)   := OHToUInt(rk_hit_oh)
+        io.pprd(i)  := OHToUInt(rd_hit_oh)
     }
 }
 

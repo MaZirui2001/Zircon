@@ -16,20 +16,22 @@ class Free_List extends Module{
         val head_arch           = Input(Vec(4, UInt(5.W)))
     })
 
-    val free_list = RegInit(VecInit.tabulate(4)(i => VecInit.tabulate(22)(j => (j * 4 + i + 1).asUInt)))
-
-    val head = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
-    val tail = RegInit(VecInit(Seq.fill(4)(21.U(5.W))))
-    val tail_sel = RegInit(0.U(2.W))
+    val free_list   = RegInit(VecInit.tabulate(4)(i => VecInit.tabulate(22)(j => (j * 4 + i + 1).asUInt)))
+    // ptrs
+    val head        = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
+    val tail        = RegInit(VecInit(Seq.fill(4)(21.U(5.W))))
+    val tail_sel    = RegInit(0.U(2.W))
 
     io.empty := VecInit(head.zip(tail).map{case(h, t) => (h === t)}).reduce(_||_)
 
     for(i <- 0 until 4){
+        // head update
         when(io.predict_fail){
             head(i) := io.head_arch(i)
         }.elsewhen(!io.empty && io.rename_en(i)){
             head(i) := Mux(head(i) + io.rd_valid(i) === 22.U, 0.U, head(i) + io.rd_valid(i))
         }
+        // tail update
         when(io.commit_en(i)){
             tail(tail_sel+i.U) := Mux(tail(tail_sel+i.U) + io.commit_pprd_valid(i) === 22.U, 0.U, tail(tail_sel+i.U) + io.commit_pprd_valid(i))
             when(io.commit_pprd_valid(i)){
@@ -38,6 +40,7 @@ class Free_List extends Module{
             tail_sel := Mux(io.predict_fail, 0.U, tail_sel + PopCount(io.commit_en))
         }
     }
+
     for(i <- 0 until 4){
         io.alloc_preg(i) := free_list(i)(head(i))
     }
