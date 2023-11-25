@@ -35,3 +35,4 @@
 2023-11-18 21:29 LUT: 61650 FF: 24329 BRAM: 37 DSP: 8               add fifth issue queue
 2023-11-19 17:55 LUT: 59536 FF: 24212 BRAM: 37 DSP: 8               add to 85 physical regs, and fix bugs of ras
 2023-11-22 14:08 LUT: 62101 FF: 24358 BRAM: 37 DSP: 8               fix store buffer bugs
+2023-11-25 23:01 LUT: 66651 FF: 24356 BRAM: 37 DSP: 8               fix bugs of mod, but need 4000 LUT for it
