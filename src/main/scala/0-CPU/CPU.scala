@@ -481,42 +481,42 @@ class CPU(RESET_VEC: Int) extends Module {
     // ALU
     alu1.io.alu_op := re_reg1.io.inst_pack_EX.alu_op
     alu1.io.src1 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
-        RS1_REG -> Mux(bypass123.io.forward_prj_en(0), bypass123.io.forward_prj_data(0), re_reg1.io.src1_EX),
-        RS1_PC -> re_reg1.io.inst_pack_EX.pc,
-        RS1_ZERO -> 0.U)
+        RS1_REG     -> Mux(bypass123.io.forward_prj_en(0), bypass123.io.forward_prj_data(0), re_reg1.io.src1_EX),
+        RS1_PC      -> re_reg1.io.inst_pack_EX.pc,
+        RS1_ZERO    -> 0.U)
     )
     alu1.io.src2 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
-        RS2_REG -> Mux(bypass123.io.forward_prk_en(0), bypass123.io.forward_prk_data(0), re_reg1.io.src2_EX),
-        RS2_IMM -> re_reg1.io.inst_pack_EX.imm,
-        RS2_FOUR -> 4.U)
+        RS2_REG     -> Mux(bypass123.io.forward_prk_en(0), bypass123.io.forward_prk_data(0), re_reg1.io.src2_EX),
+        RS2_IMM     -> re_reg1.io.inst_pack_EX.imm,
+        RS2_FOUR    -> 4.U)
     )
     
     // 2. arith common fu2
     // ALU
     alu2.io.alu_op := re_reg2.io.inst_pack_EX.alu_op
     alu2.io.src1 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
-        RS1_REG -> Mux(bypass123.io.forward_prj_en(1), bypass123.io.forward_prj_data(1), re_reg2.io.src1_EX),
-        RS1_PC -> re_reg2.io.inst_pack_EX.pc,
-        RS1_ZERO -> 0.U)
+        RS1_REG     -> Mux(bypass123.io.forward_prj_en(1), bypass123.io.forward_prj_data(1), re_reg2.io.src1_EX),
+        RS1_PC      -> re_reg2.io.inst_pack_EX.pc,
+        RS1_ZERO    -> 0.U)
     )
     alu2.io.src2 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
-        RS2_REG -> Mux(bypass123.io.forward_prk_en(1), bypass123.io.forward_prk_data(1), re_reg2.io.src2_EX),
-        RS2_IMM -> re_reg2.io.inst_pack_EX.imm,
-        RS2_FOUR -> 4.U)
+        RS2_REG     -> Mux(bypass123.io.forward_prk_en(1), bypass123.io.forward_prk_data(1), re_reg2.io.src2_EX),
+        RS2_IMM     -> re_reg2.io.inst_pack_EX.imm,
+        RS2_FOUR    -> 4.U)
     )
 
     // 3. arith-branch fu
     // ALU
     alu3.io.alu_op := re_reg3.io.inst_pack_EX.alu_op
     alu3.io.src1 := MuxLookup(re_reg3.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
-        RS1_REG -> Mux(bypass123.io.forward_prj_en(2), bypass123.io.forward_prj_data(2), re_reg3.io.src1_EX),
-        RS1_PC -> re_reg3.io.inst_pack_EX.pc,
-        RS1_ZERO -> 0.U)
+        RS1_REG     -> Mux(bypass123.io.forward_prj_en(2), bypass123.io.forward_prj_data(2), re_reg3.io.src1_EX),
+        RS1_PC      -> re_reg3.io.inst_pack_EX.pc,
+        RS1_ZERO    -> 0.U)
     )
     alu3.io.src2 := MuxLookup(re_reg3.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
-        RS2_REG -> Mux(bypass123.io.forward_prk_en(2), bypass123.io.forward_prk_data(2), re_reg3.io.src2_EX),
-        RS2_IMM -> re_reg3.io.inst_pack_EX.imm,
-        RS2_FOUR -> 4.U)
+        RS2_REG     -> Mux(bypass123.io.forward_prk_en(2), bypass123.io.forward_prk_data(2), re_reg3.io.src2_EX),
+        RS2_IMM     -> re_reg3.io.inst_pack_EX.imm,
+        RS2_FOUR    -> 4.U)
     )
 
     // Branch
@@ -571,12 +571,12 @@ class CPU(RESET_VEC: Int) extends Module {
 
     val mem_rdata_raw              = VecInit.tabulate(32)(i => Mux(ls_ex_mem_reg.io.sb_hit_MEM(i.U(4, 3)), ls_ex_mem_reg.io.sb_rdata_MEM(i), dcache.io.rdata_MEM(i))).asUInt 
     val mem_rdata                  = MuxLookup(ls_ex_mem_reg.io.mem_type_MEM, 0.U)(Seq(
-        MEM_LDB     -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
-        MEM_LDH     -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
-        MEM_LDW     -> mem_rdata_raw,
-        MEM_LDBU    -> 0.U(24.W) ## mem_rdata_raw(7, 0),
-        MEM_LDHU    -> 0.U(16.W) ## mem_rdata_raw(15, 0)
-    ))
+                                                MEM_LDB     -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
+                                                MEM_LDH     -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
+                                                MEM_LDW     -> mem_rdata_raw,
+                                                MEM_LDBU    -> 0.U(24.W) ## mem_rdata_raw(7, 0),
+                                                MEM_LDHU    -> 0.U(16.W) ## mem_rdata_raw(15, 0)
+                                    ))
 
     // bypass for 1, 2, 3
     bypass123.io.prd_wb             := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd, ew_reg3.io.inst_pack_WB.prd)
@@ -628,7 +628,7 @@ class CPU(RESET_VEC: Int) extends Module {
     rob.io.rob_index_wb         := VecInit(ew_reg1.io.inst_pack_WB.rob_index, ew_reg2.io.inst_pack_WB.rob_index, ew_reg3.io.inst_pack_WB.rob_index, ew_reg4.io.inst_pack_WB.rob_index, ew_reg5.io.inst_pack_WB.rob_index)
     rob.io.predict_fail_wb      := VecInit(false.B, false.B, ew_reg3.io.predict_fail_WB, false.B, false.B)
     rob.io.real_jump_wb         := VecInit(false.B, false.B, ew_reg3.io.real_jump_WB, false.B, false.B)
-    rob.io.branch_target_wb     := VecInit(0.U, 0.U, ew_reg3.io.branch_target_WB, 0.U, 0.U)
+    rob.io.branch_target_wb     := VecInit(DontCare, DontCare, ew_reg3.io.branch_target_WB, DontCare, DontCare)
     rob.io.rf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.alu_out_WB, ew_reg4.io.md_out_WB, ew_reg5.io.mem_rdata_WB)
     rob.io.is_ucread_wb         := VecInit(false.B, false.B, false.B, false.B, ew_reg5.io.is_ucread_WB)
     
