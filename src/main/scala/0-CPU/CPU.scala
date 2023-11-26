@@ -188,7 +188,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     /* ---------- 1. Previous Fetch Stage ---------- */
     // PC
-    pc.io.pc_stall                  := !fq.io.inst_queue_ready || icache.io.cache_miss_RM
+    pc.io.pc_stall                  := fq.io.full || icache.io.cache_miss_RM
     pc.io.predict_fail              := rob.io.predict_fail_cmt
     pc.io.branch_target             := rob.io.branch_target_cmt
     pc.io.pred_jump                 := predict.io.predict_jump
@@ -212,15 +212,15 @@ class CPU(RESET_VEC: Int) extends Module {
 
     /* ---------- PF-IF SegReg ---------- */
     val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U, pc.io.pc_PF+8.U, pc.io.pc_PF+12.U)
-    pi_reg.io.flush             := rob.io.predict_fail_cmt || (fq.io.inst_queue_ready && pd.io.pred_fix)
-    pi_reg.io.stall             := !fq.io.inst_queue_ready || icache.io.cache_miss_RM
+    pi_reg.io.flush             := rob.io.predict_fail_cmt || (!fq.io.full && pd.io.pred_fix)
+    pi_reg.io.stall             := fq.io.full || icache.io.cache_miss_RM
     pi_reg.io.inst_pack_PF      := VecInit.tabulate(4)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i)))
 
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
     icache.io.addr_IF           := pc.io.pc_PF
     icache.io.rvalid_IF         := !reset.asBool
-    icache.io.stall             := !fq.io.inst_queue_ready
+    icache.io.stall             := fq.io.full
     icache.io.flush             := false.B
     icache.io.i_rready          := arb.io.i_rready
     icache.io.i_rdata           := arb.io.i_rdata
@@ -228,7 +228,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     /* ---------- IF-PD SegReg ---------- */
     ip_reg.io.flush             := rob.io.predict_fail_cmt || (!ip_reg.io.stall && (pd.io.pred_fix || icache.io.cache_miss_RM))
-    ip_reg.io.stall             := !fq.io.inst_queue_ready 
+    ip_reg.io.stall             := fq.io.full
     ip_reg.io.insts_pack_IF     := VecInit.tabulate(4)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), icache.io.rdata_RM(i)))
 
     /* ---------- 3. Previous Decode Stage ---------- */
@@ -746,7 +746,7 @@ class CPU(RESET_VEC: Int) extends Module {
         io.commit_br_type4      := rob.io.br_type_stat(3)
         io.commit_predict_fail4 := rob.io.predict_fail_stat(3)
 
-        io.commit_stall_by_fetch_queue  := !fq.io.inst_queue_ready
+        io.commit_stall_by_fetch_queue  := fq.io.full
         io.commit_stall_by_rename       := rename.io.free_list_empty
         io.commit_stall_by_rob          := rob.io.full
         io.commit_stall_by_iq1          := iq1.io.full 

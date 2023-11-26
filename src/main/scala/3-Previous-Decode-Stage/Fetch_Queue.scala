@@ -19,7 +19,7 @@ class Fetch_Queue_IO extends Bundle{
     val insts_pack_id       = Output(Vec(4, new inst_pack_PD_t))
     
 
-    val inst_queue_ready    = Output(Bool())
+    val full                = Output(Bool())
     val flush               = Input(Bool())
 }
 
@@ -40,7 +40,7 @@ class Fetch_Queue extends Module{
 
 
     // Enqueue
-    io.inst_queue_ready := !full
+    io.full := !full
 
     // calculate the entry index for each instruction
     val entry_idxs = Wire(Vec(fetch_width, UInt(log2Ceil(num_entries).W)))
