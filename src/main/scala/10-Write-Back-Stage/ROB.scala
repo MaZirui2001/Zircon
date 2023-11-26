@@ -20,6 +20,8 @@ object ROB_Pack{
         val rf_wdata            = UInt(32.W)
         val is_store            = Bool()
         val is_ucread           = Bool()
+        val csr_addr            = UInt(14.W)
+        val priv_vec            = UInt(4.W)
     }
     
 }
@@ -35,6 +37,8 @@ class ROB_IO(n: Int) extends Bundle{
     val is_store_rn             = Input(Vec(4, Bool()))
     val br_type_pred_rn         = Input(Vec(4, UInt(2.W)))
     val pred_update_en_rn       = Input(Vec(4, Bool()))
+    val csr_addr_rn             = Input(Vec(4, UInt(14.W)))
+    val priv_vec_rn             = Input(Vec(4, UInt(4.W)))
     val full                    = Output(Bool())
     val stall                   = Input(Bool())
 
@@ -64,6 +68,11 @@ class ROB_IO(n: Int) extends Bundle{
     val pred_pc_cmt             = Output(UInt(32.W))
     val pred_real_jump_cmt      = Output(Bool())
     val br_type_pred_cmt        = Output(UInt(2.W))
+
+    // for csr write
+    val csr_addr_cmt            = Output(UInt(14.W))
+    val csr_wdata_cmt           = Output(UInt(32.W))
+    val csr_we_cmt              = Output(Bool())
 
     // diff
     val is_ucread_cmt           = Output(Vec(4, Bool()))
@@ -110,6 +119,8 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).is_store        := io.is_store_rn(i)
                 rob(i)(tail).br_type_pred    := io.br_type_pred_rn(i)
                 rob(i)(tail).pred_update_en  := io.pred_update_en_rn(i)
+                rob(i)(tail).csr_addr        := io.csr_addr_rn(i)
+                rob(i)(tail).priv_vec        := io.priv_vec_rn(i)
                 rob(i)(tail).complete        := false.B
             }
         }
@@ -133,7 +144,10 @@ class ROB(n: Int) extends Module{
     // cmt stage
     io.cmt_en(0) := rob(hsel_idx(0))(head_idx(0)).complete && !empty(head_sel)
     for(i <- 1 until 4){
-        io.cmt_en(i) := (io.cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete && !rob(hsel_idx(i-1))(head_idx(i-1)).pred_update_en && !empty(hsel_idx(i)))
+        io.cmt_en(i) := (io.cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete 
+                        && !rob(hsel_idx(i-1))(head_idx(i-1)).pred_update_en 
+                        && !rob(hsel_idx(i-1))(head_idx(i-1)).priv_vec(0)
+                        && !empty(hsel_idx(i)))
     }
     io.full := full
 
@@ -155,6 +169,14 @@ class ROB(n: Int) extends Module{
     val is_store_cmt_bit        = VecInit.tabulate(4)(i => rob_commit_items(i).is_store && io.cmt_en(i))
     io.is_store_num_cmt         := PopCount(is_store_cmt_bit)
 
+    // update csr file
+    val csr_update_bits         = VecInit.tabulate(4)(i => rob_commit_items(i).priv_vec(0) && io.cmt_en(i)).asUInt
+    val csr_update_item         = Mux(csr_update_bits.orR, rob_commit_items(OHToUInt(csr_update_bits)), 0.U.asTypeOf(new rob_t))
+
+    io.csr_addr_cmt             := csr_update_item.csr_addr
+    io.csr_wdata_cmt            := csr_update_item.branch_target
+    io.csr_we_cmt               := csr_update_item.priv_vec(1)
+    
     io.rd_cmt                   := rob_commit_items.map(_.rd)
     io.rd_valid_cmt             := rob_commit_items.map(_.rd_valid)
     io.prd_cmt                  := rob_commit_items.map(_.prd)

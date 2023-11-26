@@ -150,10 +150,13 @@ object Inst_Pack{
         val alu_rs2_sel     = UInt(2.W)
         val br_type         = UInt(4.W)
         val mem_type        = UInt(5.W)
+        val csr_addr        = UInt(14.W)
+        val priv_vec        = UInt(4.W)
         val fu_id           = UInt(3.W)
         val inst_exist      = Bool()
     }
-    def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rj_valid : Bool, _rk : UInt, _rk_valid : Bool, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _inst_exist : Bool) : inst_pack_ID_t = {
+    def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rj_valid : Bool, _rk : UInt, _rk_valid : Bool, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, 
+                          _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _inst_exist : Bool, _priv_vec: UInt, _csr_addr: UInt) : inst_pack_ID_t = {
         val inst_pack_ID = Wire(new inst_pack_ID_t)
         inst_pack_ID.pc             := inst_pack_PD.pc
         inst_pack_ID.inst           := inst_pack_PD.inst
@@ -172,6 +175,8 @@ object Inst_Pack{
         inst_pack_ID.alu_rs2_sel    := _alu_rs2_sel
         inst_pack_ID.br_type        := _br_type
         inst_pack_ID.mem_type       := _mem_type
+        inst_pack_ID.csr_addr       := _csr_addr
+        inst_pack_ID.priv_vec       := _priv_vec
         inst_pack_ID.fu_id          := _fu_id
         inst_pack_ID.inst_exist     := _inst_exist
         inst_pack_ID
@@ -204,6 +209,8 @@ object Inst_Pack{
         inst_pack_RN.alu_rs2_sel    := inst_pack_ID.alu_rs2_sel
         inst_pack_RN.br_type        := inst_pack_ID.br_type
         inst_pack_RN.mem_type       := inst_pack_ID.mem_type
+        inst_pack_RN.csr_addr       := inst_pack_ID.csr_addr
+        inst_pack_RN.priv_vec       := inst_pack_ID.priv_vec
         inst_pack_RN.fu_id          := inst_pack_ID.fu_id
         inst_pack_RN.inst_exist     := inst_pack_ID.inst_exist
         inst_pack_RN.prj            := _prj
@@ -218,7 +225,7 @@ object Inst_Pack{
     class inst_pack_DP_t extends Bundle{
         val prj             = UInt(7.W)
         val prk             = UInt(7.W)
-        val rd              = UInt(5.W)
+        // val rd              = UInt(5.W)
         val rd_valid        = Bool()
         val prd             = UInt(7.W)
         val imm             = UInt(32.W)
@@ -235,7 +242,7 @@ object Inst_Pack{
         val inst_pack_DP_FU1 = Wire(new inst_pack_DP_FU1_t)
         inst_pack_DP_FU1.prj            := inst_pack_RN.prj
         inst_pack_DP_FU1.prk            := inst_pack_RN.prk
-        inst_pack_DP_FU1.rd             := inst_pack_RN.rd
+        // inst_pack_DP_FU1.rd             := inst_pack_RN.rd
         inst_pack_DP_FU1.rd_valid       := inst_pack_RN.rd_valid
         inst_pack_DP_FU1.prd            := inst_pack_RN.prd
         inst_pack_DP_FU1.imm            := inst_pack_RN.imm
@@ -251,13 +258,15 @@ object Inst_Pack{
         val alu_op          = UInt(5.W)
         val alu_rs1_sel     = UInt(2.W)
         val alu_rs2_sel     = UInt(2.W)
+        val csr_addr        = UInt(14.W)
+        val priv_vec        = UInt(4.W)
         val pc              = UInt(32.W)
     }
     def inst_pack_DP_FU2_gen (inst_pack_RN : inst_pack_RN_t) : inst_pack_DP_FU2_t = {
         val inst_pack_DP_FU2 = Wire(new inst_pack_DP_FU2_t)
         inst_pack_DP_FU2.prj            := inst_pack_RN.prj
         inst_pack_DP_FU2.prk            := inst_pack_RN.prk
-        inst_pack_DP_FU2.rd             := inst_pack_RN.rd
+        // inst_pack_DP_FU2.rd             := inst_pack_RN.rd
         inst_pack_DP_FU2.rd_valid       := inst_pack_RN.rd_valid
         inst_pack_DP_FU2.prd            := inst_pack_RN.prd
         inst_pack_DP_FU2.imm            := inst_pack_RN.imm
@@ -266,6 +275,8 @@ object Inst_Pack{
         inst_pack_DP_FU2.alu_op         := inst_pack_RN.alu_op
         inst_pack_DP_FU2.alu_rs1_sel    := inst_pack_RN.alu_rs1_sel
         inst_pack_DP_FU2.alu_rs2_sel    := inst_pack_RN.alu_rs2_sel
+        inst_pack_DP_FU2.csr_addr       := inst_pack_RN.csr_addr
+        inst_pack_DP_FU2.priv_vec       := inst_pack_RN.priv_vec
         inst_pack_DP_FU2.pc             := inst_pack_RN.pc
         inst_pack_DP_FU2
     }
@@ -282,7 +293,7 @@ object Inst_Pack{
         val inst_pack_DP_FU3 = Wire(new inst_pack_DP_FU3_t)
         inst_pack_DP_FU3.prj            := inst_pack_RN.prj
         inst_pack_DP_FU3.prk            := inst_pack_RN.prk
-        inst_pack_DP_FU3.rd             := inst_pack_RN.rd
+        // inst_pack_DP_FU3.rd             := inst_pack_RN.rd
         inst_pack_DP_FU3.rd_valid       := inst_pack_RN.rd_valid
         inst_pack_DP_FU3.prd            := inst_pack_RN.prd
         inst_pack_DP_FU3.imm            := inst_pack_RN.imm
@@ -304,7 +315,7 @@ object Inst_Pack{
         val inst_pack_DP_LS = Wire(new inst_pack_DP_LS_t)
         inst_pack_DP_LS.prj            := inst_pack_RN.prj
         inst_pack_DP_LS.prk            := inst_pack_RN.prk
-        inst_pack_DP_LS.rd             := inst_pack_RN.rd
+        // inst_pack_DP_LS.rd             := inst_pack_RN.rd
         inst_pack_DP_LS.rd_valid       := inst_pack_RN.rd_valid
         inst_pack_DP_LS.prd            := inst_pack_RN.prd
         inst_pack_DP_LS.imm            := inst_pack_RN.imm
@@ -320,7 +331,7 @@ object Inst_Pack{
         val inst_pack_DP_MD = Wire(new inst_pack_DP_MD_t)
         inst_pack_DP_MD.prj            := inst_pack_RN.prj
         inst_pack_DP_MD.prk            := inst_pack_RN.prk
-        inst_pack_DP_MD.rd             := inst_pack_RN.rd
+        // inst_pack_DP_MD.rd             := inst_pack_RN.rd
         inst_pack_DP_MD.rd_valid       := inst_pack_RN.rd_valid
         inst_pack_DP_MD.prd            := inst_pack_RN.prd
         inst_pack_DP_MD.imm            := inst_pack_RN.imm
@@ -347,7 +358,7 @@ object Inst_Pack{
         val inst_pack_IS_FU1 = Wire(new inst_pack_IS_FU1_t)
         inst_pack_IS_FU1.prj            := inst_pack_DP.prj
         inst_pack_IS_FU1.prk            := inst_pack_DP.prk
-        inst_pack_IS_FU1.rd             := inst_pack_DP.rd
+        // inst_pack_IS_FU1.rd             := inst_pack_DP.rd
         inst_pack_IS_FU1.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_FU1.prd            := inst_pack_DP.prd
         inst_pack_IS_FU1.imm            := inst_pack_DP.imm
@@ -368,7 +379,7 @@ object Inst_Pack{
         val inst_pack_IS_FU2 = Wire(new inst_pack_IS_FU2_t)
         inst_pack_IS_FU2.prj            := inst_pack_DP.prj
         inst_pack_IS_FU2.prk            := inst_pack_DP.prk
-        inst_pack_IS_FU2.rd             := inst_pack_DP.rd
+        // inst_pack_IS_FU2.rd             := inst_pack_DP.rd
         inst_pack_IS_FU2.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_FU2.prd            := inst_pack_DP.prd
         inst_pack_IS_FU2.imm            := inst_pack_DP.imm
@@ -377,6 +388,8 @@ object Inst_Pack{
         inst_pack_IS_FU2.alu_op         := inst_pack_DP.alu_op
         inst_pack_IS_FU2.alu_rs1_sel    := inst_pack_DP.alu_rs1_sel
         inst_pack_IS_FU2.alu_rs2_sel    := inst_pack_DP.alu_rs2_sel
+        inst_pack_IS_FU2.csr_addr       := inst_pack_DP.csr_addr
+        inst_pack_IS_FU2.priv_vec       := inst_pack_DP.priv_vec
         inst_pack_IS_FU2.pc             := inst_pack_DP.pc
         inst_pack_IS_FU2.inst_valid     := _inst_valid
         inst_pack_IS_FU2
@@ -389,7 +402,7 @@ object Inst_Pack{
         val inst_pack_IS_FU3 = Wire(new inst_pack_IS_FU3_t)
         inst_pack_IS_FU3.prj            := inst_pack_DP.prj
         inst_pack_IS_FU3.prk            := inst_pack_DP.prk
-        inst_pack_IS_FU3.rd             := inst_pack_DP.rd
+        // inst_pack_IS_FU3.rd             := inst_pack_DP.rd
         inst_pack_IS_FU3.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_FU3.prd            := inst_pack_DP.prd
         inst_pack_IS_FU3.imm            := inst_pack_DP.imm
@@ -412,7 +425,7 @@ object Inst_Pack{
         val inst_pack_IS_LS = Wire(new inst_pack_IS_LS_t)
         inst_pack_IS_LS.prj            := inst_pack_DP.prj
         inst_pack_IS_LS.prk            := inst_pack_DP.prk
-        inst_pack_IS_LS.rd             := inst_pack_DP.rd
+        // inst_pack_IS_LS.rd             := inst_pack_DP.rd
         inst_pack_IS_LS.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_LS.prd            := inst_pack_DP.prd
         inst_pack_IS_LS.imm            := inst_pack_DP.imm
@@ -429,7 +442,7 @@ object Inst_Pack{
         val inst_pack_IS_MD = Wire(new inst_pack_IS_MD_t)
         inst_pack_IS_MD.prj            := inst_pack_DP.prj
         inst_pack_IS_MD.prk            := inst_pack_DP.prk
-        inst_pack_IS_MD.rd             := inst_pack_DP.rd
+        // inst_pack_IS_MD.rd             := inst_pack_DP.rd
         inst_pack_IS_MD.rd_valid       := inst_pack_DP.rd_valid
         inst_pack_IS_MD.prd            := inst_pack_DP.prd
         inst_pack_IS_MD.imm            := inst_pack_DP.imm

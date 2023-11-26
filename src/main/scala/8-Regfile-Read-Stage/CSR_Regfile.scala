@@ -236,5 +236,6 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
         is(CSR_TVAL)        { rdata := tval }
         is(CSR_TICLR)       { rdata := ticlr }
     }
+    io.rdata := rdata
 
 }
