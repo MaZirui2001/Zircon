@@ -39,8 +39,8 @@ class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extend
     val wake_preg        = Input(Vec(5, UInt(7.W)))
 
     // input for priv
-    val priv_issued      = Input(Bool())
-    val priv_commited    = Input(Bool())
+    // val priv_issued      = Input(Bool())
+    // val priv_commited    = Input(Bool())
 
     // input from load
     val ld_mem_prd       = Input(UInt(7.W))

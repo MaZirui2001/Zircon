@@ -11,10 +11,11 @@ object CPU_Main extends App {
                                 "--lowering-options=disallowLocalVariables, explicitBitcast, disallowMuxInlining, disallowExpressionInliningInPorts, verifLabels",
                                 "-o=verilog/",
                                 "-split-verilog",
-                                "--vb-to-bv"
+                                //"--scalarize-top-module"
+                                
                                 )
     if(System.getProperties().getProperty("mode") == "sim"){
-        firtool_options = firtool_options ++ Array("--preserve-aggregate=1d-vec")
+        firtool_options = firtool_options ++ Array("--vb-to-bv", "--preserve-aggregate=1d-vec")
     }
     ChiselStage.emitSystemVerilogFile(
         new CPU(0x1c000000), 

@@ -85,6 +85,9 @@ class ROB_IO(n: Int) extends Bundle{
     val rf_wdata_cmt            = Output(Vec(4, UInt(32.W)))
     val branch_target_cmt       = Output(UInt(32.W))
     val pc_cmt                  = Output(Vec(4, UInt(32.W)))
+    val csr_diff_addr_cmt       = Output(Vec(4, UInt(14.W)))
+    val csr_diff_wdata_cmt      = Output(Vec(4, UInt(32.W)))
+    val csr_diff_we_cmt         = Output(Vec(4, Bool()))
 
     // stat
     val predict_fail_stat       = Output(Vec(4, Bool()))
@@ -192,7 +195,7 @@ class ROB(n: Int) extends Module{
     io.csr_addr_cmt             := priv_buf.csr_addr
     io.csr_wdata_cmt            := priv_buf.csr_wdata
     io.csr_we_cmt               := csr_update_bits.orR && priv_buf.priv_vec(2, 1).orR
-    when(csr_update_bits.orR){
+    when(io.predict_fail_cmt){
         priv_buf.valid          := false.B
     }
     
@@ -203,6 +206,10 @@ class ROB(n: Int) extends Module{
     io.pc_cmt                   := VecInit.tabulate(4)(i => Mux(rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U))
     io.rf_wdata_cmt             := rob_commit_items.map(_.rf_wdata)
     io.is_ucread_cmt            := VecInit.tabulate(4)(i => rob_commit_items(i).is_ucread && io.cmt_en(i))
+    io.csr_diff_addr_cmt        := VecInit.fill(4)(priv_buf.csr_addr)
+    io.csr_diff_wdata_cmt       := VecInit.fill(4)(priv_buf.csr_wdata)
+    io.csr_diff_we_cmt          := VecInit.tabulate(4)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
+
     
     // update ptrs
     head_sel                    := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))

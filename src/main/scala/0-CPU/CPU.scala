@@ -35,69 +35,24 @@ class CPU_IO extends Bundle{
     val wvalid                      = Output(Bool())
 
     // debug
-    val commit_en1                  = Output(Bool())
-    val commit_rd1                  = Output(UInt(5.W))
-    val commit_prd1                 = Output(UInt(7.W))
-    val commit_rd_valid1            = Output(Bool())
-    val commit_rf_wdata1            = Output(UInt(32.W))
-    val commit_csr_wdata1           = Output(UInt(32.W))
-    val commit_csr_we1              = Output(Bool())
-    val commit_csr_waddr1           = Output(UInt(14.W))
-    val commit_pc_1                 = Output(UInt(32.W))
-    val commit_is_ucread1           = Output(Bool())
-    val commit_is_br1               = Output(Bool())
-    val commit_br_type1             = Output(UInt(2.W))
-    val commit_predict_fail1        = Output(Bool())
+    val commit_en                  = Output(Vec(4, Bool()))
+    val commit_rd                  = Output(Vec(4, UInt(5.W)))
+    val commit_prd                 = Output(Vec(4, UInt(7.W)))
+    val commit_rd_valid            = Output(Vec(4, Bool()))
+    val commit_rf_wdata            = Output(Vec(4, UInt(32.W)))
+    val commit_csr_wdata           = Output(Vec(4, UInt(32.W)))
+    val commit_csr_we              = Output(Vec(4, Bool()))
+    val commit_csr_waddr           = Output(Vec(4, UInt(14.W)))
+    val commit_pc                  = Output(Vec(4, UInt(32.W)))
+    val commit_is_ucread           = Output(Vec(4, Bool()))
+    val commit_is_br               = Output(Vec(4, Bool()))
+    val commit_br_type             = Output(Vec(4, UInt(2.W)))
+    val commit_predict_fail        = Output(Vec(4, Bool()))
 
-    val commit_en2                  = Output(Bool())
-    val commit_rd2                  = Output(UInt(5.W))
-    val commit_prd2                 = Output(UInt(7.W))
-    val commit_rd_valid2            = Output(Bool())
-    val commit_rf_wdata2            = Output(UInt(32.W))
-    val commit_csr_wdata2           = Output(UInt(32.W))
-    val commit_csr_waddr2           = Output(UInt(14.W))
-    val commit_csr_we2              = Output(Bool())
-    val commit_pc_2                 = Output(UInt(32.W))
-    val commit_is_ucread2           = Output(Bool())
-    val commit_is_br2               = Output(Bool())
-    val commit_br_type2             = Output(UInt(2.W))
-    val commit_predict_fail2        = Output(Bool())
-    
-    val commit_en3                  = Output(Bool())
-    val commit_rd3                  = Output(UInt(5.W))
-    val commit_prd3                 = Output(UInt(7.W))
-    val commit_rd_valid3            = Output(Bool())
-    val commit_rf_wdata3            = Output(UInt(32.W))
-    val commit_csr_wdata3           = Output(UInt(32.W))
-    val commit_csr_we3              = Output(Bool())
-    val commit_csr_waddr3           = Output(UInt(14.W))
-    val commit_pc_3                 = Output(UInt(32.W))
-    val commit_is_ucread3           = Output(Bool())
-    val commit_is_br3               = Output(Bool())
-    val commit_br_type3             = Output(UInt(2.W))
-    val commit_predict_fail3        = Output(Bool())
-
-    val commit_en4                  = Output(Bool())
-    val commit_rd4                  = Output(UInt(5.W))
-    val commit_prd4                 = Output(UInt(7.W))
-    val commit_rd_valid4            = Output(Bool())
-    val commit_rf_wdata4            = Output(UInt(32.W))
-    val commit_csr_wdata4           = Output(UInt(32.W))
-    val commit_csr_we4              = Output(Bool())
-    val commit_csr_waddr4           = Output(UInt(14.W))
-    val commit_pc_4                 = Output(UInt(32.W))
-    val commit_is_ucread4           = Output(Bool())
-    val commit_is_br4               = Output(Bool())
-    val commit_br_type4             = Output(UInt(2.W))
-    val commit_predict_fail4        = Output(Bool())
     val commit_stall_by_fetch_queue = Output(Bool())
     val commit_stall_by_rename      = Output(Bool())
     val commit_stall_by_rob         = Output(Bool())
-    val commit_stall_by_iq1         = Output(Bool())
-    val commit_stall_by_iq2         = Output(Bool())
-    val commit_stall_by_iq3         = Output(Bool())
-    val commit_stall_by_iq4         = Output(Bool())
-    val commit_stall_by_iq5         = Output(Bool())
+    val commit_stall_by_iq          = Output(Vec(5, Bool()))
     val commit_stall_by_sb          = Output(Bool())
     val commit_stall_by_icache      = Output(Bool())
     val commit_icache_miss          = Output(Bool())
@@ -106,11 +61,7 @@ class CPU_IO extends Bundle{
     val commit_dcache_miss          = Output(Bool())
     val commit_dcache_visit         = Output(Bool())
     
-    val commit_iq1_issue            = Output(Bool())
-    val commit_iq2_issue            = Output(Bool())
-    val commit_iq3_issue            = Output(Bool())
-    val commit_iq4_issue            = Output(Bool())
-    val commit_iq5_issue            = Output(Bool())
+    val commit_iq_issue             = Output(Vec(5, Bool()))
 
 }
 class CPU(RESET_VEC: Int) extends Module {
@@ -337,8 +288,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq1.io.stall                := stall_by_iq
     iq1.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq1.io.dcache_miss          := dcache.io.cache_miss_MEM
-    iq1.io.priv_issued          := DontCare
-    iq1.io.priv_commited        := DontCare
 
     // select
     sel1.io.insts_issue         := iq1.io.insts_issue
@@ -357,8 +306,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq2.io.stall                := stall_by_iq
     iq2.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq2.io.dcache_miss          := dcache.io.cache_miss_MEM
-    iq2.io.priv_issued          := sel2.io.priv_issued
-    iq2.io.priv_commited        := rob.io.csr_we_cmt ////
 
     // select
     sel2.io.insts_issue         := iq2.io.insts_issue
@@ -377,8 +324,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq3.io.stall                := stall_by_iq
     iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq3.io.dcache_miss          := dcache.io.cache_miss_MEM
-    iq3.io.priv_issued          := DontCare
-    iq3.io.priv_commited        := DontCare
 
     // select
     sel3.io.insts_issue         := iq3.io.insts_issue
@@ -398,7 +343,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq4.io.dcache_miss          := dcache.io.cache_miss_MEM
 
-
     // select
     sel4.io.insts_issue         := iq4.io.insts_issue
     sel4.io.issue_req           := iq4.io.issue_req
@@ -416,8 +360,6 @@ class CPU(RESET_VEC: Int) extends Module {
     iq5.io.stall                := stall_by_iq
     iq5.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq5.io.dcache_miss          := dcache.io.cache_miss_MEM
-    iq5.io.priv_issued          := DontCare
-    iq5.io.priv_commited        := DontCare
 
     // select
     sel5.io.insts_issue         := iq5.io.insts_issue
@@ -744,70 +686,25 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // statitic
     if(System.getProperties().getProperty("mode") == "sim"){
-        io.commit_en1           := rob.io.cmt_en(0)
-        io.commit_rd1           := rob.io.rd_cmt(0)
-        io.commit_prd1          := rob.io.prd_cmt(0)
-        io.commit_rd_valid1     := rob.io.rd_valid_cmt(0)
-        io.commit_rf_wdata1     := rob.io.rf_wdata_cmt(0)
-        io.commit_csr_wdata1    := rob.io.csr_wdata_cmt
-        io.commit_csr_we1       := rob.io.csr_we_cmt
-        io.commit_csr_waddr1    := rob.io.csr_addr_cmt
-        io.commit_pc_1          := rob.io.pc_cmt(0)
-        io.commit_is_ucread1    := rob.io.is_ucread_cmt(0)
-        io.commit_is_br1        := rob.io.is_br_stat(0)
-        io.commit_br_type1      := rob.io.br_type_stat(0)
-        io.commit_predict_fail1 := rob.io.predict_fail_stat(0)
+        io.commit_en           := rob.io.cmt_en
+        io.commit_rd           := rob.io.rd_cmt
+        io.commit_prd          := rob.io.prd_cmt
+        io.commit_rd_valid     := rob.io.rd_valid_cmt
+        io.commit_rf_wdata     := rob.io.rf_wdata_cmt
+        io.commit_csr_wdata    := rob.io.csr_diff_wdata_cmt
+        io.commit_csr_we       := rob.io.csr_diff_we_cmt
+        io.commit_csr_waddr    := rob.io.csr_diff_addr_cmt
+        io.commit_pc           := rob.io.pc_cmt
+        io.commit_is_ucread    := rob.io.is_ucread_cmt
+        io.commit_is_br        := rob.io.is_br_stat
+        io.commit_br_type      := rob.io.br_type_stat
+        io.commit_predict_fail := rob.io.predict_fail_stat
 
-        io.commit_en2           := rob.io.cmt_en(1)
-        io.commit_rd2           := rob.io.rd_cmt(1)
-        io.commit_prd2          := rob.io.prd_cmt(1)
-        io.commit_rd_valid2     := rob.io.rd_valid_cmt(1)
-        io.commit_rf_wdata2     := rob.io.rf_wdata_cmt(1)
-        io.commit_csr_wdata2    := rob.io.csr_wdata_cmt
-        io.commit_csr_we2       := rob.io.csr_we_cmt
-        io.commit_csr_waddr2    := rob.io.csr_addr_cmt
-        io.commit_pc_2          := rob.io.pc_cmt(1)
-        io.commit_is_ucread2    := rob.io.is_ucread_cmt(1)
-        io.commit_is_br2        := rob.io.is_br_stat(1)
-        io.commit_br_type2      := rob.io.br_type_stat(1)
-        io.commit_predict_fail2 := rob.io.predict_fail_stat(1)
-
-        io.commit_en3           := rob.io.cmt_en(2)
-        io.commit_rd3           := rob.io.rd_cmt(2)
-        io.commit_prd3          := rob.io.prd_cmt(2)
-        io.commit_rd_valid3     := rob.io.rd_valid_cmt(2)
-        io.commit_rf_wdata3     := rob.io.rf_wdata_cmt(2)
-        io.commit_csr_wdata3    := rob.io.csr_wdata_cmt
-        io.commit_csr_we3       := rob.io.csr_we_cmt
-        io.commit_csr_waddr3    := rob.io.csr_addr_cmt
-        io.commit_pc_3          := rob.io.pc_cmt(2)
-        io.commit_is_ucread3    := rob.io.is_ucread_cmt(2)
-        io.commit_is_br3        := rob.io.is_br_stat(2)
-        io.commit_br_type3      := rob.io.br_type_stat(2)
-        io.commit_predict_fail3 := rob.io.predict_fail_stat(2)
-
-        io.commit_en4           := rob.io.cmt_en(3)
-        io.commit_rd4           := rob.io.rd_cmt(3)
-        io.commit_prd4          := rob.io.prd_cmt(3)
-        io.commit_rd_valid4     := rob.io.rd_valid_cmt(3)
-        io.commit_rf_wdata4     := rob.io.rf_wdata_cmt(3)
-        io.commit_csr_wdata4    := rob.io.csr_wdata_cmt
-        io.commit_csr_we4       := rob.io.csr_we_cmt
-        io.commit_csr_waddr4    := rob.io.csr_addr_cmt
-        io.commit_pc_4          := rob.io.pc_cmt(3)
-        io.commit_is_ucread4    := rob.io.is_ucread_cmt(3)
-        io.commit_is_br4        := rob.io.is_br_stat(3)
-        io.commit_br_type4      := rob.io.br_type_stat(3)
-        io.commit_predict_fail4 := rob.io.predict_fail_stat(3)
 
         io.commit_stall_by_fetch_queue  := fq.io.full
         io.commit_stall_by_rename       := rename.io.free_list_empty
         io.commit_stall_by_rob          := rob.io.full
-        io.commit_stall_by_iq1          := iq1.io.full 
-        io.commit_stall_by_iq2          := iq2.io.full 
-        io.commit_stall_by_iq3          := iq3.io.full
-        io.commit_stall_by_iq4          := iq4.io.full
-        io.commit_stall_by_iq5          := iq5.io.full
+        io.commit_stall_by_iq           := VecInit(iq1.io.full, iq2.io.full, iq3.io.full, iq4.io.full, iq5.io.full)
         io.commit_stall_by_sb           := sb.io.full
 
         io.commit_stall_by_icache       := icache.io.cache_miss_RM
@@ -817,79 +714,31 @@ class CPU(RESET_VEC: Int) extends Module {
         io.commit_icache_visit          := icache.io.commit_icache_visit
         io.commit_dcache_visit          := dcache.io.commit_dcache_visit
 
-        io.commit_iq1_issue             := sel1.io.inst_issue_valid
-        io.commit_iq2_issue             := sel2.io.inst_issue_valid
-        io.commit_iq3_issue             := sel3.io.inst_issue_valid
-        io.commit_iq4_issue             := sel4.io.inst_issue_valid
-        io.commit_iq5_issue             := sel5.io.inst_issue_valid
+        io.commit_iq_issue             := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, sel3.io.inst_issue_valid, sel4.io.inst_issue_valid, sel5.io.inst_issue_valid)
+
 
 
     }
     else {
-        io.commit_en1           := DontCare
-        io.commit_rd1           := DontCare
-        io.commit_prd1          := DontCare
-        io.commit_rd_valid1     := DontCare
-        io.commit_rf_wdata1     := DontCare
-        io.commit_csr_wdata1    := DontCare
-        io.commit_csr_we1       := DontCare
-        io.commit_csr_waddr1    := DontCare
-        io.commit_pc_1          := DontCare
-        io.commit_is_ucread1    := DontCare
-        io.commit_is_br1        := DontCare
-        io.commit_br_type1      := DontCare
-        io.commit_predict_fail1 := DontCare
+        io.commit_en            := DontCare
+        io.commit_rd            := DontCare
+        io.commit_prd           := DontCare
+        io.commit_rd_valid      := DontCare
+        io.commit_rf_wdata      := DontCare
+        io.commit_csr_wdata     := DontCare
+        io.commit_csr_we        := DontCare
+        io.commit_csr_waddr     := DontCare
+        io.commit_pc            := DontCare
+        io.commit_is_ucread     := DontCare
+        io.commit_is_br         := DontCare
+        io.commit_br_type       := DontCare
+        io.commit_predict_fail  := DontCare
 
-        io.commit_en2           := DontCare
-        io.commit_rd2           := DontCare
-        io.commit_prd2          := DontCare
-        io.commit_rd_valid2     := DontCare
-        io.commit_rf_wdata2     := DontCare
-        io.commit_csr_wdata2    := DontCare
-        io.commit_csr_we2       := DontCare
-        io.commit_csr_waddr2    := DontCare
-        io.commit_pc_2          := DontCare
-        io.commit_is_ucread2    := DontCare
-        io.commit_is_br2        := DontCare
-        io.commit_br_type2      := DontCare
-        io.commit_predict_fail2 := DontCare
-
-        io.commit_en3           := DontCare
-        io.commit_rd3           := DontCare
-        io.commit_prd3          := DontCare
-        io.commit_rd_valid3     := DontCare
-        io.commit_rf_wdata3     := DontCare
-        io.commit_csr_wdata3    := DontCare
-        io.commit_csr_we3       := DontCare
-        io.commit_csr_waddr3    := DontCare
-        io.commit_pc_3          := DontCare
-        io.commit_is_ucread3    := DontCare
-        io.commit_is_br3        := DontCare
-        io.commit_br_type3      := DontCare
-        io.commit_predict_fail3 := DontCare
-
-        io.commit_en4           := DontCare
-        io.commit_rd4           := DontCare
-        io.commit_prd4          := DontCare
-        io.commit_rd_valid4     := DontCare
-        io.commit_rf_wdata4     := DontCare
-        io.commit_csr_wdata4    := DontCare
-        io.commit_csr_we4       := DontCare
-        io.commit_csr_waddr4    := DontCare
-        io.commit_pc_4          := DontCare
-        io.commit_is_ucread4    := DontCare
-        io.commit_is_br4        := DontCare
-        io.commit_br_type4      := DontCare
-        io.commit_predict_fail4 := DontCare
 
         io.commit_stall_by_fetch_queue  := DontCare
         io.commit_stall_by_rename       := DontCare
         io.commit_stall_by_rob          := DontCare
-        io.commit_stall_by_iq1          := DontCare
-        io.commit_stall_by_iq2          := DontCare
-        io.commit_stall_by_iq3          := DontCare
-        io.commit_stall_by_iq4          := DontCare
-        io.commit_stall_by_iq5          := DontCare
+        io.commit_stall_by_iq           := DontCare
         io.commit_stall_by_sb           := DontCare
 
         io.commit_stall_by_icache       := DontCare
@@ -899,11 +748,7 @@ class CPU(RESET_VEC: Int) extends Module {
         io.commit_icache_visit          := DontCare
         io.commit_dcache_visit          := DontCare
 
-        io.commit_iq1_issue             := DontCare
-        io.commit_iq2_issue             := DontCare
-        io.commit_iq3_issue             := DontCare
-        io.commit_iq4_issue             := DontCare
-        io.commit_iq5_issue             := DontCare
+        io.commit_iq_issue              := DontCare
 
     }
 
