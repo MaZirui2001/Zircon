@@ -26,7 +26,7 @@ class Dispatch extends Module{
         val fu2_next_num    = Wire(UInt((log2Ceil(8)+1).W))
         val fu3_next_num    = Wire(UInt((log2Ceil(8)+1).W))
         val min             = Mux(fu1_num <= fu2_num, Mux(fu1_num <= fu3_num, 0.U, 2.U), Mux(fu2_num <= fu3_num, 1.U, 2.U))
-        queue_id_hit(i)     := (UIntToOH(Mux(io.inst_packs(i).fu_id === ARITH, min, io.inst_packs(i).fu_id + 1.U(3.W)))) & Fill(5, io.inst_packs(i).inst_valid)
+        queue_id_hit(i)     := (UIntToOH(Mux(io.inst_packs(i).fu_id === ARITH, min, io.inst_packs(i).fu_id))) & Fill(5, io.inst_packs(i).inst_valid)
         fu1_next_num        := Mux(queue_id_hit(i)(0), fu1_num + 1.U, fu1_num)
         fu2_next_num        := Mux(queue_id_hit(i)(1), fu2_num + 1.U, fu2_num)
         fu3_next_num        := Mux(queue_id_hit(i)(2), fu3_num + (io.inst_packs(i).fu_id =/= BR), fu3_num)

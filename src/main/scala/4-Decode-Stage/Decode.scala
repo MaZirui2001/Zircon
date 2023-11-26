@@ -42,7 +42,7 @@ class DecodeIO extends Bundle{
     val br_type         = Output(UInt(4.W))
     val mem_type        = Output(UInt(5.W))
 
-    val fu_id           = Output(UInt(2.W))
+    val fu_id           = Output(UInt(3.W))
     val inst_exist      = Output(Bool())
 }
 class Decode extends Module{

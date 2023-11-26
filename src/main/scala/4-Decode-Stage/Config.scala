@@ -60,11 +60,12 @@ object Control_Signal{
     val MEM_LDHU     = 13.U(5.W)
 
     // fu_id
-    val ARITH    = 0.U(2.W)
-    val BR       = 1.U(2.W)
-    val MD       = 2.U(2.W)
-    val LS       = 3.U(2.W)
-
+    val RDCNT    = 0.U(3.W)
+    val CSR      = 1.U(3.W)
+    val BR       = 2.U(3.W)
+    val MD       = 3.U(3.W)
+    val LS       = 4.U(3.W)
+    val ARITH    = 5.U(3.W)
 
     // rk_sel
     val RD       = 0.U(1.W)

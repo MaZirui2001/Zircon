@@ -137,8 +137,8 @@ class CPU(RESET_VEC: Int) extends Module {
     val sel2            = Module(new Unorder_Select(8, new inst_pack_DP_FU1_t))
     val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
 
-    val iq3             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_FU2_t))
-    val sel3            = Module(new Unorder_Select(8, new inst_pack_DP_FU2_t))
+    val iq3             = Module(new Unorder_Issue_Queue(10, new inst_pack_DP_FU2_t))
+    val sel3            = Module(new Unorder_Select(10, new inst_pack_DP_FU2_t))
     val ir_reg3         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
 
     val iq4             = Module(new Order_Issue_Queue(8, new inst_pack_DP_MD_t))

@@ -117,7 +117,7 @@ object Inst_Pack{
         val alu_rs2_sel     = UInt(2.W)
         val br_type         = UInt(4.W)
         val mem_type        = UInt(5.W)
-        val fu_id           = UInt(2.W)
+        val fu_id           = UInt(3.W)
         val inst_exist      = Bool()
     }
     def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rj_valid : Bool, _rk : UInt, _rk_valid : Bool, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _inst_exist : Bool) : inst_pack_ID_t = {
