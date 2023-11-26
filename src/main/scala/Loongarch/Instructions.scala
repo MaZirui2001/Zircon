@@ -252,9 +252,6 @@ object Inst_Pack{
         val alu_rs1_sel     = UInt(2.W)
         val alu_rs2_sel     = UInt(2.W)
         val pc              = UInt(32.W)
-        val br_type         = UInt(4.W)
-        val predict_jump    = Bool()
-        val pred_npc        = UInt(32.W)
     }
     def inst_pack_DP_FU2_gen (inst_pack_RN : inst_pack_RN_t) : inst_pack_DP_FU2_t = {
         val inst_pack_DP_FU2 = Wire(new inst_pack_DP_FU2_t)
@@ -270,10 +267,35 @@ object Inst_Pack{
         inst_pack_DP_FU2.alu_rs1_sel    := inst_pack_RN.alu_rs1_sel
         inst_pack_DP_FU2.alu_rs2_sel    := inst_pack_RN.alu_rs2_sel
         inst_pack_DP_FU2.pc             := inst_pack_RN.pc
-        inst_pack_DP_FU2.br_type        := inst_pack_RN.br_type
-        inst_pack_DP_FU2.predict_jump   := inst_pack_RN.predict_jump
-        inst_pack_DP_FU2.pred_npc       := inst_pack_RN.pred_npc
         inst_pack_DP_FU2
+    }
+    class inst_pack_DP_FU3_t extends inst_pack_DP_t{
+        val alu_op          = UInt(5.W)
+        val alu_rs1_sel     = UInt(2.W)
+        val alu_rs2_sel     = UInt(2.W)
+        val pc              = UInt(32.W)
+        val br_type         = UInt(4.W)
+        val predict_jump    = Bool()
+        val pred_npc        = UInt(32.W)
+    }
+    def inst_pack_DP_FU3_gen (inst_pack_RN : inst_pack_RN_t) : inst_pack_DP_FU3_t = {
+        val inst_pack_DP_FU3 = Wire(new inst_pack_DP_FU3_t)
+        inst_pack_DP_FU3.prj            := inst_pack_RN.prj
+        inst_pack_DP_FU3.prk            := inst_pack_RN.prk
+        inst_pack_DP_FU3.rd             := inst_pack_RN.rd
+        inst_pack_DP_FU3.rd_valid       := inst_pack_RN.rd_valid
+        inst_pack_DP_FU3.prd            := inst_pack_RN.prd
+        inst_pack_DP_FU3.imm            := inst_pack_RN.imm
+        inst_pack_DP_FU3.rob_index      := inst_pack_RN.rob_index
+        inst_pack_DP_FU3.inst_exist     := inst_pack_RN.inst_exist
+        inst_pack_DP_FU3.alu_op         := inst_pack_RN.alu_op
+        inst_pack_DP_FU3.alu_rs1_sel    := inst_pack_RN.alu_rs1_sel
+        inst_pack_DP_FU3.alu_rs2_sel    := inst_pack_RN.alu_rs2_sel
+        inst_pack_DP_FU3.pc             := inst_pack_RN.pc
+        inst_pack_DP_FU3.br_type        := inst_pack_RN.br_type
+        inst_pack_DP_FU3.predict_jump   := inst_pack_RN.predict_jump
+        inst_pack_DP_FU3.pred_npc       := inst_pack_RN.pred_npc
+        inst_pack_DP_FU3
     }
     class inst_pack_DP_LS_t extends inst_pack_DP_t{
         val mem_type        = UInt(5.W)
@@ -340,9 +362,9 @@ object Inst_Pack{
 
     }
     class inst_pack_IS_FU2_t extends inst_pack_DP_FU2_t{
-        val inst_valid    = Bool()
+        val inst_valid     = Bool()
     }
-    def inst_pack_IS_FU2_gen (inst_pack_DP : inst_pack_DP_FU2_t, _inst_valid : Bool) : inst_pack_IS_FU2_t = {
+    def inst_pack_IS_FU2_gen(inst_pack_DP : inst_pack_DP_FU2_t, _inst_valid : Bool): inst_pack_IS_FU2_t = {
         val inst_pack_IS_FU2 = Wire(new inst_pack_IS_FU2_t)
         inst_pack_IS_FU2.prj            := inst_pack_DP.prj
         inst_pack_IS_FU2.prk            := inst_pack_DP.prk
@@ -356,11 +378,32 @@ object Inst_Pack{
         inst_pack_IS_FU2.alu_rs1_sel    := inst_pack_DP.alu_rs1_sel
         inst_pack_IS_FU2.alu_rs2_sel    := inst_pack_DP.alu_rs2_sel
         inst_pack_IS_FU2.pc             := inst_pack_DP.pc
-        inst_pack_IS_FU2.br_type        := inst_pack_DP.br_type
-        inst_pack_IS_FU2.predict_jump   := inst_pack_DP.predict_jump
-        inst_pack_IS_FU2.pred_npc       := inst_pack_DP.pred_npc
         inst_pack_IS_FU2.inst_valid     := _inst_valid
         inst_pack_IS_FU2
+
+    }
+    class inst_pack_IS_FU3_t extends inst_pack_DP_FU3_t{
+        val inst_valid    = Bool()
+    }
+    def inst_pack_IS_FU3_gen (inst_pack_DP : inst_pack_DP_FU3_t, _inst_valid : Bool) : inst_pack_IS_FU3_t = {
+        val inst_pack_IS_FU3 = Wire(new inst_pack_IS_FU3_t)
+        inst_pack_IS_FU3.prj            := inst_pack_DP.prj
+        inst_pack_IS_FU3.prk            := inst_pack_DP.prk
+        inst_pack_IS_FU3.rd             := inst_pack_DP.rd
+        inst_pack_IS_FU3.rd_valid       := inst_pack_DP.rd_valid
+        inst_pack_IS_FU3.prd            := inst_pack_DP.prd
+        inst_pack_IS_FU3.imm            := inst_pack_DP.imm
+        inst_pack_IS_FU3.rob_index      := inst_pack_DP.rob_index
+        inst_pack_IS_FU3.inst_exist     := inst_pack_DP.inst_exist
+        inst_pack_IS_FU3.alu_op         := inst_pack_DP.alu_op
+        inst_pack_IS_FU3.alu_rs1_sel    := inst_pack_DP.alu_rs1_sel
+        inst_pack_IS_FU3.alu_rs2_sel    := inst_pack_DP.alu_rs2_sel
+        inst_pack_IS_FU3.pc             := inst_pack_DP.pc
+        inst_pack_IS_FU3.br_type        := inst_pack_DP.br_type
+        inst_pack_IS_FU3.predict_jump   := inst_pack_DP.predict_jump
+        inst_pack_IS_FU3.pred_npc       := inst_pack_DP.pred_npc
+        inst_pack_IS_FU3.inst_valid     := _inst_valid
+        inst_pack_IS_FU3
     }
     class inst_pack_IS_LS_t extends inst_pack_DP_LS_t{
         val inst_valid    = Bool()

@@ -35,6 +35,7 @@ object Control_Signal{
     val RS2_REG  = 0.U(2.W)
     val RS2_IMM  = 1.U(2.W)
     val RS2_FOUR = 2.U(2.W)
+    val RS2_CSR  = 2.U(2.W)
 
     // br_type
     val NO_BR    = 0.U(4.W)
@@ -49,15 +50,15 @@ object Control_Signal{
     val BR_BGEU  = 9.U(4.W)
 
     // mem_type
-    val NO_MEM       = 0.U(5.W)
-    val MEM_LDB      = 8.U(5.W)
-    val MEM_LDH      = 9.U(5.W)
-    val MEM_LDW      = 10.U(5.W)
-    val MEM_STB      = 16.U(5.W)
-    val MEM_STH      = 17.U(5.W)
-    val MEM_STW      = 18.U(5.W)
-    val MEM_LDBU     = 12.U(5.W)
-    val MEM_LDHU     = 13.U(5.W)
+    val NO_MEM   = 0.U(5.W)
+    val MEM_LDB  = 8.U(5.W)
+    val MEM_LDH  = 9.U(5.W)
+    val MEM_LDW  = 10.U(5.W)
+    val MEM_STB  = 16.U(5.W)
+    val MEM_STH  = 17.U(5.W)
+    val MEM_STW  = 18.U(5.W)
+    val MEM_LDBU = 12.U(5.W)
+    val MEM_LDHU = 13.U(5.W)
 
     // fu_id
     val RDCNT    = 0.U(3.W)

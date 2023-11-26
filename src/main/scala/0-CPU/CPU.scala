@@ -133,13 +133,13 @@ class CPU(RESET_VEC: Int) extends Module {
     val sel1            = Module(new Unorder_Select(8, new inst_pack_DP_FU1_t))
     val ir_reg1         = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
 
-    val iq2             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_FU1_t))
-    val sel2            = Module(new Unorder_Select(8, new inst_pack_DP_FU1_t))
-    val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
+    val iq2             = Module(new Unorder_Issue_Queue(8, new inst_pack_DP_FU2_t))
+    val sel2            = Module(new Unorder_Select(8, new inst_pack_DP_FU2_t))
+    val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
 
-    val iq3             = Module(new Unorder_Issue_Queue(10, new inst_pack_DP_FU2_t))
-    val sel3            = Module(new Unorder_Select(10, new inst_pack_DP_FU2_t))
-    val ir_reg3         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
+    val iq3             = Module(new Unorder_Issue_Queue(10, new inst_pack_DP_FU3_t))
+    val sel3            = Module(new Unorder_Select(10, new inst_pack_DP_FU3_t))
+    val ir_reg3         = Module(new IS_RF_Reg(new inst_pack_IS_FU3_t))
 
     val iq4             = Module(new Order_Issue_Queue(8, new inst_pack_DP_MD_t))
     val sel4            = Module(new Order_Select(8, new inst_pack_DP_MD_t))
@@ -152,8 +152,8 @@ class CPU(RESET_VEC: Int) extends Module {
     /* Regfile Read Stage */
     val rf              = Module(new Physical_Regfile)
     val re_reg1         = Module(new RF_EX_Reg(new inst_pack_IS_FU1_t))
-    val re_reg2         = Module(new RF_EX_Reg(new inst_pack_IS_FU1_t))
-    val re_reg3         = Module(new RF_EX_Reg(new inst_pack_IS_FU2_t))
+    val re_reg2         = Module(new RF_EX_Reg(new inst_pack_IS_FU2_t))
+    val re_reg3         = Module(new RF_EX_Reg(new inst_pack_IS_FU3_t))
     val re_reg4         = Module(new RF_EX_Reg(new inst_pack_IS_MD_t))
     val re_reg5         = Module(new RF_EX_Reg(new inst_pack_IS_LS_t))
 
@@ -162,11 +162,11 @@ class CPU(RESET_VEC: Int) extends Module {
     val ew_reg1         = Module(new FU1_EX_WB_Reg)
 
     val alu2            = Module(new ALU)
-    val ew_reg2         = Module(new FU1_EX_WB_Reg)
+    val ew_reg2         = Module(new FU2_EX_WB_Reg)
 
     val alu3            = Module(new ALU)
     val br              = Module(new Branch)
-    val ew_reg3         = Module(new FU2_EX_WB_Reg)
+    val ew_reg3         = Module(new FU3_EX_WB_Reg)
 
     val mdu             = Module(new MDU)
     val ew_reg4         = Module(new MD_EX_WB_Reg)
@@ -327,7 +327,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // 2. arith2, common calculate
     // issue queue
-    iq2.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU1_gen(rp_reg.io.insts_pack_DP(i)))
+    iq2.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i)))
     iq2.io.insts_disp_index     := dp.io.insts_disp_index(1)
     iq2.io.insts_disp_valid     := dp.io.insts_disp_valid(1)
     iq2.io.prj_ready            := prj_ready
@@ -345,7 +345,7 @@ class CPU(RESET_VEC: Int) extends Module {
 
     // 3. arith3, calculate and branch
     // issue queue
-    iq3.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i)))
+    iq3.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU3_gen(rp_reg.io.insts_pack_DP(i)))
     iq3.io.insts_disp_index     := dp.io.insts_disp_index(2)
     iq3.io.insts_disp_valid     := dp.io.insts_disp_valid(2)
     iq3.io.prj_ready            := prj_ready
@@ -423,11 +423,11 @@ class CPU(RESET_VEC: Int) extends Module {
 
     ir_reg2.io.flush         := rob.io.predict_fail_cmt
     ir_reg2.io.stall         := false.B
-    ir_reg2.io.inst_pack_IS  := inst_pack_IS_FU1_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
+    ir_reg2.io.inst_pack_IS  := inst_pack_IS_FU2_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
 
     ir_reg3.io.flush         := rob.io.predict_fail_cmt
     ir_reg3.io.stall         := false.B
-    ir_reg3.io.inst_pack_IS  := inst_pack_IS_FU2_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
+    ir_reg3.io.inst_pack_IS  := inst_pack_IS_FU3_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
 
     ir_reg4.io.flush         := rob.io.predict_fail_cmt
     ir_reg4.io.stall         := false.B
@@ -532,8 +532,6 @@ class CPU(RESET_VEC: Int) extends Module {
     mdu.io.md_op                := re_reg4.io.inst_pack_EX.alu_op
     mdu.io.src1                 := Mux(bypass4.io.forward_prj_en, bypass4.io.forward_prj_data, re_reg4.io.src1_EX)
     mdu.io.src2                 := Mux(bypass4.io.forward_prk_en, bypass4.io.forward_prk_data, re_reg4.io.src2_EX)
-
-
 
     // 5. load-store fu, include cache
     // EX stage

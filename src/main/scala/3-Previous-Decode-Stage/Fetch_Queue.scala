@@ -40,7 +40,7 @@ class Fetch_Queue extends Module{
 
 
     // Enqueue
-    io.full := !full
+    io.full := full
 
     // calculate the entry index for each instruction
     val entry_idxs = Wire(Vec(fetch_width, UInt(log2Ceil(num_entries).W)))
