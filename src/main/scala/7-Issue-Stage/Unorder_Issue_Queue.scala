@@ -75,15 +75,6 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
     val insts_dispatch  = io.insts_dispatch
     val disp_index      = io.insts_disp_index
     val queue_next      = Wire(Vec(n, new issue_queue_t(inst_pack_t)))
-
-    // priv
-    val priv_reg        = RegInit(false.B)
-    when(io.priv_issued){
-        priv_reg        := true.B
-    }.elsewhen(io.priv_commited){
-        priv_reg        := false.B
-    }
-    val ban_priv_req = priv_reg
     
     // issue
     val next_mask       = ~(io.issue_ack.asUInt - 1.U)
@@ -129,19 +120,6 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
                     val store_ahead     = VecInit.tabulate(i)(j => mem_type_ahead(j)(4)).reduce(_||_)
                     io.issue_req(i)     := (i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked) && !store_ahead
                 }
-            }
-        }
-        else if(inst_pack_t.isInstanceOf[inst_pack_DP_FU2_t]){
-            if(i == 0){
-                io.issue_req(i) := (i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked 
-                                   && !((queue(i).prj_wake_by_ld || queue(i).prk_wake_by_ld) && io.dcache_miss)
-                                   && !(queue(i).inst.asInstanceOf[inst_pack_DP_FU2_t].priv_vec.orR && ban_priv_req))
-            }
-            else{
-                val priv_ahead     = VecInit(queue.map(_.inst.asInstanceOf[inst_pack_DP_FU2_t].priv_vec.orR).take(i)).reduce(_||_)
-                io.issue_req(i)    := (i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked 
-                                     && !((queue(i).prj_wake_by_ld || queue(i).prk_wake_by_ld) && io.dcache_miss)
-                                     && !(queue(i).inst.asInstanceOf[inst_pack_DP_FU2_t].priv_vec.orR && (ban_priv_req || priv_ahead)))
             }
         }
         else {

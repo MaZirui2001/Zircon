@@ -127,8 +127,8 @@ object Control_Signal{
         MODWU       -> List(Y, Y, Y, ALU_MODU,  RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   MD,    RK,       RD,      IMM_00U,  NOT_PRIV, FROM_INST, Y),
 
         CSRRD       -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   CSR,   RD,       RD,      IMM_00U,  CSR_RD,   FROM_INST, Y),
-        CSRWR       -> List(Y, N, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   CSR,   RD,       RD,      IMM_00U,  CSR_WR,   FROM_INST, Y),
-        CSRXCHG     -> List(Y, N, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   CSR,   RD,       RD,      IMM_00U,  CSR_XCHG, FROM_INST, Y),
+        CSRWR       -> List(N, Y, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   CSR,   RD,       RD,      IMM_00U,  CSR_WR,   FROM_INST, Y),
+        CSRXCHG     -> List(Y, Y, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   CSR,   RD,       RD,      IMM_00U,  CSR_XCHG, FROM_INST, Y),
       
         SLLIW       -> List(Y, N, Y, ALU_SLL,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK,       RD,      IMM_05U,  NOT_PRIV, FROM_INST, Y),
         SRLIW       -> List(Y, N, Y, ALU_SRL,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK,       RD,      IMM_05U,  NOT_PRIV, FROM_INST, Y),

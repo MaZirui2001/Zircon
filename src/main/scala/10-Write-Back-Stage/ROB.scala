@@ -20,10 +20,15 @@ object ROB_Pack{
         val rf_wdata            = UInt(32.W)
         val is_store            = Bool()
         val is_ucread           = Bool()
-        val csr_addr            = UInt(14.W)
-        val priv_vec            = UInt(4.W)
+        val is_priv_wrt         = Bool() 
     }
-    
+    class priv_t(n: Int) extends Bundle{
+        val valid = Bool()
+        val rob_index = UInt(log2Ceil(n).W)
+        val priv_vec = UInt(4.W)
+        val csr_addr = UInt(14.W)
+        val csr_wdata = UInt(32.W)
+    }
 }
 class ROB_IO(n: Int) extends Bundle{
     // for reg rename
@@ -93,6 +98,7 @@ class ROB(n: Int) extends Module{
     import ROB_Pack._
     /* ROB items */
     val rob         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
+    val priv_buf    = RegInit(0.U.asTypeOf(new priv_t(n)))
 
     /* ROB ptrs */
     val head        = RegInit(VecInit(Seq.fill(4)(0.U(log2Ceil(neach).W))))
@@ -119,11 +125,19 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).is_store        := io.is_store_rn(i)
                 rob(i)(tail).br_type_pred    := io.br_type_pred_rn(i)
                 rob(i)(tail).pred_update_en  := io.pred_update_en_rn(i)
-                rob(i)(tail).csr_addr        := io.csr_addr_rn(i)
-                rob(i)(tail).priv_vec        := io.priv_vec_rn(i)
                 rob(i)(tail).complete        := false.B
+                rob(i)(tail).is_priv_wrt     := io.priv_vec_rn(i)(0) && io.priv_vec_rn(i)(3, 1).orR
             }
         }
+        val priv_bits = VecInit.tabulate(4)(i => io.priv_vec_rn(i)(0) && io.priv_vec_rn(i)(3, 1).orR)
+        val priv_index = PriorityEncoder(priv_bits)
+        when(!priv_buf.valid && inst_valid_rn && priv_bits.reduce(_||_)){
+            priv_buf.csr_addr  := io.csr_addr_rn(priv_index)
+            priv_buf.priv_vec  := io.priv_vec_rn(priv_index)
+            priv_buf.valid     := true.B
+            priv_buf.rob_index := tail ## priv_index(1, 0)
+        }
+
     }
     io.rob_index_rn := VecInit.tabulate(4)(i => tail ## i.U(2.W))
 
@@ -140,13 +154,16 @@ class ROB(n: Int) extends Module{
             rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
         }
     }
+    when(io.inst_valid_wb(1) && io.rob_index_wb(1) === priv_buf.rob_index){
+        priv_buf.csr_wdata := io.branch_target_wb(1)
+    }
     
     // cmt stage
     io.cmt_en(0) := rob(hsel_idx(0))(head_idx(0)).complete && !empty(head_sel)
     for(i <- 1 until 4){
         io.cmt_en(i) := (io.cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete 
                         && !rob(hsel_idx(i-1))(head_idx(i-1)).pred_update_en 
-                        && !rob(hsel_idx(i-1))(head_idx(i-1)).priv_vec(0)
+                        && !rob(hsel_idx(i-1))(head_idx(i-1)).is_priv_wrt
                         && !empty(hsel_idx(i)))
     }
     io.full := full
@@ -155,9 +172,11 @@ class ROB(n: Int) extends Module{
     val rob_commit_items        = VecInit.tabulate(4)(i => rob(hsel_idx(i))(head_idx(i)))
     val pred_update_bits        = VecInit.tabulate(4)(i => rob_commit_items(i).pred_update_en && io.cmt_en(i)).asUInt
     val pred_update_item        = Mux(pred_update_bits.orR, rob_commit_items(OHToUInt(pred_update_bits)), 0.U.asTypeOf(new rob_t))
+    val csr_update_bits         = VecInit.tabulate(4)(i => rob_commit_items(i).is_priv_wrt && io.cmt_en(i)).asUInt
+    val csr_update_item         = Mux(csr_update_bits.orR, rob_commit_items(OHToUInt(csr_update_bits)), 0.U.asTypeOf(new rob_t))
 
-    io.predict_fail_cmt         := pred_update_item.predict_fail
-    io.branch_target_cmt        := Mux(pred_update_item.real_jump, pred_update_item.branch_target, (pred_update_item.pc ## 0.U(2.W)) + 4.U)
+    io.predict_fail_cmt         := pred_update_item.predict_fail || csr_update_bits.orR
+    io.branch_target_cmt        := Mux(csr_update_bits.orR, (csr_update_item.pc ## 0.U(2.W)) + 4.U, Mux(pred_update_item.real_jump, pred_update_item.branch_target, (pred_update_item.pc ## 0.U(2.W)) + 4.U))
     io.pred_update_en_cmt       := pred_update_item.pred_update_en
     io.pred_branch_target_cmt   := pred_update_item.branch_target
     io.br_type_pred_cmt         := pred_update_item.br_type_pred
@@ -170,12 +189,12 @@ class ROB(n: Int) extends Module{
     io.is_store_num_cmt         := PopCount(is_store_cmt_bit)
 
     // update csr file
-    val csr_update_bits         = VecInit.tabulate(4)(i => rob_commit_items(i).priv_vec(0) && io.cmt_en(i)).asUInt
-    val csr_update_item         = Mux(csr_update_bits.orR, rob_commit_items(OHToUInt(csr_update_bits)), 0.U.asTypeOf(new rob_t))
-
-    io.csr_addr_cmt             := csr_update_item.csr_addr
-    io.csr_wdata_cmt            := csr_update_item.branch_target
-    io.csr_we_cmt               := csr_update_item.priv_vec(1)
+    io.csr_addr_cmt             := priv_buf.csr_addr
+    io.csr_wdata_cmt            := priv_buf.csr_wdata
+    io.csr_we_cmt               := csr_update_bits.orR && priv_buf.priv_vec(2, 1).orR
+    when(csr_update_bits.orR){
+        priv_buf.valid          := false.B
+    }
     
     io.rd_cmt                   := rob_commit_items.map(_.rd)
     io.rd_valid_cmt             := rob_commit_items.map(_.rd_valid)
