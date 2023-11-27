@@ -2,6 +2,7 @@ import chisel3._
 import chisel3.util._
 import Inst_Pack._
 import Control_Signal._
+import CPU_Config._
 
 // LUT: 1036, FF: 780
 object Issue_Queue_Pack{
@@ -36,14 +37,14 @@ class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extend
     val queue_ready      = Output(Bool())
 
     // input from wakeup
-    val wake_preg        = Input(Vec(5, UInt(7.W)))
+    val wake_preg        = Input(Vec(5, UInt(log2Ceil(PREG_NUM).W)))
 
     // input for priv
     // val priv_issued      = Input(Bool())
     // val priv_commited    = Input(Bool())
 
     // input from load
-    val ld_mem_prd       = Input(UInt(7.W))
+    val ld_mem_prd       = Input(UInt(log2Ceil(PREG_NUM).W))
 
     // input for issue ack
     val issue_ack        = Input(Vec(n, Bool()))

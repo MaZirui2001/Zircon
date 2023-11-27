@@ -2,6 +2,7 @@ import chisel3._
 import chisel3.util._
 import Inst_Pack._
 import Issue_Queue_Pack._
+import CPU_Config._
 
 // LUT: 402
 
@@ -11,7 +12,7 @@ class Unorder_Select_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bun
     val stall               = Input(Bool())
 
     val issue_ack           = Output(Vec(n, Bool()))
-    val wake_preg           = Output(UInt(7.W))
+    val wake_preg           = Output(UInt(log2Ceil(PREG_NUM).W))
     // val priv_issued         = Output(Bool())
 
     val inst_issue          = Output(new issue_queue_t(inst_pack_t))

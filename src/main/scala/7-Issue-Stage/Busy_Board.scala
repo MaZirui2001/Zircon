@@ -1,22 +1,23 @@
 import chisel3._
 import chisel3.util._
+import CPU_Config._
 
 class Busy_Board_IO extends Bundle{
     // read by insts
-    val prj             = Input(Vec(4, UInt(7.W)))
+    val prj             = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
     val rj_valid        = Input(Vec(4, Bool()))
-    val prk             = Input(Vec(4, UInt(7.W)))
+    val prk             = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
     val rk_valid        = Input(Vec(4, Bool()))
 
     val prj_busy        = Output(Vec(4, Bool()))
     val prk_busy        = Output(Vec(4, Bool()))
 
     // write by wakeup
-    val prd_wake        = Input(Vec(5, UInt(7.W)))
+    val prd_wake        = Input(Vec(5, UInt(log2Ceil(PREG_NUM).W)))
     val prd_wake_valid  = Input(Vec(5, Bool()))
 
     // write by dispatch 
-    val prd_disp        = Input(Vec(4, UInt(7.W)))
+    val prd_disp        = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
     val prd_disp_valid  = Input(Vec(4, Bool()))
 
     // flush

@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 // LUT: 3759 FF: 794
-class Reg_rename_IO extends Bundle{
+class Reg_rename_IO(n: Int) extends Bundle{
     val rj                  = Input(Vec(4, UInt(5.W)))
     val rk                  = Input(Vec(4, UInt(5.W)))
 
@@ -9,32 +9,32 @@ class Reg_rename_IO extends Bundle{
     val rd_valid            = Input(Vec(4, Bool()))
     val rename_en           = Input(Vec(4, Bool()))
 
-    val prj                 = Output(Vec(4, UInt(7.W)))
-    val prk                 = Output(Vec(4, UInt(7.W)))
-    val prd                 = Output(Vec(4, UInt(7.W)))
-    val pprd                = Output(Vec(4, UInt(7.W)))
+    val prj                 = Output(Vec(4, UInt(log2Ceil(n).W)))
+    val prk                 = Output(Vec(4, UInt(log2Ceil(n).W)))
+    val prd                 = Output(Vec(4, UInt(log2Ceil(n).W)))
+    val pprd                = Output(Vec(4, UInt(log2Ceil(n).W)))
     val prj_raw             = Output(Vec(4, Bool()))
     val prk_raw             = Output(Vec(4, Bool()))
 
     val commit_en           = Input(Vec(4, Bool()))
     val commit_pprd_valid   = Input(Vec(4, Bool()))
-    val commit_pprd         = Input(Vec(4, UInt(7.W)))
+    val commit_pprd         = Input(Vec(4, UInt(log2Ceil(n).W)))
 
     val predict_fail        = Input(Bool())
-    val arch_rat            = Input(Vec(85, UInt(1.W)))
-    val head_arch           = Input(Vec(4, UInt(5.W)))
+    val arch_rat            = Input(Vec(n, UInt(1.W)))
+    val head_arch           = Input(UInt(log2Ceil(n).W))
 
     val free_list_empty     = Output(Bool())
 }
 
-class Reg_Rename extends Module{
-    val io              = IO(new Reg_rename_IO)
-    val crat            = Module(new CRat)
-    val free_list       = Module(new Free_List)
+class Reg_Rename(n: Int) extends Module{
+    val io              = IO(new Reg_rename_IO(n))
+    val crat            = Module(new CRat(n))
+    val free_list       = Module(new Free_List(n))
     
-    val prj_temp        = Wire(Vec(4, UInt(7.W)))
-    val prk_temp        = Wire(Vec(4, UInt(7.W)))
-    val pprd_temp       = Wire(Vec(4, UInt(7.W)))
+    val prj_temp        = Wire(Vec(4, UInt(log2Ceil(n).W)))
+    val prk_temp        = Wire(Vec(4, UInt(log2Ceil(n).W)))
+    val pprd_temp       = Wire(Vec(4, UInt(log2Ceil(n).W)))
     val rd_valid_temp   = Wire(Vec(4, Bool()))
 
     prj_temp            := crat.io.prj

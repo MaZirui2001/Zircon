@@ -3,17 +3,17 @@ import chisel3.util._
 import RAT._
 import PRED_Config._
 
-class Arch_Rat_IO extends Bundle {
+class Arch_Rat_IO(n: Int) extends Bundle {
     // for commit 
     val cmt_en          = Input(Vec(4, Bool()))
-    val prd_cmt         = Input(Vec(4, UInt(7.W)))
-    val pprd_cmt        = Input(Vec(4, UInt(7.W)))
+    val prd_cmt         = Input(Vec(4, UInt(log2Ceil(n).W)))
+    val pprd_cmt        = Input(Vec(4, UInt(log2Ceil(n).W)))
     val rd_valid_cmt    = Input(Vec(4, Bool()))
     val predict_fail    = Input(Bool())
 
     // for reg rename
-    val arch_rat        = Output(Vec(85, UInt(1.W)))
-    val head_arch       = Output(Vec(4, UInt(5.W)))
+    val arch_rat        = Output(Vec(n, UInt(1.W)))
+    val head_arch       = Output(UInt(log2Ceil(n).W))
 
     // for ras
     val top_arch            = Output(UInt(4.W))
@@ -21,16 +21,19 @@ class Arch_Rat_IO extends Bundle {
     val pred_update_en_cmt  = Input(Bool())
 }
 
-class Arch_Rat extends Module {
-    val io = IO(new Arch_Rat_IO)
+class Arch_Rat(n: Int) extends Module {
+    val io = IO(new Arch_Rat_IO(n))
 
-    val arat = RegInit(VecInit(Seq.fill(85)(false.B)))
-    val arat_next = Wire(Vec(85, Bool()))
+    val arat = RegInit(VecInit(Seq.fill(n)(false.B)))
+    val arat_next = Wire(Vec(n, Bool()))
 
 
-    val head = RegInit(VecInit(Seq.fill(4)(0.U(5.W))))
-    val head_next = Wire(Vec(4, UInt(5.W)))
-    val head_sel = RegInit(0.U(2.W))
+    val head = RegInit(0.U(log2Ceil(n).W))
+    var head_next = head
+    for(i <- 0 until 4){
+        head_next = Mux(io.cmt_en(i) && io.rd_valid_cmt(i), Mux(head_next === (n-1).U, 0.U, head_next + 1.U), head_next)
+    }
+    head := head_next
 
     arat_next := arat
     for(i <- 0 until 4){
@@ -41,13 +44,6 @@ class Arch_Rat extends Module {
     }
     arat := arat_next
 
-    val cmt_en = io.cmt_en.reduce(_||_)
-    head_next := head
-    for(i <- 0 until 4){
-        head_next(head_sel+i.U) := Mux(head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)) === 22.U, 0.U, head(head_sel+i.U) + (io.cmt_en(i) && io.rd_valid_cmt(i)))
-    }
-    head := head_next
-    head_sel := Mux(io.predict_fail, 0.U, head_sel + PopCount(io.cmt_en))
 
     // ras
     val top = RegInit(0.U(4.W))

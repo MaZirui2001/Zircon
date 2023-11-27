@@ -8,31 +8,31 @@ object RAT{
     }
 }
 
-class CRat_IO extends Bundle{
+class CRat_IO(n: Int) extends Bundle{
     val rj           = Input(Vec(4, UInt(5.W)))
     val rk           = Input(Vec(4, UInt(5.W)))
 
     val rd           = Input(Vec(4, UInt(5.W)))
     val rd_valid     = Input(Vec(4, Bool()))
-    val alloc_preg   = Input(Vec(4, UInt(7.W)))
+    val alloc_preg   = Input(Vec(4, UInt(log2Ceil(n).W)))
 
-    val prj          = Output(Vec(4, UInt(7.W)))
-    val prk          = Output(Vec(4, UInt(7.W)))
-    val pprd         = Output(Vec(4, UInt(7.W)))
+    val prj          = Output(Vec(4, UInt(log2Ceil(n).W)))
+    val prk          = Output(Vec(4, UInt(log2Ceil(n).W)))
+    val pprd         = Output(Vec(4, UInt(log2Ceil(n).W)))
 
-    val arch_rat     = Input(Vec(85, UInt(1.W)))
+    val arch_rat     = Input(Vec(n, UInt(1.W)))
     val predict_fail = Input(Bool())
 
     val stall = Input(Bool())
 }
-class CRat extends Module{
-    val io = IO(new CRat_IO)
+class CRat(n: Int) extends Module{
+    val io = IO(new CRat_IO(n))
     import RAT._
-    val crat = RegInit(VecInit(Seq.fill(85)(0.U.asTypeOf(new rat_t))))
+    val crat = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new rat_t))))
 
     // write
     when(io.predict_fail){
-        for(i <- 0 until 85){
+        for(i <- 0 until n){
             crat(i).valid := io.arch_rat(i)
         }
     }.otherwise{
@@ -49,10 +49,10 @@ class CRat extends Module{
     }
     // read for rj, rk, rd
     for(i <- 0 until 4){
-        val rj_hit_oh = Wire(Vec(85, Bool()))
-        val rk_hit_oh = Wire(Vec(85, Bool()))
-        val rd_hit_oh = Wire(Vec(85, Bool()))
-        for(j <- 0 until 85){
+        val rj_hit_oh = Wire(Vec(n, Bool()))
+        val rk_hit_oh = Wire(Vec(n, Bool()))
+        val rd_hit_oh = Wire(Vec(n, Bool()))
+        for(j <- 0 until n){
             rj_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rj(i))
             rk_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rk(i))
             rd_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rd(i))

@@ -2,6 +2,7 @@ import chisel3._
 import chisel3.util._
 import Issue_Queue_Pack._
 import Inst_Pack._
+import CPU_Config._
 
 class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle{
     // input from dispatch
@@ -13,10 +14,10 @@ class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends 
     val queue_ready      = Output(Bool())
 
     // input from wakeup
-    val wake_preg        = Input(Vec(5, UInt(7.W)))
+    val wake_preg        = Input(Vec(5, UInt(log2Ceil(PREG_NUM).W)))
 
     // input from load
-    val ld_mem_prd       = Input(UInt(7.W))
+    val ld_mem_prd       = Input(UInt(log2Ceil(PREG_NUM).W))
 
     // input for issue ack
     val issue_ack        = Input(Bool())

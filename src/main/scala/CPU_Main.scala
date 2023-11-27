@@ -15,10 +15,10 @@ object CPU_Main extends App {
                                 
                                 )
     if(System.getProperties().getProperty("mode") == "sim"){
-        firtool_options = firtool_options ++ Array("--vb-to-bv", "--preserve-aggregate=1d-vec")
+        //firtool_options = firtool_options ++ Array("--preserve-aggregate=1d-vec")
     }
     ChiselStage.emitSystemVerilogFile(
-        new CPU(0x1c000000), 
+        new CPU, 
         Array("-td", "build/"),
         firtoolOpts = firtool_options
     )

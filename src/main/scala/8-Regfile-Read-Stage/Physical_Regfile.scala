@@ -14,24 +14,24 @@ object RF_Func{
         Mux(wf.orR, wf_data, rf(pr))
     }
 }
-class Physical_Regfile_IO extends Bundle{
+class Physical_Regfile_IO(n: Int) extends Bundle{
     // 10 read ports
-    val prj       = Input(Vec(5, UInt(7.W)))
-    val prk       = Input(Vec(5, UInt(7.W)))
+    val prj       = Input(Vec(5, UInt(log2Ceil(n).W)))
+    val prk       = Input(Vec(5, UInt(log2Ceil(n).W)))
 
     val prj_data  = Output(Vec(5, UInt(32.W)))
     val prk_data  = Output(Vec(5, UInt(32.W)))
 
     // 5 write ports
-    val prd       = Input(Vec(5, UInt(7.W)))
+    val prd       = Input(Vec(5, UInt(log2Ceil(n).W)))
     val wdata     = Input(Vec(5, UInt(32.W)))
     val rf_we     = Input(Vec(5, Bool()))
 }
 
-class Physical_Regfile extends Module{
-    val io = IO(new Physical_Regfile_IO)
+class Physical_Regfile(n: Int) extends Module{
+    val io = IO(new Physical_Regfile_IO(n))
 
-    val rf = RegInit(VecInit(Seq.fill(85)(0.U(32.W))))
+    val rf = RegInit(VecInit(Seq.fill(n)(0.U(32.W))))
 
 
     // read, write first regfile

@@ -1,15 +1,14 @@
 import chisel3._
 import chisel3.util._
 import PRED_Config._
-
-// LUT: 1119 FF: 425
+import CPU_Config._
 
 object ROB_Pack{
     class rob_t extends Bundle(){
         val rd                  = UInt(5.W)
         val rd_valid            = Bool()
-        val prd                 = UInt(7.W)
-        val pprd                = UInt(7.W)
+        val prd                 = UInt(log2Ceil(PREG_NUM).W)
+        val pprd                = UInt(log2Ceil(PREG_NUM).W)
         val predict_fail        = Bool()
         val branch_target       = UInt(32.W)
         val real_jump           = Bool()
@@ -35,8 +34,8 @@ class ROB_IO(n: Int) extends Bundle{
     val inst_valid_rn           = Input(Vec(4, Bool()))
     val rd_rn                   = Input(Vec(4, UInt(5.W)))
     val rd_valid_rn             = Input(Vec(4, Bool()))
-    val prd_rn                  = Input(Vec(4, UInt(7.W)))
-    val pprd_rn                 = Input(Vec(4, UInt(7.W)))
+    val prd_rn                  = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
+    val pprd_rn                 = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
     val rob_index_rn            = Output(Vec(4, UInt(log2Ceil(n).W)))
     val pc_rn                   = Input(Vec(4, UInt(32.W)))
     val is_store_rn             = Input(Vec(4, Bool()))
@@ -59,9 +58,9 @@ class ROB_IO(n: Int) extends Bundle{
     // for cpu state: arch rat
     val cmt_en                  = Output(Vec(4, Bool()))
 
-    val prd_cmt                 = Output(Vec(4, UInt(7.W)))
+    val prd_cmt                 = Output(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
     val rd_valid_cmt            = Output(Vec(4, Bool()))
-    val pprd_cmt                = Output(Vec(4, UInt(7.W)))
+    val pprd_cmt                = Output(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
 
     // for store buffer
     val is_store_num_cmt        = Output(UInt(2.W))
