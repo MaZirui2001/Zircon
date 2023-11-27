@@ -40,8 +40,8 @@ class CRat(n: Int) extends Module{
             when(!io.stall){
                 crat(io.alloc_preg(i)).lr := io.rd(i)
                 when(io.rd_valid(i).asBool){
-                    crat(io.alloc_preg(i)).valid := true.B
-                    crat(io.pprd(i)).valid := false.B
+                    crat(io.alloc_preg(i)).valid    := true.B
+                    crat(io.pprd(i)).valid          := false.B
                 }
             }
 
