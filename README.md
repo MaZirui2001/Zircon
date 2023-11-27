@@ -14,6 +14,7 @@
 - 移位运算类指令：`SLL.W`, `SRL.W`, `SRA.W`, `SLLI.W`, `SRLI.W`, `SRAI.W`
 - 转移指令：`BEQ`, `BNE`, `BLT[U]`, `BGE[U]`, `B`, `BL`, `JIRL`
 - 普通访存指令：`LD.B`, `LD.H`, `LD.W`, `LD.BU`, `LD.HU`, `ST.B`, `ST.H`, `ST.W`
+- CSR访问指令：`CSRRD`, `CSRWR`, `CSRXCHG`
 
 计划实现的其他指令有：
 
@@ -25,7 +26,7 @@
     - 其他杂项指令：`SYSCALL`, `BREAK`, `RDCNTVL.W`, `RDCNTVH.W`, `RDCNTID`
 
 * 特权架构：
-    - CSR访问指令：`CSRRD`, `CSRWR`, `CSRXCHG`
+  
     - Cache维护指令：`CACOP`
     - TLB维护指令：`TLBSRCH`, `TLBRD`, `TLBWR`, `TLBFILL`, `INVTLB`
     - 其他杂项指令：`ERTN`, `IDLE`
