@@ -275,24 +275,24 @@ class CPU extends Module {
                                                            Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rj === 1.U, 1.U(2.W), 
                                                            Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
     val pred_update_en          = VecInit.tabulate(4)(i => (rp_reg.io.insts_pack_DP(i).br_type =/= NO_BR))
-    rob.io.inst_valid_rn        := rp_reg.io.insts_pack_DP.map(_.inst_valid)
-    rob.io.rd_rn                := rp_reg.io.insts_pack_DP.map(_.rd)
-    rob.io.rd_valid_rn          := rp_reg.io.insts_pack_DP.map(_.rd_valid)
-    rob.io.prd_rn               := rp_reg.io.insts_pack_DP.map(_.prd)
-    rob.io.pprd_rn              := rp_reg.io.insts_pack_DP.map(_.pprd)
-    rob.io.pc_rn                := rp_reg.io.insts_pack_DP.map(_.pc)
-    rob.io.is_store_rn          := is_store_dp
+    rob.io.inst_valid_dp        := rp_reg.io.insts_pack_DP.map(_.inst_valid)
+    rob.io.rd_dp                := rp_reg.io.insts_pack_DP.map(_.rd)
+    rob.io.rd_valid_dp          := rp_reg.io.insts_pack_DP.map(_.rd_valid)
+    rob.io.prd_dp               := rp_reg.io.insts_pack_DP.map(_.prd)
+    rob.io.pprd_dp              := rp_reg.io.insts_pack_DP.map(_.pprd)
+    rob.io.pc_dp                := rp_reg.io.insts_pack_DP.map(_.pc)
+    rob.io.is_store_dp          := is_store_dp
     rob.io.stall                := rp_reg.io.stall
-    rob.io.pred_update_en_rn    := pred_update_en
-    rob.io.br_type_pred_rn      := br_type_pred
-    rob.io.csr_addr_rn          := rp_reg.io.insts_pack_DP.map(_.csr_addr)
-    rob.io.priv_vec_rn          := rp_reg.io.insts_pack_DP.map(_.priv_vec)
+    rob.io.pred_update_en_dp    := pred_update_en
+    rob.io.br_type_pred_dp      := br_type_pred
+    rob.io.csr_addr_dp          := rp_reg.io.insts_pack_DP.map(_.csr_addr)
+    rob.io.priv_vec_dp          := rp_reg.io.insts_pack_DP.map(_.priv_vec)
     
     
     /* ---------- 7. Issue Stage ---------- */
     // 1. arith1, common calculate
     // issue queue
-    iq1.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU1_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_rn(i)))
+    iq1.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU1_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq1.io.insts_disp_index     := dp.io.insts_disp_index(0)
     iq1.io.insts_disp_valid     := dp.io.insts_disp_valid(0)
     iq1.io.prj_ready            := prj_ready
@@ -310,7 +310,7 @@ class CPU extends Module {
 
     // 2. arith2, common calculate
     // issue queue
-    iq2.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_rn(i)))
+    iq2.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq2.io.insts_disp_index     := dp.io.insts_disp_index(1)
     iq2.io.insts_disp_valid     := dp.io.insts_disp_valid(1)
     iq2.io.prj_ready            := prj_ready
@@ -328,7 +328,7 @@ class CPU extends Module {
 
     // 3. arith3, calculate and branch
     // issue queue
-    iq3.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU3_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_rn(i)))
+    iq3.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_FU3_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq3.io.insts_disp_index     := dp.io.insts_disp_index(2)
     iq3.io.insts_disp_valid     := dp.io.insts_disp_valid(2)
     iq3.io.prj_ready            := prj_ready
@@ -346,7 +346,7 @@ class CPU extends Module {
 
     // 4. multiply, multiply and divide
     // issue queue
-    iq4.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_MD_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_rn(i)))
+    iq4.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_MD_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq4.io.insts_disp_index     := dp.io.insts_disp_index(3)
     iq4.io.insts_disp_valid     := dp.io.insts_disp_valid(3)
     iq4.io.prj_ready            := prj_ready
@@ -364,7 +364,7 @@ class CPU extends Module {
 
     // 5. load and store
     // issue queue
-    iq5.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_rn(i)))
+    iq5.io.insts_dispatch       := VecInit.tabulate(4)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq5.io.insts_disp_index     := dp.io.insts_disp_index(4)
     iq5.io.insts_disp_valid     := dp.io.insts_disp_valid(4)
     iq5.io.prj_ready            := prj_ready

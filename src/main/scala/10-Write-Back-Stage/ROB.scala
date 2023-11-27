@@ -31,18 +31,18 @@ object ROB_Pack{
 }
 class ROB_IO(n: Int) extends Bundle{
     // for reg rename
-    val inst_valid_rn           = Input(Vec(4, Bool()))
-    val rd_rn                   = Input(Vec(4, UInt(5.W)))
-    val rd_valid_rn             = Input(Vec(4, Bool()))
-    val prd_rn                  = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
-    val pprd_rn                 = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
-    val rob_index_rn            = Output(Vec(4, UInt(log2Ceil(n).W)))
-    val pc_rn                   = Input(Vec(4, UInt(32.W)))
-    val is_store_rn             = Input(Vec(4, Bool()))
-    val br_type_pred_rn         = Input(Vec(4, UInt(2.W)))
-    val pred_update_en_rn       = Input(Vec(4, Bool()))
-    val csr_addr_rn             = Input(Vec(4, UInt(14.W)))
-    val priv_vec_rn             = Input(Vec(4, UInt(4.W)))
+    val inst_valid_dp           = Input(Vec(4, Bool()))
+    val rd_dp                   = Input(Vec(4, UInt(5.W)))
+    val rd_valid_dp             = Input(Vec(4, Bool()))
+    val prd_dp                  = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
+    val pprd_dp                 = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
+    val rob_index_dp            = Output(Vec(4, UInt(log2Ceil(n).W)))
+    val pc_dp                   = Input(Vec(4, UInt(32.W)))
+    val is_store_dp             = Input(Vec(4, Bool()))
+    val br_type_pred_dp         = Input(Vec(4, UInt(2.W)))
+    val pred_update_en_dp       = Input(Vec(4, Bool()))
+    val csr_addr_dp             = Input(Vec(4, UInt(14.W)))
+    val priv_vec_dp             = Input(Vec(4, UInt(4.W)))
     val full                    = Output(Bool())
     val stall                   = Input(Bool())
 
@@ -114,34 +114,34 @@ class ROB(n: Int) extends Module{
     val empty       = VecInit(elem_num.map(_ === 0.U))
     val full        = VecInit(elem_num.map(_ === neach.U)).reduce(_||_)
 
-    val inst_valid_rn = io.inst_valid_rn(0)
+    val inst_valid_dp = io.inst_valid_dp(0)
     // rn stage
     when(!full){
         for(i <- 0 until 4){
-            when(inst_valid_rn){
-                rob(i)(tail).rd              := io.rd_rn(i)
-                rob(i)(tail).rd_valid        := io.rd_valid_rn(i)
-                rob(i)(tail).prd             := io.prd_rn(i)
-                rob(i)(tail).pprd            := io.pprd_rn(i)
-                rob(i)(tail).pc              := io.pc_rn(i)(31, 2)
-                rob(i)(tail).is_store        := io.is_store_rn(i)
-                rob(i)(tail).br_type_pred    := io.br_type_pred_rn(i)
-                rob(i)(tail).pred_update_en  := io.pred_update_en_rn(i)
+            when(inst_valid_dp){
+                rob(i)(tail).rd              := io.rd_dp(i)
+                rob(i)(tail).rd_valid        := io.rd_valid_dp(i)
+                rob(i)(tail).prd             := io.prd_dp(i)
+                rob(i)(tail).pprd            := io.pprd_dp(i)
+                rob(i)(tail).pc              := io.pc_dp(i)(31, 2)
+                rob(i)(tail).is_store        := io.is_store_dp(i)
+                rob(i)(tail).br_type_pred    := io.br_type_pred_dp(i)
+                rob(i)(tail).pred_update_en  := io.pred_update_en_dp(i)
                 rob(i)(tail).complete        := false.B
-                rob(i)(tail).is_priv_wrt     := io.priv_vec_rn(i)(0) && io.priv_vec_rn(i)(3, 1).orR
+                rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR
             }
         }
-        val priv_bits = VecInit.tabulate(4)(i => io.priv_vec_rn(i)(0) && io.priv_vec_rn(i)(3, 1).orR)
+        val priv_bits = VecInit.tabulate(4)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR)
         val priv_index = PriorityEncoder(priv_bits)
-        when(!priv_buf.valid && inst_valid_rn && priv_bits.reduce(_||_)){
-            priv_buf.csr_addr  := io.csr_addr_rn(priv_index)
-            priv_buf.priv_vec  := io.priv_vec_rn(priv_index)
+        when(!priv_buf.valid && inst_valid_dp && priv_bits.reduce(_||_)){
+            priv_buf.csr_addr  := io.csr_addr_dp(priv_index)
+            priv_buf.priv_vec  := io.priv_vec_dp(priv_index)
             priv_buf.valid     := true.B
             priv_buf.rob_index := tail ## priv_index(1, 0)
         }
 
     }
-    io.rob_index_rn := VecInit.tabulate(4)(i => tail ## i.U(2.W))
+    io.rob_index_dp := VecInit.tabulate(4)(i => tail ## i.U(2.W))
 
     // wb stage
     for(i <- 0 until 5){
@@ -216,9 +216,9 @@ class ROB(n: Int) extends Module{
     for(i <- 0 until 4){
         head(hsel_idx(i))       := Mux(io.predict_fail_cmt, 0.U, Mux(head_idx(i) + io.cmt_en(i) === neach.U, 0.U, head_idx(i) + io.cmt_en(i)))
         head_inc(hsel_idx(i))   := io.cmt_en(i)
-        elem_num(i)             := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_rn - head_inc(i), elem_num(i) - head_inc(i)))
+        elem_num(i)             := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_dp - head_inc(i), elem_num(i) - head_inc(i)))
     }
-    tail := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_rn === neach.U, 0.U, tail + inst_valid_rn), tail))
+    tail := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_dp === neach.U, 0.U, tail + inst_valid_dp), tail))
 
 
     // stat

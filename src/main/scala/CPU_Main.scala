@@ -14,8 +14,8 @@ object CPU_Main extends App {
                                 //"--scalarize-top-module"
                                 
                                 )
-    if(System.getProperties().getProperty("mode") == "sim"){
-        //firtool_options = firtool_options ++ Array("--preserve-aggregate=1d-vec")
+    if(System.getProperties().getProperty("mode") != "sim"){
+        firtool_options = firtool_options ++ Array("--vb-to-bv")
     }
     ChiselStage.emitSystemVerilogFile(
         new CPU, 
