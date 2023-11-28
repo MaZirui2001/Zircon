@@ -7,11 +7,11 @@ object CPU_Config{
     val PREG_NUM    = 64
     val ROB_NUM     = 44
     val SB_NUM      = 4
-    val IQ_AR_NUM   = 8+2
-    val IQ_AP_NUM   = 8+2
-    val IQ_AB_NUM   = 10+2
-    val IQ_MD_NUM   = 8+2
-    val IQ_LS_NUM   = 12+2
+    val IQ_AR_NUM   = 8
+    val IQ_AP_NUM   = 8
+    val IQ_AB_NUM   = 12
+    val IQ_MD_NUM   = 8
+    val IQ_LS_NUM   = 12
 
 }
 import CPU_Config._
@@ -179,11 +179,11 @@ class CPU extends Module {
     // Branch Prediction
     predict.io.npc                  := pc.io.npc
     predict.io.pc                   := pc.io.pc_PF
-    predict.io.pc_cmt               := ShiftRegister(rob.io.pred_pc_cmt, 1, 0.U, true.B)
-    predict.io.real_jump            := ShiftRegister(rob.io.pred_real_jump_cmt, 1, false.B, true.B)
-    predict.io.branch_target        := ShiftRegister(rob.io.pred_branch_target_cmt, 1, 0.U, true.B)
-    predict.io.update_en            := ShiftRegister(rob.io.pred_update_en_cmt, 1, false.B, true.B)
-    predict.io.br_type              := ShiftRegister(rob.io.br_type_pred_cmt, 1, 0.U, true.B)
+    predict.io.pc_cmt               := rob.io.pred_pc_cmt
+    predict.io.real_jump            := rob.io.pred_real_jump_cmt
+    predict.io.branch_target        := rob.io.pred_branch_target_cmt
+    predict.io.update_en            := rob.io.pred_update_en_cmt
+    predict.io.br_type              := rob.io.br_type_pred_cmt
     predict.io.predict_fail         := rob.io.predict_fail_cmt
     predict.io.top_arch             := arat.io.top_arch
     predict.io.pd_pred_fix          := pd.io.pred_fix

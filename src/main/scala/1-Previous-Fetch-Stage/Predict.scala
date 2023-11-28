@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 object PRED_Config{
-    val BTB_INDEX_WIDTH     = 7
+    val BTB_INDEX_WIDTH     = 6
     val BTB_TAG_WIDTH       = 28 - BTB_INDEX_WIDTH
     val BTB_DEPTH           = 1 << BTB_INDEX_WIDTH
     class btb_t extends Bundle{
@@ -37,7 +37,7 @@ class Predict_IO extends Bundle{
     val br_type             = Input(UInt(2.W))
 
     // recover 
-    val top_arch            = Input(UInt(4.W))
+    val top_arch            = Input(UInt(3.W))
     val predict_fail        = Input(Bool())
     val pd_pred_fix         = Input(Bool())
     val pd_pred_fix_is_bl   = Input(Bool())
@@ -54,8 +54,8 @@ class Predict extends Module{
     val bht         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W))))))
     val pht         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W))))))
 
-    val ras         = RegInit(VecInit(Seq.fill(16)(0x1c000000.U(32.W))))
-    val top         = RegInit(0.U(4.W))
+    val ras         = RegInit(VecInit(Seq.fill(8)(0x1c000000.U(32.W))))
+    val top         = RegInit(0.U(3.W))
 
     // check
     val npc             = io.npc

@@ -142,7 +142,7 @@ class ROB(n: Int) extends Module{
 
     }
     io.rob_index_dp := VecInit.tabulate(4)(i => tail ## i.U(2.W))
-
+    io.full := full
     // wb stage
     for(i <- 0 until 5){
         when(io.inst_valid_wb(i)){
@@ -161,68 +161,94 @@ class ROB(n: Int) extends Module{
     }
     
     // cmt stage
-    io.cmt_en(0) := rob(hsel_idx(0))(head_idx(0)).complete && !empty(head_sel)
+    val cmt_en    = Wire(Vec(4, Bool()))
+    cmt_en(0) := rob(hsel_idx(0))(head_idx(0)).complete && !empty(head_sel)
     for(i <- 1 until 4){
-        io.cmt_en(i) := (io.cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete 
+        cmt_en(i) := (cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete 
                         && !rob(hsel_idx(i-1))(head_idx(i-1)).pred_update_en 
                         && !rob(hsel_idx(i-1))(head_idx(i-1)).is_priv_wrt
                         && !empty(hsel_idx(i)))
     }
-    io.full := full
+    io.cmt_en := ShiftRegister(cmt_en, 1, VecInit(Seq.fill(4)(false.B)), true.B)
+    
 
     // update predict and ras
     val rob_commit_items        = VecInit.tabulate(4)(i => rob(hsel_idx(i))(head_idx(i)))
-    val pred_update_bits        = VecInit.tabulate(4)(i => rob_commit_items(i).pred_update_en && io.cmt_en(i)).asUInt
+    val pred_update_bits        = VecInit.tabulate(4)(i => rob_commit_items(i).pred_update_en && cmt_en(i)).asUInt
     val pred_update_item        = Mux(pred_update_bits.orR, rob_commit_items(OHToUInt(pred_update_bits)), 0.U.asTypeOf(new rob_t))
-    val csr_update_bits         = VecInit.tabulate(4)(i => rob_commit_items(i).is_priv_wrt && io.cmt_en(i)).asUInt
+    val csr_update_bits         = VecInit.tabulate(4)(i => rob_commit_items(i).is_priv_wrt && cmt_en(i)).asUInt
     val csr_update_item         = Mux(csr_update_bits.orR, rob_commit_items(OHToUInt(csr_update_bits)), 0.U.asTypeOf(new rob_t))
 
-    io.predict_fail_cmt         := pred_update_item.predict_fail || csr_update_bits.orR
-    io.branch_target_cmt        := Mux(csr_update_bits.orR, (csr_update_item.pc ## 0.U(2.W)) + 4.U, Mux(pred_update_item.real_jump, pred_update_item.branch_target, (pred_update_item.pc ## 0.U(2.W)) + 4.U))
-    io.pred_update_en_cmt       := pred_update_item.pred_update_en
-    io.pred_branch_target_cmt   := pred_update_item.branch_target
-    io.br_type_pred_cmt         := pred_update_item.br_type_pred
-    io.pred_pc_cmt              := pred_update_item.pc ## 0.U(2.W)
-    io.pred_real_jump_cmt       := pred_update_item.real_jump
+    val predict_fail_cmt         = pred_update_item.predict_fail || csr_update_bits.orR
+    val branch_target_cmt        = Mux(csr_update_bits.orR, (csr_update_item.pc ## 0.U(2.W)) + 4.U, Mux(pred_update_item.real_jump, pred_update_item.branch_target, (pred_update_item.pc ## 0.U(2.W)) + 4.U))
+    val pred_update_en_cmt       = pred_update_item.pred_update_en
+    val pred_branch_target_cmt   = pred_update_item.branch_target
+    val br_type_pred_cmt         = pred_update_item.br_type_pred
+    val pred_pc_cmt              = pred_update_item.pc ## 0.U(2.W)
+    val pred_real_jump_cmt       = pred_update_item.real_jump
+
+    io.predict_fail_cmt         := ShiftRegister(predict_fail_cmt, 1, false.B, true.B)
+    io.branch_target_cmt        := ShiftRegister(branch_target_cmt, 1, 0.U(32.W), true.B)
+    io.pred_update_en_cmt       := ShiftRegister(pred_update_en_cmt, 1, false.B, true.B)
+    io.pred_branch_target_cmt   := ShiftRegister(pred_branch_target_cmt, 1, 0.U(32.W), true.B)
+    io.br_type_pred_cmt         := ShiftRegister(br_type_pred_cmt, 1, 0.U(2.W), true.B)
+    io.pred_pc_cmt              := ShiftRegister(pred_pc_cmt, 1, 0x1c000000.U, true.B)
+    io.pred_real_jump_cmt       := ShiftRegister(pred_real_jump_cmt, 1, false.B, true.B)
 
 
     // update store buffer
-    val is_store_cmt_bit        = VecInit.tabulate(4)(i => rob_commit_items(i).is_store && io.cmt_en(i))
-    io.is_store_num_cmt         := PopCount(is_store_cmt_bit)
+    val is_store_cmt_bit        = VecInit.tabulate(4)(i => rob_commit_items(i).is_store && cmt_en(i))
+    val is_store_num_cmt        = PopCount(is_store_cmt_bit)
+    io.is_store_num_cmt         := ShiftRegister(is_store_num_cmt, 1, 0.U(2.W), true.B)
 
     // update csr file
-    io.csr_addr_cmt             := priv_buf.csr_addr
-    io.csr_wdata_cmt            := priv_buf.csr_wdata
-    io.csr_we_cmt               := csr_update_bits.orR && priv_buf.priv_vec(2, 1).orR
+    val csr_addr_cmt            = priv_buf.csr_addr
+    val csr_wdata_cmt           = priv_buf.csr_wdata
+    val csr_we_cmt              = csr_update_bits.orR && priv_buf.priv_vec(2, 1).orR
+
+    io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1, 0.U, true.B)
+    io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1, 0.U, true.B)
+    io.csr_we_cmt               := ShiftRegister(csr_we_cmt, 1, false.B, true.B)
     when(io.predict_fail_cmt){
         priv_buf.valid          := false.B
     }
     
-    io.rd_cmt                   := rob_commit_items.map(_.rd)
-    io.rd_valid_cmt             := rob_commit_items.map(_.rd_valid)
-    io.prd_cmt                  := rob_commit_items.map(_.prd)
-    io.pprd_cmt                 := rob_commit_items.map(_.pprd)
-    io.pc_cmt                   := VecInit.tabulate(4)(i => Mux(rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U))
-    io.rf_wdata_cmt             := rob_commit_items.map(_.rf_wdata)
-    io.is_ucread_cmt            := VecInit.tabulate(4)(i => rob_commit_items(i).is_ucread && io.cmt_en(i))
-    io.csr_diff_addr_cmt        := VecInit.fill(4)(priv_buf.csr_addr)
-    io.csr_diff_wdata_cmt       := VecInit.fill(4)(priv_buf.csr_wdata)
-    io.csr_diff_we_cmt          := VecInit.tabulate(4)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
+    val rd_cmt                   = VecInit.tabulate(4)(i => rob_commit_items(i).rd)
+    val rd_valid_cmt             = VecInit.tabulate(4)(i => rob_commit_items(i).rd_valid)
+    val prd_cmt                  = VecInit.tabulate(4)(i => rob_commit_items(i).prd)
+    val pprd_cmt                 = VecInit.tabulate(4)(i => rob_commit_items(i).pprd)
+    val pc_cmt                   = VecInit.tabulate(4)(i => Mux(rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U))
+    val rf_wdata_cmt             = VecInit.tabulate(4)(i => rob_commit_items(i).rf_wdata)
+    val is_ucread_cmt            = VecInit.tabulate(4)(i => rob_commit_items(i).is_ucread && cmt_en(i))
+    val csr_diff_addr_cmt        = VecInit.fill(4)(priv_buf.csr_addr)
+    val csr_diff_wdata_cmt       = VecInit.fill(4)(priv_buf.csr_wdata)
+    val csr_diff_we_cmt          = VecInit.tabulate(4)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
+
+    io.rd_valid_cmt             := ShiftRegister(rd_valid_cmt, 1, VecInit(Seq.fill(4)(false.B)), true.B)
+    io.rd_cmt                   := ShiftRegister(rd_cmt, 1, VecInit(Seq.fill(4)(0.U(5.W))), true.B)
+    io.prd_cmt                  := ShiftRegister(prd_cmt, 1, VecInit(Seq.fill(4)(0.U(log2Ceil(PREG_NUM).W))), true.B)
+    io.pprd_cmt                 := ShiftRegister(pprd_cmt, 1, VecInit(Seq.fill(4)(0.U(log2Ceil(PREG_NUM).W))), true.B)
+    io.pc_cmt                   := ShiftRegister(pc_cmt, 1, VecInit(Seq.fill(4)(0.U(32.W))), true.B)
+    io.rf_wdata_cmt             := ShiftRegister(rf_wdata_cmt, 1, VecInit(Seq.fill(4)(0.U(32.W))), true.B)
+    io.is_ucread_cmt            := ShiftRegister(is_ucread_cmt, 1, VecInit(Seq.fill(4)(false.B)), true.B)
+    io.csr_diff_addr_cmt        := ShiftRegister(csr_diff_addr_cmt, 1, VecInit(Seq.fill(4)(0.U(32.W))), true.B)
+    io.csr_diff_wdata_cmt       := ShiftRegister(csr_diff_wdata_cmt, 1, VecInit(Seq.fill(4)(0.U(32.W))), true.B)
+    io.csr_diff_we_cmt          := ShiftRegister(csr_diff_we_cmt, 1, VecInit(Seq.fill(4)(false.B)), true.B)
 
     
     // update ptrs
-    head_sel                    := Mux(io.predict_fail_cmt, 0.U, head_sel + PopCount(io.cmt_en))
+    head_sel                    := Mux(io.predict_fail_cmt || predict_fail_cmt, 0.U, head_sel + PopCount(cmt_en))
     val head_inc                = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
-        head(hsel_idx(i))       := Mux(io.predict_fail_cmt, 0.U, Mux(head_idx(i) + io.cmt_en(i) === neach.U, 0.U, head_idx(i) + io.cmt_en(i)))
-        head_inc(hsel_idx(i))   := io.cmt_en(i)
-        elem_num(i)             := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_dp - head_inc(i), elem_num(i) - head_inc(i)))
+        head(hsel_idx(i))       := Mux(io.predict_fail_cmt || predict_fail_cmt, 0.U, Mux(head_idx(i) + cmt_en(i) === neach.U, 0.U, head_idx(i) + cmt_en(i)))
+        head_inc(hsel_idx(i))   := cmt_en(i)
+        elem_num(i)             := Mux(io.predict_fail_cmt || predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_dp - head_inc(i), elem_num(i) - head_inc(i)))
     }
-    tail := Mux(io.predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_dp === neach.U, 0.U, tail + inst_valid_dp), tail))
+    tail := Mux(io.predict_fail_cmt || predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_dp === neach.U, 0.U, tail + inst_valid_dp), tail))
 
 
     // stat
-    io.predict_fail_stat        := VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail & io.cmt_en(i))
-    io.br_type_stat             := VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).br_type_pred)
-    io.is_br_stat               := VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en & io.cmt_en(i))
+    io.predict_fail_stat        := ShiftRegister(VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).predict_fail & cmt_en(i)), 1, VecInit(Seq.fill(4)(false.B)), true.B)
+    io.br_type_stat             := ShiftRegister(VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).br_type_pred), 1, VecInit(Seq.fill(4)(0.U(2.W))), true.B)
+    io.is_br_stat               := ShiftRegister(VecInit.tabulate(4)(i => rob(head_sel+i.U)(head(head_sel+i.U)).pred_update_en & cmt_en(i)), 1, VecInit(Seq.fill(4)(false.B)), true.B)
 } 

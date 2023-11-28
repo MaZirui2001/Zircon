@@ -16,7 +16,7 @@ class Arch_Rat_IO(n: Int) extends Bundle {
     val head_arch       = Output(UInt(log2Ceil(n).W))
 
     // for ras
-    val top_arch            = Output(UInt(4.W))
+    val top_arch            = Output(UInt(3.W))
     val br_type_pred_cmt    = Input(UInt(2.W))
     val pred_update_en_cmt  = Input(Bool())
 }
@@ -46,8 +46,8 @@ class Arch_Rat(n: Int) extends Module {
 
 
     // ras
-    val top = RegInit(0.U(4.W))
-    val top_next = Wire(UInt(4.W))
+    val top = RegInit(0.U(3.W))
+    val top_next = Wire(UInt(3.W))
     top_next := top
     when(io.br_type_pred_cmt === RET && io.pred_update_en_cmt){
         top_next := top - 1.U
