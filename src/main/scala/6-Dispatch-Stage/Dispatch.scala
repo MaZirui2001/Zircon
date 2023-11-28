@@ -19,20 +19,21 @@ class Dispatch extends Module{
     val queue_id_hit    = Wire(Vec(4, UInt(5.W)))
     val fu_ids          = io.inst_packs.map(_.fu_id)
     var fu1_num         = io.elem_num(0)
-    var fu2_num         = io.elem_num(1) 
-    var fu3_num         = io.elem_num(2) + PopCount(fu_ids.map(_ === BR))
+    var fu2_num         = io.elem_num(1)
+    var fu3_num         = io.elem_num(2)
+    val min             = Mux(fu1_num <= fu2_num, Mux(fu1_num <= fu3_num, 0.U, 2.U), Mux(fu2_num <= fu3_num, 1.U, 2.U))
     for(i <- 0 until 4){
-        val fu1_next_num    = Wire(UInt((log2Ceil(8)+1).W))
-        val fu2_next_num    = Wire(UInt((log2Ceil(8)+1).W))
-        val fu3_next_num    = Wire(UInt((log2Ceil(8)+1).W))
-        val min             = Mux(fu1_num <= fu2_num, Mux(fu1_num <= fu3_num, 0.U, 2.U), Mux(fu2_num <= fu3_num, 1.U, 2.U))
+        // val fu1_next_num    = Wire(UInt((log2Ceil(8)+1).W))
+        // val fu2_next_num    = Wire(UInt((log2Ceil(8)+1).W))
+        // val fu3_next_num    = Wire(UInt((log2Ceil(8)+1).W))
+        //val min             = Mux(fu1_num <= fu2_num, Mux(fu1_num <= fu3_num, 0.U, 2.U), Mux(fu2_num <= fu3_num, 1.U, 2.U))
         queue_id_hit(i)     := (UIntToOH(Mux(io.inst_packs(i).fu_id === ARITH, min, io.inst_packs(i).fu_id))) & Fill(5, io.inst_packs(i).inst_valid)
-        fu1_next_num        := Mux(queue_id_hit(i)(0), fu1_num + 1.U, fu1_num)
-        fu2_next_num        := Mux(queue_id_hit(i)(1), fu2_num + 1.U, fu2_num)
-        fu3_next_num        := Mux(queue_id_hit(i)(2), fu3_num + (io.inst_packs(i).fu_id =/= BR), fu3_num)
-        fu1_num             = fu1_next_num
-        fu2_num             = fu2_next_num
-        fu3_num             = fu3_next_num
+        // fu1_next_num        := Mux(queue_id_hit(i)(0), fu1_num + 1.U, fu1_num)
+        // fu2_next_num        := Mux(queue_id_hit(i)(1), fu2_num + 1.U, fu2_num)
+        // fu3_next_num        := Mux(queue_id_hit(i)(2), fu3_num + 1.U, fu3_num)
+        // fu1_num             = fu1_next_num
+        // fu2_num             = fu2_next_num
+        // fu3_num             = fu3_next_num
     }
     
     // alloc insts to issue queue, pressed

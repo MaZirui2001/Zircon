@@ -30,6 +30,7 @@ class CRat(n: Int) extends Module{
     import RAT._
     val crat = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new rat_t))))
 
+
     // write
     when(io.predict_fail){
         for(i <- 0 until n){

@@ -16,7 +16,7 @@ class Free_List(n: Int) extends Module{
         val head_arch           = Input(UInt(log2Ceil(n).W))
     })
 
-    val free_list   = RegInit(VecInit.tabulate(n)(i => (i + 1).asUInt(log2Ceil(n).W)))
+    val free_list   = RegInit(VecInit.tabulate(n)(i => (i + 1).asUInt(log2Ceil(n)-1, 0)))
     val tail        = RegInit((n - 1).U(log2Ceil(n).W))
     val head        = RegInit(0.U(log2Ceil(n).W))
 

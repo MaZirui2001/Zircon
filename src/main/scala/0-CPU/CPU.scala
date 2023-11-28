@@ -4,14 +4,14 @@ import Inst_Pack._
 import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
-    val PREG_NUM    = 69
+    val PREG_NUM    = 64
     val ROB_NUM     = 44
-    val SB_NUM      = 8
-    val IQ_AR_NUM   = 8
-    val IQ_AP_NUM   = 8
-    val IQ_AB_NUM   = 10
-    val IQ_MD_NUM   = 8
-    val IQ_LS_NUM   = 12
+    val SB_NUM      = 4
+    val IQ_AR_NUM   = 8+2
+    val IQ_AP_NUM   = 8+2
+    val IQ_AB_NUM   = 10+2
+    val IQ_MD_NUM   = 8+2
+    val IQ_LS_NUM   = 12+2
 
 }
 import CPU_Config._
@@ -179,11 +179,11 @@ class CPU extends Module {
     // Branch Prediction
     predict.io.npc                  := pc.io.npc
     predict.io.pc                   := pc.io.pc_PF
-    predict.io.pc_cmt               := rob.io.pred_pc_cmt
-    predict.io.real_jump            := rob.io.pred_real_jump_cmt
-    predict.io.branch_target        := rob.io.pred_branch_target_cmt
-    predict.io.update_en            := rob.io.pred_update_en_cmt
-    predict.io.br_type              := rob.io.br_type_pred_cmt
+    predict.io.pc_cmt               := ShiftRegister(rob.io.pred_pc_cmt, 1, 0.U, true.B)
+    predict.io.real_jump            := ShiftRegister(rob.io.pred_real_jump_cmt, 1, false.B, true.B)
+    predict.io.branch_target        := ShiftRegister(rob.io.pred_branch_target_cmt, 1, 0.U, true.B)
+    predict.io.update_en            := ShiftRegister(rob.io.pred_update_en_cmt, 1, false.B, true.B)
+    predict.io.br_type              := ShiftRegister(rob.io.br_type_pred_cmt, 1, 0.U, true.B)
     predict.io.predict_fail         := rob.io.predict_fail_cmt
     predict.io.top_arch             := arat.io.top_arch
     predict.io.pd_pred_fix          := pd.io.pred_fix
@@ -417,7 +417,7 @@ class CPU extends Module {
     ir_reg4.io.inst_pack_IS  := inst_pack_IS_MD_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid)
 
     ir_reg5.io.flush         := rob.io.predict_fail_cmt
-    ir_reg5.io.stall         := sb.io.full || dcache.io.cache_miss_MEM || (sb.io.st_cmt_valid && ir_reg5.io.inst_pack_RF.mem_type(3))
+    ir_reg5.io.stall         := sb.io.full && re_reg5.io.inst_pack_EX.mem_type(4) || dcache.io.cache_miss_MEM || (sb.io.st_cmt_valid && ir_reg5.io.inst_pack_RF.mem_type(3))
     ir_reg5.io.inst_pack_IS  := inst_pack_IS_LS_gen(sel5.io.inst_issue.inst, sel5.io.inst_issue_valid)
 
     /* ---------- 8. Regfile Read Stage ---------- */
@@ -464,7 +464,7 @@ class CPU extends Module {
     re_reg4.io.csr_rdata_RF  := DontCare
 
     re_reg5.io.flush         := rob.io.predict_fail_cmt || !re_reg5.io.stall && (sb.io.st_cmt_valid && ir_reg5.io.inst_pack_RF.mem_type(3))
-    re_reg5.io.stall         := sb.io.full || dcache.io.cache_miss_MEM
+    re_reg5.io.stall         := sb.io.full && re_reg5.io.inst_pack_EX.mem_type(4) || dcache.io.cache_miss_MEM
     re_reg5.io.inst_pack_RF  := ir_reg5.io.inst_pack_RF
     re_reg5.io.src1_RF       := rf.io.prj_data(4) + ir_reg5.io.inst_pack_RF.imm
     re_reg5.io.src2_RF       := rf.io.prk_data(4)
@@ -543,7 +543,7 @@ class CPU extends Module {
     sb.io.dcache_miss                   := dcache.io.cache_miss_MEM
 
     // EX-MEM SegReg
-    ls_ex_mem_reg.io.flush              := rob.io.predict_fail_cmt
+    ls_ex_mem_reg.io.flush              := rob.io.predict_fail_cmt || (!ls_ex_mem_reg.io.stall && sb.io.full && re_reg5.io.inst_pack_EX.mem_type(4))
     ls_ex_mem_reg.io.stall              := dcache.io.cache_miss_MEM
     ls_ex_mem_reg.io.inst_pack_EX       := re_reg5.io.inst_pack_EX
     ls_ex_mem_reg.io.mem_type_EX        := re_reg5.io.inst_pack_EX.mem_type

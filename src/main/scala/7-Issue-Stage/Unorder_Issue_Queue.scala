@@ -70,7 +70,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
     val empty           = tail === 0.U
     val insert_num      = PopCount(io.insts_disp_valid)
     val tail_pop        = tail - io.issue_ack.exists(_ === true.B)
-    val full            = tail_pop >= n.U - insert_num
+    val full            = tail > (n-4).U
     
 
     val insts_dispatch  = io.insts_dispatch
@@ -132,7 +132,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
     io.insts_issue      := queue
     io.full             := full
     io.queue_ready      := !full
-    io.elem_num         := tail_pop
+    io.elem_num         := tail
 
 }
 

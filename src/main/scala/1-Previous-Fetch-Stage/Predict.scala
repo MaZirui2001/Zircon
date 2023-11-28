@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 object PRED_Config{
-    val BTB_INDEX_WIDTH     = 9
+    val BTB_INDEX_WIDTH     = 7
     val BTB_TAG_WIDTH       = 28 - BTB_INDEX_WIDTH
     val BTB_DEPTH           = 1 << BTB_INDEX_WIDTH
     class btb_t extends Bundle{
@@ -127,11 +127,12 @@ class Predict extends Module{
 
     // pht
     val pht_windex = (bht(cmt_col)(bht_windex) ^ pc_cmt(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## pc_cmt(PHT_INDEX_WIDTH-1, 4)
+    val pht_raw_rdata = pht(cmt_col)(pht_windex)
 
     when(update_en){
         pht(cmt_col)(pht_windex) := Mux(io.real_jump, 
-                                        pht(cmt_col)(pht_windex) + (pht(cmt_col)(pht_windex) =/= 3.U), 
-                                        pht(cmt_col)(pht_windex) - (pht(cmt_col)(pht_windex) =/= 0.U))
+                                        pht_raw_rdata + (pht_raw_rdata =/= 3.U), 
+                                        pht_raw_rdata - (pht_raw_rdata =/= 0.U))
     }
 
     // RAS

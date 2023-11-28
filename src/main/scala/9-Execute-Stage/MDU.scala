@@ -17,32 +17,40 @@ class MDU extends Module {
     val src2 = io.src2
 
     md_out := 0.U
-    switch(io.md_op){
-        is(ALU_MUL) {
-            md_out := src1 * src2
-        }
-        is(ALU_MULH) {
-            md_out := (src1.asSInt * src2.asSInt)(63, 32).asUInt
-        }
-        is(ALU_MULHU) {
-            md_out := (src1 * src2)(63, 32)
-        }
-        is(ALU_DIV) {
-            md_out := (src1.asSInt / src2.asSInt).asUInt
-        }
-        is(ALU_DIVU) {
-            md_out := src1 / src2
-        }
-        is(ALU_MOD) {
-            md_out := ((Fill(32, src1(31)) ## src1)(63, 0).asSInt % (Fill(32, src2(31)) ## src2)(63, 0).asSInt)(31, 0).asUInt
-        }
-        is(ALU_MODU) {
-            md_out := src1 % src2
-        }
+    if(System.getProperties().getProperty("mode") == "sim"){
+        switch(io.md_op){
+            is(ALU_MUL) {
+                md_out := src1 * src2
+            }
+            is(ALU_MULH) {
+                md_out := (src1.asSInt * src2.asSInt)(63, 32).asUInt
+            }
+            is(ALU_MULHU) {
+                md_out := (src1 * src2)(63, 32)
+            }
+            is(ALU_DIV) {
+                md_out := (src1.asSInt / src2.asSInt).asUInt
+            }
+            is(ALU_DIVU) {
+                md_out := src1 / src2
+            }
+            is(ALU_MOD) {
+                md_out := ((Fill(32, src1(31)) ## src1)(63, 0).asSInt % (Fill(32, src2(31)) ## src2)(63, 0).asSInt)(31, 0).asUInt
+            }
+            is(ALU_MODU) {
+                md_out := src1 % src2
+            }
 
+        }
+        io.md_out := md_out
+    }
+    else {
+        io.md_out := src1 + src2
     }
 
-    io.md_out := md_out
+
+    
+    
 }
 
 

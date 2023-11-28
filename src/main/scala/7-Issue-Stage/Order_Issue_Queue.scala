@@ -42,7 +42,7 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
 
     val insert_num  = PopCount(io.insts_disp_valid)
     val tail_pop    = Wire(UInt((log2Ceil(n)+1).W))
-    val full        = tail_pop >= n.U - insert_num
+    val full        = tail > (n-4).U
 
     io.queue_ready  := !full
     io.full         := full
