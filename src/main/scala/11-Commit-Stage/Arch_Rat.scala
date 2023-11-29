@@ -56,6 +56,6 @@ class Arch_Rat(n: Int) extends Module {
     }
     top := top_next
     io.top_arch := top_next
-    io.arch_rat := arat_next
-    io.head_arch := head_next
+    io.arch_rat := arat
+    io.head_arch := head
 }

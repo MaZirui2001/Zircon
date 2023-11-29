@@ -50,7 +50,7 @@ class SB(n: Int) extends Module {
     val full            = elem_num === n.U || flush_buf
 
     val empty           = elem_num === 0.U
-    val wait_to_cmt     = RegInit(0.U(log2Ceil(n).W))
+    val wait_to_cmt     = RegInit(0.U((log2Ceil(n)+1).W))
 
     val has_store_cmt   = io.is_store_num_cmt =/= 0.U
 

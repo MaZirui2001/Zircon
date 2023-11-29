@@ -4,14 +4,14 @@ import Inst_Pack._
 import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
-    val PREG_NUM    = 64
-    val ROB_NUM     = 44
+    val PREG_NUM    = 56
+    val ROB_NUM     = 36
     val SB_NUM      = 4
     val IQ_AR_NUM   = 8
     val IQ_AP_NUM   = 8
-    val IQ_AB_NUM   = 12
+    val IQ_AB_NUM   = 8
     val IQ_MD_NUM   = 8
-    val IQ_LS_NUM   = 12
+    val IQ_LS_NUM   = 8
 
 }
 import CPU_Config._
@@ -92,6 +92,9 @@ class CPU extends Module {
 
     /* Previous Decode Stage */
     val pd              = Module(new Prev_Decode)
+
+    val pf_reg          = Module(new PD_FQ_Reg)
+
     val fq              = Module(new Fetch_Queue)
 
     /* Decode Stage */
@@ -173,8 +176,8 @@ class CPU extends Module {
     pc.io.branch_target             := rob.io.branch_target_cmt
     pc.io.pred_jump                 := predict.io.predict_jump
     pc.io.pred_npc                  := predict.io.pred_npc
-    pc.io.flush_by_pd               := pd.io.pred_fix 
-    pc.io.flush_pd_target           := pd.io.pred_fix_target
+    pc.io.flush_by_pd               := pf_reg.io.pred_fix_FQ
+    pc.io.flush_pd_target           := pf_reg.io.pred_fix_target_FQ
 
     // Branch Prediction
     predict.io.npc                  := pc.io.npc
@@ -186,13 +189,14 @@ class CPU extends Module {
     predict.io.br_type              := rob.io.br_type_pred_cmt
     predict.io.predict_fail         := rob.io.predict_fail_cmt
     predict.io.top_arch             := arat.io.top_arch
-    predict.io.pd_pred_fix          := pd.io.pred_fix
-    predict.io.pd_pred_fix_is_bl    := pd.io.pred_fix_is_bl
-    predict.io.pd_pc_plus_4         := pd.io.pred_fix_pc_plus_4
+    predict.io.pd_pred_fix          := pf_reg.io.pred_fix_FQ
+    predict.io.pd_pred_fix_is_bl    := pf_reg.io.pred_fix_is_bl_FQ
+    predict.io.pd_pc_plus_4         := pf_reg.io.pred_fix_pc_plus_4_FQ
+    predict.io.pc_stall             := pc.io.pc_stall
 
     /* ---------- PF-IF SegReg ---------- */
     val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U, pc.io.pc_PF+8.U, pc.io.pc_PF+12.U)
-    pi_reg.io.flush             := rob.io.predict_fail_cmt || (!fq.io.full && pd.io.pred_fix)
+    pi_reg.io.flush             := rob.io.predict_fail_cmt || (!fq.io.full && pf_reg.io.pred_fix_FQ)
     pi_reg.io.stall             := fq.io.full || icache.io.cache_miss_RM
     pi_reg.io.inst_pack_PF      := VecInit.tabulate(4)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i)))
 
@@ -207,16 +211,24 @@ class CPU extends Module {
     icache.io.i_rlast           := arb.io.i_rlast
 
     /* ---------- IF-PD SegReg ---------- */
-    ip_reg.io.flush             := rob.io.predict_fail_cmt || (!ip_reg.io.stall && (pd.io.pred_fix || icache.io.cache_miss_RM))
+    ip_reg.io.flush             := rob.io.predict_fail_cmt || (!ip_reg.io.stall && (pf_reg.io.pred_fix_FQ || icache.io.cache_miss_RM))
     ip_reg.io.stall             := fq.io.full
     ip_reg.io.insts_pack_IF     := VecInit.tabulate(4)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), icache.io.rdata_RM(i)))
 
     /* ---------- 3. Previous Decode Stage ---------- */
     // Previous Decoder
-    pd.io.insts_pack_IF         := ip_reg.io.insts_pack_PD
+    pd.io.insts_pack_IF             := ip_reg.io.insts_pack_PD  //VecInit.tabulate(4)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), icache.io.rdata_RM(i)))
+
+    pf_reg.io.flush                 := rob.io.predict_fail_cmt || !pf_reg.io.stall && (pf_reg.io.pred_fix_FQ)
+    pf_reg.io.stall                 := fq.io.full
+    pf_reg.io.insts_pack_PD         := VecInit.tabulate(4)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i)))
+    pf_reg.io.pred_fix_PD           := pd.io.pred_fix
+    pf_reg.io.pred_fix_target_PD    := pd.io.pred_fix_target
+    pf_reg.io.pred_fix_is_bl_PD     := pd.io.pred_fix_is_bl
+    pf_reg.io.pred_fix_pc_plus_4_PD := pd.io.pred_fix_pc_plus_4
 
     /* ---------- Fetch Queue ---------- */
-    fq.io.insts_pack    := VecInit.tabulate(4)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i)))
+    fq.io.insts_pack    := pf_reg.io.insts_pack_FQ
     fq.io.next_ready    := !(rob.io.full || stall_by_iq || rename.io.free_list_empty)
     fq.io.flush         := rob.io.predict_fail_cmt
 
@@ -242,7 +254,7 @@ class CPU extends Module {
     rename.io.commit_en         := rob.io.cmt_en
     rename.io.commit_pprd_valid := rob.io.rd_valid_cmt
     rename.io.commit_pprd       := rob.io.pprd_cmt
-    rename.io.predict_fail      := rob.io.predict_fail_cmt
+    rename.io.predict_fail      := ShiftRegister(rob.io.predict_fail_cmt, 1, false.B, true.B)
     rename.io.arch_rat          := arat.io.arch_rat
     rename.io.head_arch         := arat.io.head_arch
     
@@ -306,7 +318,7 @@ class CPU extends Module {
     // select
     sel1.io.insts_issue         := iq1.io.insts_issue
     sel1.io.issue_req           := iq1.io.issue_req
-    sel1.io.stall               := !(iq1.io.issue_req.reduce(_||_)) || ir_reg1.io.stall || ShiftRegister(ir_reg1.io.stall, 1, false.B, true.B)
+    sel1.io.stall               := !(iq1.io.issue_req.asUInt.orR) || ir_reg1.io.stall || ShiftRegister(ir_reg1.io.stall, 1, false.B, true.B)
 
     // 2. arith2, common calculate
     // issue queue
@@ -324,7 +336,7 @@ class CPU extends Module {
     // select
     sel2.io.insts_issue         := iq2.io.insts_issue
     sel2.io.issue_req           := iq2.io.issue_req
-    sel2.io.stall               := !(iq2.io.issue_req.reduce(_||_)) || ir_reg2.io.stall || ShiftRegister(ir_reg2.io.stall, 1, false.B, true.B)
+    sel2.io.stall               := !(iq2.io.issue_req.asUInt.orR) || ir_reg2.io.stall || ShiftRegister(ir_reg2.io.stall, 1, false.B, true.B)
 
     // 3. arith3, calculate and branch
     // issue queue
@@ -342,7 +354,7 @@ class CPU extends Module {
     // select
     sel3.io.insts_issue         := iq3.io.insts_issue
     sel3.io.issue_req           := iq3.io.issue_req
-    sel3.io.stall               := !(iq3.io.issue_req.reduce(_||_)) || ir_reg3.io.stall || ShiftRegister(ir_reg3.io.stall, 1, false.B, true.B)
+    sel3.io.stall               := !(iq3.io.issue_req.asUInt.orR) || ir_reg3.io.stall || ShiftRegister(ir_reg3.io.stall, 1, false.B, true.B)
 
     // 4. multiply, multiply and divide
     // issue queue
@@ -378,7 +390,7 @@ class CPU extends Module {
     // select
     sel5.io.insts_issue         := iq5.io.insts_issue
     sel5.io.issue_req           := iq5.io.issue_req
-    sel5.io.stall               := !(iq5.io.issue_req.reduce(_||_)) || ir_reg5.io.stall || ShiftRegister(ir_reg5.io.stall, 1, false.B, true.B)
+    sel5.io.stall               := !(iq5.io.issue_req.asUInt.orR) || ir_reg5.io.stall || ShiftRegister(ir_reg5.io.stall, 1, false.B, true.B)
 
     // mutual wakeup
     val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, 
