@@ -6,7 +6,7 @@ object SB_Pack {
     class sb_t extends Bundle{
         val addr = UInt(32.W)
         val data = UInt(32.W)
-        val wlen = UInt(2.W)
+        val wstrb = UInt(4.W)
     }
 }
 
@@ -70,9 +70,9 @@ class SB(n: Int) extends Module {
     val st_data_ex          = io.st_data_ex
     val st_addr_ex_valid    = is_store_ex && !full
     when(!io.flush && st_addr_ex_valid){
-        sb(tail_idx).addr := st_addr_ex
-        sb(tail_idx).data := st_data_ex
-        sb(tail_idx).wlen := io.mem_type_ex(1, 0)
+        sb(tail_idx).addr   := st_addr_ex(31, 2) ## 0.U(2.W)
+        sb(tail_idx).data   := (st_data_ex << (st_addr_ex(1, 0) ## 0.U(3.W)))(31, 0)
+        sb(tail_idx).wstrb  := ((UIntToOH(UIntToOH(io.mem_type_ex(1, 0))) - 1.U) << st_addr_ex(1, 0))(3, 0)
     }
 
 
@@ -80,9 +80,10 @@ class SB(n: Int) extends Module {
     elem_num        := Mux(flush_buf && !wait_to_cmt.orR, 0.U, elem_num - (io.st_cmt_valid && !io.dcache_miss) + Mux(full, 0.U, st_addr_ex_valid))
     tail            := Mux(flush_buf, 0.U, tail + Mux(full, 0.U, st_addr_ex_valid))
 
-    io.st_addr_cmt := sb(head_idx).addr
-    io.st_data_cmt := sb(head_idx).data
-    io.st_wlen_cmt := sb(head_idx).wlen
+    val offset     = PriorityEncoder(sb(head_idx).wstrb)
+    io.st_addr_cmt := sb(head_idx).addr + offset
+    io.st_data_cmt := sb(head_idx).data >> (offset ## 0.U(3.W))
+    io.st_wlen_cmt := OHToUInt(PopCount(sb(head_idx).wstrb))
 
     // read from ex
     val ld_addr_ex      = io.addr_ex
@@ -91,15 +92,15 @@ class SB(n: Int) extends Module {
     val ld_hit_data     = Wire(Vec(4, UInt(8.W)))
     val ld_hit_mask     = (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0)
     val is_in_queue     = VecInit.tabulate(n)(i => Mux(head_flg ^ tail_flg, 
-                                                           tail_idx-i.U-1.U >= head_idx || tail_idx-i.U-1.U < tail_idx, 
-                                                           tail_idx-i.U-1.U >= head_idx && tail_idx-i.U-1.U < tail_idx))
+                                                        tail_idx-i.U-1.U >= head_idx || tail_idx-i.U-1.U < tail_idx, 
+                                                        tail_idx-i.U-1.U >= head_idx && tail_idx-i.U-1.U < tail_idx))
     // check for each bit
     for(i <- 0 until 4){
         val addr_ex         = ld_addr_ex + i.U
-        val ld_hit          = VecInit.tabulate(n)(j => (sb_order(j).addr <= addr_ex && sb_order(j).addr + UIntToOH(sb_order(j).wlen) > addr_ex) && is_in_queue(j))
+        val ld_hit          = VecInit.tabulate(n)(j => sb_order(j).addr(31, 2) === addr_ex(31, 2) && sb_order(j).wstrb(addr_ex(1, 0)) && is_in_queue(j))
         val ld_bit_hit      = ld_hit.reduce(_||_) && ld_mask(i)
         val ld_hit_index    = PriorityEncoder(ld_hit.asUInt)
-        val hit_byte        = (sb_order(ld_hit_index).data >> ((addr_ex - sb_order(ld_hit_index).addr) ## 0.U(3.W)))(7, 0)
+        val hit_byte        = sb_order(ld_hit_index).data >> (addr_ex(1, 0) ## 0.U(3.W))
         ld_hit_data(i)      := Mux(ld_bit_hit, hit_byte, 0.U)
         io.ld_hit(i)        := ld_hit_mask(i) | ld_bit_hit
     }
