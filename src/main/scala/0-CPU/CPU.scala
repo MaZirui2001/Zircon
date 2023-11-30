@@ -100,6 +100,7 @@ class CPU extends Module {
     /* Decode Stage */
     val decode          = VecInit(Seq.fill(4)(Module(new Decode).io))
     val dr_reg          = Module(new ID_RN_Reg)
+    val free_list       = Module(new Free_List(PREG_NUM))
 
     /* Rename Stage */
     val rename          = Module(new Reg_Rename(PREG_NUM))
@@ -229,7 +230,7 @@ class CPU extends Module {
 
     /* ---------- Fetch Queue ---------- */
     fq.io.insts_pack    := pf_reg.io.insts_pack_FQ
-    fq.io.next_ready    := !(rob.io.full || stall_by_iq || rename.io.free_list_empty)
+    fq.io.next_ready    := !(rob.io.full || stall_by_iq || free_list.io.empty)
     fq.io.flush         := rob.io.predict_fail_cmt
 
     /* ---------- 4. Decode Stage ---------- */
@@ -237,13 +238,21 @@ class CPU extends Module {
     for(i <- 0 until 4){
         decode(i).inst := fq.io.insts_pack_id(i).inst
     }
+    free_list.io.rd_valid           := decode.map(_.rd_valid)
+    free_list.io.rename_en          := VecInit.tabulate(4)(i => fq.io.insts_valid_decode(i) && fq.io.next_ready)
+    free_list.io.commit_en          := rob.io.cmt_en
+    free_list.io.commit_pprd_valid  := (rob.io.rd_valid_cmt.asUInt & VecInit(rob.io.pprd_cmt.map(_ =/= 0.U)).asUInt).asBools
+    free_list.io.commit_pprd        := rob.io.pprd_cmt
+    free_list.io.predict_fail       := ShiftRegister(rob.io.predict_fail_cmt, 1, false.B, true.B)
+    free_list.io.head_arch          := arat.io.head_arch
 
     /* ---------- ID-RN SegReg ---------- */
-    dr_reg.io.flush          := rob.io.predict_fail_cmt
-    dr_reg.io.stall          := rob.io.full || rename.io.free_list_empty || stall_by_iq
+    dr_reg.io.flush          := rob.io.predict_fail_cmt || (!dr_reg.io.stall && free_list.io.empty)
+    dr_reg.io.stall          := rob.io.full || stall_by_iq
     dr_reg.io.insts_pack_ID  := VecInit.tabulate(4)(i => inst_pack_ID_gen(fq.io.insts_pack_id(i), fq.io.insts_valid_decode(i), decode(i).rj, decode(i).rj_valid, decode(i).rk, decode(i).rk_valid, 
                                                                             decode(i).rd, decode(i).rd_valid, decode(i).imm, decode(i).alu_op, decode(i).alu_rs1_sel, decode(i).alu_rs2_sel, 
                                                                             decode(i).br_type, decode(i).mem_type, decode(i).fu_id, decode(i).inst_exist, decode(i).priv_vec, decode(i).csr_addr))
+    dr_reg.io.alloc_preg_ID  := free_list.io.alloc_preg
     /* ---------- 5. Rename Stage ---------- */
     // Rename
     rename.io.rj                := dr_reg.io.insts_pack_RN.map(_.rj)
@@ -251,15 +260,12 @@ class CPU extends Module {
     rename.io.rd                := dr_reg.io.insts_pack_RN.map(_.rd)
     rename.io.rd_valid          := dr_reg.io.insts_pack_RN.map(_.rd_valid)
     rename.io.rename_en         := VecInit.tabulate(4)(i => dr_reg.io.insts_pack_RN(i).inst_valid && !dr_reg.io.stall)
-    rename.io.commit_en         := rob.io.cmt_en
-    rename.io.commit_pprd_valid := rob.io.rd_valid_cmt
-    rename.io.commit_pprd       := rob.io.pprd_cmt
     rename.io.predict_fail      := ShiftRegister(rob.io.predict_fail_cmt, 1, false.B, true.B)
     rename.io.arch_rat          := arat.io.arch_rat
-    rename.io.head_arch         := arat.io.head_arch
+    rename.io.alloc_preg        := dr_reg.io.alloc_preg_RN
     
     /* ---------- RN-DP SegReg ---------- */
-    rp_reg.io.flush             := (rename.io.free_list_empty && !rp_reg.io.stall) || rob.io.predict_fail_cmt
+    rp_reg.io.flush             := rob.io.predict_fail_cmt
     rp_reg.io.stall             := stall_by_iq || rob.io.full
     rp_reg.io.insts_pack_RN     := VecInit.tabulate(4)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i), rename.io.prj_raw(i), rename.io.prk_raw(i)))
 
@@ -728,7 +734,7 @@ class CPU extends Module {
 
 
         io.commit_stall_by_fetch_queue  := fq.io.full
-        io.commit_stall_by_rename       := rename.io.free_list_empty
+        io.commit_stall_by_rename       := free_list.io.empty
         io.commit_stall_by_rob          := rob.io.full
         io.commit_stall_by_iq           := VecInit(iq1.io.full, iq2.io.full, iq3.io.full, iq4.io.full, iq5.io.full)
         io.commit_stall_by_sb           := sb.io.full

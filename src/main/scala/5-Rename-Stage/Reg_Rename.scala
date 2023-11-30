@@ -9,6 +9,8 @@ class Reg_rename_IO(n: Int) extends Bundle{
     val rd_valid            = Input(Vec(4, Bool()))
     val rename_en           = Input(Vec(4, Bool()))
 
+    val alloc_preg          = Input(Vec(4, UInt(log2Ceil(n).W)))
+
     val prj                 = Output(Vec(4, UInt(log2Ceil(n).W)))
     val prk                 = Output(Vec(4, UInt(log2Ceil(n).W)))
     val prd                 = Output(Vec(4, UInt(log2Ceil(n).W)))
@@ -16,32 +18,26 @@ class Reg_rename_IO(n: Int) extends Bundle{
     val prj_raw             = Output(Vec(4, Bool()))
     val prk_raw             = Output(Vec(4, Bool()))
 
-    val commit_en           = Input(Vec(4, Bool()))
-    val commit_pprd_valid   = Input(Vec(4, Bool()))
-    val commit_pprd         = Input(Vec(4, UInt(log2Ceil(n).W)))
-
     val predict_fail        = Input(Bool())
     val arch_rat            = Input(Vec(n, UInt(1.W)))
-    val head_arch           = Input(UInt(log2Ceil(n).W))
 
-    val free_list_empty     = Output(Bool())
 }
 
 class Reg_Rename(n: Int) extends Module{
     val io              = IO(new Reg_rename_IO(n))
     val crat            = Module(new CRat(n))
-    val free_list       = Module(new Free_List(n))
     
     val prj_temp        = Wire(Vec(4, UInt(log2Ceil(n).W)))
     val prk_temp        = Wire(Vec(4, UInt(log2Ceil(n).W)))
     val pprd_temp       = Wire(Vec(4, UInt(log2Ceil(n).W)))
     val rd_valid_temp   = Wire(Vec(4, Bool()))
 
+    val alloc_preg      = io.alloc_preg
+
     prj_temp            := crat.io.prj
     prk_temp            := crat.io.prk
     pprd_temp           := crat.io.pprd
 
-    val alloc_preg      = free_list.io.alloc_preg
     io.prd              := alloc_preg
 
     // RAW
@@ -129,19 +125,8 @@ class Reg_Rename(n: Int) extends Module{
     crat.io.rk              := io.rk
     crat.io.rd              := io.rd
     crat.io.rd_valid        := (rd_valid_temp.asUInt & io.rename_en.asUInt).asBools
-    crat.io.alloc_preg      := free_list.io.alloc_preg
+    crat.io.alloc_preg      := io.alloc_preg
     crat.io.arch_rat        := io.arch_rat
     crat.io.predict_fail    := io.predict_fail
-    crat.io.stall           := io.free_list_empty
-
-    // free list
-    free_list.io.rd_valid           := io.rd_valid
-    free_list.io.rename_en          := io.rename_en
-    free_list.io.commit_en          := io.commit_en
-    free_list.io.commit_pprd_valid  := (io.commit_pprd_valid.asUInt & VecInit(io.commit_pprd.map(_ =/= 0.U)).asUInt).asBools
-    free_list.io.commit_pprd        := io.commit_pprd
-    free_list.io.head_arch          := io.head_arch
-    free_list.io.predict_fail       := io.predict_fail
-    io.free_list_empty              := free_list.io.empty
 }
 
