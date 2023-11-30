@@ -21,7 +21,6 @@ class Free_List(n: Int) extends Module{
     val head        = RegInit(0.U(log2Ceil(n).W))
 
     io.empty        := VecInit.tabulate(4)(i => Mux(head + i.U >= n.U, head + i.U - n.U, head + i.U) === tail).reduce(_||_)
-    // io.empty     := VecInit.tabulate(4)(i => head + i.U === tail).reduce(_||_)
 
     // alloc new reg
     val head_idx    = Wire(Vec(4, UInt(log2Ceil(n).W)))

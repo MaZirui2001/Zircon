@@ -92,9 +92,9 @@ class CPU extends Module {
 
     /* Previous Decode Stage */
     val pd              = Module(new Prev_Decode)
-
     val pf_reg          = Module(new PD_FQ_Reg)
 
+    /* Fetch Queue Stage */
     val fq              = Module(new Fetch_Queue)
 
     /* Decode Stage */
