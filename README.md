@@ -31,11 +31,9 @@
     - TLB维护指令：`TLBSRCH`, `TLBRD`, `TLBWR`, `TLBFILL`, `INVTLB`
     - 其他杂项指令：`ERTN`, `IDLE`
 
-
-
 ## 构建方式
 
-本项目使用sbt进行构建并生成可综合的verilog代码，使用方法如下：
+本项目使用sbt和java进行构建并生成可综合的verilog代码，使用方法如下：
 
 * 基于仿真进行构建：
 
