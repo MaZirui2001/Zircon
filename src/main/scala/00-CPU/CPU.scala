@@ -5,7 +5,7 @@ import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
     val PREG_NUM    = 56
-    val ROB_NUM     = 36
+    val ROB_NUM     = 32
     val SB_NUM      = 8
     val IQ_AR_NUM   = 8
     val IQ_AP_NUM   = 8
