@@ -15,6 +15,7 @@ object PD_Pack {
     val NOT_JUMP = 0.U(2.W)
     val YES_JUMP = 1.U(2.W)
     val MAY_JUMP = 2.U(2.W)
+    val NOT_BR   = 3.U(2.W)
 }
 
 class Prev_Decode_IO extends Bundle {
@@ -51,6 +52,8 @@ class Prev_Decode extends Module {
                 jump_type(i) := YES_JUMP
             }.elsewhen(br_type(i) >= 6.U && br_type(i) <= 11.U){
                 jump_type(i) := MAY_JUMP
+            }.elsewhen(br_type(i) =/= JIRL){
+                jump_type(i) := NOT_BR
             }
         }
     }
@@ -80,13 +83,18 @@ class Prev_Decode extends Module {
                     }
                 }
             }
+            is(NOT_BR){
+                inst_pack_pd(i).predict_jump    := false.B
+                inst_pack_pd(i).pred_npc        := inst_pack_IF(i).pc + 4.U
+                need_fix(i)                     := inst_pack_IF(i).inst_valid && inst_pack_IF(i).predict_jump
+            }
         }
     }
     val inst_valid = VecInit(Seq.fill(4)(false.B))
     inst_valid(0) := inst_pack_IF(0).inst_valid
     inst_pack_pd(0).inst_valid := inst_valid(0)
     for(i <- 1 until 4){
-        inst_valid(i) := inst_valid(i-1) && inst_pack_IF(i).inst_valid && !(inst_pack_pd(i-1).predict_jump)
+        inst_valid(i) := inst_valid(i-1) && inst_pack_IF(i).inst_valid && !need_fix(i-1)
         inst_pack_pd(i).inst_valid := inst_valid(i)
     }
     io.insts_pack_PD := inst_pack_pd

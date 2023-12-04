@@ -319,7 +319,7 @@ class CPU extends Module {
     iq1.io.flush                := rob.io.predict_fail_cmt
     iq1.io.stall                := stall_by_iq || rob.io.full
     iq1.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq1.io.dcache_miss          := dcache.io.cache_miss_MEM
+    iq1.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1, false.B, true.B)
 
     // select
     sel1.io.insts_issue         := iq1.io.insts_issue
@@ -337,7 +337,7 @@ class CPU extends Module {
     iq2.io.flush                := rob.io.predict_fail_cmt
     iq2.io.stall                := stall_by_iq || rob.io.full
     iq2.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq2.io.dcache_miss          := dcache.io.cache_miss_MEM
+    iq2.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1, false.B, true.B)
 
     // select
     sel2.io.insts_issue         := iq2.io.insts_issue
@@ -355,7 +355,7 @@ class CPU extends Module {
     iq3.io.flush                := rob.io.predict_fail_cmt
     iq3.io.stall                := stall_by_iq || rob.io.full
     iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq3.io.dcache_miss          := dcache.io.cache_miss_MEM
+    iq3.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1, false.B, true.B)
 
     // select
     sel3.io.insts_issue         := iq3.io.insts_issue
@@ -373,7 +373,7 @@ class CPU extends Module {
     iq4.io.flush                := rob.io.predict_fail_cmt
     iq4.io.stall                := stall_by_iq || rob.io.full
     iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq4.io.dcache_miss          := dcache.io.cache_miss_MEM
+    iq4.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1, false.B, true.B)
 
     // select
     sel4.io.insts_issue         := iq4.io.insts_issue
@@ -409,7 +409,7 @@ class CPU extends Module {
                                           Mux(ir_reg2.io.inst_pack_RF.rd_valid, ir_reg2.io.inst_pack_RF.prd, 0.U),
                                           Mux(ir_reg3.io.inst_pack_RF.rd_valid, ir_reg3.io.inst_pack_RF.prd, 0.U),
                                           Mux(ir_reg4.io.inst_pack_RF.rd_valid, ir_reg4.io.inst_pack_RF.prd, 0.U),
-                                          Mux(re_reg5.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM, re_reg5.io.inst_pack_EX.prd, 0.U))
+                                          Mux(re_reg5.io.inst_pack_EX.rd_valid, re_reg5.io.inst_pack_EX.prd, 0.U))
     
     iq1.io.wake_preg            := VecInit(iq_inline_wake_preg(0), iq_inline_wake_preg(1), iq_inline_wake_preg(2), iq_mutual_wake_preg(3), iq_mutual_wake_preg(4))
     iq2.io.wake_preg            := VecInit(iq_inline_wake_preg(0), iq_inline_wake_preg(1), iq_inline_wake_preg(2), iq_mutual_wake_preg(3), iq_mutual_wake_preg(4))
