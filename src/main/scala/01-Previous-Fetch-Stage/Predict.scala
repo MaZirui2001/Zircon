@@ -76,16 +76,16 @@ class Predict extends Module{
     val predict_valid   = VecInit.tabulate(4)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
     val predict_jump    = VecInit.tabulate(4)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && predict_valid(i))
 
-    val valid_mask      = 15.U(4.W) >> pc(3, 2)
-    val pred_hit        = VecInit.tabulate(4)(i => predict_jump((i.U + pc(3, 2))(1, 0)) && valid_mask(i))
-    val pred_valid_hit  = VecInit.tabulate(4)(i => predict_valid((i.U + pc(3, 2))(1, 0)) && valid_mask(i))
+    val valid_mask      = (15.U(4.W) << pc(3, 2))(3, 0)
+    val pred_hit        = VecInit.tabulate(4)(i => predict_jump(i) && valid_mask(i))
+    val pred_valid_hit  = VecInit.tabulate(4)(i => predict_valid(i) && valid_mask(i))
 
     val pred_hit_index  = PriorityEncoder(pred_hit)
-    val hit_index_raw   = pred_hit_index + pc(3, 2)
+    //val hit_index_raw   = pred_hit_index + pc(3, 2)
 
-    io.predict_jump     := pred_hit
-    io.pred_valid       := pred_valid_hit
-    io.pred_npc         := Mux(btb_rdata(hit_index_raw).typ === RET, ras(top-1.U), btb_rdata(hit_index_raw).target ## 0.U(2.W)) 
+    io.predict_jump     := (pred_hit.asUInt >> pc(3, 2)).asBools
+    io.pred_valid       := (pred_valid_hit.asUInt >> pc(3, 2)).asBools
+    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === RET, ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
     
     // update
     val update_en       = io.update_en
@@ -145,15 +145,11 @@ class Predict extends Module{
             top         := top + 1.U
             ras(top)    := io.pd_pc_plus_4
         }
-    }.elsewhen((btb_rdata(hit_index_raw).typ === BL || btb_rdata(hit_index_raw).typ === ICALL) && io.pred_valid(pred_hit_index)){
-        //when(!io.pc_stall){
+    }.elsewhen((btb_rdata(pred_hit_index).typ === BL || btb_rdata(pred_hit_index).typ === ICALL) && pred_valid_hit(pred_hit_index)){
             top             := top + 1.U
-            ras(top)        := pc + (pred_hit_index ## 0.U(2.W)) + 4.U
-        //}
-    }.elsewhen(btb_rdata(hit_index_raw).typ === RET && io.pred_valid(pred_hit_index)){
-        //when(io.pc_stall){
+            ras(top)        := (pc(31, 4) ## pred_hit_index(1, 0) ## 0.U(2.W)) + 4.U
+    }.elsewhen(btb_rdata(pred_hit_index).typ === RET && pred_valid_hit(pred_hit_index)){
             top             := top - 1.U
-        //}
     }
 
     // when(io.ras_update_en && io.br_type === RET){
