@@ -52,9 +52,9 @@ class Prev_Decode extends Module {
                 jump_type(i) := YES_JUMP
             }.elsewhen(br_type(i) >= 6.U && br_type(i) <= 11.U){
                 jump_type(i) := MAY_JUMP
-            }.elsewhen(br_type(i) =/= JIRL){
-                jump_type(i) := NOT_BR
             }
+        }.otherwise{
+            jump_type(i) := NOT_BR
         }
     }
     val pred_fix_is_bl      = VecInit.tabulate(4)(i => inst_pack_IF(i).inst(29, 26) === BL)
