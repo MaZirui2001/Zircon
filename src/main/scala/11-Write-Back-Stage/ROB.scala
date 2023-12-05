@@ -66,7 +66,7 @@ class ROB_IO(n: Int) extends Bundle{
     val is_store_num_cmt        = Output(UInt(2.W))
 
     // for predict and ras
-    val predict_fail_cmt        = Output(Bool())
+    val predict_fail_cmt        = Output(UInt(10.W)) // opt fanout
     val pred_update_en_cmt      = Output(Bool())
     val pred_branch_target_cmt  = Output(UInt(32.W))
     val pred_pc_cmt             = Output(UInt(32.W))
@@ -189,7 +189,7 @@ class ROB(n: Int) extends Module{
     val pred_pc_cmt              = rob_update_item.pc ## 0.U(2.W)
     val pred_real_jump_cmt       = rob_update_item.real_jump
 
-    io.predict_fail_cmt         := ShiftRegister(predict_fail_cmt, 1, false.B, true.B)
+    io.predict_fail_cmt         := ShiftRegister(VecInit.fill(10)(predict_fail_cmt).asUInt, 1, 0.U(10.W), true.B)
     io.branch_target_cmt        := ShiftRegister(branch_target_cmt, 1, 0.U(32.W), true.B)
     io.pred_update_en_cmt       := ShiftRegister(pred_update_en_cmt, 1, false.B, true.B)
     io.pred_branch_target_cmt   := ShiftRegister(pred_branch_target_cmt, 1, 0.U(32.W), true.B)
@@ -212,7 +212,7 @@ class ROB(n: Int) extends Module{
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1, 0.U, true.B)
     io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1, 0.U, true.B)
     io.csr_we_cmt               := ShiftRegister(csr_we_cmt, 1, false.B, true.B)
-    when(io.predict_fail_cmt){
+    when(io.predict_fail_cmt(0)){
         priv_buf.valid          := false.B
     }
     
@@ -241,13 +241,13 @@ class ROB(n: Int) extends Module{
     
     // update ptrs
     val cmt_num                 = PopCount(cmt_en)
-    head                        := Mux(io.predict_fail_cmt || predict_fail_cmt, 0.U, Mux(head + cmt_num >= n.U, head + cmt_num - n.U, head + cmt_num))                 
+    head                        := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(head + cmt_num >= n.U, head + cmt_num - n.U, head + cmt_num))                 
     val head_inc                = VecInit(Seq.fill(4)(false.B))
     for(i <- 0 until 4){
         head_inc(hsel_idx(i))   := cmt_en(i)
-        elem_num(i)             := Mux(io.predict_fail_cmt || predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_dp - head_inc(i), elem_num(i) - head_inc(i)))
+        elem_num(i)             := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_dp - head_inc(i), elem_num(i) - head_inc(i)))
     }
-    tail := Mux(io.predict_fail_cmt || predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_dp === neach.U, 0.U, tail + inst_valid_dp), tail))
+    tail := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(!full && !io.stall, Mux(tail + inst_valid_dp === neach.U, 0.U, tail + inst_valid_dp), tail))
 
 
     // stat
