@@ -92,16 +92,16 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
             queue_next(i).inst              := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))), 0.U.asTypeOf(inst_pack_t))
             queue_next(i).prj_waked         := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prj_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
             queue_next(i).prk_waked         := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prk_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
-            queue_next(i).prj_wake_by_ld    := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))).asInstanceOf[inst_pack_DP_t].prj === io.ld_mem_prd && io.ld_mem_prd =/= 0.U, false.B)
-            queue_next(i).prk_wake_by_ld    := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))).asInstanceOf[inst_pack_DP_t].prk === io.ld_mem_prd && io.ld_mem_prd =/= 0.U, false.B)
+            queue_next(i).prj_wake_by_ld    := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))).asInstanceOf[inst_pack_DP_t].prj === io.ld_mem_prd, false.B)
+            queue_next(i).prk_wake_by_ld    := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))).asInstanceOf[inst_pack_DP_t].prk === io.ld_mem_prd, false.B)
         }
     }
     for(i <- 0 until n){
         queue(i).inst           := queue_next(i).inst
         queue(i).prj_waked      := queue_next(i).prj_waked || Wake_Up(io.wake_preg, queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prj)
         queue(i).prk_waked      := queue_next(i).prk_waked || Wake_Up(io.wake_preg, queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prk)
-        queue(i).prj_wake_by_ld := queue_next(i).prj_wake_by_ld || (queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prj === io.wake_preg(4) && io.wake_preg(4) =/= 0.U)
-        queue(i).prk_wake_by_ld := queue_next(i).prk_wake_by_ld || (queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prk === io.wake_preg(4) && io.wake_preg(4) =/= 0.U)
+        queue(i).prj_wake_by_ld := queue_next(i).prj_wake_by_ld || (queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prj === io.wake_preg(4))
+        queue(i).prk_wake_by_ld := queue_next(i).prk_wake_by_ld || (queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prk === io.wake_preg(4))
 
     }
     tail    := Mux(io.flush, 0.U, Mux(io.stall, tail_pop, tail_pop + Mux(io.queue_ready, insert_num, 0.U)))

@@ -147,7 +147,7 @@ class Predict extends Module{
         }
     }.elsewhen((btb_rdata(pred_hit_index).typ === BL || btb_rdata(pred_hit_index).typ === ICALL) && pred_valid_hit(pred_hit_index)){
             top             := top + 1.U
-            ras(top)        := (pc(31, 4) ## pred_hit_index(1, 0) ## 0.U(2.W)) + 4.U
+            ras(top)        := ((pc(31, 4) ## pred_hit_index(1, 0)) + 1.U) ## 0.U(2.W)
     }.elsewhen(btb_rdata(pred_hit_index).typ === RET && pred_valid_hit(pred_hit_index)){
             top             := top - 1.U
     }
