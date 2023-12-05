@@ -50,8 +50,8 @@ import PRED_Config._
 class Predict extends Module{
     val io = IO(new Predict_IO)
 
-    val btb_tagv    = VecInit(Seq.fill(4)(Module(new xilinx_single_port_ram_read_first(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
-    val btb_targ    = VecInit(Seq.fill(4)(Module(new xilinx_single_port_ram_read_first(30+2, BTB_DEPTH)).io))
+    val btb_tagv    = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
+    val btb_targ    = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(30+2, BTB_DEPTH)).io))
     val bht         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W))))))
     val pht         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W))))))
 
@@ -101,22 +101,22 @@ class Predict extends Module{
         btb_wdata(i).typ    := io.br_type
     }
     for(i <- 0 until 4){
-        btb_tagv(i).addra   := Mux(btb_tagv(i).wea, btb_windex, btb_rindex)
-        // btb_tagv(i).addrb   := btb_rindex
+        btb_tagv(i).addra   := btb_windex
+        btb_tagv(i).addrb   := btb_rindex
         btb_tagv(i).dina    := btb_wdata(i).valid ## btb_wdata(i).tag
         btb_tagv(i).clka    := clock
         btb_tagv(i).wea     := update_en && mask(i)
-        btb_rdata(i).valid  := btb_tagv(i).douta(BTB_TAG_WIDTH)
-        btb_rdata(i).tag    := btb_tagv(i).douta(BTB_TAG_WIDTH-1, 0)
+        btb_rdata(i).valid  := btb_tagv(i).doutb(BTB_TAG_WIDTH)
+        btb_rdata(i).tag    := btb_tagv(i).doutb(BTB_TAG_WIDTH-1, 0)
     }
     for(i <- 0 until 4){
-        btb_targ(i).addra   := Mux(btb_targ(i).wea, btb_windex, btb_rindex)
-        // btb_targ(i).addrb   := btb_rindex
+        btb_targ(i).addra   := btb_windex
+        btb_targ(i).addrb   := btb_rindex
         btb_targ(i).dina    := btb_wdata(i).target ## btb_wdata(i).typ
         btb_targ(i).clka    := clock
         btb_targ(i).wea     := update_en && mask(i)
-        btb_rdata(i).target := btb_targ(i).douta(31, 2)
-        btb_rdata(i).typ    := btb_targ(i).douta(1, 0)
+        btb_rdata(i).target := btb_targ(i).doutb(31, 2)
+        btb_rdata(i).typ    := btb_targ(i).doutb(1, 0)
     }
 
     // bht
