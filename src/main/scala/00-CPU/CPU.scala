@@ -153,6 +153,7 @@ class CPU extends Module {
     val ew_reg3         = Module(new FU3_EX_WB_Reg)
 
     val mdu             = Module(new MDU)
+    val md_ex1_ex2_reg  = Module(new MD_EX1_EX2_Reg)
     val ew_reg4         = Module(new MD_EX_WB_Reg)
 
     val sb              = Module(new SB(SB_NUM))
@@ -550,6 +551,10 @@ class CPU extends Module {
     mdu.io.src1                 := Mux(bypass4.io.forward_prj_en, bypass4.io.forward_prj_data, re_reg4.io.src1_EX)
     mdu.io.src2                 := Mux(bypass4.io.forward_prk_en, bypass4.io.forward_prk_data, re_reg4.io.src2_EX)
 
+    md_ex1_ex2_reg.io.flush         := rob.io.predict_fail_cmt(8)
+    md_ex1_ex2_reg.io.stall         := false.B
+    md_ex1_ex2_reg.io.inst_pack_EX1 := re_reg4.io.inst_pack_EX
+
     // 5. load-store fu, include cache
     // EX stage
     // store_buf
@@ -630,7 +635,7 @@ class CPU extends Module {
     ew_reg4.io.flush                := rob.io.predict_fail_cmt(9)
     ew_reg4.io.stall                := false.B
     ew_reg4.io.inst_pack_EX         := re_reg4.io.inst_pack_EX
-    ew_reg4.io.md_out_EX            := mdu.io.md_out
+    ew_reg4.io.md_out_EX            := Mux(re_reg4.io.inst_pack_EX.alu_op <= 13.U, mdu.io.mul_out, mdu.io.div_out)
 
     ew_reg5.io.flush                := rob.io.predict_fail_cmt(9) || dcache.io.cache_miss_MEM
     ew_reg5.io.stall                := false.B  

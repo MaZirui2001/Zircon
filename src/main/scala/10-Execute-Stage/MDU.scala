@@ -3,54 +3,30 @@ import chisel3.util._
 import Control_Signal._
 
 class MDU_IO extends Bundle {
-    val src1 = Input(UInt(32.W))
-    val src2 = Input(UInt(32.W))
-    val md_op = Input(UInt(5.W))
-    val md_out = Output(UInt(32.W))
+    val src1    = Input(UInt(32.W))
+    val src2    = Input(UInt(32.W))
+    val md_op   = Input(UInt(5.W))
+    val mul_out = Output(UInt(32.W))
+    val div_out = Output(UInt(32.W))
+    val busy    = Output(Bool())
 }
 
 class MDU extends Module {
     val io = IO(new MDU_IO)
+    val mul = Module(new Multiply)
+    val div = Module(new Divide)
 
-    val md_out = Wire(UInt(32.W))
-    val src1 = io.src1
-    val src2 = io.src2
+    mul.io.src1 := io.src1
+    mul.io.src2 := io.src2
+    mul.io.op   := io.md_op
 
-    md_out := 0.U
-    if(System.getProperties().getProperty("mode") == "sim"){
-        switch(io.md_op){
-            is(ALU_MUL) {
-                md_out := src1 * src2
-            }
-            is(ALU_MULH) {
-                md_out := (src1.asSInt * src2.asSInt)(63, 32).asUInt
-            }
-            is(ALU_MULHU) {
-                md_out := (src1 * src2)(63, 32)
-            }
-            is(ALU_DIV) {
-                md_out := (src1.asSInt / src2.asSInt).asUInt
-            }
-            is(ALU_DIVU) {
-                md_out := src1 / src2
-            }
-            is(ALU_MOD) {
-                md_out := ((Fill(32, src1(31)) ## src1)(63, 0).asSInt % (Fill(32, src2(31)) ## src2)(63, 0).asSInt)(31, 0).asUInt
-            }
-            is(ALU_MODU) {
-                md_out := src1 % src2
-            }
+    div.io.src1 := io.src1
+    div.io.src2 := io.src2
+    div.io.op   := io.md_op
 
-        }
-        io.md_out := md_out
-    }
-    else {
-        io.md_out := src1 + src2
-    }
-
-
-    
-    
+    io.mul_out := mul.io.res
+    io.div_out := div.io.res
+    io.busy    := div.io.busy
 }
 
 
