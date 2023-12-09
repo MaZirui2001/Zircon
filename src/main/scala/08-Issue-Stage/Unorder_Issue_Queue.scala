@@ -89,11 +89,12 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
             queue_next(i).prk_wake_by_ld    := Mux(next_mask(i), if(i == n-1) false.B else queue(i+1).prk_wake_by_ld, queue(i).prk_wake_by_ld)
         }
         .otherwise{
-            queue_next(i).inst              := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))), 0.U.asTypeOf(inst_pack_t))
-            queue_next(i).prj_waked         := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prj_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
-            queue_next(i).prk_waked         := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prk_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
-            queue_next(i).prj_wake_by_ld    := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))).asInstanceOf[inst_pack_DP_t].prj === io.ld_mem_prd, false.B)
-            queue_next(i).prk_wake_by_ld    := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))).asInstanceOf[inst_pack_DP_t].prk === io.ld_mem_prd, false.B)
+            val idx = (i.U - tail_pop)(1, 0)
+            queue_next(i).inst              := Mux(io.insts_disp_valid(idx), io.insts_dispatch(io.insts_disp_index(idx)), 0.U.asTypeOf(inst_pack_t))
+            queue_next(i).prj_waked         := Mux(io.insts_disp_valid(idx), io.prj_ready(io.insts_disp_index(idx)), false.B)
+            queue_next(i).prk_waked         := Mux(io.insts_disp_valid(idx), io.prk_ready(io.insts_disp_index(idx)), false.B)
+            queue_next(i).prj_wake_by_ld    := Mux(io.insts_disp_valid(idx), io.insts_dispatch(io.insts_disp_index(idx)).asInstanceOf[inst_pack_DP_t].prj === io.ld_mem_prd, false.B)
+            queue_next(i).prk_wake_by_ld    := Mux(io.insts_disp_valid(idx), io.insts_dispatch(io.insts_disp_index(idx)).asInstanceOf[inst_pack_DP_t].prk === io.ld_mem_prd, false.B)
         }
     }
     for(i <- 0 until n){

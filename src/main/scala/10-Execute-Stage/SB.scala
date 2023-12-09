@@ -90,7 +90,7 @@ class SB(n: Int) extends Module {
     val ld_mask         = (UIntToOH(UIntToOH(io.mem_type_ex(1, 0))) - 1.U)(3, 0)
     val sb_order        = VecInit.tabulate(n)(i => sb(tail_idx-1.U-i.U))
     val ld_hit_data     = Wire(Vec(4, UInt(8.W)))
-    val ld_hit_mask     = (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0)
+    val ld_hit_mask     = Mux(io.mem_type_ex(4), 0xf.U, (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0))
     val is_in_queue     = VecInit.tabulate(n)(i => Mux(head_flg ^ tail_flg, 
                                                         tail_idx-i.U-1.U >= head_idx || tail_idx-i.U-1.U < tail_idx, 
                                                         tail_idx-i.U-1.U >= head_idx && tail_idx-i.U-1.U < tail_idx))

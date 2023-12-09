@@ -23,7 +23,6 @@ class DCache_IO extends Bundle{
     val wdata_RF        = Input(UInt(32.W))
 
     // MEM stage
-    val sb_hit_MEM      = Input(Vec(4, Bool()))
     val cache_miss_MEM  = Output(Bool())
     val rdata_MEM       = Output(UInt(32.W))
 
@@ -60,7 +59,7 @@ import DCache_Config._
 class DCache extends Module{
     val io = IO(new DCache_IO)
     val stall = io.stall
-    val sb_hit_MEM = io.sb_hit_MEM
+    //val sb_hit_MEM = io.sb_hit_MEM
 
     // address decode EX
     val addr_RF             = io.addr_RF
@@ -234,23 +233,22 @@ class DCache extends Module{
     /* read state machine */
     val s_idle :: s_miss :: s_refill :: s_wait :: Nil = Enum(4)
     val state = RegInit(s_idle)
-    val sb_all_hit = sb_hit_MEM.reduce(_&&_) && is_load_MEM
 
     switch(state){
         is(s_idle){
             addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
             // has req
             when(mem_type_MEM(4, 3).orR){
-                state                       := Mux(cache_hit_MEM || sb_all_hit, s_idle, s_miss)
-                lru_hit_upd                 := cache_hit_MEM && !sb_all_hit
-                cache_miss_MEM              := !cache_hit_MEM && !sb_all_hit
+                state                       := Mux(cache_hit_MEM, s_idle, s_miss)
+                lru_hit_upd                 := cache_hit_MEM
+                cache_miss_MEM              := !cache_hit_MEM
                 data_sel                    := FROM_CMEM
                 cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM, wmask_byte, 0.U)
                 dirty_we                    := is_store_MEM
-                wbuf_we                     := !cache_hit_MEM && !sb_all_hit
-                wfsm_en                     := !cache_hit_MEM && !sb_all_hit
+                wbuf_we                     := !cache_hit_MEM
+                wfsm_en                     := !cache_hit_MEM
                 dcache_visit                := true.B
-                dcache_miss                 := !cache_hit_MEM && !sb_all_hit
+                dcache_miss                 := !cache_hit_MEM
             }
         }
         is(s_miss){
