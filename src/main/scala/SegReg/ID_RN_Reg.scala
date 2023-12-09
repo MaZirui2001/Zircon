@@ -10,20 +10,20 @@ class ID_RN_Reg extends Module {
         val flush           = Input(Bool())
         val stall           = Input(Bool())
 
-        val insts_pack_ID   = Input(Vec(4, new inst_pack_ID_t))
-        val alloc_preg_ID    = Input(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
-        val insts_pack_RN   = Output(Vec(4, new inst_pack_ID_t))
-        val alloc_preg_RN    = Output(Vec(4, UInt(log2Ceil(PREG_NUM).W)))
+        val insts_pack_ID   = Input(Vec(FRONT_WIDTH, new inst_pack_ID_t))
+        val alloc_preg_ID    = Input(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
+        val insts_pack_RN   = Output(Vec(FRONT_WIDTH, new inst_pack_ID_t))
+        val alloc_preg_RN    = Output(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
 
     })
 
-    val insts_pack_reg = RegInit(VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_ID_t))))
-    val alloc_preg_reg = RegInit(VecInit(Seq.fill(4)(0.U(log2Ceil(PREG_NUM).W))))
+    val insts_pack_reg = RegInit(VecInit(Seq.fill(FRONT_WIDTH)(0.U.asTypeOf(new inst_pack_ID_t))))
+    val alloc_preg_reg = RegInit(VecInit(Seq.fill(FRONT_WIDTH)(0.U(log2Ceil(PREG_NUM).W))))
 
 
     when(io.flush) {
-        insts_pack_reg := VecInit(Seq.fill(4)(0.U.asTypeOf(new inst_pack_ID_t)))
-        alloc_preg_reg := VecInit(Seq.fill(4)(0.U(5.W)))
+        insts_pack_reg := VecInit(Seq.fill(FRONT_WIDTH)(0.U.asTypeOf(new inst_pack_ID_t)))
+        alloc_preg_reg := VecInit(Seq.fill(FRONT_WIDTH)(0.U(5.W)))
     }
     .elsewhen(!io.stall){
         insts_pack_reg := io.insts_pack_ID

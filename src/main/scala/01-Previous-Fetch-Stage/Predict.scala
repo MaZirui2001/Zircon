@@ -1,7 +1,8 @@
 import chisel3._
 import chisel3.util._
+import CPU_Config._
 object PRED_Config{
-    val BTB_INDEX_WIDTH     = 7
+    val BTB_INDEX_WIDTH     = 8
     val BTB_TAG_WIDTH       = 28 - BTB_INDEX_WIDTH
     val BTB_DEPTH           = 1 << BTB_INDEX_WIDTH
     class btb_t extends Bundle{
@@ -10,9 +11,9 @@ object PRED_Config{
         val tag         = UInt(BTB_TAG_WIDTH.W)
         val typ         = UInt(2.W)
     }
-    val BHT_INDEX_WIDTH = 6
+    val BHT_INDEX_WIDTH = 7
     val BHT_DEPTH       = 1 << BHT_INDEX_WIDTH
-    val PHT_INDEX_WIDTH = 6
+    val PHT_INDEX_WIDTH = 7
     val PHT_DEPTH       = 1 << PHT_INDEX_WIDTH
 
     val RET     = 1.U(2.W)
@@ -25,9 +26,9 @@ class Predict_IO extends Bundle{
     // check
     val npc                 = Input(UInt(32.W))
     val pc                  = Input(UInt(32.W))
-    val predict_jump        = Output(Vec(4, Bool()))
+    val predict_jump        = Output(Vec(FRONT_WIDTH, Bool()))
     val pred_npc            = Output(UInt(32.W))
-    val pred_valid          = Output(Vec(4, Bool()))
+    val pred_valid          = Output(Vec(FRONT_WIDTH, Bool()))
     val pc_stall            = Input(Bool())
 
     // update   
@@ -48,12 +49,15 @@ class Predict_IO extends Bundle{
 
 import PRED_Config._
 class Predict extends Module{
+    
     val io = IO(new Predict_IO)
+    val FRONT_LOG2 = log2Ceil(FRONT_WIDTH)
+    val PC_BEGIN = 2 + FRONT_LOG2
 
-    val btb_tagv    = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
-    val btb_targ    = VecInit(Seq.fill(4)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(30+2, BTB_DEPTH)).io))
-    val bht         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W))))))
-    val pht         = RegInit(VecInit(Seq.fill(4)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W))))))
+    val btb_tagv    = VecInit(Seq.fill(FRONT_WIDTH)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
+    val btb_targ    = VecInit(Seq.fill(FRONT_WIDTH)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(30+2, BTB_DEPTH)).io))
+    val bht         = RegInit(VecInit(Seq.fill(FRONT_WIDTH)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W))))))
+    val pht         = RegInit(VecInit(Seq.fill(FRONT_WIDTH)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W))))))
 
     val ras         = RegInit(VecInit(Seq.fill(8)(0x1c000000.U(32.W))))
     val top         = RegInit(0.U(3.W))
@@ -62,45 +66,44 @@ class Predict extends Module{
     val npc             = io.npc
     val pc              = io.pc
     val pc_cmt          = io.pc_cmt
-    val cmt_col         = pc_cmt(3, 2)
+    val cmt_col         = pc_cmt(PC_BEGIN-1, 2)
     
-    val btb_rindex      = npc(4-1+BTB_INDEX_WIDTH, 4)
-    val btb_rdata       = Wire(Vec(4, new btb_t))
+    val btb_rindex      = npc(PC_BEGIN+BTB_INDEX_WIDTH-1, PC_BEGIN)
+    val btb_rdata       = Wire(Vec(FRONT_WIDTH, new btb_t))
 
-    val bht_rindex      = VecInit.tabulate(4)(i => pc(4-1+BHT_INDEX_WIDTH, 4))
-    val bht_rdata       = VecInit.tabulate(4)(i => bht(i)(bht_rindex(i)))
+    val bht_rindex      = VecInit.tabulate(FRONT_WIDTH)(i => pc(PC_BEGIN+BHT_INDEX_WIDTH-1, PC_BEGIN))
+    val bht_rdata       = VecInit.tabulate(FRONT_WIDTH)(i => bht(i)(bht_rindex(i)))
 
-    val pht_rindex      = VecInit.tabulate(4)(i => (bht_rdata(i) ^ pc(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## pc(PHT_INDEX_WIDTH-1, 4))
-    val pht_rdata       = VecInit.tabulate(4)(i => pht(i)(pht_rindex(i)))
+    val pht_rindex      = VecInit.tabulate(FRONT_WIDTH)(i => (bht_rdata(i) ^ pc(PHT_INDEX_WIDTH-4+PC_BEGIN+3, PHT_INDEX_WIDTH-4+PC_BEGIN)) ## pc(PHT_INDEX_WIDTH-4+PC_BEGIN-1, PC_BEGIN))
+    val pht_rdata       = VecInit.tabulate(FRONT_WIDTH)(i => pht(i)(pht_rindex(i)))
 
-    val predict_valid   = VecInit.tabulate(4)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
-    val predict_jump    = VecInit.tabulate(4)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && predict_valid(i))
+    val predict_valid   = VecInit.tabulate(FRONT_WIDTH)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
+    val predict_jump    = VecInit.tabulate(FRONT_WIDTH)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && predict_valid(i))
 
-    val valid_mask      = (15.U(4.W) << pc(3, 2))(3, 0)
-    val pred_hit        = VecInit.tabulate(4)(i => predict_jump(i) && valid_mask(i))
-    val pred_valid_hit  = VecInit.tabulate(4)(i => predict_valid(i) && valid_mask(i))
+    val valid_mask      = (((1 << FRONT_WIDTH)-1).U << pc(PC_BEGIN-1, 2))(FRONT_WIDTH-1, 0)
+    val pred_hit        = VecInit.tabulate(FRONT_WIDTH)(i => predict_jump(i) && valid_mask(i))
+    val pred_valid_hit  = VecInit.tabulate(FRONT_WIDTH)(i => predict_valid(i) && valid_mask(i))
 
     val pred_hit_index  = PriorityEncoder(pred_hit)
-    //val hit_index_raw   = pred_hit_index + pc(3, 2)
 
-    io.predict_jump     := (pred_hit.asUInt >> pc(3, 2)).asBools
-    io.pred_valid       := (pred_valid_hit.asUInt >> pc(3, 2)).asBools
+    io.predict_jump     := (pred_hit.asUInt >> pc(PC_BEGIN-1, 2)).asBools
+    io.pred_valid       := (pred_valid_hit.asUInt >> pc(PC_BEGIN-1, 2)).asBools
     io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === RET, ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
     
     // update
     val update_en       = io.update_en
     // btb
     val mask            = UIntToOH(cmt_col)
-    val btb_wdata       = Wire(Vec(4, new btb_t))
-    val btb_windex      = pc_cmt(4-1+BTB_INDEX_WIDTH, 4)
+    val btb_wdata       = Wire(Vec(FRONT_WIDTH, new btb_t))
+    val btb_windex      = pc_cmt(PC_BEGIN-1+BTB_INDEX_WIDTH, PC_BEGIN)
 
-    for (i <- 0 until 4){
+    for (i <- 0 until FRONT_WIDTH){
         btb_wdata(i).valid  := true.B
         btb_wdata(i).target := io.branch_target(31, 2)
         btb_wdata(i).tag    := pc_cmt(31, 32-BTB_TAG_WIDTH)
         btb_wdata(i).typ    := io.br_type
     }
-    for(i <- 0 until 4){
+    for(i <- 0 until FRONT_WIDTH){
         btb_tagv(i).addra   := btb_windex
         btb_tagv(i).addrb   := btb_rindex
         btb_tagv(i).dina    := btb_wdata(i).valid ## btb_wdata(i).tag
@@ -109,7 +112,7 @@ class Predict extends Module{
         btb_rdata(i).valid  := btb_tagv(i).doutb(BTB_TAG_WIDTH)
         btb_rdata(i).tag    := btb_tagv(i).doutb(BTB_TAG_WIDTH-1, 0)
     }
-    for(i <- 0 until 4){
+    for(i <- 0 until FRONT_WIDTH){
         btb_targ(i).addra   := btb_windex
         btb_targ(i).addrb   := btb_rindex
         btb_targ(i).dina    := btb_wdata(i).target ## btb_wdata(i).typ
@@ -120,14 +123,14 @@ class Predict extends Module{
     }
 
     // bht
-    val bht_windex = pc_cmt(4-1+BHT_INDEX_WIDTH, 4)
+    val bht_windex = pc_cmt(PC_BEGIN-1+BHT_INDEX_WIDTH, PC_BEGIN)
     val bht_wdata = io.real_jump
     when(update_en){
         bht(cmt_col)(bht_windex) := bht_wdata ## bht(cmt_col)(bht_windex)(3, 1)
     }
 
     // pht
-    val pht_windex = (bht(cmt_col)(bht_windex) ^ pc_cmt(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## pc_cmt(PHT_INDEX_WIDTH-1, 4)
+    val pht_windex = (bht(cmt_col)(bht_windex) ^ pc_cmt(PHT_INDEX_WIDTH-4+PC_BEGIN+3, PHT_INDEX_WIDTH-4+PC_BEGIN)) ## pc_cmt(PHT_INDEX_WIDTH-4+PC_BEGIN-1, PC_BEGIN)//(bht(cmt_col)(bht_windex) ^ pc_cmt(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## pc_cmt(PHT_INDEX_WIDTH-1, 4)
     val pht_raw_rdata = pht(cmt_col)(pht_windex)
 
     when(update_en){
@@ -147,7 +150,7 @@ class Predict extends Module{
         }
     }.elsewhen((btb_rdata(pred_hit_index).typ === BL || btb_rdata(pred_hit_index).typ === ICALL) && pred_valid_hit(pred_hit_index)){
             top             := top + 1.U
-            ras(top)        := ((pc(31, 4) ## pred_hit_index(1, 0)) + 1.U) ## 0.U(2.W)
+            ras(top)        := ((pc(31, PC_BEGIN) ## pred_hit_index(FRONT_LOG2-1, 0)) + 1.U) ## 0.U(2.W)
     }.elsewhen(btb_rdata(pred_hit_index).typ === RET && pred_valid_hit(pred_hit_index)){
             top             := top - 1.U
     }

@@ -1,5 +1,6 @@
 import chisel3._
 import chisel3.util._
+import CPU_Config._
 
 object ICache_Config{
     val INDEX_WIDTH = 6
@@ -24,7 +25,7 @@ class ICache_IO extends Bundle{
 
     // RM Stage
     val cache_miss_RM   = Output(Bool())
-    val rdata_RM        = Output(Vec(4, UInt(32.W)))
+    val rdata_RM        = Output(Vec(FRONT_WIDTH, UInt(32.W)))
 
     // control
     val stall           = Input(Bool())
@@ -128,7 +129,7 @@ class ICache extends Module{
     val block_offset    = offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(5.W)
     val cmem_rdata_RM   = (cmem(hit_index_RM).douta >> block_offset)(127, 0)
     val rbuf_rdata_RM   = (ret_buf >> block_offset)(127, 0)
-    val rdata_RM        = VecInit.tabulate(4)(i => (Mux(data_sel === FROM_CMEM, cmem_rdata_RM(32*i+31, 32*i), rbuf_rdata_RM(32*i+31, 32*i))))
+    val rdata_RM        = VecInit.tabulate(FRONT_WIDTH)(i => (Mux(data_sel === FROM_CMEM, cmem_rdata_RM(32*i+31, 32*i), rbuf_rdata_RM(32*i+31, 32*i))))
 
     /* return buffer update logic */
     when(io.i_rready){

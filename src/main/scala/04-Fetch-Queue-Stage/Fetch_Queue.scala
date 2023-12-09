@@ -1,6 +1,7 @@
 import chisel3._
 import chisel3.util._
 import Inst_Pack._
+import CPU_Config._
 // LUT: 1886 FF: 1042
 
 object Fetch{
@@ -12,11 +13,11 @@ object Fetch{
 }
 
 class Fetch_Queue_IO extends Bundle{
-    val insts_pack          = Input(Vec(4, new inst_pack_PD_t))
+    val insts_pack          = Input(Vec(FRONT_WIDTH, new inst_pack_PD_t))
 
     val next_ready          = Input(Bool())
-    val insts_valid_decode  = Output(Vec(4, Bool()))
-    val insts_pack_id       = Output(Vec(4, new inst_pack_PD_t))
+    val insts_valid_decode  = Output(Vec(FRONT_WIDTH, Bool()))
+    val insts_pack_id       = Output(Vec(FRONT_WIDTH, new inst_pack_PD_t))
     
 
     val full                = Output(Bool())
@@ -27,8 +28,8 @@ class Fetch_Queue extends Module{
     val io = IO(new Fetch_Queue_IO)
 
     /* config */
-    val num_entries = 32
-    val fetch_width = 4
+    val num_entries = 16
+    val fetch_width = FRONT_WIDTH
     val row_width = num_entries / fetch_width
     val queue = RegInit(VecInit(Seq.fill(fetch_width)(VecInit(Seq.fill(row_width)(0.U.asTypeOf(new inst_pack_PD_t))))))
 

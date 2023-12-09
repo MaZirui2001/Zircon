@@ -29,11 +29,11 @@ object Issue_Queue_Pack{
 import Issue_Queue_Pack._
 class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle{
     // input from dispatch
-    val insts_disp_index = Input(Vec(4, UInt(2.W)))
-    val insts_disp_valid = Input(Vec(4, Bool()))
-    val insts_dispatch   = Input(Vec(4, inst_pack_t))
-    val prj_ready        = Input(Vec(4, Bool()))
-    val prk_ready        = Input(Vec(4, Bool()))
+    val insts_disp_index = Input(Vec(FRONT_WIDTH, UInt(2.W)))
+    val insts_disp_valid = Input(Vec(FRONT_WIDTH, Bool()))
+    val insts_dispatch   = Input(Vec(FRONT_WIDTH, inst_pack_t))
+    val prj_ready        = Input(Vec(FRONT_WIDTH, Bool()))
+    val prk_ready        = Input(Vec(FRONT_WIDTH, Bool()))
     val queue_ready      = Output(Bool())
 
     // input from wakeup
@@ -70,7 +70,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
     val empty           = tail === 0.U
     val insert_num      = PopCount(io.insts_disp_valid)
     val tail_pop        = tail - io.issue_ack.exists(_ === true.B)
-    val full            = tail > (n-4).U
+    val full            = tail > (n-FRONT_WIDTH).U
     
 
     val insts_dispatch  = io.insts_dispatch

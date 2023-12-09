@@ -2,27 +2,28 @@ import chisel3._
 import chisel3.util._
 import Inst_Pack._
 import Control_Signal._
+import CPU_Config._
 
 class Dispatch_IO(n: Int) extends Bundle{
-    val inst_packs          = Input(Vec(4, new inst_pack_RN_t))
+    val inst_packs          = Input(Vec(FRONT_WIDTH, new inst_pack_RN_t))
     // elem num in alu issue queues
     val elem_num            = Input(Vec(3, UInt((log2Ceil(n)+1).W)))
 
     // output for each issue queue
-    val insts_disp_index    = Output(Vec(5, Vec(4, UInt(3.W))))
-    val insts_disp_valid    = Output(Vec(5, Vec(4, Bool())))
+    val insts_disp_index    = Output(Vec(5, Vec(FRONT_WIDTH, UInt(3.W))))
+    val insts_disp_valid    = Output(Vec(5, Vec(FRONT_WIDTH, Bool())))
 }
 
 class Dispatch extends Module{
     val io = IO(new Dispatch_IO(8))
 
-    val queue_id_hit    = Wire(Vec(4, UInt(5.W)))
+    val queue_id_hit    = Wire(Vec(FRONT_WIDTH, UInt(5.W)))
     val fu_ids          = io.inst_packs.map(_.fu_id)
     var fu1_num         = io.elem_num(0)
     var fu2_num         = io.elem_num(1)
     var fu3_num         = io.elem_num(2)
     val min             = Mux(fu1_num <= fu2_num, Mux(fu1_num <= fu3_num, 0.U, 2.U), Mux(fu2_num <= fu3_num, 1.U, 2.U))
-    for(i <- 0 until 4){
+    for(i <- 0 until FRONT_WIDTH){
         // val fu1_next_num    = Wire(UInt((log2Ceil(8)+1).W))
         // val fu2_next_num    = Wire(UInt((log2Ceil(8)+1).W))
         // val fu3_next_num    = Wire(UInt((log2Ceil(8)+1).W))
@@ -38,9 +39,9 @@ class Dispatch extends Module{
     
     // alloc insts to issue queue, pressed
     io.insts_disp_index     := DontCare
-    io.insts_disp_valid     := VecInit(Seq.fill(5)(VecInit(Seq.fill(4)(false.B))))
+    io.insts_disp_valid     := VecInit(Seq.fill(5)(VecInit(Seq.fill(FRONT_WIDTH)(false.B))))
     var alloc_index         = VecInit(Seq.fill(5)(0.U(2.W)))
-    for(i <- 0 until 4){
+    for(i <- 0 until FRONT_WIDTH){
         var next_alloc_index = Wire(Vec(5, UInt(2.W)))
         for(j <- 0 until 5){
             when(queue_id_hit(i)(j)){
