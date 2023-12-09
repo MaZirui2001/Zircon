@@ -2,7 +2,7 @@ import chisel3._
 import chisel3.util._
 import CPU_Config._
 object PRED_Config{
-    val BTB_INDEX_WIDTH     = 8
+    val BTB_INDEX_WIDTH     = 7
     val BTB_TAG_WIDTH       = 28 - BTB_INDEX_WIDTH
     val BTB_DEPTH           = 1 << BTB_INDEX_WIDTH
     class btb_t extends Bundle{
@@ -11,7 +11,7 @@ object PRED_Config{
         val tag         = UInt(BTB_TAG_WIDTH.W)
         val typ         = UInt(2.W)
     }
-    val BHT_INDEX_WIDTH = 7
+    val BHT_INDEX_WIDTH = 6
     val BHT_DEPTH       = 1 << BHT_INDEX_WIDTH
     val PHT_INDEX_WIDTH = 7
     val PHT_DEPTH       = 1 << PHT_INDEX_WIDTH
@@ -40,6 +40,7 @@ class Predict_IO extends Bundle{
 
     // recover 
     val top_arch            = Input(UInt(3.W))
+    val ras_arch            = Input(Vec(8, UInt(32.W)))
     val predict_fail        = Input(Bool())
     val pd_pred_fix         = Input(Bool())
     val pd_pred_fix_is_bl   = Input(Bool())
@@ -130,7 +131,7 @@ class Predict extends Module{
     }
 
     // pht
-    val pht_windex = (bht(cmt_col)(bht_windex) ^ pc_cmt(PHT_INDEX_WIDTH-4+PC_BEGIN+3, PHT_INDEX_WIDTH-4+PC_BEGIN)) ## pc_cmt(PHT_INDEX_WIDTH-4+PC_BEGIN-1, PC_BEGIN)//(bht(cmt_col)(bht_windex) ^ pc_cmt(PHT_INDEX_WIDTH+3, PHT_INDEX_WIDTH)) ## pc_cmt(PHT_INDEX_WIDTH-1, 4)
+    val pht_windex = (bht(cmt_col)(bht_windex) ^ pc_cmt(PHT_INDEX_WIDTH-4+PC_BEGIN+3, PHT_INDEX_WIDTH-4+PC_BEGIN)) ## pc_cmt(PHT_INDEX_WIDTH-4+PC_BEGIN-1, PC_BEGIN)
     val pht_raw_rdata = pht(cmt_col)(pht_windex)
 
     when(update_en){
@@ -142,6 +143,7 @@ class Predict extends Module{
     // RAS
     when(io.predict_fail){
         top := io.top_arch
+        ras := io.ras_arch
     }
     .elsewhen(io.pd_pred_fix){
         when(io.pd_pred_fix_is_bl){
@@ -149,10 +151,10 @@ class Predict extends Module{
             ras(top)    := io.pd_pc_plus_4
         }
     }.elsewhen((btb_rdata(pred_hit_index).typ === BL || btb_rdata(pred_hit_index).typ === ICALL) && pred_valid_hit(pred_hit_index)){
-            top             := top + 1.U
-            ras(top)        := ((pc(31, PC_BEGIN) ## pred_hit_index(FRONT_LOG2-1, 0)) + 1.U) ## 0.U(2.W)
+        top             := top + 1.U
+        ras(top)        := ((pc(31, PC_BEGIN) ## pred_hit_index(FRONT_LOG2-1, 0)) + 1.U) ## 0.U(2.W)
     }.elsewhen(btb_rdata(pred_hit_index).typ === RET && pred_valid_hit(pred_hit_index)){
-            top             := top - 1.U
+        top             := top - 1.U
     }
 
     // when(io.ras_update_en && io.br_type === RET){

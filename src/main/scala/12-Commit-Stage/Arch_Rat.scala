@@ -19,7 +19,9 @@ class Arch_Rat_IO(n: Int) extends Bundle {
     // for ras
     val top_arch            = Output(UInt(3.W))
     val br_type_pred_cmt    = Input(UInt(2.W))
+    val pc_cmt              = Input(UInt(32.W))
     val pred_update_en_cmt  = Input(Bool())
+    val ras_arch            = Output(Vec(8, UInt(32.W)))
 }
 
 class Arch_Rat(n: Int) extends Module {
@@ -49,14 +51,22 @@ class Arch_Rat(n: Int) extends Module {
     // ras
     val top = RegInit(0.U(3.W))
     val top_next = Wire(UInt(3.W))
+    val ras = RegInit(VecInit(Seq.fill(8)(0x1c000000.U(32.W))))
+    val ras_next = Wire(Vec(8, UInt(32.W)))
     top_next := top
+    ras_next := ras
     when(io.br_type_pred_cmt === RET && io.pred_update_en_cmt){
         top_next := top - 1.U
     }.elsewhen((io.br_type_pred_cmt === BL || io.br_type_pred_cmt === ICALL) && io.pred_update_en_cmt){
         top_next := top + 1.U
+        ras_next(top) := io.pc_cmt + 4.U
     }
     top := top_next
+    ras := ras_next
     io.top_arch := top_next
+    io.ras_arch := ras_next
+
     io.arch_rat := arat
     io.head_arch := head
+
 }

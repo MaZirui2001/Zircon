@@ -210,6 +210,7 @@ class CPU extends Module {
     predict.io.pd_pred_fix_is_bl    := pf_reg.io.pred_fix_is_bl_FQ
     predict.io.pd_pc_plus_4         := pf_reg.io.pred_fix_pc_plus_4_FQ
     predict.io.pc_stall             := pc.io.pc_stall
+    predict.io.ras_arch             := arat.io.ras_arch
 
     /* ---------- PF-IF SegReg ---------- */
     val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U, pc.io.pc_PF+8.U, pc.io.pc_PF+12.U)
@@ -670,6 +671,7 @@ class CPU extends Module {
     arat.io.predict_fail        := rob.io.predict_fail_cmt(9)
     arat.io.br_type_pred_cmt    := rob.io.br_type_pred_cmt
     arat.io.pred_update_en_cmt  := rob.io.pred_update_en_cmt
+    arat.io.pc_cmt              := rob.io.pred_pc_cmt
 
     // arbiter
     arb.io.i_araddr             := icache.io.i_araddr
