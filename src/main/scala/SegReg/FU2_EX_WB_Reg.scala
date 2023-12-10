@@ -4,17 +4,17 @@ import chisel3.util._
 import Inst_Pack._
 
 class FU2_EX_WB_Reg extends Module {
-  val io = IO(new Bundle {
-    val flush = Input(Bool())
-    val stall = Input(Bool())
-    val inst_pack_EX = Input(new inst_pack_IS_FU2_t)
-    val alu_out_EX = Input(UInt(32.W))
-    val csr_wdata_EX = Input(UInt(32.W))
-
-    val inst_pack_WB = Output(new inst_pack_IS_FU2_t)
-    val alu_out_WB = Output(UInt(32.W))
-    val csr_wdata_WB = Output(UInt(32.W))
-  })
+    val io = IO(new Bundle {
+        val flush = Input(Bool())
+        val stall = Input(Bool())
+        val inst_pack_EX = Input(new inst_pack_IS_FU2_t)
+        val alu_out_EX = Input(UInt(32.W))
+        val csr_wdata_EX = Input(UInt(32.W))
+      
+        val inst_pack_WB = Output(new inst_pack_IS_FU2_t)
+        val alu_out_WB = Output(UInt(32.W))
+        val csr_wdata_WB = Output(UInt(32.W))
+    })
 
     val inst_pack_reg = RegInit(0.U.asTypeOf(new inst_pack_IS_FU2_t))
     val alu_out_reg = RegInit(0.U(32.W))

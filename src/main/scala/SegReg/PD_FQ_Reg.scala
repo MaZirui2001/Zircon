@@ -48,7 +48,3 @@ class PD_FQ_Reg extends Module {
     io.pred_fix_is_bl_FQ  := pred_fix_is_bl_reg
     io.pred_fix_pc_plus_4_FQ := pred_fix_pc_plus_4_reg
 }
-
-// object IF_FQ_Reg extends App {
-//     emitVerilog(new IF_FQ_Reg, Array("-td", "build/"))
-// }

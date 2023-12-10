@@ -3,24 +3,24 @@ import chisel3.util._
 import Inst_Pack._
 
 class LS_EX_MEM_Reg extends Module {
-  val io = IO(new Bundle {
-    val flush = Input(Bool())
-    val stall = Input(Bool())
-    val inst_pack_EX = Input(new inst_pack_IS_LS_t)
-    val sb_hit_EX   = Input(Vec(4, Bool()))
-    val sb_rdata_EX = Input(UInt(32.W))
-    val sb_st_cmt_valid_EX = Input(Bool())
-    val is_ucread_EX   = Input(Bool())
-    val mem_type_EX = Input(UInt(5.W))
+    val io = IO(new Bundle {
+        val flush = Input(Bool())
+        val stall = Input(Bool())
+        val inst_pack_EX = Input(new inst_pack_IS_LS_t)
+        val sb_hit_EX   = Input(Vec(4, Bool()))
+        val sb_rdata_EX = Input(UInt(32.W))
+        val sb_st_cmt_valid_EX = Input(Bool())
+        val is_ucread_EX   = Input(Bool())
+        val mem_type_EX = Input(UInt(5.W))
 
-    val inst_pack_MEM = Output(new inst_pack_IS_LS_t)
+        val inst_pack_MEM = Output(new inst_pack_IS_LS_t)
 
-    val sb_hit_MEM   = Output(Vec(4, Bool()))
-    val sb_rdata_MEM = Output(UInt(32.W))
-    val sb_st_cmt_valid_MEM = Output(Bool())
-    val is_ucread_MEM = Output(Bool())
-    val mem_type_MEM = Output(UInt(5.W))
-  })
+        val sb_hit_MEM   = Output(Vec(4, Bool()))
+        val sb_rdata_MEM = Output(UInt(32.W))
+        val sb_st_cmt_valid_MEM = Output(Bool())
+        val is_ucread_MEM = Output(Bool())
+        val mem_type_MEM = Output(UInt(5.W))
+    })
 
     val inst_pack_reg = RegInit(0.U.asTypeOf(new inst_pack_IS_LS_t))
 

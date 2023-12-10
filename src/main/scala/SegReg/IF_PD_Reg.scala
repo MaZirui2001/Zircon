@@ -23,7 +23,3 @@ class IF_PD_Reg extends Module {
     }
     io.insts_pack_PD := insts_pack_reg
 }
-
-// object IF_FQ_Reg extends App {
-//     emitVerilog(new IF_FQ_Reg, Array("-td", "build/"))
-// }
