@@ -28,36 +28,34 @@ class Fetch_Queue extends Module{
     val io = IO(new Fetch_Queue_IO)
 
     /* config */
-    val num_entries = 16
-    val fetch_width = FRONT_WIDTH
-    val row_width = num_entries / fetch_width
-    val queue = RegInit(VecInit(Seq.fill(fetch_width)(VecInit(Seq.fill(row_width)(0.U.asTypeOf(new inst_pack_PD_t))))))
+    val ROW_WIDTH = FQ_NUM / FRONT_WIDTH
+    val queue = RegInit(VecInit(Seq.fill(FRONT_WIDTH)(VecInit(Seq.fill(ROW_WIDTH)(0.U.asTypeOf(new inst_pack_PD_t))))))
 
-    val head = RegInit(0.U(log2Ceil(row_width).W))
-    val tail = RegInit(0.U(log2Ceil(num_entries).W))
+    val head = RegInit(0.U(log2Ceil(ROW_WIDTH).W))
+    val tail = RegInit(0.U(log2Ceil(FQ_NUM).W))
 
-    val full  = head === tail(log2Ceil(num_entries)-1, log2Ceil(fetch_width)) + 1.U
-    val empty = head === tail(log2Ceil(num_entries)-1, log2Ceil(fetch_width))
+    val full  = head === tail(log2Ceil(FQ_NUM)-1, log2Ceil(FRONT_WIDTH)) + 1.U
+    val empty = head === tail(log2Ceil(FQ_NUM)-1, log2Ceil(FRONT_WIDTH))
 
 
     // Enqueue
     io.full := full
 
     // calculate the entry index for each instruction
-    val entry_idxs = Wire(Vec(fetch_width, UInt(log2Ceil(num_entries).W)))
+    val entry_idxs = Wire(Vec(FRONT_WIDTH, UInt(log2Ceil(FQ_NUM).W)))
     var entry_index = tail
-    for(i <- 0 until fetch_width){
+    for(i <- 0 until FRONT_WIDTH){
         entry_idxs(i) := entry_index
         entry_index = Mux(io.insts_pack(i).inst_valid, entry_index + 1.U, entry_index)
     }
     // write to queue
-    for(i <- 0 until fetch_width){
+    for(i <- 0 until FRONT_WIDTH){
         when(!full && io.insts_pack(i).inst_valid){
-            queue(entry_idxs(i)(log2Ceil(fetch_width)-1, 0))(entry_idxs(i)(log2Ceil(num_entries)-1, log2Ceil(fetch_width))) := io.insts_pack(i)
+            queue(entry_idxs(i)(log2Ceil(FRONT_WIDTH)-1, 0))(entry_idxs(i)(log2Ceil(FQ_NUM)-1, log2Ceil(FRONT_WIDTH))) := io.insts_pack(i)
         }
     }
     // Dequeue
-    for(i <- 0 until fetch_width){
+    for(i <- 0 until FRONT_WIDTH){
         io.insts_pack_id(i) := queue(i)(head)
         io.insts_valid_decode(i) := !empty
     }
