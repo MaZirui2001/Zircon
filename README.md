@@ -10,11 +10,15 @@
 
 该流水线当前支持的指令有：
 
-- 算数运算类指令：`ADD.W`, `SUB.W`, `ADDI.W`, `LU12I.W`, `SLT[U]`, `SLT[U]I`, `PCADDU12I`, `AND`, `OR`, `NOR`, `XOR`, `ANDI`, `ORI`, `XORI`, `MUL.W`, `MULH.W[U]`, `DIV.W[U]`, `MOD.W[U]`
-- 移位运算类指令：`SLL.W`, `SRL.W`, `SRA.W`, `SLLI.W`, `SRLI.W`, `SRAI.W`
-- 转移指令：`BEQ`, `BNE`, `BLT[U]`, `BGE[U]`, `B`, `BL`, `JIRL`
-- 普通访存指令：`LD.B`, `LD.H`, `LD.W`, `LD.BU`, `LD.HU`, `ST.B`, `ST.H`, `ST.W`
-- CSR访问指令：`CSRRD`, `CSRWR`, `CSRXCHG`
+* 非特权架构：
+    - 算数运算类指令：`ADD.W`, `SUB.W`, `ADDI.W`, `LU12I.W`, `SLT[U]`, `SLT[U]I`, `PCADDU12I`, `AND`, `OR`, `NOR`, `XOR`, `ANDI`, `ORI`, `XORI`, `MUL.W`, `MULH.W[U]`, `DIV.W[U]`, `MOD.W[U]`
+    - 移位运算类指令：`SLL.W`, `SRL.W`, `SRA.W`, `SLLI.W`, `SRLI.W`, `SRAI.W`
+    - 转移指令：`BEQ`, `BNE`, `BLT[U]`, `BGE[U]`, `B`, `BL`, `JIRL`
+    - 普通访存指令：`LD.B`, `LD.H`, `LD.W`, `LD.BU`, `LD.HU`, `ST.B`, `ST.H`, `ST.W`
+    - 其他杂项指令：`RDCNTVL.W`, `RDCNTVH.W`, `RDCNTID`
+
+* 特权架构：
+    - CSR访问指令：`CSRRD`, `CSRWR`, `CSRXCHG`
 
 计划实现的其他指令有：
 
@@ -23,7 +27,7 @@
     - 普通访存指令：`PRELD`
     - 原子访存指令：`LL.W`, `SC.W`
     - 栅障指令：`DBAR`, `IBAR`
-    - 其他杂项指令：`SYSCALL`, `BREAK`, `RDCNTVL.W`, `RDCNTVH.W`, `RDCNTID`
+    - 其他杂项指令：`SYSCALL`, `BREAK`
 
 * 特权架构：
   
