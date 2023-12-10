@@ -12,7 +12,7 @@ object CPU_Config{
     val IQ_AR_NUM   = 6
     val IQ_AP_NUM   = 6
     val IQ_AB_NUM   = 6
-    val IQ_MD_NUM   = 4
+    val IQ_MD_NUM   = 6
     val IQ_LS_NUM   = 6
 }
 // object CPU_Config{
