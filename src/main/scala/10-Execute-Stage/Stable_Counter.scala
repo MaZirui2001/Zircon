@@ -7,4 +7,5 @@ class Stable_Counter extends Module{
     })
     val counter = RegInit(0.U(64.W))
     counter := counter + 1.U
+    io.value := counter
 }

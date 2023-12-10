@@ -150,6 +150,7 @@ class CPU extends Module {
     /* Regfile Read Stage */
     val rf              = Module(new Physical_Regfile(PREG_NUM))
     val csr_rf          = Module(new CSR_Regfile(5, 20, 30))
+    val stable_cnt      = Module(new Stable_Counter)
 
     val re_reg1         = Module(new RF_EX_Reg(new inst_pack_IS_FU1_t))
     val re_reg2         = Module(new RF_EX_Reg(new inst_pack_IS_FU2_t))
@@ -519,6 +520,7 @@ class CPU extends Module {
         RS2_IMM     -> re_reg1.io.inst_pack_EX.imm,
         RS2_FOUR    -> 4.U)
     )
+    alu1.io.scnt_val := stable_cnt.io.value
     
     // 2. arith common fu2
     // ALU
@@ -533,6 +535,7 @@ class CPU extends Module {
         RS2_IMM     -> re_reg2.io.inst_pack_EX.imm,
         RS2_CSR     -> re_reg2.io.csr_rdata_EX)
     )
+    alu2.io.scnt_val := DontCare
     // CSR 
     val csr_op = re_reg2.io.inst_pack_EX.priv_vec(2)
     val csr_src1 = Mux(bypass123.io.forward_prj_en(1), bypass123.io.forward_prj_data(1), re_reg2.io.src1_EX)
@@ -552,6 +555,7 @@ class CPU extends Module {
         RS2_IMM     -> re_reg3.io.inst_pack_EX.imm,
         RS2_FOUR    -> 4.U)
     )
+    alu3.io.scnt_val := DontCare
 
     // Branch
     br.io.br_type               := re_reg3.io.inst_pack_EX.br_type
@@ -626,6 +630,7 @@ class CPU extends Module {
     ew_reg1.io.stall                := false.B
     ew_reg1.io.inst_pack_EX         := re_reg1.io.inst_pack_EX
     ew_reg1.io.alu_out_EX           := alu1.io.alu_out
+    ew_reg1.io.is_ucread_EX         := re_reg1.io.inst_pack_EX.alu_op === ALU_CNTH || re_reg1.io.inst_pack_EX.alu_op === ALU_CNTL
 
     ew_reg2.io.flush                := rob.io.predict_fail_cmt(9)
     ew_reg2.io.stall                := false.B
@@ -644,7 +649,7 @@ class CPU extends Module {
     ew_reg4.io.flush                := rob.io.predict_fail_cmt(9) || mdu.io.busy
     ew_reg4.io.stall                := false.B
     ew_reg4.io.inst_pack_EX         := md_ex1_ex2_reg.io.inst_pack_EX2
-    ew_reg4.io.md_out_EX            := Mux(md_ex1_ex2_reg.io.inst_pack_EX2.alu_op <= 13.U, mdu.io.mul_out, mdu.io.div_out)
+    ew_reg4.io.md_out_EX            := Mux(md_ex1_ex2_reg.io.inst_pack_EX2.alu_op <= 15.U, mdu.io.mul_out, mdu.io.div_out)
 
     ew_reg5.io.flush                := rob.io.predict_fail_cmt(9) || dcache.io.cache_miss_MEM
     ew_reg5.io.stall                := false.B  
@@ -660,7 +665,7 @@ class CPU extends Module {
     rob.io.real_jump_wb         := VecInit(false.B, false.B, ew_reg3.io.real_jump_WB, false.B, false.B)
     rob.io.branch_target_wb     := VecInit(DontCare, ew_reg2.io.csr_wdata_WB, ew_reg3.io.branch_target_WB, DontCare, DontCare)
     rob.io.rf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.alu_out_WB, ew_reg4.io.md_out_WB, ew_reg5.io.mem_rdata_WB)
-    rob.io.is_ucread_wb         := VecInit(false.B, false.B, false.B, false.B, ew_reg5.io.is_ucread_WB)
+    rob.io.is_ucread_wb         := VecInit(ew_reg1.io.is_ucread_WB, false.B, false.B, false.B, ew_reg5.io.is_ucread_WB)
     
     /* ---------- 11. Commit Stage ---------- */
     // Arch Rat

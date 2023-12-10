@@ -18,13 +18,16 @@ object Control_Signal{
     val ALU_SLL     = 8.U(5.W)
     val ALU_SRL     = 9.U(5.W)
     val ALU_SRA     = 10.U(5.W)
-    val ALU_MUL     = 11.U(5.W)
-    val ALU_MULH    = 12.U(5.W)
-    val ALU_MULHU   = 13.U(5.W)
-    val ALU_DIV     = 14.U(5.W)
-    val ALU_MOD     = 15.U(5.W)
-    val ALU_DIVU    = 16.U(5.W)
-    val ALU_MODU    = 17.U(5.W)
+    val ALU_CNTL    = 11.U(5.W)
+    val ALU_CNTH    = 12.U(5.W)
+    val ALU_MUL     = 13.U(5.W)
+    val ALU_MULH    = 14.U(5.W)
+    val ALU_MULHU   = 15.U(5.W)
+    val ALU_DIV     = 16.U(5.W)
+    val ALU_MOD     = 17.U(5.W)
+    val ALU_DIVU    = 18.U(5.W)
+    val ALU_MODU    = 19.U(5.W)
+
 
     // alu_rs1_sel
     val RS1_REG  = 0.U(2.W)
@@ -36,7 +39,6 @@ object Control_Signal{
     val RS2_IMM  = 1.U(2.W)
     val RS2_FOUR = 2.U(2.W)
     val RS2_CSR  = 2.U(2.W)
-    val RS2_CNT  = 2.U(2.W)
 
     // br_type
     val NO_BR    = 0.U(4.W)
@@ -82,11 +84,12 @@ object Control_Signal{
     val ARITH    = 5.U(3.W)
 
     // rk_sel
-    val RD       = 0.U(1.W)
-    val RK       = 1.U(1.W)
+    val RD       = 0.U(2.W)
+    val RK       = 1.U(2.W)
 
     // rd_sel
-    val R1       = 1.U  (1.W)
+    val R1       = 1.U(2.W)
+    val RJ       = 2.U(2.W)
 
     // imm_type
     val IMM_00U   = 0.U(4.W)
@@ -107,6 +110,9 @@ object Control_Signal{
 
     val map = Array(
         //                  0| 1| 2| 3|         4|        5|       6|       7|        8|      9|         10|      11|      12|       13|       14
+        RDCNTIDW    -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   CSR,   RD,       RJ,      IMM_00U,  NOT_PRIV, FROM_TID,  Y),
+        RDCNTVLW    -> List(N, N, Y, ALU_CNTL,  RS1_ZERO, RS2_REG,  NO_BR,   NO_MEM,   RDCNT, RK,       RD,      IMM_00U,  NOT_PRIV, FROM_INST, Y),
+        RDCNTVHW    -> List(N, N, Y, ALU_CNTH,  RS1_ZERO, RS2_REG,  NO_BR,   NO_MEM,   RDCNT, RK,       RD,      IMM_00U,  NOT_PRIV, FROM_INST, Y),
         ADDW        -> List(Y, Y, Y, ALU_ADD,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK,       RD,      IMM_00U,  NOT_PRIV, FROM_INST, Y),
         SUBW        -> List(Y, Y, Y, ALU_SUB,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK,       RD,      IMM_00U,  NOT_PRIV, FROM_INST, Y),
         SLT         -> List(Y, Y, Y, ALU_SLT,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK,       RD,      IMM_00U,  NOT_PRIV, FROM_INST, Y),
