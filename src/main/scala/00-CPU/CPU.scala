@@ -204,7 +204,7 @@ class CPU extends Module {
     predict.io.real_jump            := rob.io.pred_real_jump_cmt
     predict.io.branch_target        := rob.io.pred_branch_target_cmt
     predict.io.update_en            := rob.io.pred_update_en_cmt
-    predict.io.br_type              := rob.io.br_type_pred_cmt
+    predict.io.br_type              := rob.io.pred_br_type_cmt
     predict.io.predict_fail         := rob.io.predict_fail_cmt(0)
     predict.io.top_arch             := arat.io.top_arch
     predict.io.pd_pred_fix          := pf_reg.io.pred_fix_FQ
@@ -217,7 +217,7 @@ class CPU extends Module {
     val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U, pc.io.pc_PF+8.U, pc.io.pc_PF+12.U)
     pi_reg.io.flush             := rob.io.predict_fail_cmt(0) || (!fq.io.full && pf_reg.io.pred_fix_FQ)
     pi_reg.io.stall             := fq.io.full || icache.io.cache_miss_RM
-    pi_reg.io.inst_pack_PF      := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i)))
+    pi_reg.io.inst_pack_PF      := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i), 0.U))
 
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
@@ -269,7 +269,7 @@ class CPU extends Module {
     dr_reg.io.stall          := rob.io.full || stall_by_iq
     dr_reg.io.insts_pack_ID  := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_ID_gen(fq.io.insts_pack_id(i), fq.io.insts_valid_decode(i), decode(i).rj, decode(i).rj_valid, decode(i).rk, decode(i).rk_valid, 
                                                                             decode(i).rd, decode(i).rd_valid, decode(i).imm, decode(i).alu_op, decode(i).alu_rs1_sel, decode(i).alu_rs2_sel, 
-                                                                            decode(i).br_type, decode(i).mem_type, decode(i).fu_id, decode(i).inst_exist, decode(i).priv_vec, decode(i).csr_addr))
+                                                                            decode(i).br_type, decode(i).mem_type, decode(i).fu_id, decode(i).priv_vec, decode(i).csr_addr, decode(i).exception))
     dr_reg.io.alloc_preg_ID  := free_list.io.alloc_preg
     /* ---------- 5. Rename Stage ---------- */
     // Rename
@@ -469,6 +469,9 @@ class CPU extends Module {
     csr_rf.io.wdata         := rob.io.csr_wdata_cmt
     csr_rf.io.waddr         := rob.io.csr_addr_cmt
     csr_rf.io.we            := rob.io.csr_we_cmt
+    csr_rf.io.exception     := rob.io.exception_cmt
+    csr_rf.io.is_eret       := rob.io.is_eret_cmt
+    csr_rf.io.pc_exp        := rob.io.pred_pc_cmt
 
     /* ---------- RF-EX SegReg ---------- */
     re_reg1.io.flush         := rob.io.predict_fail_cmt(8)
@@ -538,9 +541,10 @@ class CPU extends Module {
     alu2.io.scnt_val := DontCare
     // CSR 
     val csr_op = re_reg2.io.inst_pack_EX.priv_vec(2)
+    val is_mret = re_reg2.io.inst_pack_EX.priv_vec(3)
     val csr_src1 = Mux(bypass123.io.forward_prj_en(1), bypass123.io.forward_prj_data(1), re_reg2.io.src1_EX)
     val csr_src2 = Mux(bypass123.io.forward_prk_en(1), bypass123.io.forward_prk_data(1), re_reg2.io.src2_EX)
-    val csr_wdata = Mux(csr_op, csr_src1 & csr_src2 | ~csr_src1 & re_reg2.io.csr_rdata_EX,csr_src2)
+    val csr_wdata = Mux(is_mret, re_reg2.io.csr_rdata_EX, Mux(csr_op, csr_src1 & csr_src2 | ~csr_src1 & re_reg2.io.csr_rdata_EX,csr_src2))
 
     // 3. arith-branch fu
     // ALU
@@ -666,6 +670,8 @@ class CPU extends Module {
     rob.io.branch_target_wb     := VecInit(DontCare, ew_reg2.io.csr_wdata_WB, ew_reg3.io.branch_target_WB, DontCare, DontCare)
     rob.io.rf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.alu_out_WB, ew_reg4.io.md_out_WB, ew_reg5.io.mem_rdata_WB)
     rob.io.is_ucread_wb         := VecInit(ew_reg1.io.is_ucread_WB, false.B, false.B, false.B, ew_reg5.io.is_ucread_WB)
+    rob.io.exception_wb         := VecInit(ew_reg1.io.inst_pack_WB.exception, ew_reg2.io.inst_pack_WB.exception, ew_reg3.io.inst_pack_WB.exception, ew_reg4.io.inst_pack_WB.exception, ew_reg5.io.inst_pack_WB.exception)
+    rob.io.eentry_global        := csr_rf.io.eentry_global
     
     /* ---------- 11. Commit Stage ---------- */
     // Arch Rat
@@ -674,7 +680,7 @@ class CPU extends Module {
     arat.io.pprd_cmt            := rob.io.pprd_cmt
     arat.io.rd_valid_cmt        := rob.io.rd_valid_cmt
     arat.io.predict_fail        := rob.io.predict_fail_cmt(9)
-    arat.io.br_type_pred_cmt    := rob.io.br_type_pred_cmt
+    arat.io.br_type_pred_cmt    := rob.io.pred_br_type_cmt
     arat.io.pred_update_en_cmt  := rob.io.pred_update_en_cmt
     arat.io.pc_cmt              := rob.io.pred_pc_cmt
 

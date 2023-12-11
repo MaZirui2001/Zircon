@@ -9,26 +9,41 @@ class CSR_Regfile_IO extends Bundle{
     val waddr           = Input(UInt(14.W))
     val we              = Input(Bool())
     val wdata           = Input(UInt(32.W))
+
+    val exception       = Input(UInt(8.W))
+    val is_eret         = Input(Bool())
+    val pc_exp          = Input(UInt(32.W))
+
+    val eentry_global   = Output(UInt(32.W))
 }
 
 class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends Module{
-    val io = IO(new CSR_Regfile_IO)
-    val we = io.we
-    val waddr = io.waddr
-    val raddr = io.raddr
-    val wdata = io.wdata
+    val io          = IO(new CSR_Regfile_IO)
+    val we          = io.we
+    val waddr       = io.waddr
+    val raddr       = io.raddr
+    val wdata       = io.wdata
+    val exception   = io.exception
+    val is_eret     = io.is_eret
 
     val timer_int = RegInit(false.B)
 
     // CRMD：当前模式信息
     val crmd = RegInit(0.U(32.W))
-    when(we && waddr === CSR_CRMD){
+    val prmd = RegInit(0.U(32.W))
+    when(exception(7)){
+        crmd := crmd(31, 3) ## 0.U(3.W) 
+    }.elsewhen(is_eret){
+        crmd := crmd(31, 3) ## prmd(2, 0)
+    }.elsewhen(we && waddr === CSR_CRMD){
         crmd := 0.U(23.W) ## wdata(8, 0)
     }
     
     // PRMD：例外前模式信息
-    val prmd = RegInit(0.U(32.W))
-    when(we && waddr === CSR_PRMD){
+    
+    when(exception(7)){
+        prmd := prmd(31, 3) ## crmd(2, 0)
+    }.elsewhen(we && waddr === CSR_PRMD){
         prmd := 0.U(29.W) ## wdata(2, 0)
     }
 
@@ -46,13 +61,17 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
 
     // ESTAT：例外状态
     val estat = RegInit(0.U(32.W))
-    when(we && waddr === CSR_ESTAT){
+    when(exception(7)){
+        estat := estat(31) ## 0.U(8.W) ## exception(6, 0) ## estat(15, 0)
+    }.elsewhen(we && waddr === CSR_ESTAT){
         estat := 0.U(1.W) ## estat(30, 16) ## 0.U(3.W) ## estat(12, 11) ## 0.U(1.W) ## estat(9, 2) ## wdata(1, 0)
     }
 
     // ERA：例外返回地址
     val era = RegInit(0.U(32.W))
-    when(we && waddr === CSR_ERA){
+    when(exception(7)){
+        era := io.pc_exp
+    }.elsewhen(we && waddr === CSR_ERA){
         era := wdata
     }
 
@@ -65,7 +84,7 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
     // EENTRY：例外入口地址
     val eentry = RegInit(0.U(32.W))
     when(we && waddr === CSR_EENTRY){
-        eentry := wdata(31, 6) ## 0.U(5.W)
+        eentry := wdata(31, 6) ## 0.U(6.W)
     }
 
     // CPUID：处理器编号
@@ -236,6 +255,7 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
         is(CSR_TVAL)        { rdata := tval }
         is(CSR_TICLR)       { rdata := ticlr }
     }
-    io.rdata := rdata
+    io.rdata            := rdata
+    io.eentry_global    := eentry
 
 }

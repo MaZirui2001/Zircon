@@ -19,14 +19,13 @@ object ROB_Pack{
         val rf_wdata            = UInt(32.W)
         val is_store            = Bool()
         val is_ucread           = Bool()
-        val is_priv_wrt         = Bool() 
+        val is_priv_wrt         = Bool()
+        val exception           = UInt(8.W)
     }
     class priv_t(n: Int) extends Bundle{
         val valid = Bool()
-        val rob_index = UInt(log2Ceil(n).W)
         val priv_vec = UInt(4.W)
         val csr_addr = UInt(14.W)
-        val csr_wdata = UInt(32.W)
     }
 }
 class ROB_IO(n: Int) extends Bundle{
@@ -49,6 +48,7 @@ class ROB_IO(n: Int) extends Bundle{
     // for wb stage 
     val inst_valid_wb           = Input(Vec(5, Bool()))
     val rob_index_wb            = Input(Vec(5, UInt(log2Ceil(n).W)))
+    val exception_wb            = Input(Vec(5, UInt(8.W)))
     val is_ucread_wb            = Input(Vec(5, Bool()))
     val predict_fail_wb         = Input(Vec(5, Bool()))
     val real_jump_wb            = Input(Vec(5, Bool()))
@@ -57,7 +57,6 @@ class ROB_IO(n: Int) extends Bundle{
 
     // for cpu state: arch rat
     val cmt_en                  = Output(Vec(FRONT_WIDTH, Bool()))
-
     val prd_cmt                 = Output(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
     val rd_valid_cmt            = Output(Vec(FRONT_WIDTH, Bool()))
     val pprd_cmt                = Output(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
@@ -71,12 +70,17 @@ class ROB_IO(n: Int) extends Bundle{
     val pred_branch_target_cmt  = Output(UInt(32.W))
     val pred_pc_cmt             = Output(UInt(32.W))
     val pred_real_jump_cmt      = Output(Bool())
-    val br_type_pred_cmt        = Output(UInt(2.W))
+    val pred_br_type_cmt        = Output(UInt(2.W))
 
     // for csr write
     val csr_addr_cmt            = Output(UInt(14.W))
     val csr_wdata_cmt           = Output(UInt(32.W))
     val csr_we_cmt              = Output(Bool())
+
+    // for exception
+    val eentry_global           = Input(UInt(32.W))
+    val exception_cmt           = Output(UInt(8.W))
+    val is_eret_cmt             = Output(Bool())
 
     // diff
     val is_ucread_cmt           = Output(Vec(FRONT_WIDTH, Bool()))
@@ -138,7 +142,6 @@ class ROB(n: Int) extends Module{
             priv_buf.csr_addr  := io.csr_addr_dp(priv_index)
             priv_buf.priv_vec  := io.priv_vec_dp(priv_index)
             priv_buf.valid     := true.B
-            priv_buf.rob_index := tail ## priv_index(FRONT_LOG2-1, 0)
         }
 
     }
@@ -155,10 +158,8 @@ class ROB(n: Int) extends Module{
             rob(col_idx)(row_idx).rf_wdata        := io.rf_wdata_wb(i)
             rob(col_idx)(row_idx).real_jump       := io.real_jump_wb(i)
             rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
+            rob(col_idx)(row_idx).exception       := io.exception_wb(i)
         }
-    }
-    when(io.inst_valid_wb(1) && io.rob_index_wb(1) === priv_buf.rob_index){
-        priv_buf.csr_wdata := io.branch_target_wb(1)
     }
     
     // cmt stage
@@ -168,31 +169,32 @@ class ROB(n: Int) extends Module{
         cmt_en(i) := (cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete 
                         && !rob(hsel_idx(i-1))(head_idx(i-1)).pred_update_en 
                         && !rob(hsel_idx(i-1))(head_idx(i-1)).is_priv_wrt
+                        && !rob(hsel_idx(i-1))(head_idx(i-1)).exception(7)
                         && !empty(hsel_idx(i)))
     }
     io.cmt_en := ShiftRegister(cmt_en, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
     
-
     // update predict and ras
-    val update_ptr              = head + PopCount(cmt_en) - 1.U
-    val rob_update_item         = Mux(cmt_en(0) === false.B, 0.U.asTypeOf(new rob_t), rob(update_ptr(FRONT_LOG2-1, 0))(update_ptr(log2Ceil(n)-1, FRONT_LOG2)))
+    val update_ptr               = head + PopCount(cmt_en) - 1.U
+    val rob_update_item          = Mux(cmt_en(0) === false.B, 0.U.asTypeOf(new rob_t), rob(update_ptr(FRONT_LOG2-1, 0))(update_ptr(log2Ceil(n)-1, FRONT_LOG2)))
     
-
-    val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt
-    val branch_target_cmt        = Mux(rob_update_item.is_priv_wrt || !rob_update_item.real_jump, (rob_update_item.pc ## 0.U(2.W)) + 4.U, rob_update_item.branch_target)
+    val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.exception(7)
+    val branch_target_cmt        = Mux(rob_update_item.exception(7), io.eentry_global, Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.real_jump, rob_update_item.branch_target, (rob_update_item.pc ## 0.U(2.W)) + 4.U))
     val pred_update_en_cmt       = rob_update_item.pred_update_en
     val pred_branch_target_cmt   = rob_update_item.branch_target
-    val br_type_pred_cmt         = rob_update_item.br_type_pred
+    val pred_br_type_cmt         = rob_update_item.br_type_pred
     val pred_pc_cmt              = rob_update_item.pc ## 0.U(2.W)
     val pred_real_jump_cmt       = rob_update_item.real_jump
+    val exception_cmt            = rob_update_item.exception
 
     io.predict_fail_cmt         := ShiftRegister(VecInit.fill(10)(predict_fail_cmt).asUInt, 1, 0.U(10.W), true.B)
     io.branch_target_cmt        := ShiftRegister(branch_target_cmt, 1, 0.U(32.W), true.B)
     io.pred_update_en_cmt       := ShiftRegister(pred_update_en_cmt, 1, false.B, true.B)
     io.pred_branch_target_cmt   := ShiftRegister(pred_branch_target_cmt, 1, 0.U(32.W), true.B)
-    io.br_type_pred_cmt         := ShiftRegister(br_type_pred_cmt, 1, 0.U(2.W), true.B)
+    io.pred_br_type_cmt         := ShiftRegister(pred_br_type_cmt, 1, 0.U(2.W), true.B)
     io.pred_pc_cmt              := ShiftRegister(pred_pc_cmt, 1, 0x1c000000.U, true.B)
     io.pred_real_jump_cmt       := ShiftRegister(pred_real_jump_cmt, 1, false.B, true.B)
+    io.exception_cmt            := ShiftRegister(exception_cmt, 1, 0.U(8.W), true.B)
 
 
     // update store buffer
@@ -203,38 +205,18 @@ class ROB(n: Int) extends Module{
 
     // update csr file
     val csr_addr_cmt            = priv_buf.csr_addr
-    val csr_wdata_cmt           = priv_buf.csr_wdata
+    val csr_wdata_cmt           = rob_update_item.branch_target
     val csr_we_cmt              = rob_update_item.is_priv_wrt && priv_buf.priv_vec(2, 1).orR
+    val is_eret_cmt             = rob_update_item.is_priv_wrt && priv_buf.priv_vec(3)
 
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1, 0.U, true.B)
     io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1, 0.U, true.B)
     io.csr_we_cmt               := ShiftRegister(csr_we_cmt, 1, false.B, true.B)
+    io.is_eret_cmt              := ShiftRegister(is_eret_cmt, 1, false.B, true.B)
+
     when(io.predict_fail_cmt(0)){
         priv_buf.valid          := false.B
     }
-    
-    val rd_cmt                   = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rd)
-    val rd_valid_cmt             = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rd_valid)
-    val prd_cmt                  = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).prd)
-    val pprd_cmt                 = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).pprd)
-    val pc_cmt                   = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U))
-    val rf_wdata_cmt             = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rf_wdata)
-    val is_ucread_cmt            = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).is_ucread && cmt_en(i))
-    val csr_diff_addr_cmt        = VecInit.fill(FRONT_WIDTH)(priv_buf.csr_addr)
-    val csr_diff_wdata_cmt       = VecInit.fill(FRONT_WIDTH)(priv_buf.csr_wdata)
-    val csr_diff_we_cmt          = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
-
-    io.rd_valid_cmt             := ShiftRegister(rd_valid_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
-    io.rd_cmt                   := ShiftRegister(rd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(5.W))), true.B)
-    io.prd_cmt                  := ShiftRegister(prd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(log2Ceil(PREG_NUM).W))), true.B)
-    io.pprd_cmt                 := ShiftRegister(pprd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(log2Ceil(PREG_NUM).W))), true.B)
-    io.pc_cmt                   := ShiftRegister(pc_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
-    io.rf_wdata_cmt             := ShiftRegister(rf_wdata_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
-    io.is_ucread_cmt            := ShiftRegister(is_ucread_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
-    io.csr_diff_addr_cmt        := ShiftRegister(csr_diff_addr_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
-    io.csr_diff_wdata_cmt       := ShiftRegister(csr_diff_wdata_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
-    io.csr_diff_we_cmt          := ShiftRegister(csr_diff_we_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
-
     
     // update ptrs
     val cmt_num                 = PopCount(cmt_en)
@@ -248,6 +230,27 @@ class ROB(n: Int) extends Module{
 
 
     // stat
+    val rd_cmt                   = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rd)
+    val rd_valid_cmt             = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rd_valid)
+    val prd_cmt                  = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).prd)
+    val pprd_cmt                 = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).pprd)
+    val pc_cmt                   = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).exception(7), io.eentry_global, Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U)))
+    val rf_wdata_cmt             = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rf_wdata)
+    val is_ucread_cmt            = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).is_ucread && cmt_en(i))
+    val csr_diff_addr_cmt        = VecInit.fill(FRONT_WIDTH)(priv_buf.csr_addr)
+    val csr_diff_wdata_cmt       = VecInit.fill(FRONT_WIDTH)(rob_update_item.branch_target)
+    val csr_diff_we_cmt          = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
+
+    io.rd_valid_cmt             := ShiftRegister(rd_valid_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
+    io.rd_cmt                   := ShiftRegister(rd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(5.W))), true.B)
+    io.prd_cmt                  := ShiftRegister(prd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(log2Ceil(PREG_NUM).W))), true.B)
+    io.pprd_cmt                 := ShiftRegister(pprd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(log2Ceil(PREG_NUM).W))), true.B)
+    io.pc_cmt                   := ShiftRegister(pc_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
+    io.rf_wdata_cmt             := ShiftRegister(rf_wdata_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
+    io.is_ucread_cmt            := ShiftRegister(is_ucread_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
+    io.csr_diff_addr_cmt        := ShiftRegister(csr_diff_addr_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
+    io.csr_diff_wdata_cmt       := ShiftRegister(csr_diff_wdata_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
+    io.csr_diff_we_cmt          := ShiftRegister(csr_diff_we_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
     io.predict_fail_stat        := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).predict_fail & cmt_en(i)), 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
     io.br_type_stat             := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).br_type_pred), 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(2.W))), true.B)
     io.is_br_stat               := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).pred_update_en & cmt_en(i)), 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
