@@ -6,7 +6,6 @@ import Control_Signal._
 class ALU_IO extends Bundle{
     val src1        = Input(UInt(32.W))
     val src2        = Input(UInt(32.W))
-    val scnt_val    = Input(UInt(64.W))
     val alu_op      = Input(UInt(4.W))
     val alu_out     = Output(UInt(32.W))
 }
@@ -56,12 +55,6 @@ class ALU extends Module {
         }
         is(ALU_SRA){
             alu_out := (src1.asSInt >> src2(4, 0)).asUInt
-        }
-        is(ALU_CNTL){
-            alu_out := io.scnt_val(31, 0)
-        }
-        is(ALU_CNTH){
-            alu_out := io.scnt_val(63, 32)
         }
     }
     io.alu_out := alu_out

@@ -18,8 +18,8 @@ object Control_Signal{
     val ALU_SLL     = 8.U(5.W)
     val ALU_SRL     = 9.U(5.W)
     val ALU_SRA     = 10.U(5.W)
-    val ALU_CNTL    = 11.U(5.W)
-    val ALU_CNTH    = 12.U(5.W)
+    // val ALU_CNTL    = 11.U(5.W)
+    // val ALU_CNTH    = 12.U(5.W)
     val ALU_MUL     = 13.U(5.W)
     val ALU_MULH    = 14.U(5.W)
     val ALU_MULHU   = 15.U(5.W)
@@ -39,6 +39,8 @@ object Control_Signal{
     val RS2_IMM  = 1.U(2.W)
     val RS2_FOUR = 2.U(2.W)
     val RS2_CSR  = 2.U(2.W)
+    val RS2_CNTL = 2.U(2.W)
+    val RS2_CNTH = 3.U(2.W)
 
     // br_type
     val NO_BR    = 0.U(4.W)
@@ -66,7 +68,6 @@ object Control_Signal{
     // priv vec: last bit signed whether it is priv
     val NOT_PRIV = 0.U(4.W)
     val CSR_RD   = 1.U(4.W)
-    // val CNT_ID   = 2.U(4.W)
     val CSR_WR   = 3.U(4.W) // bit 1
     val CSR_XCHG = 5.U(4.W) // bit 2
     val PRV_ERET = 9.U(4.W) // bit 3
@@ -77,9 +78,9 @@ object Control_Signal{
     val FROM_ERA  = 2.U(2.W)
 
     // exception
-    val NO_EXP      = 0.U(8.W)
-    val SYS         = 0x8b.U(8.W)
-    val BRK         = 0x8c.U(8.W)
+    val NO_EXP    = 0.U(8.W)
+    val SYS       = 0x8b.U(8.W)
+    val BRK       = 0x8c.U(8.W)
 
 
     // fu_id
@@ -118,8 +119,8 @@ object Control_Signal{
     val map = Array(
         //                  0| 1| 2| 3|         4|        5|       6|       7|        8|      9|  10|  11|      12|       13|       |14     
         RDCNTIDW    -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   SYST,  RD, RJ,  IMM_00U,  NOT_PRIV, FROM_TID,  NO_EXP),
-        RDCNTVLW    -> List(N, N, Y, ALU_CNTL,  RS1_ZERO, RS2_REG,  NO_BR,   NO_MEM,   RDCNT, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
-        RDCNTVHW    -> List(N, N, Y, ALU_CNTH,  RS1_ZERO, RS2_REG,  NO_BR,   NO_MEM,   RDCNT, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
+        RDCNTVLW    -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_CNTL, NO_BR,   NO_MEM,   RDCNT, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
+        RDCNTVHW    -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_CNTH, NO_BR,   NO_MEM,   RDCNT, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
         ADDW        -> List(Y, Y, Y, ALU_ADD,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
         SUBW        -> List(Y, Y, Y, ALU_SUB,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
         SLT         -> List(Y, Y, Y, ALU_SLT,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),

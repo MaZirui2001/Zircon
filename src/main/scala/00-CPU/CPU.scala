@@ -521,9 +521,9 @@ class CPU extends Module {
     alu1.io.src2 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
         RS2_REG     -> Mux(bypass123.io.forward_prk_en(0), bypass123.io.forward_prk_data(0), re_reg1.io.src2_EX),
         RS2_IMM     -> re_reg1.io.inst_pack_EX.imm,
-        RS2_FOUR    -> 4.U)
+        RS2_CNTL    -> stable_cnt.io.value(31, 0),
+        RS2_CNTH    -> stable_cnt.io.value(63, 32))
     )
-    alu1.io.scnt_val := stable_cnt.io.value
     
     // 2. arith common fu2
     // ALU
@@ -538,7 +538,6 @@ class CPU extends Module {
         RS2_IMM     -> re_reg2.io.inst_pack_EX.imm,
         RS2_CSR     -> re_reg2.io.csr_rdata_EX)
     )
-    alu2.io.scnt_val := DontCare
     // CSR 
     val csr_op = re_reg2.io.inst_pack_EX.priv_vec(2)
     val is_mret = re_reg2.io.inst_pack_EX.priv_vec(3)
@@ -559,7 +558,6 @@ class CPU extends Module {
         RS2_IMM     -> re_reg3.io.inst_pack_EX.imm,
         RS2_FOUR    -> 4.U)
     )
-    alu3.io.scnt_val := DontCare
 
     // Branch
     br.io.br_type               := re_reg3.io.inst_pack_EX.br_type
@@ -634,7 +632,7 @@ class CPU extends Module {
     ew_reg1.io.stall                := false.B
     ew_reg1.io.inst_pack_EX         := re_reg1.io.inst_pack_EX
     ew_reg1.io.alu_out_EX           := alu1.io.alu_out
-    ew_reg1.io.is_ucread_EX         := re_reg1.io.inst_pack_EX.alu_op === ALU_CNTH || re_reg1.io.inst_pack_EX.alu_op === ALU_CNTL
+    ew_reg1.io.is_ucread_EX         := re_reg1.io.inst_pack_EX.alu_rs2_sel === RS2_CNTH || re_reg1.io.inst_pack_EX.alu_rs2_sel === RS2_CNTL
 
     ew_reg2.io.flush                := rob.io.predict_fail_cmt(9)
     ew_reg2.io.stall                := false.B
