@@ -307,9 +307,9 @@ class CPU extends Module {
     
     // rob
     val is_store_dp             = VecInit.tabulate(FRONT_WIDTH)(i => (rp_reg.io.insts_pack_DP(i).mem_type(4)))
-    val br_type_pred            = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rd === 1.U, 3.U, 
-                                                           Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rj === 1.U, 1.U(2.W), 
-                                                           Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
+    val br_type_dp              = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rd === 1.U, 3.U, 
+                                                                     Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rj === 1.U, 1.U(2.W), 
+                                                                     Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
     val pred_update_en          = VecInit.tabulate(FRONT_WIDTH)(i => (rp_reg.io.insts_pack_DP(i).br_type =/= NO_BR))
     rob.io.inst_valid_dp        := rp_reg.io.insts_pack_DP.map(_.inst_valid)
     rob.io.rd_dp                := rp_reg.io.insts_pack_DP.map(_.rd)
@@ -320,7 +320,7 @@ class CPU extends Module {
     rob.io.is_store_dp          := is_store_dp
     rob.io.stall                := rp_reg.io.stall
     rob.io.pred_update_en_dp    := pred_update_en
-    rob.io.br_type_pred_dp      := br_type_pred
+    rob.io.br_type_pred_dp      := br_type_dp
     rob.io.csr_addr_dp          := rp_reg.io.insts_pack_DP.map(_.csr_addr)
     rob.io.priv_vec_dp          := rp_reg.io.insts_pack_DP.map(_.priv_vec)
     
