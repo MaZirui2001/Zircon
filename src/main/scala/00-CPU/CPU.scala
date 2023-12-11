@@ -516,14 +516,12 @@ class CPU extends Module {
     alu1.io.src1 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
         RS1_REG     -> Mux(bypass123.io.forward_prj_en(0), bypass123.io.forward_prj_data(0), re_reg1.io.src1_EX),
         RS1_PC      -> re_reg1.io.inst_pack_EX.pc,
-        RS1_ZERO    -> 0.U)
-    )
+        RS1_ZERO    -> 0.U))
     alu1.io.src2 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
         RS2_REG     -> Mux(bypass123.io.forward_prk_en(0), bypass123.io.forward_prk_data(0), re_reg1.io.src2_EX),
         RS2_IMM     -> re_reg1.io.inst_pack_EX.imm,
         RS2_CNTL    -> stable_cnt.io.value(31, 0),
-        RS2_CNTH    -> stable_cnt.io.value(63, 32))
-    )
+        RS2_CNTH    -> stable_cnt.io.value(63, 32)))
     
     // 2. arith common fu2
     // ALU
@@ -531,13 +529,11 @@ class CPU extends Module {
     alu2.io.src1 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
         RS1_REG     -> Mux(bypass123.io.forward_prj_en(1), bypass123.io.forward_prj_data(1), re_reg2.io.src1_EX),
         RS1_PC      -> re_reg2.io.inst_pack_EX.pc,
-        RS1_ZERO    -> 0.U)
-    )
+        RS1_ZERO    -> 0.U))
     alu2.io.src2 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
         RS2_REG     -> Mux(bypass123.io.forward_prk_en(1), bypass123.io.forward_prk_data(1), re_reg2.io.src2_EX),
         RS2_IMM     -> re_reg2.io.inst_pack_EX.imm,
-        RS2_CSR     -> re_reg2.io.csr_rdata_EX)
-    )
+        RS2_CSR     -> re_reg2.io.csr_rdata_EX))
     // CSR 
     val csr_op = re_reg2.io.inst_pack_EX.priv_vec(2)
     val is_mret = re_reg2.io.inst_pack_EX.priv_vec(3)
@@ -551,13 +547,11 @@ class CPU extends Module {
     alu3.io.src1 := MuxLookup(re_reg3.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
         RS1_REG     -> Mux(bypass123.io.forward_prj_en(2), bypass123.io.forward_prj_data(2), re_reg3.io.src1_EX),
         RS1_PC      -> re_reg3.io.inst_pack_EX.pc,
-        RS1_ZERO    -> 0.U)
-    )
+        RS1_ZERO    -> 0.U))
     alu3.io.src2 := MuxLookup(re_reg3.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
         RS2_REG     -> Mux(bypass123.io.forward_prk_en(2), bypass123.io.forward_prk_data(2), re_reg3.io.src2_EX),
         RS2_IMM     -> re_reg3.io.inst_pack_EX.imm,
-        RS2_FOUR    -> 4.U)
-    )
+        RS2_FOUR    -> 4.U))
 
     // Branch
     br.io.br_type               := re_reg3.io.inst_pack_EX.br_type
@@ -616,8 +610,7 @@ class CPU extends Module {
                                                 MEM_LDH     -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
                                                 MEM_LDW     -> mem_rdata_raw,
                                                 MEM_LDBU    -> 0.U(24.W) ## mem_rdata_raw(7, 0),
-                                                MEM_LDHU    -> 0.U(16.W) ## mem_rdata_raw(15, 0)
-                                    ))
+                                                MEM_LDHU    -> 0.U(16.W) ## mem_rdata_raw(15, 0)))
 
     // bypass for 1, 2, 3
     bypass123.io.prd_wb             := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd, ew_reg3.io.inst_pack_WB.prd)

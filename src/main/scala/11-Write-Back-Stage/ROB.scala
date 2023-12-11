@@ -172,7 +172,7 @@ class ROB(n: Int) extends Module{
                         && !rob(hsel_idx(i-1))(head_idx(i-1)).exception(7)
                         && !empty(hsel_idx(i)))
     }
-    io.cmt_en := ShiftRegister(cmt_en, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
+    io.cmt_en := ShiftRegister(cmt_en, 1)
     
     // update predict and ras
     val update_ptr               = head + PopCount(cmt_en) - 1.U
