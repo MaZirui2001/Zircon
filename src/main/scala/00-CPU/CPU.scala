@@ -261,7 +261,7 @@ class CPU extends Module {
     free_list.io.commit_en          := rob.io.cmt_en
     free_list.io.commit_pprd_valid  := (rob.io.rd_valid_cmt.asUInt & VecInit(rob.io.pprd_cmt.map(_ =/= 0.U)).asUInt).asBools
     free_list.io.commit_pprd        := rob.io.pprd_cmt
-    free_list.io.predict_fail       := ShiftRegister(rob.io.predict_fail_cmt(3), 1, false.B, true.B)
+    free_list.io.predict_fail       := ShiftRegister(rob.io.predict_fail_cmt(3), 1)
     free_list.io.head_arch          := arat.io.head_arch
 
     /* ---------- ID-RN SegReg ---------- */
@@ -278,7 +278,7 @@ class CPU extends Module {
     rename.io.rd                := dr_reg.io.insts_pack_RN.map(_.rd)
     rename.io.rd_valid          := dr_reg.io.insts_pack_RN.map(_.rd_valid)
     rename.io.rename_en         := VecInit.tabulate(FRONT_WIDTH)(i => dr_reg.io.insts_pack_RN(i).inst_valid && !dr_reg.io.stall)
-    rename.io.predict_fail      := ShiftRegister(rob.io.predict_fail_cmt(4), 1, false.B, true.B)
+    rename.io.predict_fail      := ShiftRegister(rob.io.predict_fail_cmt(4), 1)
     rename.io.arch_rat          := arat.io.arch_rat
     rename.io.alloc_preg        := dr_reg.io.alloc_preg_RN
     
@@ -337,12 +337,12 @@ class CPU extends Module {
     iq1.io.flush                := rob.io.predict_fail_cmt(6)
     iq1.io.stall                := stall_by_iq || rob.io.full
     iq1.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq1.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1, false.B, true.B)
+    iq1.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1)
 
     // select
     sel1.io.insts_issue         := iq1.io.insts_issue
     sel1.io.issue_req           := iq1.io.issue_req
-    sel1.io.stall               := !(iq1.io.issue_req.asUInt.orR) || ir_reg1.io.stall || ShiftRegister(ir_reg1.io.stall, 1, false.B, true.B)
+    sel1.io.stall               := !(iq1.io.issue_req.asUInt.orR) || ir_reg1.io.stall || ShiftRegister(ir_reg1.io.stall, 1)
 
     // 2. arith2, common calculate
     // issue queue
@@ -355,12 +355,12 @@ class CPU extends Module {
     iq2.io.flush                := rob.io.predict_fail_cmt(6)
     iq2.io.stall                := stall_by_iq || rob.io.full
     iq2.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq2.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1, false.B, true.B)
+    iq2.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1)
 
     // select
     sel2.io.insts_issue         := iq2.io.insts_issue
     sel2.io.issue_req           := iq2.io.issue_req
-    sel2.io.stall               := !(iq2.io.issue_req.asUInt.orR) || ir_reg2.io.stall || ShiftRegister(ir_reg2.io.stall, 1, false.B, true.B)
+    sel2.io.stall               := !(iq2.io.issue_req.asUInt.orR) || ir_reg2.io.stall || ShiftRegister(ir_reg2.io.stall, 1)
 
     // 3. arith3, calculate and branch
     // issue queue
@@ -373,12 +373,12 @@ class CPU extends Module {
     iq3.io.flush                := rob.io.predict_fail_cmt(6)
     iq3.io.stall                := stall_by_iq || rob.io.full
     iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq3.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1, false.B, true.B)
+    iq3.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1)
 
     // select
     sel3.io.insts_issue         := iq3.io.insts_issue
     sel3.io.issue_req           := iq3.io.issue_req
-    sel3.io.stall               := !(iq3.io.issue_req.asUInt.orR) || ir_reg3.io.stall || ShiftRegister(ir_reg3.io.stall, 1, false.B, true.B)
+    sel3.io.stall               := !(iq3.io.issue_req.asUInt.orR) || ir_reg3.io.stall || ShiftRegister(ir_reg3.io.stall, 1)
 
     // 4. multiply, multiply and divide
     // issue queue
@@ -391,12 +391,12 @@ class CPU extends Module {
     iq4.io.flush                := rob.io.predict_fail_cmt(6)
     iq4.io.stall                := stall_by_iq || rob.io.full
     iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq4.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1, false.B, true.B)
+    iq4.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1)
 
     // select
     sel4.io.insts_issue         := iq4.io.insts_issue
     sel4.io.issue_req           := iq4.io.issue_req
-    sel4.io.stall               := !(iq4.io.issue_req.asUInt.orR) || ir_reg4.io.stall || ShiftRegister(ir_reg4.io.stall, 1, false.B, true.B)
+    sel4.io.stall               := !(iq4.io.issue_req.asUInt.orR) || ir_reg4.io.stall || ShiftRegister(ir_reg4.io.stall, 1)
 
     // 5. load and store
     // issue queue
@@ -414,7 +414,7 @@ class CPU extends Module {
     // select
     sel5.io.insts_issue         := iq5.io.insts_issue
     sel5.io.issue_req           := iq5.io.issue_req
-    sel5.io.stall               := !(iq5.io.issue_req.asUInt.orR) || ir_reg5.io.stall || ShiftRegister(ir_reg5.io.stall, 1, false.B, true.B)
+    sel5.io.stall               := !(iq5.io.issue_req.asUInt.orR) || ir_reg5.io.stall || ShiftRegister(ir_reg5.io.stall, 1)
 
     // mutual wakeup
     val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, 

@@ -187,21 +187,21 @@ class ROB(n: Int) extends Module{
     val pred_real_jump_cmt       = rob_update_item.real_jump
     val exception_cmt            = rob_update_item.exception
 
-    io.predict_fail_cmt         := ShiftRegister(VecInit.fill(10)(predict_fail_cmt).asUInt, 1, 0.U(10.W), true.B)
-    io.branch_target_cmt        := ShiftRegister(branch_target_cmt, 1, 0.U(32.W), true.B)
-    io.pred_update_en_cmt       := ShiftRegister(pred_update_en_cmt, 1, false.B, true.B)
-    io.pred_branch_target_cmt   := ShiftRegister(pred_branch_target_cmt, 1, 0.U(32.W), true.B)
-    io.pred_br_type_cmt         := ShiftRegister(pred_br_type_cmt, 1, 0.U(2.W), true.B)
-    io.pred_pc_cmt              := ShiftRegister(pred_pc_cmt, 1, 0x1c000000.U, true.B)
-    io.pred_real_jump_cmt       := ShiftRegister(pred_real_jump_cmt, 1, false.B, true.B)
-    io.exception_cmt            := ShiftRegister(exception_cmt, 1, 0.U(8.W), true.B)
+    io.predict_fail_cmt         := ShiftRegister(VecInit.fill(10)(predict_fail_cmt).asUInt, 1)
+    io.branch_target_cmt        := ShiftRegister(branch_target_cmt, 1)
+    io.pred_update_en_cmt       := ShiftRegister(pred_update_en_cmt, 1)
+    io.pred_branch_target_cmt   := ShiftRegister(pred_branch_target_cmt, 1)
+    io.pred_br_type_cmt         := ShiftRegister(pred_br_type_cmt, 1)
+    io.pred_pc_cmt              := ShiftRegister(pred_pc_cmt, 1)
+    io.pred_real_jump_cmt       := ShiftRegister(pred_real_jump_cmt, 1)
+    io.exception_cmt            := ShiftRegister(exception_cmt, 1)
 
 
     // update store buffer
     val rob_commit_items        = VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)))
     val is_store_cmt_bit        = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).is_store && cmt_en(i))
     val is_store_num_cmt        = PopCount(is_store_cmt_bit)
-    io.is_store_num_cmt         := ShiftRegister(is_store_num_cmt, 1, 0.U(2.W), true.B)
+    io.is_store_num_cmt         := ShiftRegister(is_store_num_cmt, 1)
 
     // update csr file
     val csr_addr_cmt            = priv_buf.csr_addr
@@ -209,10 +209,10 @@ class ROB(n: Int) extends Module{
     val csr_we_cmt              = rob_update_item.is_priv_wrt && priv_buf.priv_vec(2, 1).orR
     val is_eret_cmt             = rob_update_item.is_priv_wrt && priv_buf.priv_vec(3)
 
-    io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1, 0.U, true.B)
-    io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1, 0.U, true.B)
-    io.csr_we_cmt               := ShiftRegister(csr_we_cmt, 1, false.B, true.B)
-    io.is_eret_cmt              := ShiftRegister(is_eret_cmt, 1, false.B, true.B)
+    io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1)
+    io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1)
+    io.csr_we_cmt               := ShiftRegister(csr_we_cmt, 1)
+    io.is_eret_cmt              := ShiftRegister(is_eret_cmt, 1)
 
     when(io.predict_fail_cmt(0)){
         priv_buf.valid          := false.B
@@ -241,17 +241,17 @@ class ROB(n: Int) extends Module{
     val csr_diff_wdata_cmt       = VecInit.fill(FRONT_WIDTH)(rob_update_item.branch_target)
     val csr_diff_we_cmt          = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
 
-    io.rd_valid_cmt             := ShiftRegister(rd_valid_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
-    io.rd_cmt                   := ShiftRegister(rd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(5.W))), true.B)
-    io.prd_cmt                  := ShiftRegister(prd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(log2Ceil(PREG_NUM).W))), true.B)
-    io.pprd_cmt                 := ShiftRegister(pprd_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(log2Ceil(PREG_NUM).W))), true.B)
-    io.pc_cmt                   := ShiftRegister(pc_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
-    io.rf_wdata_cmt             := ShiftRegister(rf_wdata_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
-    io.is_ucread_cmt            := ShiftRegister(is_ucread_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
-    io.csr_diff_addr_cmt        := ShiftRegister(csr_diff_addr_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
-    io.csr_diff_wdata_cmt       := ShiftRegister(csr_diff_wdata_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(32.W))), true.B)
-    io.csr_diff_we_cmt          := ShiftRegister(csr_diff_we_cmt, 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
-    io.predict_fail_stat        := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).predict_fail & cmt_en(i)), 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
-    io.br_type_stat             := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).br_type_pred), 1, VecInit(Seq.fill(FRONT_WIDTH)(0.U(2.W))), true.B)
-    io.is_br_stat               := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).pred_update_en & cmt_en(i)), 1, VecInit(Seq.fill(FRONT_WIDTH)(false.B)), true.B)
+    io.rd_valid_cmt             := ShiftRegister(rd_valid_cmt, 1)
+    io.rd_cmt                   := ShiftRegister(rd_cmt, 1)
+    io.prd_cmt                  := ShiftRegister(prd_cmt, 1)
+    io.pprd_cmt                 := ShiftRegister(pprd_cmt, 1)
+    io.pc_cmt                   := ShiftRegister(pc_cmt, 1)
+    io.rf_wdata_cmt             := ShiftRegister(rf_wdata_cmt, 1)
+    io.is_ucread_cmt            := ShiftRegister(is_ucread_cmt, 1)
+    io.csr_diff_addr_cmt        := ShiftRegister(csr_diff_addr_cmt, 1)
+    io.csr_diff_wdata_cmt       := ShiftRegister(csr_diff_wdata_cmt, 1)
+    io.csr_diff_we_cmt          := ShiftRegister(csr_diff_we_cmt, 1)
+    io.predict_fail_stat        := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).predict_fail & cmt_en(i)), 1)
+    io.br_type_stat             := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).br_type_pred), 1)
+    io.is_br_stat               := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).pred_update_en & cmt_en(i)), 1)
 } 
