@@ -18,8 +18,6 @@ object Control_Signal{
     val ALU_SLL     = 8.U(5.W)
     val ALU_SRL     = 9.U(5.W)
     val ALU_SRA     = 10.U(5.W)
-    // val ALU_CNTL    = 11.U(5.W)
-    // val ALU_CNTH    = 12.U(5.W)
     val ALU_MUL     = 13.U(5.W)
     val ALU_MULH    = 14.U(5.W)
     val ALU_MULHU   = 15.U(5.W)
@@ -81,6 +79,7 @@ object Control_Signal{
     val NO_EXP    = 0.U(8.W)
     val SYS       = 0x8b.U(8.W)
     val BRK       = 0x8c.U(8.W)
+    val INE       = 0x8d.U(8.W)
 
 
     // fu_id
@@ -113,7 +112,7 @@ object Control_Signal{
 
     val default = List(
     // rs1_valid rs2_valid rf_we, alu_op   alu_rs1_sel alu_rs2_sel br_type mem_type iq_id, rk_sel, rd_sel, imm_type, priv_vec, csr_sel, exception
-        N,       N,        N,     ALU_ADD, RS1_ZERO,   RS2_FOUR,   NO_BR,  NO_MEM,  ARITH, RK,     RD,     IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP
+        N,       N,        N,     ALU_ADD, RS1_ZERO,   RS2_FOUR,   NO_BR,  NO_MEM,  ARITH, RK,     RD,     IMM_00U,  NOT_PRIV, FROM_INST, INE
     )
 
     val map = Array(
@@ -144,6 +143,7 @@ object Control_Signal{
         CSRWR       -> List(N, Y, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   SYST,  RD, RD,  IMM_00U,  CSR_WR,   FROM_INST, NO_EXP),
         CSRXCHG     -> List(Y, Y, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   SYST,  RD, RD,  IMM_00U,  CSR_XCHG, FROM_INST, NO_EXP),
 
+        BREAK       -> List(N, N, N, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   SYST,  RD, RD,  IMM_00U,  NOT_PRIV, FROM_INST, BRK),
         SYSCALL     -> List(N, N, N, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   SYST,  RD, RD,  IMM_00U,  NOT_PRIV, FROM_INST, SYS),
       
         SLLIW       -> List(Y, N, Y, ALU_SLL,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD,  IMM_05U,  NOT_PRIV, FROM_INST, NO_EXP),

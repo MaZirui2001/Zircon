@@ -75,6 +75,8 @@ class CPU_IO extends Bundle{
     val commit_is_br               = Output(Vec(FRONT_WIDTH, Bool()))
     val commit_br_type             = Output(Vec(FRONT_WIDTH, UInt(2.W)))
     val commit_predict_fail        = Output(Vec(FRONT_WIDTH, Bool()))
+    val commit_interrupt           = Output(Bool())
+    val commit_interrupt_type      = Output(UInt(13.W))
 
     val commit_stall_by_fetch_queue = Output(Bool())
     val commit_stall_by_rename      = Output(Bool())
@@ -472,6 +474,8 @@ class CPU extends Module {
     csr_rf.io.exception     := rob.io.exception_cmt
     csr_rf.io.is_eret       := rob.io.is_eret_cmt
     csr_rf.io.pc_exp        := rob.io.pred_pc_cmt
+    csr_rf.io.interrupt     := 0.U
+    csr_rf.io.ip_int        := false.B
 
     /* ---------- RF-EX SegReg ---------- */
     re_reg1.io.flush         := rob.io.predict_fail_cmt(8)
@@ -663,6 +667,7 @@ class CPU extends Module {
     rob.io.is_ucread_wb         := VecInit(ew_reg1.io.is_ucread_WB, false.B, false.B, false.B, ew_reg5.io.is_ucread_WB)
     rob.io.exception_wb         := VecInit(ew_reg1.io.inst_pack_WB.exception, ew_reg2.io.inst_pack_WB.exception, ew_reg3.io.inst_pack_WB.exception, ew_reg4.io.inst_pack_WB.exception, ew_reg5.io.inst_pack_WB.exception)
     rob.io.eentry_global        := csr_rf.io.eentry_global
+    rob.io.interrupt_vec        := csr_rf.io.interrupt_vec
     
     /* ---------- 11. Commit Stage ---------- */
     // Arch Rat
@@ -748,6 +753,8 @@ class CPU extends Module {
         io.commit_is_br        := rob.io.is_br_stat
         io.commit_br_type      := rob.io.br_type_stat
         io.commit_predict_fail := rob.io.predict_fail_stat
+        io.commit_interrupt    := rob.io.exception_cmt(7) && rob.io.exception_cmt(6, 0) === 0.U
+        io.commit_interrupt_type:= csr_rf.io.estat_13
 
 
         io.commit_stall_by_fetch_queue  := fq.io.full
@@ -783,6 +790,8 @@ class CPU extends Module {
         io.commit_is_br         := DontCare
         io.commit_br_type       := DontCare
         io.commit_predict_fail  := DontCare
+        io.commit_interrupt     := DontCare
+        io.commit_interrupt_type:= DontCare
 
 
         io.commit_stall_by_fetch_queue  := DontCare

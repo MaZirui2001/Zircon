@@ -10,11 +10,19 @@ class CSR_Regfile_IO extends Bundle{
     val we              = Input(Bool())
     val wdata           = Input(UInt(32.W))
 
+    // exception and ertn
     val exception       = Input(UInt(8.W))
     val is_eret         = Input(Bool())
     val pc_exp          = Input(UInt(32.W))
-
     val eentry_global   = Output(UInt(32.W))
+
+    // interrupt
+    val interrupt       = Input(UInt(8.W))
+    val ip_int          = Input(Bool())
+    val interrupt_vec   = Output(UInt(12.W))
+
+    // debug
+    val estat_13        = Output(UInt(13.W))
 }
 
 class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends Module{
@@ -26,7 +34,8 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
     val exception   = io.exception
     val is_eret     = io.is_eret
 
-    val timer_int = RegInit(false.B)
+    val timer_int_reg = RegInit(false.B)
+    val timer_int = timer_int_reg
 
     // CRMD：当前模式信息
     val crmd = RegInit(0.U(32.W))
@@ -40,7 +49,6 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
     }
     
     // PRMD：例外前模式信息
-    
     when(exception(7)){
         prmd := prmd(31, 3) ## crmd(2, 0)
     }.elsewhen(we && waddr === CSR_PRMD){
@@ -64,8 +72,11 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
     when(exception(7)){
         estat := estat(31) ## 0.U(8.W) ## exception(6, 0) ## estat(15, 0)
     }.elsewhen(we && waddr === CSR_ESTAT){
-        estat := 0.U(1.W) ## estat(30, 16) ## 0.U(3.W) ## estat(12, 11) ## 0.U(1.W) ## estat(9, 2) ## wdata(1, 0)
+        estat := 0.U(1.W) ## estat(30, 16) ## 0.U(3.W) ## io.ip_int ## timer_int ## 0.U(1.W) ## io.interrupt ## wdata(1, 0)
+    }.otherwise{
+        estat := 0.U(1.W) ## estat(30, 16) ## 0.U(3.W) ## io.ip_int ## timer_int ## 0.U(1.W) ## io.interrupt ## estat(1, 0)
     }
+    io.estat_13 := estat(13, 0)
 
     // ERA：例外返回地址
     val era = RegInit(0.U(32.W))
@@ -203,9 +214,11 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
 
     // TVAL：定时器数值
     val tval = RegInit(0.U(32.W))
-    when(tcfg(0) === 1.U){
+    when(we && waddr === CSR_TCFG){
+        tval := 0.U((32 - TIMER_INIT_WIDTH).W) ## wdata(TIMER_INIT_WIDTH - 1, 2) ## 1.U(2.W)
+    }.elsewhen(tcfg(0) === 1.U){
         when(tval === 0.U){
-            tval := 0.U((32 - TIMER_INIT_WIDTH).W) ## Mux(tcfg(1), tcfg(TIMER_INIT_WIDTH - 1, 2) ## 0.U(2.W), 
+            tval := 0.U((32 - TIMER_INIT_WIDTH).W) ## Mux(tcfg(1), tcfg(TIMER_INIT_WIDTH - 1, 2) ## 1.U(2.W), 
                                                                    0.U(TIMER_INIT_WIDTH.W))
         }.otherwise{
             tval := tval - 1.U
@@ -214,13 +227,14 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
 
     // TICLR：定时器中断清除
     val ticlr = RegInit(0.U(32.W))
+    val tval_edge = ShiftRegister(tval, 1)
     when(we && waddr === CSR_TICLR && wdata(0) === 1.U){
-        timer_int := false.B
-    }.elsewhen(tcfg(0) === 1.U && tval === 0.U){
-        timer_int := true.B
-    }.otherwise{
-        timer_int := false.B
+        timer_int_reg := false.B
+    }.elsewhen(tcfg(0) === 1.U && tval === 0.U && tval_edge === 1.U){
+        timer_int_reg := true.B
     }
+
+    io.interrupt_vec := Mux(!crmd(2), 0.U(12.W), (estat(12, 11) & ecfg(12, 11)) ## (estat(9, 0) & ecfg(9, 0)))  
 
     val rdata = WireDefault(0.U(32.W))
 

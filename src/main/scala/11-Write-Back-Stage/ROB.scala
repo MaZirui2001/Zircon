@@ -81,6 +81,7 @@ class ROB_IO(n: Int) extends Bundle{
     val eentry_global           = Input(UInt(32.W))
     val exception_cmt           = Output(UInt(8.W))
     val is_eret_cmt             = Output(Bool())
+    val interrupt_vec           = Input(UInt(12.W))
 
     // diff
     val is_ucread_cmt           = Output(Vec(FRONT_WIDTH, Bool()))
@@ -99,9 +100,9 @@ class ROB_IO(n: Int) extends Bundle{
 }
 
 class ROB(n: Int) extends Module{
-    val io = IO(new ROB_IO(n))
-    val FRONT_LOG2 = log2Ceil(FRONT_WIDTH)
-    val neach = n / FRONT_WIDTH
+    val io              = IO(new ROB_IO(n))
+    val FRONT_LOG2      = log2Ceil(FRONT_WIDTH)
+    val neach           = n / FRONT_WIDTH
     import ROB_Pack._
     /* ROB items */
     val rob         = RegInit(VecInit(Seq.fill(FRONT_WIDTH)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
@@ -146,7 +147,7 @@ class ROB(n: Int) extends Module{
 
     }
     io.rob_index_dp := VecInit.tabulate(FRONT_WIDTH)(i => tail ## i.U(FRONT_LOG2.W))
-    io.full := full
+    io.full         := full
     // wb stage
     for(i <- 0 until 5){
         when(io.inst_valid_wb(i)){
@@ -178,14 +179,14 @@ class ROB(n: Int) extends Module{
     val update_ptr               = head + PopCount(cmt_en) - 1.U
     val rob_update_item          = Mux(cmt_en(0) === false.B, 0.U.asTypeOf(new rob_t), rob(update_ptr(FRONT_LOG2-1, 0))(update_ptr(log2Ceil(n)-1, FRONT_LOG2)))
     
-    val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.exception(7)
-    val branch_target_cmt        = Mux(rob_update_item.exception(7), io.eentry_global, Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.real_jump, rob_update_item.branch_target, (rob_update_item.pc ## 0.U(2.W)) + 4.U))
+    val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.exception(7) || io.interrupt_vec.orR && cmt_en.asUInt.orR
+    val branch_target_cmt        = Mux(rob_update_item.exception(7)|| io.interrupt_vec.orR, io.eentry_global, Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.real_jump, rob_update_item.branch_target, (rob_update_item.pc ## 0.U(2.W)) + 4.U))
     val pred_update_en_cmt       = rob_update_item.pred_update_en
     val pred_branch_target_cmt   = rob_update_item.branch_target
     val pred_br_type_cmt         = rob_update_item.br_type_pred
     val pred_pc_cmt              = rob_update_item.pc ## 0.U(2.W)
     val pred_real_jump_cmt       = rob_update_item.real_jump
-    val exception_cmt            = rob_update_item.exception
+    val exception_cmt            = Mux(io.interrupt_vec.orR && cmt_en.asUInt.orR, 0x80.U(8.W), rob_update_item.exception)
 
     io.predict_fail_cmt         := ShiftRegister(VecInit.fill(10)(predict_fail_cmt).asUInt, 1)
     io.branch_target_cmt        := ShiftRegister(branch_target_cmt, 1)
@@ -234,7 +235,7 @@ class ROB(n: Int) extends Module{
     val rd_valid_cmt             = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rd_valid)
     val prd_cmt                  = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).prd)
     val pprd_cmt                 = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).pprd)
-    val pc_cmt                   = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).exception(7), io.eentry_global, Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U)))
+    val pc_cmt                   = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).exception(7) || io.interrupt_vec.orR && cmt_en.asUInt.orR, io.eentry_global, Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U)))
     val rf_wdata_cmt             = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rf_wdata)
     val is_ucread_cmt            = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).is_ucread && cmt_en(i))
     val csr_diff_addr_cmt        = VecInit.fill(FRONT_WIDTH)(priv_buf.csr_addr)
