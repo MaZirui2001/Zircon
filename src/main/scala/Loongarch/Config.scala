@@ -31,14 +31,14 @@ object Control_Signal{
     val RS1_REG  = 0.U(2.W)
     val RS1_PC   = 1.U(2.W)
     val RS1_ZERO = 2.U(2.W)
+    val RS1_CNTH = 3.U(2.W)
 
     // alu_rs2_sel
     val RS2_REG  = 0.U(2.W)
     val RS2_IMM  = 1.U(2.W)
     val RS2_FOUR = 2.U(2.W)
     val RS2_CSR  = 2.U(2.W)
-    val RS2_CNTL = 2.U(2.W)
-    val RS2_CNTH = 3.U(2.W)
+    val RS2_CNTL = 3.U(2.W)
 
     // br_type
     val NO_BR    = 0.U(4.W)
@@ -84,11 +84,11 @@ object Control_Signal{
 
     // fu_id
     val RDCNT    = 0.U(3.W)
-    val SYST     = 1.U(3.W)
-    val BR       = 2.U(3.W)
-    val MD       = 3.U(3.W)
-    val LS       = 4.U(3.W)
-    val ARITH    = 5.U(3.W)
+    val SYST     = 0.U(3.W)
+    val BR       = 1.U(3.W)
+    val MD       = 2.U(3.W)
+    val LS       = 3.U(3.W)
+    val ARITH    = 4.U(3.W)
 
     // rk_sel
     val RD       = 0.U(2.W)
@@ -119,7 +119,7 @@ object Control_Signal{
         //                  0| 1| 2| 3|         4|        5|       6|       7|        8|      9|  10|  11|      12|       13|       |14     
         RDCNTIDW    -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_CSR,  NO_BR,   NO_MEM,   SYST,  RD, RJ,  IMM_00U,  NOT_PRIV, FROM_TID,  NO_EXP),
         RDCNTVLW    -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_CNTL, NO_BR,   NO_MEM,   RDCNT, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
-        RDCNTVHW    -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_CNTH, NO_BR,   NO_MEM,   RDCNT, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
+        RDCNTVHW    -> List(N, N, Y, ALU_ADD,   RS1_CNTH, RS2_IMM,  NO_BR,   NO_MEM,   RDCNT, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
         ADDW        -> List(Y, Y, Y, ALU_ADD,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
         SUBW        -> List(Y, Y, Y, ALU_SUB,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),
         SLT         -> List(Y, Y, Y, ALU_SLT,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   ARITH, RK, RD,  IMM_00U,  NOT_PRIV, FROM_INST, NO_EXP),

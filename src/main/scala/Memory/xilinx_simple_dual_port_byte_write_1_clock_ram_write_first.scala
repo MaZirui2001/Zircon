@@ -30,10 +30,9 @@ class xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(NB_COL: Int, CO
 |     input [NB_COL-1:0] wea,               // Byte-write enable
 |     output [(NB_COL*COL_WIDTH)-1:0] doutb // RAM output data
 |   );
-|   
+|   (*ram_style="block"*)
 |     reg [(NB_COL*COL_WIDTH)-1:0] BRAM [RAM_DEPTH-1:0];
 |     reg [$clog2(RAM_DEPTH)-1:0] addr_r;
-|   (*ram_style="block"*)
 |     // The following code either initializes the memory values to a specified file or to all zeros to match hardware
 |     generate
 |         integer ram_index;
