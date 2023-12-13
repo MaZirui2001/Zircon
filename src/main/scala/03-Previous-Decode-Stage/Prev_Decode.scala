@@ -26,7 +26,7 @@ class Prev_Decode_IO extends Bundle {
     val pred_fix            = Output(Bool())
     val pred_fix_target     = Output(UInt(32.W))
     val pred_fix_is_bl      = Output(Bool())
-    val pred_fix_pc_plus_4  = Output(UInt(32.W))
+    val pred_fix_pc         = Output(UInt(32.W))
 }
 import PD_Pack._
 class Prev_Decode extends Module {
@@ -51,7 +51,7 @@ class Prev_Decode extends Module {
         when(insts_opcode(i) === "b01".U){
             when(br_type(i) === B || br_type(i) === BL){
                 jump_type(i) := YES_JUMP
-            }.elsewhen(br_type(i) >= 6.U && br_type(i) <= 11.U){
+            }.elsewhen(br_type(i) =/= JIRL){
                 jump_type(i) := MAY_JUMP
             }
         }.otherwise{
@@ -59,9 +59,9 @@ class Prev_Decode extends Module {
         }
     }
     val pred_fix_is_bl      = VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_IF(i).inst(29, 26) === BL)
-    val pred_fix_pc_plus_4  = VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_IF(i).pc + 4.U)
+    val pred_fix_pc         = VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_IF(i).pc)
     io.pred_fix_is_bl       := pred_fix_is_bl(fix_index)
-    io.pred_fix_pc_plus_4   := pred_fix_pc_plus_4(fix_index)
+    io.pred_fix_pc          := (pred_fix_pc(fix_index)(31, 2)) ## 0.U(2.W)
     
     for(i <- 0 until FRONT_WIDTH){
         switch(jump_type(i)){
@@ -75,25 +75,24 @@ class Prev_Decode extends Module {
                 when(!inst_pack_IF(i).pred_valid){
                     need_fix(i)                     := inst(i)(25) && inst_pack_IF(i).inst_valid
                     inst_pack_pd(i).predict_jump    := inst(i)(25)
-                    inst_pack_pd(i).pred_npc        := Mux(inst(i)(25), pc_target, inst_pack_IF(i).pc + 4.U)
-                }.otherwise{
-                    when(inst_pack_IF(i).predict_jump){
-                        need_fix(i)                     := pc_target =/= inst_pack_IF(i).pred_npc && inst_pack_IF(i).inst_valid
-                        inst_pack_pd(i).predict_jump    := inst_pack_IF(i).predict_jump
-                        inst_pack_pd(i).pred_npc        := pc_target
-                    }
+                    inst_pack_pd(i).pred_npc        := Mux(inst(i)(25), pc_target, (inst_pack_IF(i).pc(31, 2) + 1.U) ## 0.U(2.W))
+                }.elsewhen(inst_pack_IF(i).predict_jump){
+                    need_fix(i)                     := pc_target =/= inst_pack_IF(i).pred_npc && inst_pack_IF(i).inst_valid
+                    inst_pack_pd(i).predict_jump    := inst_pack_IF(i).predict_jump
+                    inst_pack_pd(i).pred_npc        := pc_target
                 }
+                
             }
             is(NOT_BR){
                 inst_pack_pd(i).predict_jump    := false.B
-                inst_pack_pd(i).pred_npc        := inst_pack_IF(i).pc + 4.U
+                inst_pack_pd(i).pred_npc        := (inst_pack_IF(i).pc(31, 2) + 1.U) ## 0.U(2.W)
                 need_fix(i)                     := inst_pack_IF(i).inst_valid && inst_pack_IF(i).predict_jump
             }
         }
     }
-    val inst_valid = VecInit(Seq.fill(FRONT_WIDTH)(false.B))
-    inst_valid(0) := inst_pack_IF(0).inst_valid
-    inst_pack_pd(0).inst_valid := inst_valid(0)
+    val inst_valid              = VecInit(Seq.fill(FRONT_WIDTH)(false.B))
+    inst_valid(0)               := inst_pack_IF(0).inst_valid
+    inst_pack_pd(0).inst_valid  := inst_valid(0)
     for(i <- 1 until FRONT_WIDTH){
         inst_valid(i) := inst_valid(i-1) && inst_pack_IF(i).inst_valid && !need_fix(i-1)
         inst_pack_pd(i).inst_valid := inst_valid(i)

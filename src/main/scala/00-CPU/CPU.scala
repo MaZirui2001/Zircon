@@ -110,7 +110,7 @@ class CPU extends Module {
 
     /* Previous Decode Stage */
     val pd              = Module(new Prev_Decode)
-    val pf_reg          = Module(new PD_FQ_Reg)
+    //val pf_reg          = Module(new PD_FQ_Reg)
 
     /* Fetch Queue Stage */
     val fq              = Module(new Fetch_Queue)
@@ -189,8 +189,8 @@ class CPU extends Module {
     pc.io.branch_target             := rob.io.branch_target_cmt
     pc.io.pred_jump                 := predict.io.predict_jump
     pc.io.pred_npc                  := predict.io.pred_npc
-    pc.io.flush_by_pd               := pf_reg.io.pred_fix_FQ
-    pc.io.flush_pd_target           := pf_reg.io.pred_fix_target_FQ
+    pc.io.flush_by_pd               := pd.io.pred_fix//pf_reg.io.pred_fix_FQ
+    pc.io.flush_pd_target           := pd.io.pred_fix_target//pf_reg.io.pred_fix_target_FQ
     
     // Branch Prediction
     predict.io.npc                  := pc.io.npc
@@ -202,15 +202,15 @@ class CPU extends Module {
     predict.io.br_type              := rob.io.pred_br_type_cmt
     predict.io.predict_fail         := rob.io.predict_fail_cmt(0)
     predict.io.top_arch             := arat.io.top_arch
-    predict.io.pd_pred_fix          := pf_reg.io.pred_fix_FQ
-    predict.io.pd_pred_fix_is_bl    := pf_reg.io.pred_fix_is_bl_FQ
-    predict.io.pd_pc_plus_4         := pf_reg.io.pred_fix_pc_plus_4_FQ
+    predict.io.pd_pred_fix          := pd.io.pred_fix
+    predict.io.pd_pred_fix_is_bl    := pd.io.pred_fix_is_bl
+    predict.io.pd_pc_plus_4         := pd.io.pred_fix_pc
     predict.io.pc_stall             := pc.io.pc_stall
     predict.io.ras_arch             := arat.io.ras_arch
 
     /* ---------- PF-IF SegReg ---------- */
     val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U, pc.io.pc_PF+8.U, pc.io.pc_PF+12.U)
-    pi_reg.io.flush             := rob.io.predict_fail_cmt(0) || (!fq.io.full && pf_reg.io.pred_fix_FQ)
+    pi_reg.io.flush             := rob.io.predict_fail_cmt(0) || (!fq.io.full && pd.io.pred_fix)
     pi_reg.io.stall             := fq.io.full || icache.io.cache_miss_RM
     pi_reg.io.inst_pack_PF      := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i), 0.U))
 
@@ -225,7 +225,7 @@ class CPU extends Module {
     icache.io.i_rlast           := arb.io.i_rlast
 
     /* ---------- IF-PD SegReg ---------- */
-    ip_reg.io.flush             := rob.io.predict_fail_cmt(1) || (!ip_reg.io.stall && (pf_reg.io.pred_fix_FQ || icache.io.cache_miss_RM))
+    ip_reg.io.flush             := rob.io.predict_fail_cmt(1) || (!ip_reg.io.stall && (pd.io.pred_fix || icache.io.cache_miss_RM))
     ip_reg.io.stall             := fq.io.full
     ip_reg.io.insts_pack_IF     := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), icache.io.rdata_RM(i)))
 
@@ -233,16 +233,16 @@ class CPU extends Module {
     // Previous Decoder
     pd.io.insts_pack_IF             := ip_reg.io.insts_pack_PD  
 
-    pf_reg.io.flush                 := rob.io.predict_fail_cmt(2) || !pf_reg.io.stall && (pf_reg.io.pred_fix_FQ)
-    pf_reg.io.stall                 := fq.io.full
-    pf_reg.io.insts_pack_PD         := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i)))
-    pf_reg.io.pred_fix_PD           := pd.io.pred_fix
-    pf_reg.io.pred_fix_target_PD    := pd.io.pred_fix_target
-    pf_reg.io.pred_fix_is_bl_PD     := pd.io.pred_fix_is_bl
-    pf_reg.io.pred_fix_pc_plus_4_PD := pd.io.pred_fix_pc_plus_4
+    // pf_reg.io.flush                 := rob.io.predict_fail_cmt(2) || !pf_reg.io.stall && (pf_reg.io.pred_fix_FQ)
+    // pf_reg.io.stall                 := fq.io.full
+    // pf_reg.io.insts_pack_PD         := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i)))
+    // pf_reg.io.pred_fix_PD           := pd.io.pred_fix
+    // pf_reg.io.pred_fix_target_PD    := pd.io.pred_fix_target
+    // pf_reg.io.pred_fix_is_bl_PD     := pd.io.pred_fix_is_bl
+    // pf_reg.io.pred_fix_pc_plus_4_PD := pd.io.pred_fix_pc_plus_4
 
     /* ---------- Fetch Queue ---------- */
-    fq.io.insts_pack    := pf_reg.io.insts_pack_FQ
+    fq.io.insts_pack    := pd.io.insts_pack_PD
     fq.io.next_ready    := !(rob.io.full || stall_by_iq || free_list.io.empty)
     fq.io.flush         := rob.io.predict_fail_cmt(3)
 

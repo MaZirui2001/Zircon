@@ -89,7 +89,7 @@ class Predict extends Module{
 
     io.predict_jump     := (pred_hit.asUInt >> pc(PC_BEGIN-1, 2)).asBools
     io.pred_valid       := (pred_valid_hit.asUInt >> pc(PC_BEGIN-1, 2)).asBools
-    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === RET, ras(top-1.U), btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
+    io.pred_npc         := Mux(btb_rdata(pred_hit_index).typ === RET, ras(top-1.U) + 4.U, btb_rdata(pred_hit_index).target ## 0.U(2.W)) 
     
     // update
     val update_en       = io.update_en
@@ -152,7 +152,7 @@ class Predict extends Module{
         }
     }.elsewhen((btb_rdata(pred_hit_index).typ === BL || btb_rdata(pred_hit_index).typ === ICALL) && pred_valid_hit(pred_hit_index)){
         top             := top + 1.U
-        ras(top)        := ((pc(31, PC_BEGIN) ## pred_hit_index(FRONT_LOG2-1, 0)) + 1.U) ## 0.U(2.W)
+        ras(top)        := ((pc(31, PC_BEGIN) ## pred_hit_index(FRONT_LOG2-1, 0))) ## 0.U(2.W)
     }.elsewhen(btb_rdata(pred_hit_index).typ === RET && pred_valid_hit(pred_hit_index)){
         top             := top - 1.U
     }
