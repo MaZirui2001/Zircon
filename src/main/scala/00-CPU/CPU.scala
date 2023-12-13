@@ -290,9 +290,7 @@ class CPU extends Module {
     // busyboard
     bd.io.flush                 := rob.io.predict_fail_cmt(5)
     bd.io.prj                   := rp_reg.io.insts_pack_DP.map(_.prj)
-    bd.io.rj_valid              := rp_reg.io.insts_pack_DP.map(_.rj_valid)
     bd.io.prk                   := rp_reg.io.insts_pack_DP.map(_.prk)
-    bd.io.rk_valid              := rp_reg.io.insts_pack_DP.map(_.rk_valid)
     bd.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, md_ex1_ex2_reg.io.inst_pack_EX2.prd, re_reg4.io.inst_pack_EX.prd)
     bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, md_ex1_ex2_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, re_reg4.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM)
     bd.io.prd_disp              := rp_reg.io.insts_pack_DP.map(_.prd)
@@ -393,8 +391,6 @@ class CPU extends Module {
     sel4.io.issue_req           := iq4.io.issue_req
     sel4.io.stall               := !(iq4.io.issue_req.asUInt.orR) || ir_reg4.io.stall || ShiftRegister(ir_reg4.io.stall, 1)
 
-    // 5. load and store
-    // issue queue
 
     // mutual wakeup
     val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, 
@@ -421,9 +417,6 @@ class CPU extends Module {
     ir_reg2.io.stall         := false.B
     ir_reg2.io.inst_pack_IS  := inst_pack_IS_FU2_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
 
-    // ir_reg3.io.flush         := rob.io.predict_fail_cmt(7)
-    // ir_reg3.io.stall         := false.B
-    // ir_reg3.io.inst_pack_IS  := inst_pack_IS_FU3_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
 
     ir_reg3.io.flush         := rob.io.predict_fail_cmt(7)
     ir_reg3.io.stall         := mdu.io.busy
@@ -484,32 +477,33 @@ class CPU extends Module {
     /* ---------- 9. Execute Stage ---------- */
     // 1. arith common fu1
     // ALU
-    alu1.io.alu_op := re_reg1.io.inst_pack_EX.alu_op
-    alu1.io.src1 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
+    alu1.io.alu_op  := re_reg1.io.inst_pack_EX.alu_op
+    alu1.io.src1    := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
         RS1_REG     -> Mux(bypass12.io.forward_prj_en(0), bypass12.io.forward_prj_data(0), re_reg1.io.src1_EX),
         RS1_PC      -> re_reg1.io.inst_pack_EX.pc,
         RS1_ZERO    -> 0.U,
         RS1_CNTH    -> stable_cnt.io.value(63, 32)))
-    alu1.io.src2 := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
+    alu1.io.src2    := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
         RS2_REG     -> Mux(bypass12.io.forward_prk_en(0), bypass12.io.forward_prk_data(0), re_reg1.io.src2_EX),
         RS2_IMM     -> re_reg1.io.inst_pack_EX.imm,
         RS2_CSR     -> re_reg1.io.csr_rdata_EX,
         RS2_CNTL    -> stable_cnt.io.value(31, 0)))
 
-    val csr_op = re_reg1.io.inst_pack_EX.priv_vec(2)
-    val is_mret = re_reg1.io.inst_pack_EX.priv_vec(3)
-    val csr_src1 = Mux(bypass12.io.forward_prj_en(0), bypass12.io.forward_prj_data(0), re_reg1.io.src1_EX)
-    val csr_src2 = Mux(bypass12.io.forward_prk_en(0), bypass12.io.forward_prk_data(0), re_reg1.io.src2_EX)
-    val csr_wdata = Mux(is_mret, re_reg1.io.csr_rdata_EX, Mux(csr_op, csr_src1 & csr_src2 | ~csr_src1 & re_reg1.io.csr_rdata_EX,csr_src2))
+    // CSR update
+    val csr_op      = re_reg1.io.inst_pack_EX.priv_vec(2)
+    val is_mret     = re_reg1.io.inst_pack_EX.priv_vec(3)
+    val csr_src1    = Mux(bypass12.io.forward_prj_en(0), bypass12.io.forward_prj_data(0), re_reg1.io.src1_EX)
+    val csr_src2    = Mux(bypass12.io.forward_prk_en(0), bypass12.io.forward_prk_data(0), re_reg1.io.src2_EX)
+    val csr_wdata   = Mux(is_mret, re_reg1.io.csr_rdata_EX, Mux(csr_op, csr_src1 & csr_src2 | ~csr_src1 & re_reg1.io.csr_rdata_EX,csr_src2))
     
     // 2. arith common fu2
     // ALU
-    alu2.io.alu_op := re_reg2.io.inst_pack_EX.alu_op
-    alu2.io.src1 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
+    alu2.io.alu_op  := re_reg2.io.inst_pack_EX.alu_op
+    alu2.io.src1    := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
         RS1_REG     -> Mux(bypass12.io.forward_prj_en(1), bypass12.io.forward_prj_data(1), re_reg2.io.src1_EX),
         RS1_PC      -> re_reg2.io.inst_pack_EX.pc,
         RS1_ZERO    -> 0.U))
-    alu2.io.src2 := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
+    alu2.io.src2    := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
         RS2_REG     -> Mux(bypass12.io.forward_prk_en(1), bypass12.io.forward_prk_data(1), re_reg2.io.src2_EX),
         RS2_IMM     -> re_reg2.io.inst_pack_EX.imm,
         RS2_FOUR    -> 4.U))
