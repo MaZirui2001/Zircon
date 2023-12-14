@@ -38,7 +38,7 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
     val timer_int = timer_int_reg
 
     // CRMD：当前模式信息
-    val crmd = RegInit(0.U(32.W))
+    val crmd = RegInit(8.U(32.W))
     val prmd = RegInit(0.U(32.W))
     when(exception(7)){
         crmd := crmd(31, 3) ## 0.U(3.W) 

@@ -2,7 +2,7 @@ import chisel3._
 import chisel3.util._
 import CPU_Config._
 object PRED_Config{
-    val BTB_INDEX_WIDTH     = 8
+    val BTB_INDEX_WIDTH     = 7
     val BTB_TAG_WIDTH       = 28 - BTB_INDEX_WIDTH
     val BTB_DEPTH           = 1 << BTB_INDEX_WIDTH
     class btb_t extends Bundle{
@@ -79,7 +79,7 @@ class Predict extends Module{
     val pht_rdata       = VecInit.tabulate(FRONT_WIDTH)(i => pht(i)(pht_rindex(i)))
 
     val predict_valid   = VecInit.tabulate(FRONT_WIDTH)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
-    val predict_jump    = VecInit.tabulate(FRONT_WIDTH)(i => (btb_rdata(i).typ =/= ELSE || pht_rdata(i)(1)) && predict_valid(i))
+    val predict_jump    = VecInit.tabulate(FRONT_WIDTH)(i => (pht_rdata(i)(1)) && predict_valid(i))
 
     val valid_mask      = (((1 << FRONT_WIDTH)-1).U << pc(PC_BEGIN-1, 2))(FRONT_WIDTH-1, 0)
     val pred_hit        = VecInit.tabulate(FRONT_WIDTH)(i => predict_jump(i) && valid_mask(i))

@@ -29,7 +29,7 @@ object Issue_Queue_Pack{
 import Issue_Queue_Pack._
 class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle{
     // input from dispatch
-    val insts_disp_index = Input(Vec(FRONT_WIDTH, UInt(2.W)))
+    val insts_disp_index = Input(Vec(FRONT_WIDTH, UInt(log2Ceil(FRONT_WIDTH).W)))
     val insts_disp_valid = Input(Vec(FRONT_WIDTH, Bool()))
     val insts_dispatch   = Input(Vec(FRONT_WIDTH, inst_pack_t))
     val prj_ready        = Input(Vec(FRONT_WIDTH, Bool()))

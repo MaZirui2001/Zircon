@@ -5,61 +5,48 @@ import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
     val FRONT_WIDTH = 2
-    val FQ_NUM      = 16
+    val FQ_NUM      = 8
     val PREG_NUM    = 64
     val ROB_NUM     = 32
     val SB_NUM      = 4
-    // val IQ_AR_NUM   = 6
     val IQ_AP_NUM   = 6
     val IQ_AB_NUM   = 6
     val IQ_MD_NUM   = 6
     val IQ_LS_NUM   = 6
 }
-// object CPU_Config{
-//     val RESET_VEC   = 0x1c000000
-//     val FRONT_WIDTH = 4
-//     val PREG_NUM    = 56
-//     val ROB_NUM     = 32
-//     val SB_NUM      = 8
-//     val IQ_AR_NUM   = 8
-//     val IQ_AP_NUM   = 8
-//     val IQ_AB_NUM   = 8
-//     val IQ_MD_NUM   = 8
-//     val IQ_LS_NUM   = 8
-// }
 
 
 import CPU_Config._
 class CPU_IO extends Bundle{
-    val araddr                      = Output(UInt(32.W))
-    val arburst                     = Output(UInt(2.W))
-    val arid                        = Output(UInt(4.W))
-    val arlen                       = Output(UInt(8.W))  
-    val arready                     = Input(Bool())
-    val arsize                      = Output(UInt(3.W))
-    val arvalid                     = Output(Bool())
-    val awaddr                      = Output(UInt(32.W))
-    val awburst                     = Output(UInt(2.W))
-    val awid                        = Output(UInt(4.W))
-    val awlen                       = Output(UInt(8.W))
-    val awready                     = Input(Bool())
-    val awsize                      = Output(UInt(3.W))
-    val awvalid                     = Output(Bool())
-    val bid                         = Input(UInt(4.W))
-    val bready                      = Output(Bool())
-    val bresp                       = Input(UInt(2.W))
-    val bvalid                      = Input(Bool())
-    val rdata                       = Input(UInt(32.W))
-    val rid                         = Input(UInt(4.W))
-    val rlast                       = Input(Bool())
-    val rready                      = Output(Bool())
-    val rresp                       = Input(UInt(2.W))
-    val rvalid                      = Input(Bool())
-    val wdata                       = Output(UInt(32.W))
-    val wlast                       = Output(Bool())
-    val wready                      = Input(Bool())
-    val wstrb                       = Output(UInt(4.W))
-    val wvalid                      = Output(Bool())
+    val araddr                     = Output(UInt(32.W))
+    val arburst                    = Output(UInt(2.W))
+    val arid                       = Output(UInt(4.W))
+    val arlen                      = Output(UInt(8.W))  
+    val arready                    = Input(Bool())
+    val arsize                     = Output(UInt(3.W))
+    val arvalid                    = Output(Bool())
+    val awaddr                     = Output(UInt(32.W))
+    val awburst                    = Output(UInt(2.W))
+    val awid                       = Output(UInt(4.W))
+    val awlen                      = Output(UInt(8.W))
+    val awready                    = Input(Bool())
+    val awsize                     = Output(UInt(3.W))
+    val awvalid                    = Output(Bool())
+    val bid                        = Input(UInt(4.W))
+    val bready                     = Output(Bool())
+    val bresp                      = Input(UInt(2.W))
+    val bvalid                     = Input(Bool())
+    val rdata                      = Input(UInt(32.W))
+    val rid                        = Input(UInt(4.W))
+    val rlast                      = Input(Bool())
+    val rready                     = Output(Bool())
+    val rresp                      = Input(UInt(2.W))
+    val rvalid                     = Input(Bool())
+    val wdata                      = Output(UInt(32.W))
+    val wlast                      = Output(Bool())
+    val wready                     = Input(Bool())
+    val wstrb                      = Output(UInt(4.W))
+    val wvalid                     = Output(Bool())
 
     // debug
     val commit_en                  = Output(Vec(FRONT_WIDTH, Bool()))
@@ -175,7 +162,7 @@ class CPU extends Module {
 
     /* Write Back Stage */
     val rob             = Module(new ROB(ROB_NUM))
-    val bypass12       = Module(new Bypass_2)
+    val bypass12        = Module(new Bypass_2)
 
     /* Commit Stage */
     val arat            = Module(new Arch_Rat(PREG_NUM))
@@ -189,8 +176,8 @@ class CPU extends Module {
     pc.io.branch_target             := rob.io.branch_target_cmt
     pc.io.pred_jump                 := predict.io.predict_jump
     pc.io.pred_npc                  := predict.io.pred_npc
-    pc.io.flush_by_pd               := pd.io.pred_fix//pf_reg.io.pred_fix_FQ
-    pc.io.flush_pd_target           := pd.io.pred_fix_target//pf_reg.io.pred_fix_target_FQ
+    pc.io.flush_by_pd               := pd.io.pred_fix
+    pc.io.flush_pd_target           := pd.io.pred_fix_target
     
     // Branch Prediction
     predict.io.npc                  := pc.io.npc
@@ -209,7 +196,7 @@ class CPU extends Module {
     predict.io.ras_arch             := arat.io.ras_arch
 
     /* ---------- PF-IF SegReg ---------- */
-    val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U, pc.io.pc_PF+8.U, pc.io.pc_PF+12.U)
+    val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U)
     pi_reg.io.flush             := rob.io.predict_fail_cmt(0) || (!fq.io.full && pd.io.pred_fix)
     pi_reg.io.stall             := fq.io.full || icache.io.cache_miss_RM
     pi_reg.io.inst_pack_PF      := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i), 0.U))

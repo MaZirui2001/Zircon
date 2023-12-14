@@ -30,7 +30,6 @@ class Unorder_Select[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Module
     
     io.wake_preg            := Mux(io.issue_ack.reduce(_||_) && io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_t].rd_valid, io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
     
-    // io.priv_issued          := (if(inst_pack_t.isInstanceOf[inst_pack_DP_FU2_t]) io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_FU2_t].priv_vec(1) else DontCare)
     val inst_issue          = io.insts_issue(select_index)
     val bubble_inst_issue   = 0.U.asTypeOf(new issue_queue_t(inst_pack_t))
     io.inst_issue           := Mux(io.issue_ack.reduce(_||_), inst_issue, bubble_inst_issue)
