@@ -249,7 +249,7 @@ class CPU extends Module {
     /* ---------- ID-RN SegReg ---------- */
     dr_reg.io.flush          := rob.io.predict_fail_cmt(4) || (!dr_reg.io.stall && free_list.io.empty)
     dr_reg.io.stall          := rob.io.full || stall_by_iq
-    dr_reg.io.insts_pack_ID  := VecInit.tabulate(2)(i => inst_pack_ID_gen(fq.io.insts_pack_id(i), fq.io.insts_valid_decode(i), decode(i).rj, decode(i).rj_valid, decode(i).rk, decode(i).rk_valid, 
+    dr_reg.io.insts_pack_ID  := VecInit.tabulate(2)(i => inst_pack_ID_gen(fq.io.insts_pack_id(i), fq.io.insts_valid_decode(i), decode(i).rj, decode(i).rk, 
                                                                             decode(i).rd, decode(i).rd_valid, decode(i).imm, decode(i).alu_op, decode(i).alu_rs1_sel, decode(i).alu_rs2_sel, 
                                                                             decode(i).br_type, decode(i).mem_type, decode(i).fu_id, decode(i).priv_vec, decode(i).csr_addr, decode(i).exception))
     dr_reg.io.alloc_preg_ID  := free_list.io.alloc_preg
@@ -282,8 +282,8 @@ class CPU extends Module {
     bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, md_ex1_ex2_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, re_reg4.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM)
     bd.io.prd_disp              := rp_reg.io.insts_pack_DP.map(_.prd)
     bd.io.prd_disp_valid        := rp_reg.io.insts_pack_DP.map(_.rd_valid)
-    val prj_ready               = VecInit.tabulate(2)(i => !rp_reg.io.insts_pack_DP(i).rj_valid || rp_reg.io.insts_pack_DP(i).prj === 0.U || !(rp_reg.io.insts_pack_DP(i).prj_raw || bd.io.prj_busy(i)))
-    val prk_ready               = VecInit.tabulate(2)(i => !rp_reg.io.insts_pack_DP(i).rk_valid || rp_reg.io.insts_pack_DP(i).prk === 0.U || !(rp_reg.io.insts_pack_DP(i).prk_raw || bd.io.prk_busy(i)))
+    val prj_ready               = VecInit.tabulate(2)(i => rp_reg.io.insts_pack_DP(i).prj === 0.U || !(rp_reg.io.insts_pack_DP(i).prj_raw || bd.io.prj_busy(i)))
+    val prk_ready               = VecInit.tabulate(2)(i => rp_reg.io.insts_pack_DP(i).prk === 0.U || !(rp_reg.io.insts_pack_DP(i).prk_raw || bd.io.prk_busy(i)))
     
     // rob
     val is_store_dp             = VecInit.tabulate(2)(i => (rp_reg.io.insts_pack_DP(i).mem_type(4)))

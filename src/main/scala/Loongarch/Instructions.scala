@@ -144,9 +144,7 @@ object Inst_Pack{
     }
     class inst_pack_ID_t extends inst_pack_PD_t{
         val rj              = UInt(5.W)
-        val rj_valid        = Bool()
         val rk              = UInt(5.W)
-        val rk_valid        = Bool()
         val rd              = UInt(5.W)
         val rd_valid        = Bool()
         val imm             = UInt(32.W)
@@ -160,7 +158,7 @@ object Inst_Pack{
         val fu_id           = UInt(3.W)
         val exception       = UInt(8.W)
     }
-    def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rj_valid : Bool, _rk : UInt, _rk_valid : Bool, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, 
+    def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rk : UInt, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, 
                           _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _priv_vec: UInt, _csr_addr: UInt, _exception: UInt) : inst_pack_ID_t = {
         val inst_pack_ID = Wire(new inst_pack_ID_t)
         inst_pack_ID.pc             := inst_pack_PD.pc
@@ -169,9 +167,7 @@ object Inst_Pack{
         inst_pack_ID.predict_jump   := inst_pack_PD.predict_jump
         inst_pack_ID.pred_npc       := inst_pack_PD.pred_npc
         inst_pack_ID.rj             := _rj
-        inst_pack_ID.rj_valid       := _rj_valid
         inst_pack_ID.rk             := _rk
-        inst_pack_ID.rk_valid       := _rk_valid
         inst_pack_ID.rd             := _rd
         inst_pack_ID.rd_valid       := _rd_valid
         inst_pack_ID.imm            := _imm
@@ -202,9 +198,7 @@ object Inst_Pack{
         inst_pack_RN.predict_jump   := inst_pack_ID.predict_jump
         inst_pack_RN.pred_npc       := inst_pack_ID.pred_npc
         inst_pack_RN.rj             := inst_pack_ID.rj
-        inst_pack_RN.rj_valid       := inst_pack_ID.rj_valid
         inst_pack_RN.rk             := inst_pack_ID.rk
-        inst_pack_RN.rk_valid       := inst_pack_ID.rk_valid
         inst_pack_RN.rd             := inst_pack_ID.rd
         inst_pack_RN.rd_valid       := inst_pack_ID.rd_valid
         inst_pack_RN.imm            := inst_pack_ID.imm

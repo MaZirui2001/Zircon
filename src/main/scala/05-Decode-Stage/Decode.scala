@@ -4,9 +4,7 @@ import chisel3.util._
 class DecodeIO extends Bundle{
     val inst            = Input(UInt(32.W))
     val rj              = Output(UInt(5.W))
-    val rj_valid        = Output(Bool())
     val rk              = Output(UInt(5.W))
-    val rk_valid        = Output(Bool())
     val rd              = Output(UInt(5.W))
     val rd_valid        = Output(Bool())
 
@@ -25,16 +23,12 @@ class DecodeIO extends Bundle{
 }
 class Decode extends Module{
     val io = IO(new DecodeIO)
-    
     val ctrl = ListLookup(io.inst, Control_Signal.default, Control_Signal.map)
 
-    io.rj               := io.inst(9, 5)
-    io.rj_valid         := ctrl(0)
+    io.rj               := Mux(ctrl(0).asBool, io.inst(9, 5), 0.U(5.W))
 
-    io.rk               := Mux(ctrl(9)(0).asBool, io.inst(14, 10), io.inst(4, 0))
-    io.rk_valid         := ctrl(1)
+    io.rk               := Mux(ctrl(1).asBool, Mux(ctrl(9)(0).asBool, io.inst(14, 10), io.inst(4, 0)), 0.U)
 
-    //io.rd               := Mux(ctrl(10).asBool, 1.U(5.W), io.inst(4, 0))
     io.rd               := MuxLookup(ctrl(10), io.inst(4, 0))(Seq(
                             Control_Signal.RD    -> io.inst(4, 0),
                             Control_Signal.R1    -> 1.U(5.W),
