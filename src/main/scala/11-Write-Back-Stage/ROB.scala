@@ -118,7 +118,7 @@ class ROB(n: Int) extends Module{
 
     /* ROB status */
     val empty       = VecInit(elem_num.map(_ === 0.U))
-    val full        = VecInit(elem_num.map(_ === neach.U)).reduce(_||_)
+    val full        = VecInit(elem_num.map(_ === neach.U)).asUInt.orR
 
     val inst_valid_dp = io.inst_valid_dp(0)
     // rn stage
@@ -139,7 +139,7 @@ class ROB(n: Int) extends Module{
         }
         val priv_bits = VecInit.tabulate(2)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR)
         val priv_index = !priv_bits(0)
-        when(!priv_buf.valid && inst_valid_dp && priv_bits.reduce(_||_)){
+        when(!priv_buf.valid && inst_valid_dp && priv_bits.asUInt.orR){
             priv_buf.csr_addr  := io.csr_addr_dp(priv_index)
             priv_buf.priv_vec  := io.priv_vec_dp(priv_index)
             priv_buf.valid     := true.B

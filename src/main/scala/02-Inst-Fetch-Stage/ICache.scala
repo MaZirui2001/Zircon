@@ -123,8 +123,7 @@ class ICache extends Module{
     /* hit logic */
     val hit_RM          = VecInit.tabulate(2)(i => valid_r_RM(i) && tag_r_RM(i) === tag_RM)
     val hit_index_RM    = OHToUInt(hit_RM)
-    val cache_hit_RM    = hit_RM.reduce(_||_)
-
+    val cache_hit_RM    = hit_RM.asUInt.orR
     /* rdata logic */
     val block_offset    = offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(5.W)
     val cmem_rdata_RM   = (cmem(hit_index_RM).douta >> block_offset)(127, 0)

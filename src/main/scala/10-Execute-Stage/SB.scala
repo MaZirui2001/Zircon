@@ -98,7 +98,7 @@ class SB(n: Int) extends Module {
     for(i <- 0 until 4){
         val addr_ex         = ld_addr_ex + i.U
         val ld_hit          = VecInit.tabulate(n)(j => sb_order(j).addr(31, 2) === addr_ex(31, 2) && sb_order(j).wstrb(addr_ex(1, 0)) && is_in_queue(j))
-        val ld_bit_hit      = ld_hit.reduce(_||_) && ld_mask(i)
+        val ld_bit_hit      = ld_hit.asUInt.orR && ld_mask(i)
         val ld_hit_index    = PriorityEncoder(ld_hit.asUInt)
         val hit_byte        = sb_order(ld_hit_index).data >> (addr_ex(1, 0) ## 0.U(3.W))
         ld_hit_data(i)      := Mux(ld_bit_hit, hit_byte, 0.U)

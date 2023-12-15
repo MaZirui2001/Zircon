@@ -11,7 +11,7 @@ class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends 
     val insts_dispatch   = Input(Vec(2, inst_pack_t))
     val prj_ready        = Input(Vec(2, Bool()))
     val prk_ready        = Input(Vec(2, Bool()))
-    val queue_ready      = Output(Bool())
+    val queue_ready      = Output(Bool()) 
 
     // input from wakeup
     val wake_preg        = Input(Vec(5, UInt(log2Ceil(PREG_NUM).W)))
