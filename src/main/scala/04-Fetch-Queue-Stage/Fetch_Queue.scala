@@ -34,8 +34,8 @@ class Fetch_Queue extends Module{
     val head = RegInit(0.U(log2Ceil(ROW_WIDTH).W))
     val tail = RegInit(0.U(log2Ceil(FQ_NUM).W))
 
-    val full  = head === tail(log2Ceil(FQ_NUM)-1, log2Ceil(2)) + 1.U
-    val empty = head === tail(log2Ceil(FQ_NUM)-1, log2Ceil(2))
+    val full  = head === tail(log2Ceil(FQ_NUM)-1, 1) + 1.U
+    val empty = head === tail(log2Ceil(FQ_NUM)-1, 1)
 
 
     // Enqueue
@@ -51,7 +51,7 @@ class Fetch_Queue extends Module{
     // write to queue
     for(i <- 0 until 2){
         when(!full && io.insts_pack(i).inst_valid){
-            queue(entry_idxs(i)(log2Ceil(2)-1, 0))(entry_idxs(i)(log2Ceil(FQ_NUM)-1, log2Ceil(2))) := io.insts_pack(i)
+            queue(entry_idxs(i)(1-1, 0))(entry_idxs(i)(log2Ceil(FQ_NUM)-1, 1)) := io.insts_pack(i)
         }
     }
     // Dequeue

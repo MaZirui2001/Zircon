@@ -77,7 +77,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
         when(i.asUInt < tail_pop){
             queue_next(i) := (if(i == n-1) queue(i) else Mux(next_mask(i), queue(i+1), queue(i)))
         }.otherwise{
-            val idx                         = (i.U - tail_pop)(log2Ceil(2)-1, 0)
+            val idx                         = (i.U - tail_pop)(0)
             queue_next(i).inst              := io.insts_dispatch(io.insts_disp_index(idx))
             queue_next(i).prj_waked         := io.prj_ready(io.insts_disp_index(idx))
             queue_next(i).prk_waked         := io.prk_ready(io.insts_disp_index(idx))

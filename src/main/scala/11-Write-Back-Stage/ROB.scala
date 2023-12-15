@@ -101,7 +101,7 @@ class ROB_IO(n: Int) extends Bundle{
 
 class ROB(n: Int) extends Module{
     val io              = IO(new ROB_IO(n))
-    val FRONT_LOG2      = log2Ceil(2)
+    val FRONT_LOG2      = 1
     val neach           = n / 2
     import ROB_Pack._
     /* ROB items */
