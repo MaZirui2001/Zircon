@@ -6,10 +6,10 @@ import CPU_Config._
 
 class Arch_Rat_IO(n: Int) extends Bundle {
     // for commit 
-    val cmt_en          = Input(Vec(FRONT_WIDTH, Bool()))
-    val prd_cmt         = Input(Vec(FRONT_WIDTH, UInt(log2Ceil(n).W)))
-    val pprd_cmt        = Input(Vec(FRONT_WIDTH, UInt(log2Ceil(n).W)))
-    val rd_valid_cmt    = Input(Vec(FRONT_WIDTH, Bool()))
+    val cmt_en          = Input(Vec(2, Bool()))
+    val prd_cmt         = Input(Vec(2, UInt(log2Ceil(n).W)))
+    val pprd_cmt        = Input(Vec(2, UInt(log2Ceil(n).W)))
+    val rd_valid_cmt    = Input(Vec(2, Bool()))
     val predict_fail    = Input(Bool())
 
     // for reg rename
@@ -33,13 +33,13 @@ class Arch_Rat(n: Int) extends Module {
 
     val head = RegInit(0.U(log2Ceil(n).W))
     var head_next = head
-    for(i <- 0 until FRONT_WIDTH){
+    for(i <- 0 until 2){
         head_next = Mux(io.cmt_en(i) && io.rd_valid_cmt(i), Mux(head_next === (n-1).U, 0.U, head_next + 1.U), head_next)
     }
     head := head_next
 
     arat_next := arat
-    for(i <- 0 until FRONT_WIDTH){
+    for(i <- 0 until 2){
         when(io.rd_valid_cmt(i) && io.cmt_en(i)){
             arat_next(io.pprd_cmt(i)) := false.B
             arat_next(io.prd_cmt(i)) := true.B

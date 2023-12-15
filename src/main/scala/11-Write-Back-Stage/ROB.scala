@@ -30,18 +30,18 @@ object ROB_Pack{
 }
 class ROB_IO(n: Int) extends Bundle{
     // for reg rename
-    val inst_valid_dp           = Input(Vec(FRONT_WIDTH, Bool()))
-    val rd_dp                   = Input(Vec(FRONT_WIDTH, UInt(5.W)))
-    val rd_valid_dp             = Input(Vec(FRONT_WIDTH, Bool()))
-    val prd_dp                  = Input(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
-    val pprd_dp                 = Input(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
-    val rob_index_dp            = Output(Vec(FRONT_WIDTH, UInt(log2Ceil(n).W)))
-    val pc_dp                   = Input(Vec(FRONT_WIDTH, UInt(32.W)))
-    val is_store_dp             = Input(Vec(FRONT_WIDTH, Bool()))
-    val br_type_pred_dp         = Input(Vec(FRONT_WIDTH, UInt(2.W)))
-    val pred_update_en_dp       = Input(Vec(FRONT_WIDTH, Bool()))
-    val csr_addr_dp             = Input(Vec(FRONT_WIDTH, UInt(14.W)))
-    val priv_vec_dp             = Input(Vec(FRONT_WIDTH, UInt(4.W)))
+    val inst_valid_dp           = Input(Vec(2, Bool()))
+    val rd_dp                   = Input(Vec(2, UInt(5.W)))
+    val rd_valid_dp             = Input(Vec(2, Bool()))
+    val prd_dp                  = Input(Vec(2, UInt(log2Ceil(PREG_NUM).W)))
+    val pprd_dp                 = Input(Vec(2, UInt(log2Ceil(PREG_NUM).W)))
+    val rob_index_dp            = Output(Vec(2, UInt(log2Ceil(n).W)))
+    val pc_dp                   = Input(Vec(2, UInt(32.W)))
+    val is_store_dp             = Input(Vec(2, Bool()))
+    val br_type_pred_dp         = Input(Vec(2, UInt(2.W)))
+    val pred_update_en_dp       = Input(Vec(2, Bool()))
+    val csr_addr_dp             = Input(Vec(2, UInt(14.W)))
+    val priv_vec_dp             = Input(Vec(2, UInt(4.W)))
     val full                    = Output(Bool())
     val stall                   = Input(Bool())
 
@@ -56,10 +56,10 @@ class ROB_IO(n: Int) extends Bundle{
     val rf_wdata_wb             = Input(Vec(4, UInt(32.W)))
 
     // for cpu state: arch rat
-    val cmt_en                  = Output(Vec(FRONT_WIDTH, Bool()))
-    val prd_cmt                 = Output(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
-    val rd_valid_cmt            = Output(Vec(FRONT_WIDTH, Bool()))
-    val pprd_cmt                = Output(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
+    val cmt_en                  = Output(Vec(2, Bool()))
+    val prd_cmt                 = Output(Vec(2, UInt(log2Ceil(PREG_NUM).W)))
+    val rd_valid_cmt            = Output(Vec(2, Bool()))
+    val pprd_cmt                = Output(Vec(2, UInt(log2Ceil(PREG_NUM).W)))
 
     // for store buffer
     val is_store_num_cmt        = Output(UInt(2.W))
@@ -84,37 +84,37 @@ class ROB_IO(n: Int) extends Bundle{
     val interrupt_vec           = Input(UInt(12.W))
 
     // diff
-    val is_ucread_cmt           = Output(Vec(FRONT_WIDTH, Bool()))
-    val rd_cmt                  = Output(Vec(FRONT_WIDTH, UInt(5.W)))
-    val rf_wdata_cmt            = Output(Vec(FRONT_WIDTH, UInt(32.W)))
+    val is_ucread_cmt           = Output(Vec(2, Bool()))
+    val rd_cmt                  = Output(Vec(2, UInt(5.W)))
+    val rf_wdata_cmt            = Output(Vec(2, UInt(32.W)))
     val branch_target_cmt       = Output(UInt(32.W))
-    val pc_cmt                  = Output(Vec(FRONT_WIDTH, UInt(32.W)))
-    val csr_diff_addr_cmt       = Output(Vec(FRONT_WIDTH, UInt(14.W)))
-    val csr_diff_wdata_cmt      = Output(Vec(FRONT_WIDTH, UInt(32.W)))
-    val csr_diff_we_cmt         = Output(Vec(FRONT_WIDTH, Bool()))
+    val pc_cmt                  = Output(Vec(2, UInt(32.W)))
+    val csr_diff_addr_cmt       = Output(Vec(2, UInt(14.W)))
+    val csr_diff_wdata_cmt      = Output(Vec(2, UInt(32.W)))
+    val csr_diff_we_cmt         = Output(Vec(2, Bool()))
 
     // stat
-    val predict_fail_stat       = Output(Vec(FRONT_WIDTH, Bool()))
-    val br_type_stat            = Output(Vec(FRONT_WIDTH, UInt(2.W)))
-    val is_br_stat              = Output(Vec(FRONT_WIDTH, Bool()))
+    val predict_fail_stat       = Output(Vec(2, Bool()))
+    val br_type_stat            = Output(Vec(2, UInt(2.W)))
+    val is_br_stat              = Output(Vec(2, Bool()))
 }
 
 class ROB(n: Int) extends Module{
     val io              = IO(new ROB_IO(n))
-    val FRONT_LOG2      = log2Ceil(FRONT_WIDTH)
-    val neach           = n / FRONT_WIDTH
+    val FRONT_LOG2      = log2Ceil(2)
+    val neach           = n / 2
     import ROB_Pack._
     /* ROB items */
-    val rob         = RegInit(VecInit(Seq.fill(FRONT_WIDTH)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
+    val rob         = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
     val priv_buf    = RegInit(0.U.asTypeOf(new priv_t(n)))
 
     /* ROB ptrs */
     val head        = RegInit(0.U(log2Ceil(n).W))
-    val head_each   = VecInit(Seq.tabulate(FRONT_WIDTH)(i => head + i.U(log2Ceil(n).W)))
+    val head_each   = VecInit(Seq.tabulate(2)(i => head + i.U(log2Ceil(n).W)))
     val tail        = RegInit(0.U(log2Ceil(neach).W))
-    val elem_num    = RegInit(VecInit(Seq.fill(FRONT_WIDTH)(0.U((log2Ceil(neach)+1).W))))
-    val hsel_idx    = VecInit.tabulate(FRONT_WIDTH)(i => head_each(i)(FRONT_LOG2-1, 0))
-    val head_idx    = VecInit.tabulate(FRONT_WIDTH)(i => head_each(i)(log2Ceil(n)-1, FRONT_LOG2))
+    val elem_num    = RegInit(VecInit(Seq.fill(2)(0.U((log2Ceil(neach)+1).W))))
+    val hsel_idx    = VecInit.tabulate(2)(i => head_each(i)(FRONT_LOG2-1, 0))
+    val head_idx    = VecInit.tabulate(2)(i => head_each(i)(log2Ceil(n)-1, FRONT_LOG2))
 
     /* ROB status */
     val empty       = VecInit(elem_num.map(_ === 0.U))
@@ -123,7 +123,7 @@ class ROB(n: Int) extends Module{
     val inst_valid_dp = io.inst_valid_dp(0)
     // rn stage
     when(!full){
-        for(i <- 0 until FRONT_WIDTH){
+        for(i <- 0 until 2){
             when(inst_valid_dp){
                 rob(i)(tail).rd              := io.rd_dp(i)
                 rob(i)(tail).rd_valid        := io.rd_valid_dp(i)
@@ -137,8 +137,8 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR
             }
         }
-        val priv_bits = VecInit.tabulate(FRONT_WIDTH)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR)
-        val priv_index = PriorityEncoder(priv_bits)
+        val priv_bits = VecInit.tabulate(2)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR)
+        val priv_index = !priv_bits(0)
         when(!priv_buf.valid && inst_valid_dp && priv_bits.reduce(_||_)){
             priv_buf.csr_addr  := io.csr_addr_dp(priv_index)
             priv_buf.priv_vec  := io.priv_vec_dp(priv_index)
@@ -146,7 +146,7 @@ class ROB(n: Int) extends Module{
         }
 
     }
-    io.rob_index_dp := VecInit.tabulate(FRONT_WIDTH)(i => tail ## i.U(FRONT_LOG2.W))
+    io.rob_index_dp := VecInit.tabulate(2)(i => tail ## i.U(FRONT_LOG2.W))
     io.full         := full
     // wb stage
     for(i <- 0 until 4){
@@ -164,9 +164,9 @@ class ROB(n: Int) extends Module{
     }
     
     // cmt stage
-    val cmt_en    = Wire(Vec(FRONT_WIDTH, Bool()))
+    val cmt_en    = Wire(Vec(2, Bool()))
     cmt_en(0) := rob(hsel_idx(0))(head_idx(0)).complete && !empty(hsel_idx(0))
-    for(i <- 1 until FRONT_WIDTH){
+    for(i <- 1 until 2){
         cmt_en(i) := (cmt_en(i-1) && rob(hsel_idx(i))(head_idx(i)).complete 
                         && !rob(hsel_idx(i-1))(head_idx(i-1)).pred_update_en 
                         && !rob(hsel_idx(i-1))(head_idx(i-1)).is_priv_wrt
@@ -201,8 +201,8 @@ class ROB(n: Int) extends Module{
 
 
     // update store buffer
-    val rob_commit_items        = VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)))
-    val is_store_cmt_bit        = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).is_store && cmt_en(i))
+    val rob_commit_items        = VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)))
+    val is_store_cmt_bit        = VecInit.tabulate(2)(i => rob_commit_items(i).is_store && cmt_en(i))
     val is_store_num_cmt        = PopCount(is_store_cmt_bit)
     io.is_store_num_cmt         := ShiftRegister(is_store_num_cmt, 1)
 
@@ -224,8 +224,8 @@ class ROB(n: Int) extends Module{
     // update ptrs
     val cmt_num                 = PopCount(cmt_en)
     head                        := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(head + cmt_num >= n.U, head + cmt_num - n.U, head + cmt_num))                 
-    val head_inc                = VecInit(Seq.fill(FRONT_WIDTH)(false.B))
-    for(i <- 0 until FRONT_WIDTH){
+    val head_inc                = VecInit(Seq.fill(2)(false.B))
+    for(i <- 0 until 2){
         head_inc(hsel_idx(i))   := cmt_en(i)
         elem_num(i)             := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(!full && !io.stall, elem_num(i) + inst_valid_dp - head_inc(i), elem_num(i) - head_inc(i)))
     }
@@ -233,16 +233,17 @@ class ROB(n: Int) extends Module{
 
 
     // stat
-    val rd_cmt                   = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rd)
-    val rd_valid_cmt             = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rd_valid)
-    val prd_cmt                  = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).prd)
-    val pprd_cmt                 = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).pprd)
-    val pc_cmt                   = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).exception(7) || interrupt_vec.orR && cmt_en.asUInt.orR, eentry_global, Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U)))
-    val rf_wdata_cmt             = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).rf_wdata)
-    val is_ucread_cmt            = VecInit.tabulate(FRONT_WIDTH)(i => rob_commit_items(i).is_ucread && cmt_en(i))
-    val csr_diff_addr_cmt        = VecInit.fill(FRONT_WIDTH)(priv_buf.csr_addr)
-    val csr_diff_wdata_cmt       = VecInit.fill(FRONT_WIDTH)(rob_update_item.branch_target)
-    val csr_diff_we_cmt          = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
+    val rd_cmt                   = VecInit.tabulate(2)(i => rob_commit_items(i).rd)
+    val rd_valid_cmt             = VecInit.tabulate(2)(i => rob_commit_items(i).rd_valid)
+    val prd_cmt                  = VecInit.tabulate(2)(i => rob_commit_items(i).prd)
+    val pprd_cmt                 = VecInit.tabulate(2)(i => rob_commit_items(i).pprd)
+    val pc_cmt                   = VecInit.tabulate(2)(i => Mux(rob_commit_items(i).exception(7) || interrupt_vec.orR && cmt_en.asUInt.orR, eentry_global, 
+                                                                      Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, (rob_commit_items(i).pc ## 0.U(2.W)) + 4.U)))
+    val rf_wdata_cmt             = VecInit.tabulate(2)(i => rob_commit_items(i).rf_wdata)
+    val is_ucread_cmt            = VecInit.tabulate(2)(i => rob_commit_items(i).is_ucread && cmt_en(i))
+    val csr_diff_addr_cmt        = VecInit.fill(2)(priv_buf.csr_addr)
+    val csr_diff_wdata_cmt       = VecInit.fill(2)(rob_update_item.branch_target)
+    val csr_diff_we_cmt          = VecInit.tabulate(2)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
 
     io.rd_valid_cmt             := ShiftRegister(rd_valid_cmt, 1)
     io.rd_cmt                   := ShiftRegister(rd_cmt, 1)
@@ -254,7 +255,7 @@ class ROB(n: Int) extends Module{
     io.csr_diff_addr_cmt        := ShiftRegister(csr_diff_addr_cmt, 1)
     io.csr_diff_wdata_cmt       := ShiftRegister(csr_diff_wdata_cmt, 1)
     io.csr_diff_we_cmt          := ShiftRegister(csr_diff_we_cmt, 1)
-    io.predict_fail_stat        := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).predict_fail & cmt_en(i)), 1)
-    io.br_type_stat             := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).br_type_pred), 1)
-    io.is_br_stat               := ShiftRegister(VecInit.tabulate(FRONT_WIDTH)(i => rob(hsel_idx(i))(head_idx(i)).pred_update_en & cmt_en(i)), 1)
+    io.predict_fail_stat        := ShiftRegister(VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)).predict_fail & cmt_en(i)), 1)
+    io.br_type_stat             := ShiftRegister(VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)).br_type_pred), 1)
+    io.is_br_stat               := ShiftRegister(VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)).pred_update_en & cmt_en(i)), 1)
 } 

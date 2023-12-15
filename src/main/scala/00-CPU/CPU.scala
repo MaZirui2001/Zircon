@@ -4,7 +4,7 @@ import Inst_Pack._
 import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
-    val FRONT_WIDTH = 2
+    // val 2 = 2
     val FQ_NUM      = 8
     val PREG_NUM    = 64
     val ROB_NUM     = 32
@@ -49,19 +49,19 @@ class CPU_IO extends Bundle{
     val wvalid                     = Output(Bool())
 
     // debug
-    val commit_en                  = Output(Vec(FRONT_WIDTH, Bool()))
-    val commit_rd                  = Output(Vec(FRONT_WIDTH, UInt(5.W)))
-    val commit_prd                 = Output(Vec(FRONT_WIDTH, UInt(log2Ceil(PREG_NUM).W)))
-    val commit_rd_valid            = Output(Vec(FRONT_WIDTH, Bool()))
-    val commit_rf_wdata            = Output(Vec(FRONT_WIDTH, UInt(32.W)))
-    val commit_csr_wdata           = Output(Vec(FRONT_WIDTH, UInt(32.W)))
-    val commit_csr_we              = Output(Vec(FRONT_WIDTH, Bool()))
-    val commit_csr_waddr           = Output(Vec(FRONT_WIDTH, UInt(14.W)))
-    val commit_pc                  = Output(Vec(FRONT_WIDTH, UInt(32.W)))
-    val commit_is_ucread           = Output(Vec(FRONT_WIDTH, Bool()))
-    val commit_is_br               = Output(Vec(FRONT_WIDTH, Bool()))
-    val commit_br_type             = Output(Vec(FRONT_WIDTH, UInt(2.W)))
-    val commit_predict_fail        = Output(Vec(FRONT_WIDTH, Bool()))
+    val commit_en                  = Output(Vec(2, Bool()))
+    val commit_rd                  = Output(Vec(2, UInt(5.W)))
+    val commit_prd                 = Output(Vec(2, UInt(log2Ceil(PREG_NUM).W)))
+    val commit_rd_valid            = Output(Vec(2, Bool()))
+    val commit_rf_wdata            = Output(Vec(2, UInt(32.W)))
+    val commit_csr_wdata           = Output(Vec(2, UInt(32.W)))
+    val commit_csr_we              = Output(Vec(2, Bool()))
+    val commit_csr_waddr           = Output(Vec(2, UInt(14.W)))
+    val commit_pc                  = Output(Vec(2, UInt(32.W)))
+    val commit_is_ucread           = Output(Vec(2, Bool()))
+    val commit_is_br               = Output(Vec(2, Bool()))
+    val commit_br_type             = Output(Vec(2, UInt(2.W)))
+    val commit_predict_fail        = Output(Vec(2, Bool()))
     val commit_interrupt           = Output(Bool())
     val commit_interrupt_type      = Output(UInt(13.W))
 
@@ -103,7 +103,7 @@ class CPU extends Module {
     val fq              = Module(new Fetch_Queue)
 
     /* Decode Stage */
-    val decode          = VecInit(Seq.fill(FRONT_WIDTH)(Module(new Decode).io))
+    val decode          = VecInit(Seq.fill(2)(Module(new Decode).io))
     val dr_reg          = Module(new ID_RN_Reg)
     val free_list       = Module(new Free_List(PREG_NUM))
 
@@ -199,7 +199,7 @@ class CPU extends Module {
     val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF+4.U)
     pi_reg.io.flush             := rob.io.predict_fail_cmt(0) || (!fq.io.full && pd.io.pred_fix)
     pi_reg.io.stall             := fq.io.full || icache.io.cache_miss_RM
-    pi_reg.io.inst_pack_PF      := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i), 0.U))
+    pi_reg.io.inst_pack_PF      := VecInit.tabulate(2)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i), 0.U))
 
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
@@ -214,7 +214,7 @@ class CPU extends Module {
     /* ---------- IF-PD SegReg ---------- */
     ip_reg.io.flush             := rob.io.predict_fail_cmt(1) || (!ip_reg.io.stall && (pd.io.pred_fix || icache.io.cache_miss_RM))
     ip_reg.io.stall             := fq.io.full
-    ip_reg.io.insts_pack_IF     := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), icache.io.rdata_RM(i)))
+    ip_reg.io.insts_pack_IF     := VecInit.tabulate(2)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), icache.io.rdata_RM(i)))
 
     /* ---------- 3. Previous Decode Stage ---------- */
     // Previous Decoder
@@ -222,7 +222,7 @@ class CPU extends Module {
 
     // pf_reg.io.flush                 := rob.io.predict_fail_cmt(2) || !pf_reg.io.stall && (pf_reg.io.pred_fix_FQ)
     // pf_reg.io.stall                 := fq.io.full
-    // pf_reg.io.insts_pack_PD         := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i)))
+    // pf_reg.io.insts_pack_PD         := VecInit.tabulate(2)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i)))
     // pf_reg.io.pred_fix_PD           := pd.io.pred_fix
     // pf_reg.io.pred_fix_target_PD    := pd.io.pred_fix_target
     // pf_reg.io.pred_fix_is_bl_PD     := pd.io.pred_fix_is_bl
@@ -235,11 +235,11 @@ class CPU extends Module {
 
     /* ---------- 4. Decode Stage ---------- */
     // Decode
-    for(i <- 0 until FRONT_WIDTH){
+    for(i <- 0 until 2){
         decode(i).inst := fq.io.insts_pack_id(i).inst
     }
     free_list.io.rd_valid           := decode.map(_.rd_valid)
-    free_list.io.rename_en          := VecInit.tabulate(FRONT_WIDTH)(i => fq.io.insts_valid_decode(i) && fq.io.next_ready)
+    free_list.io.rename_en          := VecInit.tabulate(2)(i => fq.io.insts_valid_decode(i) && fq.io.next_ready)
     free_list.io.commit_en          := rob.io.cmt_en
     free_list.io.commit_pprd_valid  := (rob.io.rd_valid_cmt.asUInt & VecInit(rob.io.pprd_cmt.map(_ =/= 0.U)).asUInt).asBools
     free_list.io.commit_pprd        := rob.io.pprd_cmt
@@ -249,7 +249,7 @@ class CPU extends Module {
     /* ---------- ID-RN SegReg ---------- */
     dr_reg.io.flush          := rob.io.predict_fail_cmt(4) || (!dr_reg.io.stall && free_list.io.empty)
     dr_reg.io.stall          := rob.io.full || stall_by_iq
-    dr_reg.io.insts_pack_ID  := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_ID_gen(fq.io.insts_pack_id(i), fq.io.insts_valid_decode(i), decode(i).rj, decode(i).rj_valid, decode(i).rk, decode(i).rk_valid, 
+    dr_reg.io.insts_pack_ID  := VecInit.tabulate(2)(i => inst_pack_ID_gen(fq.io.insts_pack_id(i), fq.io.insts_valid_decode(i), decode(i).rj, decode(i).rj_valid, decode(i).rk, decode(i).rk_valid, 
                                                                             decode(i).rd, decode(i).rd_valid, decode(i).imm, decode(i).alu_op, decode(i).alu_rs1_sel, decode(i).alu_rs2_sel, 
                                                                             decode(i).br_type, decode(i).mem_type, decode(i).fu_id, decode(i).priv_vec, decode(i).csr_addr, decode(i).exception))
     dr_reg.io.alloc_preg_ID  := free_list.io.alloc_preg
@@ -259,7 +259,7 @@ class CPU extends Module {
     rename.io.rk                := dr_reg.io.insts_pack_RN.map(_.rk)
     rename.io.rd                := dr_reg.io.insts_pack_RN.map(_.rd)
     rename.io.rd_valid          := dr_reg.io.insts_pack_RN.map(_.rd_valid)
-    rename.io.rename_en         := VecInit.tabulate(FRONT_WIDTH)(i => dr_reg.io.insts_pack_RN(i).inst_valid && !dr_reg.io.stall)
+    rename.io.rename_en         := VecInit.tabulate(2)(i => dr_reg.io.insts_pack_RN(i).inst_valid && !dr_reg.io.stall)
     rename.io.predict_fail      := ShiftRegister(rob.io.predict_fail_cmt(4), 1)
     rename.io.arch_rat          := arat.io.arch_rat
     rename.io.alloc_preg        := dr_reg.io.alloc_preg_RN
@@ -267,7 +267,7 @@ class CPU extends Module {
     /* ---------- RN-DP SegReg ---------- */
     rp_reg.io.flush             := rob.io.predict_fail_cmt(5)
     rp_reg.io.stall             := stall_by_iq || rob.io.full
-    rp_reg.io.insts_pack_RN     := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i), rename.io.prj_raw(i), rename.io.prk_raw(i)))
+    rp_reg.io.insts_pack_RN     := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i), rename.io.prj_raw(i), rename.io.prk_raw(i)))
 
     /* ---------- 6. Dispatch Stage ---------- */
     // Dispatch
@@ -282,15 +282,15 @@ class CPU extends Module {
     bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, md_ex1_ex2_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, re_reg4.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM)
     bd.io.prd_disp              := rp_reg.io.insts_pack_DP.map(_.prd)
     bd.io.prd_disp_valid        := rp_reg.io.insts_pack_DP.map(_.rd_valid)
-    val prj_ready               = VecInit.tabulate(FRONT_WIDTH)(i => !rp_reg.io.insts_pack_DP(i).rj_valid || rp_reg.io.insts_pack_DP(i).prj === 0.U || !(rp_reg.io.insts_pack_DP(i).prj_raw || bd.io.prj_busy(i)))
-    val prk_ready               = VecInit.tabulate(FRONT_WIDTH)(i => !rp_reg.io.insts_pack_DP(i).rk_valid || rp_reg.io.insts_pack_DP(i).prk === 0.U || !(rp_reg.io.insts_pack_DP(i).prk_raw || bd.io.prk_busy(i)))
+    val prj_ready               = VecInit.tabulate(2)(i => !rp_reg.io.insts_pack_DP(i).rj_valid || rp_reg.io.insts_pack_DP(i).prj === 0.U || !(rp_reg.io.insts_pack_DP(i).prj_raw || bd.io.prj_busy(i)))
+    val prk_ready               = VecInit.tabulate(2)(i => !rp_reg.io.insts_pack_DP(i).rk_valid || rp_reg.io.insts_pack_DP(i).prk === 0.U || !(rp_reg.io.insts_pack_DP(i).prk_raw || bd.io.prk_busy(i)))
     
     // rob
-    val is_store_dp             = VecInit.tabulate(FRONT_WIDTH)(i => (rp_reg.io.insts_pack_DP(i).mem_type(4)))
-    val br_type_dp              = VecInit.tabulate(FRONT_WIDTH)(i => Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rd === 1.U, 3.U, 
+    val is_store_dp             = VecInit.tabulate(2)(i => (rp_reg.io.insts_pack_DP(i).mem_type(4)))
+    val br_type_dp              = VecInit.tabulate(2)(i => Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rd === 1.U, 3.U, 
                                                                      Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rj === 1.U, 1.U(2.W), 
                                                                      Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
-    val pred_update_en          = VecInit.tabulate(FRONT_WIDTH)(i => (rp_reg.io.insts_pack_DP(i).br_type =/= NO_BR))
+    val pred_update_en          = VecInit.tabulate(2)(i => (rp_reg.io.insts_pack_DP(i).br_type =/= NO_BR))
     rob.io.inst_valid_dp        := rp_reg.io.insts_pack_DP.map(_.inst_valid)
     rob.io.rd_dp                := rp_reg.io.insts_pack_DP.map(_.rd)
     rob.io.rd_valid_dp          := rp_reg.io.insts_pack_DP.map(_.rd_valid)
@@ -308,7 +308,7 @@ class CPU extends Module {
     /* ---------- 7. Issue Stage ---------- */
     // 1. arith1, common calculate
     // issue queue
-    iq1.io.insts_dispatch       := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_DP_FU1_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
+    iq1.io.insts_dispatch       := VecInit.tabulate(2)(i => inst_pack_DP_FU1_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq1.io.insts_disp_index     := dp.io.insts_disp_index(0)
     iq1.io.insts_disp_valid     := dp.io.insts_disp_valid(0)
     iq1.io.prj_ready            := prj_ready
@@ -326,7 +326,7 @@ class CPU extends Module {
 
     // 2. arith2, common calculate
     // issue queue
-    iq2.io.insts_dispatch       := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
+    iq2.io.insts_dispatch       := VecInit.tabulate(2)(i => inst_pack_DP_FU2_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq2.io.insts_disp_index     := dp.io.insts_disp_index(1)
     iq2.io.insts_disp_valid     := dp.io.insts_disp_valid(1)
     iq2.io.prj_ready            := prj_ready
@@ -344,7 +344,7 @@ class CPU extends Module {
 
     // 3. arith3, calculate and branch
     // issue queue
-    iq3.io.insts_dispatch       := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_DP_MD_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
+    iq3.io.insts_dispatch       := VecInit.tabulate(2)(i => inst_pack_DP_MD_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq3.io.insts_disp_index     := dp.io.insts_disp_index(2)
     iq3.io.insts_disp_valid     := dp.io.insts_disp_valid(2)
     iq3.io.prj_ready            := prj_ready
@@ -362,7 +362,7 @@ class CPU extends Module {
 
     // 4. multiply, multiply and divide
     // issue queue
-    iq4.io.insts_dispatch       := VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
+    iq4.io.insts_dispatch       := VecInit.tabulate(2)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq4.io.insts_disp_index     := dp.io.insts_disp_index(3)
     iq4.io.insts_disp_valid     := dp.io.insts_disp_valid(3)
     iq4.io.prj_ready            := prj_ready

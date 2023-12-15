@@ -7,17 +7,16 @@ class PC_IO extends Bundle {
     val pc_stall        = Input(Bool())
     val predict_fail    = Input(Bool())
     val npc             = Output(UInt(32.W))
-    val pred_jump       = Input(Vec(FRONT_WIDTH, Bool()))
+    val pred_jump       = Input(Vec(2, Bool()))
     val pred_npc        = Input(UInt(32.W))
     val branch_target   = Input(UInt(32.W))
-    val inst_valid_PF   = Output(Vec(FRONT_WIDTH, Bool()))
+    val inst_valid_PF   = Output(Vec(2, Bool()))
 
     val flush_by_pd     = Input(Bool())
     val flush_pd_target = Input(UInt(32.W))
 }
 
 class PC(reset_val: Int) extends Module {
-    val FRONT_LOG2 = log2Ceil(FRONT_WIDTH)
     val io = IO(new PC_IO)
 
     val pc = RegInit(reset_val.U(32.W))
@@ -32,7 +31,7 @@ class PC(reset_val: Int) extends Module {
         when(io.pred_jump.reduce(_||_)){
             io.npc := io.pred_npc
         }.otherwise{
-            io.npc := (pc + (1 << (FRONT_LOG2+2)).U)(31, FRONT_LOG2+2) ## 0.U((FRONT_LOG2+2).W)
+            io.npc := (pc + 8.U)(31, 3) ## 0.U(3.W)
         }
     }
     .otherwise{
@@ -42,9 +41,9 @@ class PC(reset_val: Int) extends Module {
     io.pc_PF := pc
     pc := io.npc
 
-    val inst_valid_temp = VecInit(PriorityEncoderOH(io.pred_jump)).asUInt
-    val valid_mask = ((1 << FRONT_WIDTH)-1).U >> pc(2+FRONT_LOG2-1, 2)
+    val inst_valid_temp = !io.pred_jump(0) ## true.B
+    val valid_mask = !pc(2) ## true.B
 
-    io.inst_valid_PF := (((inst_valid_temp ## 0.U(1.W)) - 1.U)(FRONT_WIDTH-1, 0) & valid_mask).asBools
+    io.inst_valid_PF := (inst_valid_temp & valid_mask).asBools
 
 }

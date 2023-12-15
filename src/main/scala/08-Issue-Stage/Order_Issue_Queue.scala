@@ -6,11 +6,11 @@ import CPU_Config._
 
 class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle{
     // input from dispatch
-    val insts_disp_index = Input(Vec(FRONT_WIDTH, UInt(2.W)))
-    val insts_disp_valid = Input(Vec(FRONT_WIDTH, Bool()))
-    val insts_dispatch   = Input(Vec(FRONT_WIDTH, inst_pack_t))
-    val prj_ready        = Input(Vec(FRONT_WIDTH, Bool()))
-    val prk_ready        = Input(Vec(FRONT_WIDTH, Bool()))
+    val insts_disp_index = Input(Vec(2, UInt(2.W)))
+    val insts_disp_valid = Input(Vec(2, Bool()))
+    val insts_dispatch   = Input(Vec(2, inst_pack_t))
+    val prj_ready        = Input(Vec(2, Bool()))
+    val prk_ready        = Input(Vec(2, Bool()))
     val queue_ready      = Output(Bool())
 
     // input from wakeup
@@ -42,7 +42,7 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
 
     val insert_num  = PopCount(io.insts_disp_valid)
     val tail_pop    = Wire(UInt((log2Ceil(n)+1).W))
-    val full        = tail > (n-FRONT_WIDTH).U
+    val full        = tail > (n-2).U
 
     io.queue_ready  := !full
     io.full         := full

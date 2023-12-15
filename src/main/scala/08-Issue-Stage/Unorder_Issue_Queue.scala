@@ -16,7 +16,6 @@ object Issue_Queue_Pack{
     }
     def Wake_Up(wake_preg: Vec[UInt], pr: UInt) : Bool = {
         val wf = Cat(
-                    // pr === wake_preg(4),
                     pr === wake_preg(3), 
                     pr === wake_preg(2),
                     pr === wake_preg(1),
@@ -29,11 +28,11 @@ object Issue_Queue_Pack{
 import Issue_Queue_Pack._
 class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle{
     // input from dispatch
-    val insts_disp_index = Input(Vec(FRONT_WIDTH, UInt(log2Ceil(FRONT_WIDTH).W)))
-    val insts_disp_valid = Input(Vec(FRONT_WIDTH, Bool()))
-    val insts_dispatch   = Input(Vec(FRONT_WIDTH, inst_pack_t))
-    val prj_ready        = Input(Vec(FRONT_WIDTH, Bool()))
-    val prk_ready        = Input(Vec(FRONT_WIDTH, Bool()))
+    val insts_disp_index = Input(Vec(2, UInt(1.W)))
+    val insts_disp_valid = Input(Vec(2, Bool()))
+    val insts_dispatch   = Input(Vec(2, inst_pack_t))
+    val prj_ready        = Input(Vec(2, Bool()))
+    val prk_ready        = Input(Vec(2, Bool()))
     val queue_ready      = Output(Bool())
 
     // input from wakeup
@@ -67,7 +66,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
     val empty           = tail === 0.U
     val insert_num      = PopCount(io.insts_disp_valid)
     val tail_pop        = tail - io.issue_ack.exists(_ === true.B)
-    val full            = tail > (n-FRONT_WIDTH).U
+    val full            = tail > (n-2).U
     
 
     val insts_dispatch  = io.insts_dispatch
@@ -81,7 +80,7 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
         when(i.asUInt < tail_pop){
             queue_next(i) := (if(i == n-1) queue(i) else Mux(next_mask(i), queue(i+1), queue(i)))
         }.otherwise{
-            val idx                         = (i.U - tail_pop)(log2Ceil(FRONT_WIDTH)-1, 0)
+            val idx                         = (i.U - tail_pop)(log2Ceil(2)-1, 0)
             queue_next(i).inst              := io.insts_dispatch(io.insts_disp_index(idx))
             queue_next(i).prj_waked         := io.prj_ready(io.insts_disp_index(idx))
             queue_next(i).prk_waked         := io.prk_ready(io.insts_disp_index(idx))

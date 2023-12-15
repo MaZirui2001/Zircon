@@ -20,9 +20,9 @@ object PD_Pack {
 }
 
 class Prev_Decode_IO extends Bundle {
-    val insts_pack_IF       = Input(Vec(FRONT_WIDTH, new inst_pack_IF_t))
+    val insts_pack_IF       = Input(Vec(2, new inst_pack_IF_t))
     
-    val insts_pack_PD       = Output(Vec(FRONT_WIDTH, new inst_pack_IF_t))
+    val insts_pack_PD       = Output(Vec(2, new inst_pack_IF_t))
     val pred_fix            = Output(Bool())
     val pred_fix_target     = Output(UInt(32.W))
     val pred_fix_is_bl      = Output(Bool())
@@ -36,18 +36,18 @@ class Prev_Decode extends Module {
     val insts_opcode    = VecInit(inst_pack_IF.map(_.inst(31, 30)))
     val br_type         = VecInit(inst_pack_IF.map(_.inst(29, 26)))
 
-    val inst_pack_pd    = Wire(Vec(FRONT_WIDTH, new inst_pack_IF_t))
+    val inst_pack_pd    = Wire(Vec(2, new inst_pack_IF_t))
     inst_pack_pd        := inst_pack_IF
     val inst            = VecInit(inst_pack_IF.map(_.inst))
 
-    val need_fix        = VecInit(Seq.fill(FRONT_WIDTH)(false.B))
-    val fix_index       = PriorityEncoder(need_fix)
-    io.pred_fix         := need_fix.reduce(_||_)
+    val need_fix        = VecInit(Seq.fill(2)(false.B))
+    val fix_index       = !need_fix(0)
+    io.pred_fix         := need_fix.asUInt.orR
 
     io.pred_fix_target  := inst_pack_pd(fix_index).pred_npc
 
-    val jump_type       = VecInit(Seq.fill(FRONT_WIDTH)(NOT_JUMP))
-    for(i <- 0 until FRONT_WIDTH){
+    val jump_type       = VecInit(Seq.fill(2)(NOT_JUMP))
+    for(i <- 0 until 2){
         when(insts_opcode(i) === "b01".U){
             when(br_type(i) === B || br_type(i) === BL){
                 jump_type(i) := YES_JUMP
@@ -58,12 +58,12 @@ class Prev_Decode extends Module {
             jump_type(i) := NOT_BR
         }
     }
-    val pred_fix_is_bl      = VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_IF(i).inst(29, 26) === BL)
-    val pred_fix_pc         = VecInit.tabulate(FRONT_WIDTH)(i => inst_pack_IF(i).pc)
+    val pred_fix_is_bl      = VecInit.tabulate(2)(i => inst_pack_IF(i).inst(29, 26) === BL)
+    val pred_fix_pc         = VecInit.tabulate(2)(i => inst_pack_IF(i).pc)
     io.pred_fix_is_bl       := pred_fix_is_bl(fix_index)
     io.pred_fix_pc          := pred_fix_pc(fix_index)
     
-    for(i <- 0 until FRONT_WIDTH){
+    for(i <- 0 until 2){
         switch(jump_type(i)){
             is(YES_JUMP){
                 inst_pack_pd(i).predict_jump    := true.B
@@ -85,10 +85,10 @@ class Prev_Decode extends Module {
             }
         }
     }
-    val inst_valid              = VecInit(Seq.fill(FRONT_WIDTH)(false.B))
+    val inst_valid              = VecInit(Seq.fill(2)(false.B))
     inst_valid(0)               := inst_pack_IF(0).inst_valid
     inst_pack_pd(0).inst_valid  := inst_valid(0)
-    for(i <- 1 until FRONT_WIDTH){
+    for(i <- 1 until 2){
         inst_pack_pd(i).inst_valid  := inst_valid(i-1) && inst_pack_IF(i).inst_valid && !need_fix(i-1)
     }
     io.insts_pack_PD := inst_pack_pd
