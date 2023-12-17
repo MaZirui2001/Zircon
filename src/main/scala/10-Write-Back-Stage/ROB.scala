@@ -77,6 +77,9 @@ class ROB_IO(n: Int) extends Bundle{
     val csr_wdata_cmt           = Output(UInt(32.W))
     val csr_we_cmt              = Output(Bool())
 
+    // for dcache
+    val rob_index_cmt           = Output(UInt(log2Ceil(n).W))
+
     // for exception
     val eentry_global           = Input(UInt(32.W))
     val exception_cmt           = Output(UInt(8.W))
@@ -174,6 +177,7 @@ class ROB(n: Int) extends Module{
                         && !empty(hsel_idx(i)))
     }
     io.cmt_en := ShiftRegister(cmt_en, 1)
+    io.rob_index_cmt := ShiftRegister(head, 1)
     
     val eentry_global            = ShiftRegister(io.eentry_global, 1);
     val interrupt_vec            = ShiftRegister(io.interrupt_vec, 1);

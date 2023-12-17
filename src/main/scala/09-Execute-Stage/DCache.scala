@@ -1,5 +1,6 @@
 import chisel3._
 import chisel3.util._
+import CPU_Config._
 object DCache_Config{
     val INDEX_WIDTH = 6
     val INDEX_DEPTH = 1 << INDEX_WIDTH
@@ -22,12 +23,18 @@ class DCache_IO extends Bundle{
     val mem_type_RF     = Input(UInt(5.W))
     val wdata_RF        = Input(UInt(32.W))
 
+    val rob_index_EX    = Input(UInt(log2Ceil(ROB_NUM).W))
+
     // MEM stage
     val cache_miss_MEM  = Output(Bool())
     val rdata_MEM       = Output(UInt(32.W))
 
+    // uncache cmt
+    val rob_index_CMT   = Input(UInt(log2Ceil(ROB_NUM).W))
+
     // control
     val stall           = Input(Bool())
+    val flush           = Input(Bool())
 
     // for AXI arbiter
     val d_araddr        = Output(UInt(32.W))
@@ -87,6 +94,8 @@ class DCache extends Module{
     val addr_reg_EX_MEM     = RegInit(0.U(32.W))
     val mem_type_reg_EX_MEM = RegInit(0.U(5.W))
     val wdata_reg_EX_MEM    = RegInit(0.U(32.W))
+    val uncache_reg_EX_MEM  = RegInit(false.B)
+    val rob_index_EX_MEM    = RegInit(0.U(log2Ceil(ROB_NUM).W))
     val hit_reg_EX_MEM      = RegInit(0.U(2.W))
     val tag_reg_EX_MEM      = RegInit(VecInit(Seq.fill(2)(0.U(TAG_WIDTH.W))))
 
@@ -105,10 +114,14 @@ class DCache extends Module{
     val tagv_we_EX      = WireDefault(VecInit(Seq.fill(2)(false.B)))
     val cmem_we_MEM     = WireDefault(VecInit(Seq.fill(2)(0.U(OFFSET_DEPTH.W))))
 
+    val flush_RF_EX     = RegInit(false.B)
+    val flush_EX_MEM    = RegInit(false.B)
+
     // addr decode
     val tag_MEM         = addr_MEM(31, 32-TAG_WIDTH)
     val index_MEM       = addr_MEM(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
     val offset_MEM      = addr_MEM(OFFSET_WIDTH-1, 0)
+    val uncache_MEM     = uncache_reg_EX_MEM
     val tag_r_MEM       = tag_reg_EX_MEM
 
     // lru
@@ -159,10 +172,15 @@ class DCache extends Module{
     }
 
     // EX-TC SegReg
+
     when(!(stall || cache_miss_MEM)){
         addr_reg_RF_EX      := io.addr_RF
         mem_type_reg_RF_EX  := io.mem_type_RF
         wdata_reg_RF_EX     := io.wdata_RF
+        flush_RF_EX         := io.flush
+    }
+    when(io.flush){
+        flush_RF_EX         := true.B
     }
 
     // TC Stage
@@ -174,8 +192,14 @@ class DCache extends Module{
         addr_reg_EX_MEM     := addr_reg_RF_EX
         mem_type_reg_EX_MEM := mem_type_reg_RF_EX
         wdata_reg_EX_MEM    := wdata_reg_RF_EX
+        uncache_reg_EX_MEM  := addr_reg_RF_EX(31, 28) === 0xa.U(4.W)
+        rob_index_EX_MEM    := io.rob_index_EX
         hit_reg_EX_MEM      := hit_EX
         tag_reg_EX_MEM      := tag_r_EX
+        flush_EX_MEM        := flush_RF_EX
+    }
+    when(io.flush){
+        flush_EX_MEM        := true.B
     }
 
     // MEM Stage
@@ -186,14 +210,13 @@ class DCache extends Module{
     /* rdata logic */
     val block_offset    = offset_MEM ## 0.U(3.W)
     val cmem_rdata_MEM  = (cmem(hit_index_MEM).doutb >> block_offset)(31, 0)
-    val rbuf_rdata_MEM  = (ret_buf >> block_offset)(31, 0)
+    val rbuf_rdata_MEM  = Mux(uncache_MEM, ret_buf(8*OFFSET_DEPTH-1, 8*OFFSET_DEPTH-32), (ret_buf >> block_offset)(31, 0))
     val rdata_MEM_temp  = Mux(data_sel === FROM_RBUF, rbuf_rdata_MEM, cmem_rdata_MEM)
 
     val highest_index   = (1.U << mem_type_MEM(1, 0)) ## 0.U(3.W)
     val highest_mask    = (UIntToOH(highest_index)(31, 0) - 1.U)(31, 0)
     val rmask           = highest_mask
-    // val rfill           = Mux(mem_type_MEM(2), 0.U(1.W), rdata_MEM_temp((highest_index - 1.U)(4, 0)))
-    val rdata_MEM       = (rmask & rdata_MEM_temp) //| (~rmask & Fill(32, rfill))
+    val rdata_MEM       = (rmask & rdata_MEM_temp)
 
     /* write logic */
     val wmask           = Mux(mem_type_MEM(3), 0.U((8*OFFSET_DEPTH).W), ((0.U((8*OFFSET_DEPTH-32).W) ## highest_mask) << block_offset))
@@ -225,13 +248,17 @@ class DCache extends Module{
 
     /* write buffer */
     when(wbuf_we){
-        wrt_buf := cmem(lru_sel).doutb ## tag_r_MEM(lru_sel) ## addr_MEM(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH) ## 0.U(OFFSET_WIDTH.W)
+        when(uncache_MEM){
+            wrt_buf := 0.U((8*OFFSET_DEPTH-32).W) ## wdata_reg_EX_MEM ## addr_MEM
+        }.otherwise{
+            wrt_buf := cmem(lru_sel).doutb ## tag_r_MEM(lru_sel) ## addr_MEM(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH) ## 0.U(OFFSET_WIDTH.W)
+        }
     }.elsewhen(io.d_wready && io.d_wvalid){
         wrt_buf := 0.U(32.W) ## wrt_buf(8*OFFSET_DEPTH+32-1, 64) ## wrt_buf(31, 0)
     }
     
     /* read state machine */
-    val s_idle :: s_miss :: s_refill :: s_wait :: Nil = Enum(4)
+    val s_idle :: s_miss :: s_refill :: s_wait :: s_hold :: Nil = Enum(5)
     val state = RegInit(s_idle)
 
     switch(state){
@@ -239,22 +266,22 @@ class DCache extends Module{
             addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
             // has req
             when(mem_type_MEM(4, 3).orR){
-                state                       := Mux(cache_hit_MEM, s_idle, s_miss)
-                lru_hit_upd                 := cache_hit_MEM
-                cache_miss_MEM              := !cache_hit_MEM
+                state                       := Mux(uncache_MEM, Mux(mem_type_MEM(4), s_wait, s_hold), Mux(cache_hit_MEM, s_idle, s_miss))
+                lru_hit_upd                 := cache_hit_MEM && !uncache_MEM
+                cache_miss_MEM              := !cache_hit_MEM || uncache_MEM
                 data_sel                    := FROM_CMEM
-                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM, wmask_byte, 0.U)
-                dirty_we                    := is_store_MEM
-                wbuf_we                     := !cache_hit_MEM
-                wfsm_en                     := !cache_hit_MEM
+                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM && !uncache_MEM, wmask_byte, 0.U)
+                dirty_we                    := is_store_MEM && !uncache_MEM
+                wbuf_we                     := !cache_hit_MEM || uncache_MEM
+                wfsm_en                     := !cache_hit_MEM || uncache_MEM
                 dcache_visit                := true.B
-                dcache_miss                 := !cache_hit_MEM
+                dcache_miss                 := !cache_hit_MEM || uncache_MEM
             }
         }
         is(s_miss){
             d_rvalid            := true.B
             cache_miss_MEM      := true.B
-            state               := Mux(io.d_rready && io.d_rlast, s_refill, s_miss)
+            state               := Mux(io.d_rready && io.d_rlast, Mux(uncache_MEM, s_wait, s_refill), s_miss)
             addr_sel            := FROM_SEG
         }
         is(s_refill){
@@ -273,12 +300,17 @@ class DCache extends Module{
             wfsm_reset          := true.B
             cache_miss_MEM      := !wrt_finish
         }
+        is(s_hold){
+            addr_sel            := Mux(flush_EX_MEM, FROM_PIPE, FROM_SEG)
+            state               := Mux(flush_EX_MEM, s_idle, Mux(io.rob_index_CMT === rob_index_EX_MEM, s_miss, s_hold))
+            cache_miss_MEM      := !flush_EX_MEM
+        }
     }
 
     /* write fsm */
     val wrt_count         = RegInit(0.U(8.W))
     val wrt_count_reset   = WireDefault(false.B)
-    val wrt_num           = (OFFSET_DEPTH / 4 - 1).U
+    val wrt_num           = Mux(uncache_MEM, 0.U, (OFFSET_DEPTH / 4 - 1).U)
 
     when(wrt_count_reset){
         wrt_count := wrt_num
@@ -292,7 +324,11 @@ class DCache extends Module{
     switch(wrt_state){
         is(w_idle){
             when(wfsm_en){
-                wrt_state       := Mux(is_dirty, w_write, w_finish)
+                when(uncache_MEM){
+                    wrt_state       := Mux(mem_type_MEM(4), w_write, w_finish)
+                }.otherwise{
+                    wrt_state       := Mux(is_dirty, w_write, w_finish)
+                }
                 wrt_count_reset := true.B
             }
         }
@@ -303,8 +339,8 @@ class DCache extends Module{
             d_bready     := true.B
         }
         is(w_finish){
-            wrt_state       := Mux(wfsm_reset && !stall, w_idle, w_finish)
-            wrt_finish      := !stall
+            wrt_state    := Mux(wfsm_reset && !stall, w_idle, w_finish)
+            wrt_finish   := !stall
         }
     }
 
@@ -312,18 +348,18 @@ class DCache extends Module{
     // output
     io.cache_miss_MEM   := cache_miss_MEM
     io.rdata_MEM        := rdata_MEM
-    io.d_araddr         := addr_MEM(31, OFFSET_WIDTH) ## 0.U(OFFSET_WIDTH.W)
+    io.d_araddr         := Mux(uncache_MEM, addr_MEM, addr_MEM(31, OFFSET_WIDTH) ## 0.U(OFFSET_WIDTH.W))
     io.d_rvalid         := d_rvalid
-    io.d_rsize          := 2.U
+    io.d_rsize          := Mux(uncache_MEM, mem_type_MEM(1, 0), 2.U)
     io.d_rburst         := 1.U
-    io.d_rlen           := (OFFSET_DEPTH / 4 - 1).U
+    io.d_rlen           := Mux(uncache_MEM, 0.U, (OFFSET_DEPTH / 4 - 1).U)
 
     io.d_awaddr         := wrt_buf(31, 0)
     io.d_wdata          := wrt_buf(63, 32)
     io.d_wvalid         := d_wvalid
     io.d_wlast          := d_wlast
-    io.d_wstrb          := Fill(4, 1.U(1.W))
-    io.d_wsize          := 2.U
+    io.d_wstrb          := Mux(uncache_MEM, (UIntToOH(UIntToOH(mem_type_MEM(1, 0))) - 1.U)(3, 0), Fill(4, 1.U(1.W)))
+    io.d_wsize          := Mux(uncache_MEM, mem_type_MEM(1, 0), 2.U)
     io.d_wburst         := 1.U
     io.d_wlen           := wrt_num
     io.d_bready         := d_bready

@@ -5,8 +5,8 @@ import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
     val FQ_NUM      = 8
-    val PREG_NUM    = 64
-    val ROB_NUM     = 32
+    val PREG_NUM    = 56
+    val ROB_NUM     = 26
     val SB_NUM      = 4
     val IQ_AP_NUM   = 6
     val IQ_AB_NUM   = 6
@@ -96,9 +96,6 @@ class CPU extends Module {
 
     /* Previous Decode Stage */
     val pd              = Module(new Prev_Decode)
-    //val pf_reg          = Module(new PD_FQ_Reg)
-
-    /* Fetch Queue Stage */
     val fq              = Module(new Fetch_Queue)
 
     /* Decode Stage */
@@ -218,14 +215,6 @@ class CPU extends Module {
     /* ---------- 3. Previous Decode Stage ---------- */
     // Previous Decoder
     pd.io.insts_pack_IF             := ip_reg.io.insts_pack_PD  
-
-    // pf_reg.io.flush                 := rob.io.predict_fail_cmt(2) || !pf_reg.io.stall && (pf_reg.io.pred_fix_FQ)
-    // pf_reg.io.stall                 := fq.io.full
-    // pf_reg.io.insts_pack_PD         := VecInit.tabulate(2)(i => inst_pack_PD_gen(pd.io.insts_pack_PD(i)))
-    // pf_reg.io.pred_fix_PD           := pd.io.pred_fix
-    // pf_reg.io.pred_fix_target_PD    := pd.io.pred_fix_target
-    // pf_reg.io.pred_fix_is_bl_PD     := pd.io.pred_fix_is_bl
-    // pf_reg.io.pred_fix_pc_plus_4_PD := pd.io.pred_fix_pc_plus_4
 
     /* ---------- Fetch Queue ---------- */
     fq.io.insts_pack    := pd.io.insts_pack_PD
@@ -544,14 +533,17 @@ class CPU extends Module {
     dcache.io.d_rlast             := arb.io.d_rlast
     dcache.io.d_wready            := arb.io.d_wready
     dcache.io.d_bvalid            := arb.io.d_bvalid
+    dcache.io.rob_index_EX        := re_reg4.io.inst_pack_EX.rob_index
+    dcache.io.rob_index_CMT       := rob.io.rob_index_cmt
+    dcache.io.flush               := rob.io.predict_fail_cmt(8)
 
-    val mem_rdata_raw              = VecInit.tabulate(32)(i => Mux(ls_ex_mem_reg.io.sb_hit_MEM(i.U(4, 3)), ls_ex_mem_reg.io.sb_rdata_MEM(i), dcache.io.rdata_MEM(i))).asUInt 
-    val mem_rdata                  = MuxLookup(ls_ex_mem_reg.io.mem_type_MEM, 0.U)(Seq(
-                                                MEM_LDB     -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
-                                                MEM_LDH     -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
-                                                MEM_LDW     -> mem_rdata_raw,
-                                                MEM_LDBU    -> 0.U(24.W) ## mem_rdata_raw(7, 0),
-                                                MEM_LDHU    -> 0.U(16.W) ## mem_rdata_raw(15, 0)))
+    val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(ls_ex_mem_reg.io.sb_hit_MEM(i), ls_ex_mem_reg.io.sb_rdata_MEM(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
+    val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.mem_type_MEM(2, 0), 0.U)(Seq(
+                                                0.U -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
+                                                1.U -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
+                                                2.U -> mem_rdata_raw,
+                                                4.U -> 0.U(24.W) ## mem_rdata_raw(7, 0),
+                                                5.U -> 0.U(16.W) ## mem_rdata_raw(15, 0)))
 
     // bypass for 1, 2, 3
     bypass12.io.prd_wb             := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd)
@@ -580,7 +572,7 @@ class CPU extends Module {
     ew_reg3.io.flush                := rob.io.predict_fail_cmt(9) || mdu.io.busy
     ew_reg3.io.stall                := false.B
     ew_reg3.io.inst_pack_EX         := md_ex1_ex2_reg.io.inst_pack_EX2
-    ew_reg3.io.md_out_EX            := Mux(md_ex1_ex2_reg.io.inst_pack_EX2.alu_op <= 15.U, mdu.io.mul_out, mdu.io.div_out)
+    ew_reg3.io.md_out_EX            := Mux(!md_ex1_ex2_reg.io.inst_pack_EX2.alu_op(4), mdu.io.mul_out, mdu.io.div_out)
 
     ew_reg4.io.flush                := rob.io.predict_fail_cmt(9) || dcache.io.cache_miss_MEM
     ew_reg4.io.stall                := false.B  

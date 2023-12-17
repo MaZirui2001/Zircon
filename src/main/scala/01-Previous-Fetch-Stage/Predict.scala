@@ -59,6 +59,7 @@ class Predict extends Module{
     val pht         = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W))))))
 
     val ras         = RegInit(VecInit(Seq.fill(8)(0x1c000000.U(32.W))))
+    val jirl_sel    = RegInit(2.U(2.W))
     val top         = RegInit(0.U(3.W))
 
     // check
@@ -73,7 +74,7 @@ class Predict extends Module{
     val bht_rindex      = VecInit.tabulate(2)(i => pc(3+BHT_INDEX_WIDTH-1, 3))
     val bht_rdata       = VecInit.tabulate(2)(i => bht(i)(bht_rindex(i)))
 
-    val pht_rindex      = VecInit.tabulate(2)(i => (bht_rdata(i) ^ pc(PHT_INDEX_WIDTH+2, PHT_INDEX_WIDTH-1)) ## pc(PHT_INDEX_WIDTH-2, 3))
+    val pht_rindex      = VecInit.tabulate(2)(i => bht_rdata(i)(3, 2)  ## (bht_rdata(i)(1, 0) ^ pc(PHT_INDEX_WIDTH, PHT_INDEX_WIDTH-1)) ## pc(PHT_INDEX_WIDTH-2, 3))
     val pht_rdata       = VecInit.tabulate(2)(i => pht(i)(pht_rindex(i)))
 
     val predict_valid   = VecInit.tabulate(2)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(31, 32 - BTB_TAG_WIDTH)))
@@ -129,7 +130,7 @@ class Predict extends Module{
     }
 
     // pht
-    val pht_windex = (bht(cmt_col)(bht_windex) ^ pc_cmt(PHT_INDEX_WIDTH+2, PHT_INDEX_WIDTH-1)) ## pc_cmt(PHT_INDEX_WIDTH-2, 3)
+    val pht_windex = bht(cmt_col)(bht_windex)(3, 2) ## (bht(cmt_col)(bht_windex)(1, 0) ^ pc_cmt(PHT_INDEX_WIDTH, PHT_INDEX_WIDTH-1)) ## pc_cmt(PHT_INDEX_WIDTH-2, 3)
     val pht_raw_rdata = pht(cmt_col)(pht_windex)
 
     when(update_en){
@@ -148,16 +149,16 @@ class Predict extends Module{
             top         := top + 1.U
             ras(top)    := io.pd_pc_plus_4
         }
-    }.elsewhen((btb_rdata(pred_hit_index).typ === BL || btb_rdata(pred_hit_index).typ === ICALL) && pred_valid_hit(pred_hit_index)){
+    }.elsewhen(btb_rdata(pred_hit_index).typ(1) && pred_valid_hit(pred_hit_index)){
         top             := top + 1.U
-        ras(top)        := (pc(31, 3) ## pred_hit_index) ## 0.U(2.W)
+        ras(top)        := pc(31, 3) ## pred_hit_index ## 0.U(2.W)
     }.elsewhen(btb_rdata(pred_hit_index).typ === RET && pred_valid_hit(pred_hit_index)){
         top             := top - 1.U
     }
 
-    // when(io.ras_update_en && io.br_type === RET){
-    //     jirl_sel := Mux(io.predict_fail, Mux(jirl_sel(0), 2.U, 1.U), Mux(jirl_sel(1), 3.U, 0.U))
-    // }
+    when(io.update_en && io.br_type === RET){
+        jirl_sel := Mux(io.predict_fail, Mux(jirl_sel(0), 2.U, 1.U), Mux(jirl_sel(1), 3.U, 0.U))
+    }
 
 }
 
