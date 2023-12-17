@@ -4,7 +4,6 @@ import Inst_Pack._
 import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
-    // val 2 = 2
     val FQ_NUM      = 8
     val PREG_NUM    = 64
     val ROB_NUM     = 32
@@ -125,8 +124,8 @@ class CPU extends Module {
     val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
 
 
-    val iq3             = Module(new Unorder_Issue_Queue(IQ_MD_NUM, new inst_pack_DP_MD_t))
-    val sel3            = Module(new Unorder_Select(IQ_MD_NUM, new inst_pack_DP_MD_t))
+    val iq3             = Module(new Order_Issue_Queue(IQ_MD_NUM, new inst_pack_DP_MD_t))
+    val sel3            = Module(new Order_Select(IQ_MD_NUM, new inst_pack_DP_MD_t))
     val ir_reg3         = Module(new IS_RF_Reg(new inst_pack_IS_MD_t))
 
     val iq4             = Module(new Unorder_Issue_Queue(IQ_LS_NUM, new inst_pack_DP_LS_t))
