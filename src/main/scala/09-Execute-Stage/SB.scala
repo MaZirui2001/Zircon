@@ -69,16 +69,27 @@ class SB(n: Int) extends Module {
     val st_addr_ex          = io.addr_ex
     val st_data_ex          = io.st_data_ex
     val st_addr_ex_valid    = is_store_ex && !full
-    when(!io.flush && st_addr_ex_valid){
+    when(flush_buf){
+        var start = head_idx + wait_to_cmt
+        val clear_num = elem_num - wait_to_cmt
+        for(i <- 0 until n){
+            when(i.U < clear_num){
+                val clear_idx = start(log2Ceil(n)-1, 0)
+                sb(clear_idx).wstrb := 0.U
+            }
+            start = start + Mux(i.U < clear_num, 1.U, 0.U)
+        }
+
+    }
+    .elsewhen(!flush_buf && st_addr_ex_valid){
         sb(tail_idx).addr   := st_addr_ex(31, 2) ## 0.U(2.W)
         sb(tail_idx).data   := (st_data_ex << (st_addr_ex(1, 0) ## 0.U(3.W)))(31, 0)
         sb(tail_idx).wstrb  := ((UIntToOH(UIntToOH(io.mem_type_ex(1, 0))) - 1.U) << st_addr_ex(1, 0))(3, 0)
     }
 
-
-    head            := Mux(flush_buf && !wait_to_cmt.orR, 0.U, head + (io.st_cmt_valid && !io.dcache_miss))
+    head            := head + (io.st_cmt_valid && !io.dcache_miss)
     elem_num        := Mux(flush_buf && !wait_to_cmt.orR, 0.U, elem_num - (io.st_cmt_valid && !io.dcache_miss) + Mux(full, 0.U, st_addr_ex_valid))
-    tail            := Mux(flush_buf, 0.U, tail + Mux(full, 0.U, st_addr_ex_valid))
+    tail            := Mux(flush_buf && !wait_to_cmt.orR, head + (io.st_cmt_valid && !io.dcache_miss), tail + Mux(full, 0.U, st_addr_ex_valid))
 
     val offset     = PriorityEncoder(sb(head_idx).wstrb)
     io.st_addr_cmt := sb(head_idx).addr + offset
@@ -97,7 +108,7 @@ class SB(n: Int) extends Module {
     // check for each bit
     for(i <- 0 until 4){
         val addr_ex         = ld_addr_ex + i.U
-        val ld_hit          = VecInit.tabulate(n)(j => sb_order(j).addr(31, 2) === addr_ex(31, 2) && sb_order(j).wstrb(addr_ex(1, 0)) && is_in_queue(j))
+        val ld_hit          = VecInit.tabulate(n)(j => sb_order(j).addr(31, 2) === addr_ex(31, 2) && sb_order(j).wstrb(addr_ex(1, 0)))
         val ld_bit_hit      = ld_hit.asUInt.orR && ld_mask(i)
         val ld_hit_index    = PriorityEncoder(ld_hit.asUInt)
         val hit_byte        = sb_order(ld_hit_index).data >> (addr_ex(1, 0) ## 0.U(3.W))
