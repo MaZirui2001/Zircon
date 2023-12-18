@@ -36,13 +36,13 @@ class SB(n: Int) extends Module {
     import SB_Pack._
     val sb = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new sb_t))))
 
-    val head            = RegInit(0.U((log2Ceil(n)+1).W))
-    val head_idx        = head(log2Ceil(n)-1, 0)
-    val head_flg        = head(log2Ceil(n))
+    val head            = RegInit(0.U(log2Ceil(n).W))
+    val head_idx        = head
+    // val head_flg        = head(log2Ceil(n))
 
-    val tail            = RegInit(0.U((log2Ceil(n)+1).W))
-    val tail_idx        = tail(log2Ceil(n)-1, 0)
-    val tail_flg        = tail(log2Ceil(n))
+    val tail            = RegInit(0.U(log2Ceil(n).W))
+    val tail_idx        = tail
+    // val tail_flg        = tail(log2Ceil(n))
 
     val elem_num        = RegInit(0.U((log2Ceil(n)+1).W))
 
@@ -102,9 +102,6 @@ class SB(n: Int) extends Module {
     val sb_order        = VecInit.tabulate(n)(i => sb(tail_idx-1.U-i.U))
     val ld_hit_data     = Wire(Vec(4, UInt(8.W)))
     val ld_hit_mask     = Mux(io.mem_type_ex(4), 0xf.U, (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0))
-    val is_in_queue     = VecInit.tabulate(n)(i => Mux(head_flg ^ tail_flg, 
-                                                        tail_idx-i.U-1.U >= head_idx || tail_idx-i.U-1.U < tail_idx, 
-                                                        tail_idx-i.U-1.U >= head_idx && tail_idx-i.U-1.U < tail_idx))
     // check for each bit
     for(i <- 0 until 4){
         val addr_ex         = ld_addr_ex + i.U

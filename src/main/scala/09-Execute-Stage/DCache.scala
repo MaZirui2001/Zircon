@@ -35,6 +35,7 @@ class DCache_IO extends Bundle{
     // control
     val stall           = Input(Bool())
     val flush           = Input(Bool())
+    val has_store       = Output(Bool())
 
     // for AXI arbiter
     val d_araddr        = Output(UInt(32.W))
@@ -66,7 +67,6 @@ import DCache_Config._
 class DCache extends Module{
     val io = IO(new DCache_IO)
     val stall = io.stall
-    //val sb_hit_MEM = io.sb_hit_MEM
 
     // address decode EX
     val addr_RF             = io.addr_RF
@@ -346,6 +346,7 @@ class DCache extends Module{
 
 
     // output
+    io.has_store        := io.mem_type_RF(4) || mem_type_reg_RF_EX(4)
     io.cache_miss_MEM   := cache_miss_MEM
     io.rdata_MEM        := rdata_MEM
     io.d_araddr         := Mux(uncache_MEM, addr_MEM, addr_MEM(31, OFFSET_WIDTH) ## 0.U(OFFSET_WIDTH.W))
@@ -366,4 +367,5 @@ class DCache extends Module{
 
     io.commit_dcache_miss   := dcache_miss
     io.commit_dcache_visit  := dcache_visit
+    
 }

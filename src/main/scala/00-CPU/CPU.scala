@@ -218,7 +218,7 @@ class CPU extends Module {
 
     /* ---------- Fetch Queue ---------- */
     fq.io.insts_pack    := pd.io.insts_pack_PD
-    fq.io.next_ready    := !(rob.io.full || stall_by_iq || free_list.io.empty)
+    fq.io.next_ready    := !(rob.io.full(2) || stall_by_iq || free_list.io.empty)
     fq.io.flush         := rob.io.predict_fail_cmt(3)
 
     /* ---------- 4. Decode Stage ---------- */
@@ -236,7 +236,7 @@ class CPU extends Module {
 
     /* ---------- ID-RN SegReg ---------- */
     dr_reg.io.flush          := rob.io.predict_fail_cmt(4) || (!dr_reg.io.stall && free_list.io.empty)
-    dr_reg.io.stall          := rob.io.full || stall_by_iq
+    dr_reg.io.stall          := rob.io.full(3) || stall_by_iq
     dr_reg.io.insts_pack_ID  := VecInit.tabulate(2)(i => inst_pack_ID_gen(fq.io.insts_pack_id(i), fq.io.insts_valid_decode(i), decode(i).rj, decode(i).rk, 
                                                                             decode(i).rd, decode(i).rd_valid, decode(i).imm, decode(i).alu_op, decode(i).alu_rs1_sel, decode(i).alu_rs2_sel, 
                                                                             decode(i).br_type, decode(i).mem_type, decode(i).fu_id, decode(i).priv_vec, decode(i).csr_addr, decode(i).exception))
@@ -254,7 +254,7 @@ class CPU extends Module {
     
     /* ---------- RN-DP SegReg ---------- */
     rp_reg.io.flush             := rob.io.predict_fail_cmt(5)
-    rp_reg.io.stall             := stall_by_iq || rob.io.full
+    rp_reg.io.stall             := stall_by_iq || rob.io.full(4)
     rp_reg.io.insts_pack_RN     := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i), rename.io.prj_raw(i), rename.io.prk_raw(i)))
 
     /* ---------- 6. Dispatch Stage ---------- */
@@ -303,7 +303,7 @@ class CPU extends Module {
     iq1.io.prk_ready            := prk_ready
     iq1.io.issue_ack            := sel1.io.issue_ack
     iq1.io.flush                := rob.io.predict_fail_cmt(6)
-    iq1.io.stall                := stall_by_iq || rob.io.full
+    iq1.io.stall                := stall_by_iq || rob.io.full(5)
     iq1.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq1.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1)
 
@@ -321,7 +321,7 @@ class CPU extends Module {
     iq2.io.prk_ready            := prk_ready
     iq2.io.issue_ack            := sel2.io.issue_ack
     iq2.io.flush                := rob.io.predict_fail_cmt(6)
-    iq2.io.stall                := stall_by_iq || rob.io.full
+    iq2.io.stall                := stall_by_iq || rob.io.full(5)
     iq2.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq2.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1)
 
@@ -339,7 +339,7 @@ class CPU extends Module {
     iq3.io.prk_ready            := prk_ready
     iq3.io.issue_ack            := sel3.io.issue_ack
     iq3.io.flush                := rob.io.predict_fail_cmt(6)
-    iq3.io.stall                := stall_by_iq || rob.io.full
+    iq3.io.stall                := stall_by_iq || rob.io.full(5)
     iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq3.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1)
 
@@ -357,7 +357,7 @@ class CPU extends Module {
     iq4.io.prk_ready            := prk_ready
     iq4.io.issue_ack            := sel4.io.issue_ack
     iq4.io.flush                := rob.io.predict_fail_cmt(6)
-    iq4.io.stall                := stall_by_iq || rob.io.full
+    iq4.io.stall                := stall_by_iq || rob.io.full(5)
     iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq4.io.dcache_miss          := dcache.io.cache_miss_MEM || ShiftRegister(dcache.io.cache_miss_MEM, 1)
 
@@ -535,7 +535,7 @@ class CPU extends Module {
     dcache.io.d_bvalid            := arb.io.d_bvalid
     dcache.io.rob_index_EX        := re_reg4.io.inst_pack_EX.rob_index
     dcache.io.rob_index_CMT       := rob.io.rob_index_cmt
-    dcache.io.flush               := rob.io.predict_fail_cmt(8)
+    dcache.io.flush               := rob.io.priv_ready_to_cmt || rob.io.predict_fail_cmt(8)
 
     val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(ls_ex_mem_reg.io.sb_hit_MEM(i), ls_ex_mem_reg.io.sb_rdata_MEM(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
     val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.mem_type_MEM(2, 0), 0.U)(Seq(
@@ -592,6 +592,7 @@ class CPU extends Module {
     rob.io.exception_wb         := VecInit(ew_reg1.io.inst_pack_WB.exception, ew_reg2.io.inst_pack_WB.exception, ew_reg3.io.inst_pack_WB.exception, ew_reg4.io.inst_pack_WB.exception)
     rob.io.eentry_global        := csr_rf.io.eentry_global
     rob.io.interrupt_vec        := csr_rf.io.interrupt_vec
+    rob.io.dcache_has_store     := dcache.io.has_store
     
     /* ---------- 11. Commit Stage ---------- */
     // Arch Rat
@@ -683,7 +684,7 @@ class CPU extends Module {
 
         io.commit_stall_by_fetch_queue  := fq.io.full
         io.commit_stall_by_rename       := free_list.io.empty
-        io.commit_stall_by_rob          := rob.io.full
+        io.commit_stall_by_rob          := rob.io.full(7)
         io.commit_stall_by_iq           := VecInit(iq1.io.full, iq2.io.full, iq3.io.full, iq4.io.full, DontCare)
         io.commit_stall_by_sb           := sb.io.full
 

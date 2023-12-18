@@ -67,8 +67,8 @@ class Prev_Decode extends Module {
         switch(jump_type(i)){
             is(YES_JUMP){
                 inst_pack_pd(i).predict_jump    := true.B
-                inst_pack_pd(i).pred_npc        := inst_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W)) 
-                need_fix(i)                     := (!inst_pack_IF(i).predict_jump || inst_pack_pd(i).pred_npc =/= inst_pack_IF(i).pred_npc) && inst_pack_IF(i).inst_valid
+                inst_pack_pd(i).pred_npc        := Mux(inst_pack_IF(i).pred_valid, inst_pack_IF(i).pred_npc, inst_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W))) 
+                need_fix(i)                     := !inst_pack_IF(i).predict_jump && inst_pack_IF(i).inst_valid
             }
             is(MAY_JUMP){
                 val pc_target = inst_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W))
