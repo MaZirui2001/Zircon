@@ -171,21 +171,20 @@ class ROB(n: Int) extends Module{
     // cmt stage
     val cmt_en                  = Wire(Vec(2, Bool()))
     val rob_commit_items        = VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)))
-    val priv_ready_to_cmt       = rob_commit_items(0).is_priv_wrt || rob_commit_items(0).exception(7)
-    io.priv_ready_to_cmt        := ShiftRegister(priv_ready_to_cmt, 1)
+    val priv_ready_to_cmt       = VecInit.tabulate(2)(i => rob_commit_items(i).is_priv_wrt || rob_commit_items(i).exception(7))
+    io.priv_ready_to_cmt        := ShiftRegister(priv_ready_to_cmt.asUInt.orR, 1)
 
-    cmt_en(0) := rob_commit_items(0).complete && !empty(hsel_idx(0)) && !(priv_ready_to_cmt && io.dcache_has_store)
+    cmt_en(0) := rob_commit_items(0).complete && !empty(hsel_idx(0)) && !(priv_ready_to_cmt(0) && io.dcache_has_store)
     cmt_en(1) := (cmt_en(0) && rob_commit_items(1).complete 
                             && !empty(hsel_idx(1))
+                            && !(priv_ready_to_cmt(1) && io.dcache_has_store)
                             && !rob_commit_items(0).pred_update_en
-                            && !rob_commit_items.map(_.is_priv_wrt).reduce(_||_)
-                            && !rob_commit_items.map(_.exception(7)).reduce(_||_))
+                            && !rob_commit_items(0).is_priv_wrt
+                            && !rob_commit_items(0).exception(7))
     
     io.cmt_en               := ShiftRegister(cmt_en, 1)
     io.rob_index_cmt        := ShiftRegister(head, 1)
 
-
-    
     val eentry_global            = ShiftRegister(io.eentry_global, 1);
     val interrupt_vec            = ShiftRegister(io.interrupt_vec, 1);
     val interrupt                = interrupt_vec.orR && cmt_en(0) && !io.dcache_has_store
@@ -199,7 +198,7 @@ class ROB(n: Int) extends Module{
     val pred_update_en_cmt       = rob_update_item.pred_update_en
     val pred_branch_target_cmt   = rob_update_item.branch_target
     val pred_br_type_cmt         = rob_update_item.br_type_pred
-    val pred_pc_cmt              = (rob_update_item.pc - 1.U) ## 0.U(2.W)
+    val pred_pc_cmt              = rob_update_item.pc ## 0.U(2.W)
     val pred_real_jump_cmt       = rob_update_item.real_jump
     val exception_cmt            = Mux(interrupt, 0x80.U(8.W), rob_update_item.exception)
 
@@ -208,7 +207,7 @@ class ROB(n: Int) extends Module{
     io.pred_update_en_cmt       := ShiftRegister(pred_update_en_cmt, 1)
     io.pred_branch_target_cmt   := ShiftRegister(pred_branch_target_cmt, 1)
     io.pred_br_type_cmt         := ShiftRegister(pred_br_type_cmt, 1)
-    io.pred_pc_cmt              := ShiftRegister(pred_pc_cmt, 1)
+    io.pred_pc_cmt              := ShiftRegister(pred_pc_cmt, 1) - 4.U
     io.pred_real_jump_cmt       := ShiftRegister(pred_real_jump_cmt, 1)
     io.exception_cmt            := ShiftRegister(exception_cmt, 1)
 
