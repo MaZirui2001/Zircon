@@ -502,26 +502,25 @@ class CPU extends Module {
     md_ex1_ex2_reg.io.inst_pack_EX1 := re_reg3.io.inst_pack_EX
 
     // 5. load-store fu, include cache
-    // EX stage
-    // store_buf
-    sb.io.flush                         := rob.io.predict_fail_cmt(8)
-    sb.io.addr_ex                       := re_reg4.io.src1_EX
-    sb.io.st_data_ex                    := re_reg4.io.src2_EX
-    sb.io.mem_type_ex                   := Mux(dcache.io.cache_miss_MEM, 0.U, re_reg4.io.inst_pack_EX.mem_type)
-    sb.io.is_store_num_cmt              := rob.io.is_store_num_cmt
-    sb.io.dcache_miss                   := dcache.io.cache_miss_MEM
 
     // EX-MEM SegReg
     ls_ex_mem_reg.io.flush              := rob.io.predict_fail_cmt(8) || (!ls_ex_mem_reg.io.stall && sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4))
     ls_ex_mem_reg.io.stall              := dcache.io.cache_miss_MEM
     ls_ex_mem_reg.io.inst_pack_EX       := re_reg4.io.inst_pack_EX
-    ls_ex_mem_reg.io.mem_type_EX        := re_reg4.io.inst_pack_EX.mem_type
-    ls_ex_mem_reg.io.sb_hit_EX          := sb.io.ld_hit
-    ls_ex_mem_reg.io.sb_rdata_EX        := sb.io.ld_data_ex
-    ls_ex_mem_reg.io.sb_st_cmt_valid_EX := sb.io.st_cmt_valid
     ls_ex_mem_reg.io.is_ucread_EX       := re_reg4.io.src1_EX(31, 28) === 0xa.U
+    ls_ex_mem_reg.io.src1_EX            := re_reg4.io.src1_EX
+    ls_ex_mem_reg.io.src2_EX            := re_reg4.io.src2_EX
 
     // MEM Stage
+    // store_buf
+    sb.io.flush                         := rob.io.predict_fail_cmt(8)
+    sb.io.addr_mem                      := ls_ex_mem_reg.io.src1_MEM
+    sb.io.st_data_mem                   := ls_ex_mem_reg.io.src2_MEM
+    sb.io.mem_type_ex                   := Mux(re_reg4.io.stall, 0.U, re_reg4.io.inst_pack_EX.mem_type)
+    sb.io.mem_type_mem                  := Mux(ls_ex_mem_reg.io.stall, 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
+    sb.io.is_store_num_cmt              := rob.io.is_store_num_cmt
+    sb.io.dcache_miss                   := dcache.io.cache_miss_MEM
+
     // dcache
     dcache.io.addr_RF             := Mux(sb.io.st_cmt_valid, sb.io.st_addr_cmt, re_reg4.io.src1_RF)
     dcache.io.mem_type_RF         := Mux(sb.io.st_cmt_valid, 4.U(3.W) ## sb.io.st_wlen_cmt(1, 0), 
@@ -537,8 +536,8 @@ class CPU extends Module {
     dcache.io.rob_index_CMT       := rob.io.rob_index_cmt
     dcache.io.flush               := rob.io.priv_ready_to_cmt || rob.io.predict_fail_cmt(8)
 
-    val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(ls_ex_mem_reg.io.sb_hit_MEM(i), ls_ex_mem_reg.io.sb_rdata_MEM(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
-    val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.mem_type_MEM(2, 0), 0.U)(Seq(
+    val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(sb.io.ld_hit(i), sb.io.ld_data_mem(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
+    val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.inst_pack_MEM.mem_type(2, 0), 0.U)(Seq(
                                                 0.U -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
                                                 1.U -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
                                                 2.U -> mem_rdata_raw,
@@ -592,7 +591,6 @@ class CPU extends Module {
     rob.io.exception_wb         := VecInit(ew_reg1.io.inst_pack_WB.exception, ew_reg2.io.inst_pack_WB.exception, ew_reg3.io.inst_pack_WB.exception, ew_reg4.io.inst_pack_WB.exception)
     rob.io.eentry_global        := csr_rf.io.eentry_global
     rob.io.interrupt_vec        := csr_rf.io.interrupt_vec
-    rob.io.dcache_has_store     := dcache.io.has_store
     
     /* ---------- 11. Commit Stage ---------- */
     // Arch Rat

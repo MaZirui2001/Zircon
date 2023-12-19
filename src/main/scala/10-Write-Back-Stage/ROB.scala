@@ -63,7 +63,6 @@ class ROB_IO(n: Int) extends Bundle{
 
     // for store buffer
     val is_store_num_cmt        = Output(UInt(2.W))
-    val dcache_has_store        = Input(Bool())
     val priv_ready_to_cmt       = Output(Bool())
 
     // for predict and ras
@@ -174,10 +173,9 @@ class ROB(n: Int) extends Module{
     val priv_ready_to_cmt       = VecInit.tabulate(2)(i => rob_commit_items(i).is_priv_wrt || rob_commit_items(i).exception(7))
     io.priv_ready_to_cmt        := ShiftRegister(priv_ready_to_cmt.asUInt.orR, 1)
 
-    cmt_en(0) := rob_commit_items(0).complete && !empty(hsel_idx(0)) && !(priv_ready_to_cmt(0) && io.dcache_has_store)
+    cmt_en(0) := rob_commit_items(0).complete && !empty(hsel_idx(0))
     cmt_en(1) := (cmt_en(0) && rob_commit_items(1).complete 
                             && !empty(hsel_idx(1))
-                            && !(priv_ready_to_cmt(1) && io.dcache_has_store)
                             && !rob_commit_items(0).pred_update_en
                             && !rob_commit_items(0).is_priv_wrt
                             && !rob_commit_items(0).exception(7))
@@ -187,7 +185,7 @@ class ROB(n: Int) extends Module{
 
     val eentry_global            = ShiftRegister(io.eentry_global, 1);
     val interrupt_vec            = ShiftRegister(io.interrupt_vec, 1);
-    val interrupt                = interrupt_vec.orR && cmt_en(0) && !io.dcache_has_store
+    val interrupt                = interrupt_vec.orR && cmt_en(0)
     // update predict and ras
     val update_ptr               = Mux(cmt_en(1), head + 1.U, head)
     val rob_update_item          = Mux(cmt_en(0) === false.B, 0.U.asTypeOf(new rob_t), rob(update_ptr(FRONT_LOG2-1, 0))(update_ptr(log2Ceil(n)-1, FRONT_LOG2)))
