@@ -114,7 +114,8 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
         }
         else {
             io.issue_req(i) := (i.asUInt < tail && queue(i).prj_waked && queue(i).prk_waked 
-                            && !((queue(i).prj_wake_by_ld || queue(i).prk_wake_by_ld) && io.dcache_miss))
+                            && !((queue(i).prj_wake_by_ld && queue(i).inst.prj === io.ld_mem_prd 
+                               || queue(i).prk_wake_by_ld && queue(i).inst.prk === io.ld_mem_prd) && io.dcache_miss))
         }
         
     }

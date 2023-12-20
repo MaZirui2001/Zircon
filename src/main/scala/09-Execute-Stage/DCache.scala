@@ -192,7 +192,7 @@ class DCache extends Module{
         addr_reg_EX_MEM     := addr_reg_RF_EX
         mem_type_reg_EX_MEM := mem_type_reg_RF_EX
         wdata_reg_EX_MEM    := wdata_reg_RF_EX
-        uncache_reg_EX_MEM  := addr_reg_RF_EX(31, 28) === 0xa.U(4.W)
+        uncache_reg_EX_MEM  := addr_reg_RF_EX(31, 24) =/= 0x1c.U
         rob_index_EX_MEM    := io.rob_index_EX
         hit_reg_EX_MEM      := hit_EX
         tag_reg_EX_MEM      := tag_r_EX
@@ -263,7 +263,7 @@ class DCache extends Module{
 
     switch(state){
         is(s_idle){
-            addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
+            // addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
             // has req
             when(mem_type_MEM(4, 3).orR){
                 state                       := Mux(uncache_MEM, Mux(mem_type_MEM(4), s_wait, s_hold), Mux(cache_hit_MEM, s_idle, s_miss))
@@ -276,6 +276,7 @@ class DCache extends Module{
                 wfsm_en                     := !cache_hit_MEM || uncache_MEM
                 dcache_visit                := true.B
                 dcache_miss                 := !cache_hit_MEM || uncache_MEM
+                addr_sel                    := Mux(uncache_MEM && mem_type_MEM(3), FROM_SEG, FROM_PIPE)
             }
         }
         is(s_miss){
@@ -304,6 +305,7 @@ class DCache extends Module{
             addr_sel            := Mux(flush_EX_MEM, FROM_PIPE, FROM_SEG)
             state               := Mux(flush_EX_MEM, s_idle, Mux(io.rob_index_CMT === rob_index_EX_MEM, s_miss, s_hold))
             cache_miss_MEM      := !flush_EX_MEM
+            wfsm_reset          := flush_EX_MEM
         }
     }
 
