@@ -7,6 +7,7 @@ object SB_Pack {
         val addr = UInt(32.W)
         val data = UInt(32.W)
         val wstrb = UInt(4.W)
+        val uncache = Bool()
     }
 }
 
@@ -17,6 +18,7 @@ class SB_IO extends Bundle {
     val addr_mem        = Input(UInt(32.W))
     val st_data_mem     = Input(UInt(32.W))
     val mem_type_mem    = Input(UInt(5.W))
+    val uncache_mem     = Input(Bool())
 
     // for commit in wb stage
     val is_store_num_cmt = Input(UInt(2.W))
@@ -25,6 +27,7 @@ class SB_IO extends Bundle {
     val st_addr_cmt      = Output(UInt(32.W))
     val st_data_cmt      = Output(UInt(32.W))
     val st_wlen_cmt      = Output(UInt(2.W))
+    val is_uncache_cmt   = Output(Bool())
     val flush            = Input(Bool())
 
     // for read in ex stage
@@ -60,6 +63,7 @@ class SB(n: Int) extends Module {
     io.st_addr_cmt := sb(head).addr + offset
     io.st_data_cmt := sb(head).data >> (offset ## 0.U(3.W))
     io.st_wlen_cmt := OHToUInt(PopCount(sb(head).wstrb))
+    io.is_uncache_cmt := sb(head).uncache
 
 
     // ex stage: update elem_num
@@ -87,6 +91,7 @@ class SB(n: Int) extends Module {
         sb(tail).addr   := st_addr_mem(31, 2) ## 0.U(2.W)
         sb(tail).data   := (st_data_mem << (st_addr_mem(1, 0) ## 0.U(3.W)))(31, 0)
         sb(tail).wstrb  := ((UIntToOH(UIntToOH(io.mem_type_mem(1, 0))) - 1.U) << st_addr_mem(1, 0))(3, 0)
+        sb(tail).uncache:= io.uncache_mem
     }
     head            := head + (io.st_cmt_valid && !io.dcache_miss)
     tail            := Mux(flush_buf && !wait_to_cmt.orR, head + (io.st_cmt_valid && !io.dcache_miss), tail + st_addr_mem_valid)

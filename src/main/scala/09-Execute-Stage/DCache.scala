@@ -22,6 +22,7 @@ class DCache_IO extends Bundle{
     val addr_RF         = Input(UInt(32.W))
     val mem_type_RF     = Input(UInt(5.W))
     val wdata_RF        = Input(UInt(32.W))
+    val store_cmt_RF    = Input(Bool())
     val rob_index_EX    = Input(UInt(log2Ceil(ROB_NUM).W))
     // MEM stage
     val cache_miss_MEM  = Output(Bool())
@@ -71,11 +72,13 @@ class DCache extends Module{
     val tag_RF              = addr_RF(31, 32-TAG_WIDTH)
     val index_RF            = addr_RF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
     val offset_RF           = addr_RF(OFFSET_WIDTH-1, 0)
+           
 
     // EX-TC SegReg
     val addr_reg_RF_EX      = RegInit(0.U(32.W))
     val mem_type_reg_RF_EX  = RegInit(0.U(5.W))
     val wdata_reg_RF_EX     = RegInit(0.U(32.W))
+    val store_cmt_reg_RF_EX = RegInit(false.B)
 
     // TC Stage
     val tagv        = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_write_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
@@ -177,19 +180,19 @@ class DCache extends Module{
         mem_type_reg_RF_EX  := io.mem_type_RF
         wdata_reg_RF_EX     := io.wdata_RF
         flush_RF_EX         := io.flush
+        store_cmt_reg_RF_EX := io.store_cmt_RF
     }
     when(io.flush){
         flush_RF_EX         := true.B
     }
-
-
     
     // EX-MEM SegReg
+    val uncache_EX   = addr_reg_RF_EX(31, 24) =/= 0x1c.U
     when(!(stall || cache_miss_MEM)){
         addr_reg_EX_MEM     := addr_reg_RF_EX
-        mem_type_reg_EX_MEM := mem_type_reg_RF_EX
+        mem_type_reg_EX_MEM := Mux(mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX, mem_type_reg_RF_EX, 0.U)
         wdata_reg_EX_MEM    := wdata_reg_RF_EX
-        uncache_reg_EX_MEM  := addr_reg_RF_EX(31, 24) =/= 0x1c.U
+        uncache_reg_EX_MEM  := uncache_EX
         rob_index_EX_MEM    := io.rob_index_EX
         hit_reg_EX_MEM      := hit_EX
         tag_reg_EX_MEM      := tag_r_EX
@@ -262,17 +265,17 @@ class DCache extends Module{
         is(s_idle){
             // has req
             when(mem_type_MEM(4, 3).orR){
-                state                       := Mux(uncache_MEM, Mux(mem_type_MEM(4), s_wait, s_hold), Mux(cache_hit_MEM, s_idle, s_miss))
+                state                       := Mux(uncache_MEM, s_hold, Mux(cache_hit_MEM, s_idle, s_miss))
                 lru_hit_upd                 := cache_hit_MEM && !uncache_MEM
                 cache_miss_MEM              := !cache_hit_MEM || uncache_MEM
                 data_sel                    := FROM_CMEM
                 cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM && !uncache_MEM, wmask_byte, 0.U)
                 dirty_we                    := is_store_MEM && !uncache_MEM
-                wbuf_we                     := !cache_hit_MEM || uncache_MEM
-                wfsm_en                     := !cache_hit_MEM || uncache_MEM
-                dcache_visit                := true.B
-                dcache_miss                 := !cache_hit_MEM || uncache_MEM
-                addr_sel                    := Mux(uncache_MEM && mem_type_MEM(3), FROM_SEG, FROM_PIPE)
+                wbuf_we                     := !cache_hit_MEM && !uncache_MEM
+                wfsm_en                     := !cache_hit_MEM && !uncache_MEM
+                dcache_visit                := !uncache_MEM
+                dcache_miss                 := !cache_hit_MEM && !uncache_MEM
+                addr_sel                    := Mux(uncache_MEM, FROM_SEG, FROM_PIPE)
             }
         }
         is(s_miss){
@@ -298,10 +301,13 @@ class DCache extends Module{
             cache_miss_MEM      := !wrt_finish
         }
         is(s_hold){
+            val confirm_exec    = io.rob_index_CMT === rob_index_EX_MEM
             addr_sel            := Mux(flush_EX_MEM, FROM_PIPE, FROM_SEG)
-            state               := Mux(flush_EX_MEM, s_idle, Mux(io.rob_index_CMT === rob_index_EX_MEM, s_miss, s_hold))
+            state               := Mux(flush_EX_MEM, s_idle, Mux(confirm_exec, Mux(mem_type_MEM(4), s_wait, s_miss), s_hold))
             cache_miss_MEM      := !flush_EX_MEM
             wfsm_reset          := flush_EX_MEM
+            wfsm_en             := confirm_exec && !flush_EX_MEM
+            wbuf_we             := confirm_exec && !flush_EX_MEM
         }
     }
 

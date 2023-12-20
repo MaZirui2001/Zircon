@@ -396,7 +396,7 @@ class CPU extends Module {
     ir_reg3.io.inst_pack_IS  := inst_pack_IS_MD_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
 
     ir_reg4.io.flush         := rob.io.predict_fail_cmt(7)
-    ir_reg4.io.stall         := sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4) || dcache.io.cache_miss_MEM || (sb.io.st_cmt_valid && ir_reg4.io.inst_pack_RF.mem_type(3))
+    ir_reg4.io.stall         := sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4) || dcache.io.cache_miss_MEM || (sb.io.st_cmt_valid && ir_reg4.io.inst_pack_RF.mem_type(4, 3).orR)
     ir_reg4.io.inst_pack_IS  := inst_pack_IS_LS_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid)
 
     /* ---------- 8. Regfile Read Stage ---------- */
@@ -440,7 +440,7 @@ class CPU extends Module {
     re_reg3.io.src2_RF       := rf.io.prk_data(2)
     re_reg3.io.csr_rdata_RF  := DontCare
 
-    re_reg4.io.flush         := rob.io.predict_fail_cmt(8) || !re_reg4.io.stall && (sb.io.st_cmt_valid && ir_reg4.io.inst_pack_RF.mem_type(3))
+    re_reg4.io.flush         := rob.io.predict_fail_cmt(8) || !re_reg4.io.stall && (sb.io.st_cmt_valid && ir_reg4.io.inst_pack_RF.mem_type(4, 3).orR)
     re_reg4.io.stall         := sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4) || dcache.io.cache_miss_MEM
     re_reg4.io.inst_pack_RF  := ir_reg4.io.inst_pack_RF
     re_reg4.io.src1_RF       := rf.io.prj_data(3) + ir_reg4.io.inst_pack_RF.imm
@@ -508,6 +508,7 @@ class CPU extends Module {
     ls_ex_mem_reg.io.is_ucread_EX       := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U
     ls_ex_mem_reg.io.src1_EX            := re_reg4.io.src1_EX
     ls_ex_mem_reg.io.src2_EX            := re_reg4.io.src2_EX
+    ls_ex_mem_reg.io.uncache_EX         := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U
 
     // MEM Stage
     // store_buf
@@ -516,14 +517,14 @@ class CPU extends Module {
     sb.io.st_data_mem                   := ls_ex_mem_reg.io.src2_MEM
     sb.io.mem_type_ex                   := Mux(re_reg4.io.stall, 0.U, re_reg4.io.inst_pack_EX.mem_type)
     sb.io.mem_type_mem                  := Mux(ls_ex_mem_reg.io.stall, 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
+    sb.io.uncache_mem                   := ls_ex_mem_reg.io.uncache_MEM
     sb.io.is_store_num_cmt              := rob.io.is_store_num_cmt
     sb.io.dcache_miss                   := dcache.io.cache_miss_MEM
 
     // dcache
     dcache.io.addr_RF             := Mux(sb.io.st_cmt_valid, sb.io.st_addr_cmt, re_reg4.io.src1_RF)
-    dcache.io.mem_type_RF         := Mux(sb.io.st_cmt_valid, 4.U(3.W) ## sb.io.st_wlen_cmt(1, 0), 
-                                     Mux(re_reg4.io.inst_pack_RF.mem_type(3), re_reg4.io.inst_pack_RF.mem_type, 0.U))
-    dcache.io.wdata_RF            := sb.io.st_data_cmt
+    dcache.io.mem_type_RF         := Mux(sb.io.st_cmt_valid, Mux(sb.io.is_uncache_cmt, 0.U, 4.U(3.W) ## sb.io.st_wlen_cmt(1, 0)), re_reg4.io.inst_pack_RF.mem_type)
+    dcache.io.wdata_RF            := Mux(sb.io.st_cmt_valid, sb.io.st_data_cmt, re_reg4.io.src2_RF)
     dcache.io.stall               := false.B
     dcache.io.d_rready            := arb.io.d_rready
     dcache.io.d_rdata             := arb.io.d_rdata
@@ -533,6 +534,7 @@ class CPU extends Module {
     dcache.io.rob_index_EX        := re_reg4.io.inst_pack_EX.rob_index
     dcache.io.rob_index_CMT       := rob.io.rob_index_cmt
     dcache.io.flush               := rob.io.priv_ready_to_cmt || rob.io.predict_fail_cmt(8)
+    dcache.io.store_cmt_RF        := sb.io.st_cmt_valid
 
     val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(sb.io.ld_hit(i), sb.io.ld_data_mem(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
     val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.inst_pack_MEM.mem_type(2, 0), 0.U)(Seq(
