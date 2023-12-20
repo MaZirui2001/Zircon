@@ -43,7 +43,6 @@ class SB(n: Int) extends Module {
 
     val flush_buf       = RegInit(false.B)
     val full            = elem_num === n.U || flush_buf
-
     val empty           = elem_num === 0.U
 
     // commit 
@@ -109,5 +108,6 @@ class SB(n: Int) extends Module {
         ld_hit_data(i)      := Mux(ld_bit_hit, hit_byte, 0.U)
         io.ld_hit(i)        := ld_hit_mask(i) | ld_bit_hit
     }
+
     io.ld_data_mem       := ld_hit_data.asUInt
 }

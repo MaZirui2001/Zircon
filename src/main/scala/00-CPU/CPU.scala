@@ -121,12 +121,12 @@ class CPU extends Module {
     val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
 
 
-    val iq3             = Module(new Order_Issue_Queue(IQ_MD_NUM, new inst_pack_DP_MD_t))
-    val sel3            = Module(new Order_Select(IQ_MD_NUM, new inst_pack_DP_MD_t))
+    val iq3             = Module(new Unorder_Issue_Queue(IQ_MD_NUM, new inst_pack_DP_MD_t))
+    val sel3            = Module(new Unorder_Select(IQ_MD_NUM, new inst_pack_DP_MD_t))
     val ir_reg3         = Module(new IS_RF_Reg(new inst_pack_IS_MD_t))
 
-    val iq4             = Module(new Unorder_Issue_Queue(IQ_LS_NUM, new inst_pack_DP_LS_t))
-    val sel4            = Module(new Unorder_Select(IQ_LS_NUM, new inst_pack_DP_LS_t))
+    val iq4             = Module(new Order_Issue_Queue(IQ_LS_NUM, new inst_pack_DP_LS_t))
+    val sel4            = Module(new Order_Select(IQ_LS_NUM, new inst_pack_DP_LS_t))
     val ir_reg4         = Module(new IS_RF_Reg(new inst_pack_IS_LS_t))
 
     /* Regfile Read Stage */
@@ -365,8 +365,6 @@ class CPU extends Module {
     sel4.io.insts_issue         := iq4.io.insts_issue
     sel4.io.issue_req           := iq4.io.issue_req
     sel4.io.stall               := !(iq4.io.issue_req.asUInt.orR) || ir_reg4.io.stall || ShiftRegister(ir_reg4.io.stall, 1)
-
-
     // mutual wakeup
     val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, 
                                           sel2.io.wake_preg, 

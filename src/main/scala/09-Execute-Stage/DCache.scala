@@ -22,9 +22,7 @@ class DCache_IO extends Bundle{
     val addr_RF         = Input(UInt(32.W))
     val mem_type_RF     = Input(UInt(5.W))
     val wdata_RF        = Input(UInt(32.W))
-
     val rob_index_EX    = Input(UInt(log2Ceil(ROB_NUM).W))
-
     // MEM stage
     val cache_miss_MEM  = Output(Bool())
     val rdata_MEM       = Output(UInt(32.W))
@@ -170,9 +168,10 @@ class DCache extends Module{
         cmem(i).clka    := clock
         cmem(i).wea     := cmem_we_MEM(i)
     }
+    /* hit logic */
+    val hit_EX          = VecInit.tabulate(2)(i => valid_r_EX(i) && tag_r_EX(i) === tag_EX).asUInt
 
-    // EX-TC SegReg
-
+    // EX-MEM SegReg
     when(!(stall || cache_miss_MEM)){
         addr_reg_RF_EX      := io.addr_RF
         mem_type_reg_RF_EX  := io.mem_type_RF
@@ -183,11 +182,9 @@ class DCache extends Module{
         flush_RF_EX         := true.B
     }
 
-    // TC Stage
-    /* hit logic */
-    val hit_EX          = VecInit.tabulate(2)(i => valid_r_EX(i) && tag_r_EX(i) === tag_EX).asUInt
+
     
-    // TC-MEM SegReg
+    // EX-MEM SegReg
     when(!(stall || cache_miss_MEM)){
         addr_reg_EX_MEM     := addr_reg_RF_EX
         mem_type_reg_EX_MEM := mem_type_reg_RF_EX
@@ -263,7 +260,6 @@ class DCache extends Module{
 
     switch(state){
         is(s_idle){
-            // addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
             // has req
             when(mem_type_MEM(4, 3).orR){
                 state                       := Mux(uncache_MEM, Mux(mem_type_MEM(4), s_wait, s_hold), Mux(cache_hit_MEM, s_idle, s_miss))

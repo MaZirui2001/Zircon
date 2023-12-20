@@ -139,6 +139,7 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).pred_update_en  := io.pred_update_en_dp(i)
                 rob(i)(tail).complete        := false.B
                 rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR
+                rob(i)(tail).exception       := 0.U
             }
         }
         val priv_bits = VecInit.tabulate(2)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR)
@@ -196,7 +197,7 @@ class ROB(n: Int) extends Module{
     val pred_update_en_cmt       = rob_update_item.pred_update_en
     val pred_branch_target_cmt   = rob_update_item.branch_target
     val pred_br_type_cmt         = rob_update_item.br_type_pred
-    val pred_pc_cmt              = rob_update_item.pc ## 0.U(2.W)
+    val pred_pc_cmt              = rob_update_item.pc ## 0.U(2.W) - 4.U
     val pred_real_jump_cmt       = rob_update_item.real_jump
     val exception_cmt            = Mux(interrupt, 0x80.U(8.W), rob_update_item.exception)
 
@@ -205,7 +206,7 @@ class ROB(n: Int) extends Module{
     io.pred_update_en_cmt       := ShiftRegister(pred_update_en_cmt, 1)
     io.pred_branch_target_cmt   := ShiftRegister(pred_branch_target_cmt, 1)
     io.pred_br_type_cmt         := ShiftRegister(pred_br_type_cmt, 1)
-    io.pred_pc_cmt              := ShiftRegister(pred_pc_cmt, 1) - 4.U
+    io.pred_pc_cmt              := ShiftRegister(pred_pc_cmt, 1)
     io.pred_real_jump_cmt       := ShiftRegister(pred_real_jump_cmt, 1)
     io.exception_cmt            := ShiftRegister(exception_cmt, 1)
 
