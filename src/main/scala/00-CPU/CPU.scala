@@ -200,7 +200,7 @@ class CPU extends Module {
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
     icache.io.addr_IF           := pc.io.pc_PF
-    icache.io.rvalid_IF         := !reset.asBool
+    icache.io.rvalid_IF         := !reset.asBool && pc.io.pc_PF(31, 24) === 0x1c.U
     icache.io.stall             := fq.io.full
     icache.io.flush             := false.B
     icache.io.i_rready          := arb.io.i_rready
