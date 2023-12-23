@@ -330,7 +330,7 @@ class CPU extends Module {
     sel2.io.issue_req           := iq2.io.issue_req
     sel2.io.stall               := !(iq2.io.issue_req.asUInt.orR) || ir_reg2.io.stall || ShiftRegister(ir_reg2.io.stall, 1)
 
-    // 3. arith3, calculate and branch
+    // 3. multiply, multiply and divide
     // issue queue
     iq3.io.insts_dispatch       := VecInit.tabulate(2)(i => inst_pack_DP_MD_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq3.io.insts_disp_index     := dp.io.insts_disp_index(2)
@@ -348,7 +348,7 @@ class CPU extends Module {
     sel3.io.issue_req           := iq3.io.issue_req
     sel3.io.stall               := !(iq3.io.issue_req.asUInt.orR) || ir_reg3.io.stall || ShiftRegister(ir_reg3.io.stall, 1)
 
-    // 4. multiply, multiply and divide
+    // 4. load store unit
     // issue queue
     iq4.io.insts_dispatch       := VecInit.tabulate(2)(i => inst_pack_DP_LS_gen(rp_reg.io.insts_pack_DP(i), rob.io.rob_index_dp(i)))
     iq4.io.insts_disp_index     := dp.io.insts_disp_index(3)
@@ -490,7 +490,7 @@ class CPU extends Module {
     br.io.predict_jump          := re_reg2.io.inst_pack_EX.predict_jump
     br.io.pred_npc              := re_reg2.io.inst_pack_EX.pred_npc
 
-    // 4. multiply-divide fu
+    // 3. multiply-divide fu
     mdu.io.md_op                := re_reg3.io.inst_pack_EX.alu_op
     mdu.io.src1                 := re_reg3.io.src1_EX
     mdu.io.src2                 := re_reg3.io.src2_EX
@@ -499,7 +499,7 @@ class CPU extends Module {
     md_ex1_ex2_reg.io.stall         := mdu.io.busy
     md_ex1_ex2_reg.io.inst_pack_EX1 := re_reg3.io.inst_pack_EX
 
-    // 5. load-store fu, include cache
+    // 4. load-store fu, include cache
 
     // EX-MEM SegReg
     ls_ex_mem_reg.io.flush              := rob.io.predict_fail_cmt(8) || (!ls_ex_mem_reg.io.stall && sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4))
@@ -544,7 +544,7 @@ class CPU extends Module {
                                                 4.U -> 0.U(24.W) ## mem_rdata_raw(7, 0),
                                                 5.U -> 0.U(16.W) ## mem_rdata_raw(15, 0)))
 
-    // bypass for 1, 2, 3
+    // bypass for 1, 2
     bypass12.io.prd_wb             := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd)
     bypass12.io.prj_ex             := VecInit(re_reg1.io.inst_pack_EX.prj, re_reg2.io.inst_pack_EX.prj)
     bypass12.io.prk_ex             := VecInit(re_reg1.io.inst_pack_EX.prk, re_reg2.io.inst_pack_EX.prk)

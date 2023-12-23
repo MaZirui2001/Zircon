@@ -265,17 +265,23 @@ class DCache extends Module{
         is(s_idle){
             // has req
             when(mem_type_MEM(4, 3).orR){
-                state                       := Mux(uncache_MEM, s_hold, Mux(cache_hit_MEM, s_idle, s_miss))
-                lru_hit_upd                 := cache_hit_MEM && !uncache_MEM
-                cache_miss_MEM              := !cache_hit_MEM || uncache_MEM
-                data_sel                    := FROM_CMEM
-                cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM && !uncache_MEM, wmask_byte, 0.U)
-                dirty_we                    := is_store_MEM && !uncache_MEM
-                wbuf_we                     := !cache_hit_MEM && !uncache_MEM
-                wfsm_en                     := !cache_hit_MEM && !uncache_MEM
-                dcache_visit                := !uncache_MEM
-                dcache_miss                 := !cache_hit_MEM && !uncache_MEM
-                addr_sel                    := Mux(uncache_MEM, FROM_SEG, FROM_PIPE)
+                when(uncache_MEM){
+                    state               := s_hold
+                    cache_miss_MEM      := true.B
+                    addr_sel            := FROM_SEG
+                }.otherwise{
+                    state                       := Mux(cache_hit_MEM, s_idle, s_miss)
+                    cache_miss_MEM              := !cache_hit_MEM
+                    lru_hit_upd                 := cache_hit_MEM
+                    data_sel                    := FROM_CMEM
+                    cmem_we_MEM(hit_index_MEM)  := Mux(is_store_MEM && cache_hit_MEM, wmask_byte, 0.U)
+                    dirty_we                    := is_store_MEM
+                    wbuf_we                     := !cache_hit_MEM
+                    wfsm_en                     := !cache_hit_MEM
+                    addr_sel                    := FROM_PIPE
+                    dcache_visit                := true.B
+                    dcache_miss                 := !cache_hit_MEM
+                }
             }
         }
         is(s_miss){
@@ -303,7 +309,7 @@ class DCache extends Module{
         is(s_hold){
             val confirm_exec    = io.rob_index_CMT === rob_index_EX_MEM
             addr_sel            := Mux(flush_EX_MEM, FROM_PIPE, FROM_SEG)
-            state               := Mux(flush_EX_MEM, s_idle, Mux(confirm_exec, Mux(mem_type_MEM(4), s_wait, s_miss), s_hold))
+            state               := Mux(flush_EX_MEM, s_idle, Mux(confirm_exec, Mux(is_store_MEM, s_wait, s_miss), s_hold))
             cache_miss_MEM      := !flush_EX_MEM
             wfsm_reset          := flush_EX_MEM
             wfsm_en             := confirm_exec && !flush_EX_MEM
@@ -329,7 +335,7 @@ class DCache extends Module{
         is(w_idle){
             when(wfsm_en){
                 when(uncache_MEM){
-                    wrt_state       := Mux(mem_type_MEM(4), w_write, w_finish)
+                    wrt_state       := Mux(is_store_MEM, w_write, w_finish)
                 }.otherwise{
                     wrt_state       := Mux(is_dirty, w_write, w_finish)
                 }
