@@ -6,7 +6,7 @@ import CPU_Config._
 
 class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle{
     // input from dispatch
-    val insts_disp_index = Input(Vec(2, UInt(2.W)))
+    val insts_disp_index = Input(Vec(2, UInt(1.W)))
     val insts_disp_valid = Input(Vec(2, Bool()))
     val insts_dispatch   = Input(Vec(2, inst_pack_t))
     val prj_ready        = Input(Vec(2, Bool()))
@@ -55,17 +55,14 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
 
     for(i <- 0 until n){
         when(i.asUInt < tail_pop){
-            queue_next(i).inst              := Mux(io.issue_ack, if(i == n-1) 0.U.asTypeOf(inst_pack_t) else queue(i+1).inst, queue(i).inst)
-            queue_next(i).prj_waked         := Mux(io.issue_ack, if(i == n-1) false.B else queue(i+1).prj_waked, queue(i).prj_waked)
-            queue_next(i).prk_waked         := Mux(io.issue_ack, if(i == n-1) false.B else queue(i+1).prk_waked, queue(i).prk_waked)
-            queue_next(i).prj_wake_by_ld    := Mux(io.issue_ack, if(i == n-1) false.B else queue(i+1).prj_wake_by_ld, queue(i).prj_wake_by_ld)
-            queue_next(i).prk_wake_by_ld    := Mux(io.issue_ack, if(i == n-1) false.B else queue(i+1).prk_wake_by_ld, queue(i).prk_wake_by_ld)
+            queue_next(i) := (if(i == n-1) queue(i) else Mux(io.issue_ack, queue(i+1), queue(i)))
         }.otherwise{
-            queue_next(i).inst              := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))), 0.U.asTypeOf(inst_pack_t))
-            queue_next(i).prj_waked         := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prj_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
-            queue_next(i).prk_waked         := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.prk_ready(io.insts_disp_index((i.U - tail_pop)(1, 0))), false.B)
-            queue_next(i).prj_wake_by_ld    := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))).asInstanceOf[inst_pack_DP_t].prj === io.ld_mem_prd, false.B)
-            queue_next(i).prk_wake_by_ld    := Mux(io.insts_disp_valid((i.U - tail_pop)(1, 0)), io.insts_dispatch(io.insts_disp_index((i.U - tail_pop)(1, 0))).asInstanceOf[inst_pack_DP_t].prk === io.ld_mem_prd, false.B)
+            val idx                         = (i.U - tail_pop)(0)
+            queue_next(i).inst              := io.insts_dispatch(io.insts_disp_index(idx))
+            queue_next(i).prj_waked         := io.prj_ready(io.insts_disp_index(idx))
+            queue_next(i).prk_waked         := io.prk_ready(io.insts_disp_index(idx))
+            queue_next(i).prj_wake_by_ld    := io.insts_dispatch(io.insts_disp_index(idx)).asInstanceOf[inst_pack_DP_t].prj === io.ld_mem_prd
+            queue_next(i).prk_wake_by_ld    := io.insts_dispatch(io.insts_disp_index(idx)).asInstanceOf[inst_pack_DP_t].prk === io.ld_mem_prd
         }
     }
 
