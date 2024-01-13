@@ -57,7 +57,7 @@ class Arch_Rat(n: Int) extends Module {
     ras_next := ras
     when(io.br_type_pred_cmt === RET && io.pred_update_en_cmt){
         top_next := top - 1.U
-    }.elsewhen((io.br_type_pred_cmt === BL || io.br_type_pred_cmt === ICALL) && io.pred_update_en_cmt){
+    }.elsewhen(io.br_type_pred_cmt(1) && io.pred_update_en_cmt){
         top_next := top + 1.U
         ras_next(top) := io.pc_cmt
     }
