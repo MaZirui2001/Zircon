@@ -95,8 +95,8 @@ class Multiply extends Module{
     res8(1)         := level8(0)(131, 66)
 
     // register
-    val adder_src1  = ShiftRegister(res8(0), 1)
-    val adder_src2  = ShiftRegister(res8(1), 1)
+    val adder_src1  = ShiftRegister(res8(0)(63, 0), 1)
+    val adder_src2  = ShiftRegister(res8(1)(63, 0), 1)
     val op_reg      = ShiftRegister(io.op, 1)
     val res         = adder_src1 + adder_src2
     io.res          := Mux(op_reg === ALU_MUL, res(31, 0), res(63, 32))
