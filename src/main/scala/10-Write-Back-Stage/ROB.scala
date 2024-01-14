@@ -42,6 +42,7 @@ class ROB_IO(n: Int) extends Bundle{
     val pred_update_en_dp       = Input(Vec(2, Bool()))
     val csr_addr_dp             = Input(Vec(2, UInt(14.W)))
     val priv_vec_dp             = Input(Vec(2, UInt(4.W)))
+    val exception_dp            = Input(Vec(2, UInt(8.W)))
     val full                    = Output(Vec(10, Bool()))
     val stall                   = Input(Bool())
 
@@ -140,7 +141,7 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).pred_update_en  := io.pred_update_en_dp(i)
                 rob(i)(tail).complete        := false.B
                 rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR
-                rob(i)(tail).exception       := 0.U
+                rob(i)(tail).exception       := io.exception_dp(i)
             }
         }
         val priv_bits = VecInit.tabulate(2)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR)
@@ -165,7 +166,10 @@ class ROB(n: Int) extends Module{
             rob(col_idx)(row_idx).rf_wdata        := io.rf_wdata_wb(i)
             rob(col_idx)(row_idx).real_jump       := io.real_jump_wb(i)
             rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
-            rob(col_idx)(row_idx).exception       := io.exception_wb(i)
+            when(!rob(col_idx)(row_idx).exception(7)){
+                rob(col_idx)(row_idx).exception   := io.exception_wb(i)
+            }
+            
         }
     }
     

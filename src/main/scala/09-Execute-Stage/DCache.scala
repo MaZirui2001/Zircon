@@ -101,11 +101,17 @@ class DCache extends Module{
     val hit_reg_EX_MEM      = RegInit(0.U(2.W))
     val tag_reg_EX_MEM      = RegInit(VecInit(Seq.fill(2)(0.U(TAG_WIDTH.W))))
 
+    // optimize fanout
+    val mem_type_reg_EX_MEM_backup = RegInit(VecInit(Seq.fill(5)(0.U(5.W))))
+
     // MEM Stage
     val cmem            = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(OFFSET_DEPTH, 8, INDEX_DEPTH)).io))
     val addr_MEM        = addr_reg_EX_MEM
     val mem_type_MEM    = mem_type_reg_EX_MEM
     val wdata_MEM       = WireDefault(wdata_reg_EX_MEM)
+
+    // optimize fanout
+    val mem_type_MEM_backup = mem_type_reg_EX_MEM_backup
 
     val cache_miss_MEM  = WireDefault(VecInit(Seq.fill(5)(false.B)))
     val data_sel        = WireDefault(FROM_RBUF)
@@ -198,6 +204,7 @@ class DCache extends Module{
         hit_reg_EX_MEM      := hit_EX
         tag_reg_EX_MEM      := tag_r_EX
         flush_EX_MEM        := flush_RF_EX
+        mem_type_reg_EX_MEM_backup.foreach(_ := Mux((mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX) && !io.exception_EX, mem_type_reg_RF_EX, 0.U))
     }
     when(io.flush){
         flush_EX_MEM        := true.B
@@ -323,7 +330,7 @@ class DCache extends Module{
     for(i <- 0 until 5){
         switch(state_backup(i)){
             is(s_idle){
-                when(mem_type_MEM(4, 3).orR){
+                when(mem_type_MEM_backup(i)(4, 3).orR){
                     when(uncache_MEM){
                         state_backup(i)     := s_hold
                         cache_miss_MEM(i)   := true.B

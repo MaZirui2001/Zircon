@@ -19,6 +19,7 @@ class MDU extends Module {
     mul.io.src1 := io.src1
     mul.io.src2 := io.src2
     mul.io.op   := io.md_op
+    mul.io.busy := div.io.busy
 
     div.io.src1 := io.src1
     div.io.src2 := io.src2

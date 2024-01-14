@@ -5,12 +5,12 @@ import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
     val FQ_NUM      = 8
-    val PREG_NUM    = 56
-    val ROB_NUM     = 26
+    val PREG_NUM    = 50
+    val ROB_NUM     = 20
     val SB_NUM      = 4
     val IQ_AP_NUM   = 6
     val IQ_AB_NUM   = 6
-    val IQ_MD_NUM   = 6
+    val IQ_MD_NUM   = 4
     val IQ_LS_NUM   = 6
 }
 
@@ -148,6 +148,7 @@ class CPU extends Module {
 
     val mdu             = Module(new MDU)
     val md_ex1_ex2_reg  = Module(new MD_EX1_EX2_Reg)
+    val md_ex2_ex3_reg  = Module(new MD_EX1_EX2_Reg)
     val ew_reg3         = Module(new MD_EX_WB_Reg)
 
     val exception_ls    = Module(new Exception_LS)
@@ -267,8 +268,8 @@ class CPU extends Module {
     bd.io.flush                 := rob.io.predict_fail_cmt(5)
     bd.io.prj                   := rp_reg.io.insts_pack_DP.map(_.prj)
     bd.io.prk                   := rp_reg.io.insts_pack_DP.map(_.prk)
-    bd.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, md_ex1_ex2_reg.io.inst_pack_EX2.prd, re_reg4.io.inst_pack_EX.prd)
-    bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, md_ex1_ex2_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, re_reg4.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM(4))
+    bd.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, md_ex2_ex3_reg.io.inst_pack_EX2.prd, re_reg4.io.inst_pack_EX.prd)
+    bd.io.prd_wake_valid        := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, md_ex2_ex3_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, re_reg4.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM(4))
     bd.io.prd_disp              := rp_reg.io.insts_pack_DP.map(_.prd)
     bd.io.prd_disp_valid        := rp_reg.io.insts_pack_DP.map(_.rd_valid)
     val prj_ready               = VecInit.tabulate(2)(i => rp_reg.io.insts_pack_DP(i).prj === 0.U || !(rp_reg.io.insts_pack_DP(i).prj_raw || bd.io.prj_busy(i)))
@@ -292,6 +293,7 @@ class CPU extends Module {
     rob.io.br_type_pred_dp      := br_type_dp
     rob.io.csr_addr_dp          := rp_reg.io.insts_pack_DP.map(_.csr_addr)
     rob.io.priv_vec_dp          := rp_reg.io.insts_pack_DP.map(_.priv_vec)
+    rob.io.exception_dp         := rp_reg.io.insts_pack_DP.map(_.exception)
     
     
     /* ---------- 7. Issue Stage ---------- */
@@ -369,12 +371,12 @@ class CPU extends Module {
     // mutual wakeup
     val iq_inline_wake_preg     = VecInit(sel1.io.wake_preg, 
                                           sel2.io.wake_preg, 
-                                          Mux(md_ex1_ex2_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, md_ex1_ex2_reg.io.inst_pack_EX2.prd, 0.U),
+                                          Mux(md_ex2_ex3_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, md_ex2_ex3_reg.io.inst_pack_EX2.prd, 0.U),
                                           Mux(re_reg4.io.inst_pack_EX.rd_valid, re_reg4.io.inst_pack_EX.prd, 0.U))
 
     val iq_mutual_wake_preg     = VecInit(Mux(ir_reg1.io.inst_pack_RF.rd_valid, ir_reg1.io.inst_pack_RF.prd, 0.U),
                                           Mux(ir_reg2.io.inst_pack_RF.rd_valid, ir_reg2.io.inst_pack_RF.prd, 0.U),
-                                          Mux(md_ex1_ex2_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, md_ex1_ex2_reg.io.inst_pack_EX2.prd, 0.U),
+                                          Mux(md_ex2_ex3_reg.io.inst_pack_EX2.rd_valid && !mdu.io.busy, md_ex2_ex3_reg.io.inst_pack_EX2.prd, 0.U),
                                           Mux(re_reg4.io.inst_pack_EX.rd_valid && !dcache.io.cache_miss_MEM(4), re_reg4.io.inst_pack_EX.prd, 0.U))
     
     iq1.io.wake_preg            := VecInit(iq_inline_wake_preg(0), iq_inline_wake_preg(1), iq_mutual_wake_preg(2), iq_mutual_wake_preg(3))
@@ -398,14 +400,14 @@ class CPU extends Module {
 
     ir_reg4.io.flush         := rob.io.predict_fail_cmt(7)
     ir_reg4.io.stall         := sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4) || dcache.io.cache_miss_MEM(3) || (sb.io.st_cmt_valid && ir_reg4.io.inst_pack_RF.mem_type(4, 3).orR)
-    ir_reg4.io.inst_pack_IS  := inst_pack_IS_LS_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid, sel4.io.inst_issue.inst.exception)
+    ir_reg4.io.inst_pack_IS  := inst_pack_IS_LS_gen(sel4.io.inst_issue.inst, sel4.io.inst_issue_valid)
 
     /* ---------- 8. Regfile Read Stage ---------- */
     // Regfile
     rf.io.prj               := VecInit(ir_reg1.io.inst_pack_RF.prj, ir_reg2.io.inst_pack_RF.prj, ir_reg3.io.inst_pack_RF.prj, ir_reg4.io.inst_pack_RF.prj)
     rf.io.prk               := VecInit(ir_reg1.io.inst_pack_RF.prk, ir_reg2.io.inst_pack_RF.prk, ir_reg3.io.inst_pack_RF.prk, ir_reg4.io.inst_pack_RF.prk)
     rf.io.wdata             := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ew_reg4.io.mem_rdata_WB)
-    rf.io.rf_we             := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg3.io.inst_pack_WB.rd_valid, ew_reg4.io.inst_pack_WB.rd_valid && ! ew_reg4.io.inst_pack_WB.exception(7))
+    rf.io.rf_we             := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg3.io.inst_pack_WB.rd_valid, ew_reg4.io.inst_pack_WB.rd_valid && ! ew_reg4.io.exception_WB(7))
     rf.io.prd               := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd, ew_reg3.io.inst_pack_WB.prd, ew_reg4.io.inst_pack_WB.prd)
 
     // CSR Regfile
@@ -501,21 +503,25 @@ class CPU extends Module {
     md_ex1_ex2_reg.io.stall         := mdu.io.busy
     md_ex1_ex2_reg.io.inst_pack_EX1 := re_reg3.io.inst_pack_EX
 
+    md_ex2_ex3_reg.io.flush         := rob.io.predict_fail_cmt(6)
+    md_ex2_ex3_reg.io.stall         := mdu.io.busy
+    md_ex2_ex3_reg.io.inst_pack_EX1 := md_ex1_ex2_reg.io.inst_pack_EX2
+
     // 4. load-store fu, include cache
     // EX Stage
     // exception detect
-    exception_ls.io.exception_before    := re_reg4.io.inst_pack_EX.exception
     exception_ls.io.addr_EX             := re_reg4.io.src1_EX
     exception_ls.io.mem_type_EX         := re_reg4.io.inst_pack_EX.mem_type
 
     // EX-MEM SegReg
     ls_ex_mem_reg.io.flush              := rob.io.predict_fail_cmt(6) || (!ls_ex_mem_reg.io.stall && sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4))
     ls_ex_mem_reg.io.stall              := dcache.io.cache_miss_MEM(4)
-    ls_ex_mem_reg.io.inst_pack_EX       := inst_pack_IS_LS_gen(re_reg4.io.inst_pack_EX, re_reg4.io.inst_pack_EX.inst_valid, exception_ls.io.exception_ls)
+    ls_ex_mem_reg.io.inst_pack_EX       := re_reg4.io.inst_pack_EX
     ls_ex_mem_reg.io.is_ucread_EX       := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U
     ls_ex_mem_reg.io.src1_EX            := re_reg4.io.src1_EX
     ls_ex_mem_reg.io.src2_EX            := re_reg4.io.src2_EX
     ls_ex_mem_reg.io.uncache_EX         := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U
+    ls_ex_mem_reg.io.exception_EX       := exception_ls.io.exception_ls
 
     // MEM Stage
     // store_buf
@@ -523,7 +529,7 @@ class CPU extends Module {
     sb.io.addr_mem                      := ls_ex_mem_reg.io.src1_MEM
     sb.io.st_data_mem                   := ls_ex_mem_reg.io.src2_MEM
     sb.io.mem_type_ex                   := Mux(re_reg4.io.stall || exception_ls.io.exception_ls(7), 0.U, re_reg4.io.inst_pack_EX.mem_type)
-    sb.io.mem_type_mem                  := Mux(ls_ex_mem_reg.io.stall || ls_ex_mem_reg.io.inst_pack_MEM.exception(7), 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
+    sb.io.mem_type_mem                  := Mux(ls_ex_mem_reg.io.stall || ls_ex_mem_reg.io.exception_MEM(7), 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
     sb.io.uncache_mem                   := ls_ex_mem_reg.io.uncache_MEM
     sb.io.is_store_num_cmt              := rob.io.is_store_num_cmt
     sb.io.dcache_miss                   := dcache.io.cache_miss_MEM(4)
@@ -578,12 +584,13 @@ class CPU extends Module {
 
     ew_reg3.io.flush                := rob.io.predict_fail_cmt(9) || mdu.io.busy
     ew_reg3.io.stall                := false.B
-    ew_reg3.io.inst_pack_EX         := md_ex1_ex2_reg.io.inst_pack_EX2
-    ew_reg3.io.md_out_EX            := Mux(!md_ex1_ex2_reg.io.inst_pack_EX2.alu_op(4), mdu.io.mul_out, mdu.io.div_out)
+    ew_reg3.io.inst_pack_EX         := md_ex2_ex3_reg.io.inst_pack_EX2
+    ew_reg3.io.md_out_EX            := Mux(!md_ex2_ex3_reg.io.inst_pack_EX2.alu_op(4), mdu.io.mul_out, mdu.io.div_out)
 
     ew_reg4.io.flush                := rob.io.predict_fail_cmt(9) || dcache.io.cache_miss_MEM(3)
     ew_reg4.io.stall                := false.B  
     ew_reg4.io.inst_pack_EX2        := ls_ex_mem_reg.io.inst_pack_MEM
+    ew_reg4.io.exception_EX2        := ls_ex_mem_reg.io.exception_MEM
     ew_reg4.io.vaddr_EX2            := ls_ex_mem_reg.io.src1_MEM
     ew_reg4.io.mem_rdata_EX2        := mem_rdata
     ew_reg4.io.is_ucread_EX2        := ls_ex_mem_reg.io.is_ucread_MEM
@@ -594,10 +601,10 @@ class CPU extends Module {
     rob.io.rob_index_wb         := VecInit(ew_reg1.io.inst_pack_WB.rob_index, ew_reg2.io.inst_pack_WB.rob_index, ew_reg3.io.inst_pack_WB.rob_index, ew_reg4.io.inst_pack_WB.rob_index)
     rob.io.predict_fail_wb      := VecInit(false.B, ew_reg2.io.predict_fail_WB, false.B, false.B)
     rob.io.real_jump_wb         := VecInit(false.B, ew_reg2.io.real_jump_WB, false.B, false.B)
-    rob.io.branch_target_wb     := VecInit(Mux(ew_reg1.io.inst_pack_WB.exception(7), ew_reg1.io.inst_pack_WB.pc, ew_reg1.io.csr_wdata_WB), ew_reg2.io.branch_target_WB, DontCare, ew_reg4.io.vaddr_WB)
+    rob.io.branch_target_wb     := VecInit(Mux(ew_reg1.io.inst_pack_WB.has_exp, ew_reg1.io.inst_pack_WB.pc, ew_reg1.io.csr_wdata_WB), ew_reg2.io.branch_target_WB, DontCare, ew_reg4.io.vaddr_WB)
     rob.io.rf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ew_reg4.io.mem_rdata_WB)
     rob.io.is_ucread_wb         := VecInit(ew_reg1.io.is_ucread_WB, false.B, false.B, ew_reg4.io.is_ucread_WB)
-    rob.io.exception_wb         := VecInit(ew_reg1.io.inst_pack_WB.exception, 0.U, 0.U, ew_reg4.io.inst_pack_WB.exception)
+    rob.io.exception_wb         := VecInit(0.U, 0.U, 0.U, ew_reg4.io.exception_WB)
     rob.io.eentry_global        := csr_rf.io.eentry_global
     rob.io.interrupt_vec        := csr_rf.io.interrupt_vec
     

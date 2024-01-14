@@ -227,7 +227,7 @@ object Inst_Pack{
         val prd             = UInt(log2Ceil(PREG_NUM).W)
         val imm             = UInt(32.W)
         val rob_index       = UInt(log2Ceil(ROB_NUM).W)
-        val exception       = UInt(8.W)
+        
     }
     class inst_pack_DP_FU1_t extends inst_pack_DP_t{
         val alu_op          = UInt(5.W)
@@ -236,6 +236,7 @@ object Inst_Pack{
         val csr_addr        = UInt(14.W)
         val priv_vec        = UInt(4.W)
         val pc              = UInt(32.W)
+        val has_exp         = Bool()
     }
     def inst_pack_DP_FU1_gen (inst_pack_RN : inst_pack_RN_t, _rob_index: UInt) : inst_pack_DP_FU1_t = {
         val inst_pack_DP_FU1 = Wire(new inst_pack_DP_FU1_t)
@@ -251,7 +252,7 @@ object Inst_Pack{
         inst_pack_DP_FU1.csr_addr       := inst_pack_RN.csr_addr
         inst_pack_DP_FU1.priv_vec       := inst_pack_RN.priv_vec
         inst_pack_DP_FU1.pc             := inst_pack_RN.pc
-        inst_pack_DP_FU1.exception      := inst_pack_RN.exception
+        inst_pack_DP_FU1.has_exp        := inst_pack_RN.exception(7)
         inst_pack_DP_FU1
     }
     class inst_pack_DP_FU2_t extends inst_pack_DP_t{
@@ -278,7 +279,6 @@ object Inst_Pack{
         inst_pack_DP_FU2.br_type        := inst_pack_RN.br_type
         inst_pack_DP_FU2.predict_jump   := inst_pack_RN.predict_jump
         inst_pack_DP_FU2.pred_npc       := inst_pack_RN.pred_npc
-        inst_pack_DP_FU2.exception      := inst_pack_RN.exception
         inst_pack_DP_FU2
     }
     class inst_pack_DP_LS_t extends inst_pack_DP_t{
@@ -293,7 +293,6 @@ object Inst_Pack{
         inst_pack_DP_LS.imm            := inst_pack_RN.imm
         inst_pack_DP_LS.rob_index      := _rob_index
         inst_pack_DP_LS.mem_type       := inst_pack_RN.mem_type
-        inst_pack_DP_LS.exception      := inst_pack_RN.exception
         inst_pack_DP_LS
     }
     class inst_pack_DP_MD_t extends inst_pack_DP_t{
@@ -308,7 +307,6 @@ object Inst_Pack{
         inst_pack_DP_MD.imm            := inst_pack_RN.imm
         inst_pack_DP_MD.rob_index      := _rob_index
         inst_pack_DP_MD.alu_op         := inst_pack_RN.alu_op
-        inst_pack_DP_MD.exception      := inst_pack_RN.exception
         inst_pack_DP_MD
     }
     class inst_pack_IS_t extends Bundle{
@@ -337,8 +335,8 @@ object Inst_Pack{
         inst_pack_IS_FU1.csr_addr       := inst_pack_DP.csr_addr
         inst_pack_IS_FU1.priv_vec       := inst_pack_DP.priv_vec
         inst_pack_IS_FU1.pc             := inst_pack_DP.pc
-        inst_pack_IS_FU1.exception      := inst_pack_DP.exception
         inst_pack_IS_FU1.inst_valid     := _inst_valid
+        inst_pack_IS_FU1.has_exp        := inst_pack_DP.has_exp
         inst_pack_IS_FU1
 
     }
@@ -360,14 +358,13 @@ object Inst_Pack{
         inst_pack_IS_FU2.br_type        := inst_pack_DP.br_type
         inst_pack_IS_FU2.predict_jump   := inst_pack_DP.predict_jump
         inst_pack_IS_FU2.pred_npc       := inst_pack_DP.pred_npc
-        inst_pack_IS_FU2.exception      := inst_pack_DP.exception
         inst_pack_IS_FU2.inst_valid     := _inst_valid
         inst_pack_IS_FU2
     }
     class inst_pack_IS_LS_t extends inst_pack_DP_LS_t{
         val inst_valid    = Bool()
     }
-    def inst_pack_IS_LS_gen (inst_pack_DP : inst_pack_DP_LS_t, _inst_valid : Bool, _exception: UInt) : inst_pack_IS_LS_t = {
+    def inst_pack_IS_LS_gen (inst_pack_DP : inst_pack_DP_LS_t, _inst_valid : Bool) : inst_pack_IS_LS_t = {
         val inst_pack_IS_LS = Wire(new inst_pack_IS_LS_t)
         inst_pack_IS_LS.prj            := inst_pack_DP.prj
         inst_pack_IS_LS.prk            := inst_pack_DP.prk
@@ -377,7 +374,6 @@ object Inst_Pack{
         inst_pack_IS_LS.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_LS.mem_type       := inst_pack_DP.mem_type
         inst_pack_IS_LS.inst_valid     := _inst_valid
-        inst_pack_IS_LS.exception      := _exception
         inst_pack_IS_LS
     }
     class inst_pack_IS_MD_t extends inst_pack_DP_MD_t{
@@ -392,7 +388,6 @@ object Inst_Pack{
         inst_pack_IS_MD.imm            := inst_pack_DP.imm
         inst_pack_IS_MD.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_MD.alu_op         := inst_pack_DP.alu_op
-        inst_pack_IS_MD.exception      := inst_pack_DP.exception
         inst_pack_IS_MD.inst_valid     := _inst_valid
         inst_pack_IS_MD
     }

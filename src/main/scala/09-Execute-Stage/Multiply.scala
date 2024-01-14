@@ -6,6 +6,7 @@ class Multiply extends Module{
         val src1 = Input(UInt(32.W))
         val src2 = Input(UInt(32.W))
         val op   = Input(UInt(5.W))
+        val busy = Input(Bool())
         val res  = Output(UInt(32.W))
     })
 
@@ -37,9 +38,10 @@ class Multiply extends Module{
             (if(i == 0) src2(1, 0) ## 0.U(1.W) else src2(2*i+1, 2*i-1)), 66
         )
     })
+    val booth_reg = ShiftRegister(booth, 1, !io.busy)
     // wallce tree
     // level1: input 33, output 22
-    val level1         = VecInit(Seq.tabulate(11){i => CSA(booth(3*i), booth(3*i+1), booth(3*i+2), 66)})
+    val level1         = VecInit(Seq.tabulate(11){i => CSA(booth_reg(3*i), booth_reg(3*i+1), booth_reg(3*i+2), 66)})
     val res1           = Wire(Vec(22, UInt(66.W)))
     for(i <- 0 until 11){
         res1(2*i)       := level1(i)(65, 0)
@@ -95,10 +97,11 @@ class Multiply extends Module{
     res8(1)         := level8(0)(131, 66)
 
     // register
-    val adder_src1  = ShiftRegister(res8(0)(63, 0), 1)
-    val adder_src2  = ShiftRegister(res8(1)(63, 0), 1)
-    val op_reg      = ShiftRegister(io.op, 1)
+    val adder_src1   = ShiftRegister(res8(0)(63, 0), 1, !io.busy)
+    val adder_src2   = ShiftRegister(res8(1)(63, 0), 1, !io.busy)
+    val op_reg1      = ShiftRegister(io.op, 1, !io.busy)
+    val op_reg2      = ShiftRegister(op_reg1, 1, !io.busy)
     val res         = adder_src1 + adder_src2
-    io.res          := Mux(op_reg === ALU_MUL, res(31, 0), res(63, 32))
+    io.res          := Mux(op_reg2 === ALU_MUL, res(31, 0), res(63, 32))
 
 }

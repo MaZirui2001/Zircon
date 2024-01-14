@@ -8,17 +8,20 @@ class LS_EX2_WB_Reg extends Module {
         val stall = Input(Bool())
         val inst_pack_EX2 = Input(new inst_pack_IS_LS_t)
         val vaddr_EX2 = Input(UInt(32.W))
+        val exception_EX2 = Input(UInt(8.W))
         val mem_rdata_EX2 = Input(UInt(32.W))
         val is_ucread_EX2 = Input(Bool())
     
         val inst_pack_WB = Output(new inst_pack_IS_LS_t)
         val vaddr_WB = Output(UInt(32.W))
+        val exception_WB = Output(UInt(8.W))
         val mem_rdata_WB = Output(UInt(32.W))
         val is_ucread_WB = Output(Bool())
     })
     
     val inst_pack_reg = RegInit(0.U.asTypeOf(new inst_pack_IS_LS_t))
     val vaddr_reg = RegInit(0.U(32.W))
+    val exception_reg = RegInit(0.U(8.W))
     val mem_rdata_reg = RegInit(0.U(32.W))
     val is_ucread_reg = RegInit(false.B)
 
@@ -26,18 +29,21 @@ class LS_EX2_WB_Reg extends Module {
     when(io.flush) {
         inst_pack_reg := 0.U.asTypeOf(new inst_pack_IS_LS_t)
         vaddr_reg := 0.U
+        exception_reg := 0.U
         mem_rdata_reg := 0.U
         is_ucread_reg := false.B
 
     }.elsewhen(!io.stall) {
         inst_pack_reg := io.inst_pack_EX2
         vaddr_reg := io.vaddr_EX2
+        exception_reg := io.exception_EX2
         mem_rdata_reg := io.mem_rdata_EX2
         is_ucread_reg := io.is_ucread_EX2
     }
 
     io.inst_pack_WB := inst_pack_reg
     io.vaddr_WB := vaddr_reg
+    io.exception_WB := exception_reg
     io.mem_rdata_WB := mem_rdata_reg
     io.is_ucread_WB := is_ucread_reg
 
