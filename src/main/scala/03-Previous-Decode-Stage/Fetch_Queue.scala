@@ -4,14 +4,6 @@ import Inst_Pack._
 import CPU_Config._
 // LUT: 1886 FF: 1042
 
-object Fetch{
-    class fetch_t extends Bundle{
-        val inst = UInt(32.W)
-        val pc = UInt(32.W)
-        val pred_jump = Bool()
-    }
-}
-
 class Fetch_Queue_IO extends Bundle{
     val insts_pack          = Input(Vec(2, new inst_pack_PD_t))
 
@@ -19,7 +11,6 @@ class Fetch_Queue_IO extends Bundle{
     val insts_valid_decode  = Output(Vec(2, Bool()))
     val insts_pack_id       = Output(Vec(2, new inst_pack_PD_t))
     
-
     val full                = Output(Bool())
     val flush               = Input(Bool())
 }

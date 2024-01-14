@@ -24,6 +24,7 @@ class DCache_IO extends Bundle{
     val wdata_RF        = Input(UInt(32.W))
     val store_cmt_RF    = Input(Bool())
     val rob_index_EX    = Input(UInt(log2Ceil(ROB_NUM).W))
+    val exception_EX    = Input(UInt(8.W))
     // MEM stage
     val cache_miss_MEM  = Output(Vec(5, Bool()))
     val rdata_MEM       = Output(UInt(32.W))
@@ -190,7 +191,7 @@ class DCache extends Module{
     val uncache_EX   = addr_reg_RF_EX(31, 24) =/= 0x1c.U
     when(!(stall || cache_miss_MEM(4))){
         addr_reg_EX_MEM     := addr_reg_RF_EX
-        mem_type_reg_EX_MEM := Mux(mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX, mem_type_reg_RF_EX, 0.U)
+        mem_type_reg_EX_MEM := Mux((mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX) && !io.exception_EX, mem_type_reg_RF_EX, 0.U)
         wdata_reg_EX_MEM    := wdata_reg_RF_EX
         uncache_reg_EX_MEM  := uncache_EX
         rob_index_EX_MEM    := io.rob_index_EX

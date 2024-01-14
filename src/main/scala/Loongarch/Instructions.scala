@@ -132,6 +132,7 @@ object Inst_Pack{
         val inst_valid      = Bool()
         val predict_jump    = Bool()
         val pred_npc        = UInt(32.W)
+        val exception       = UInt(8.W)
     }
     def inst_pack_PD_gen(_inst_pack_IF : inst_pack_IF_t) : inst_pack_PD_t = {
         val inst_pack_PD = Wire(new inst_pack_PD_t)
@@ -140,6 +141,7 @@ object Inst_Pack{
         inst_pack_PD.inst_valid     := _inst_pack_IF.inst_valid
         inst_pack_PD.predict_jump   := _inst_pack_IF.predict_jump
         inst_pack_PD.pred_npc       := _inst_pack_IF.pred_npc
+        inst_pack_PD.exception      := _inst_pack_IF.exception
         inst_pack_PD
     }
     class inst_pack_ID_t extends inst_pack_PD_t{
@@ -156,7 +158,6 @@ object Inst_Pack{
         val csr_addr        = UInt(14.W)
         val priv_vec        = UInt(4.W)
         val fu_id           = UInt(3.W)
-        val exception       = UInt(8.W)
     }
     def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rk : UInt, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, 
                           _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _priv_vec: UInt, _csr_addr: UInt, _exception: UInt) : inst_pack_ID_t = {
@@ -366,7 +367,7 @@ object Inst_Pack{
     class inst_pack_IS_LS_t extends inst_pack_DP_LS_t{
         val inst_valid    = Bool()
     }
-    def inst_pack_IS_LS_gen (inst_pack_DP : inst_pack_DP_LS_t, _inst_valid : Bool) : inst_pack_IS_LS_t = {
+    def inst_pack_IS_LS_gen (inst_pack_DP : inst_pack_DP_LS_t, _inst_valid : Bool, _exception: UInt) : inst_pack_IS_LS_t = {
         val inst_pack_IS_LS = Wire(new inst_pack_IS_LS_t)
         inst_pack_IS_LS.prj            := inst_pack_DP.prj
         inst_pack_IS_LS.prk            := inst_pack_DP.prk
@@ -376,7 +377,7 @@ object Inst_Pack{
         inst_pack_IS_LS.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_LS.mem_type       := inst_pack_DP.mem_type
         inst_pack_IS_LS.inst_valid     := _inst_valid
-        inst_pack_IS_LS.exception      := inst_pack_DP.exception
+        inst_pack_IS_LS.exception      := _exception
         inst_pack_IS_LS
     }
     class inst_pack_IS_MD_t extends inst_pack_DP_MD_t{

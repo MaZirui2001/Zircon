@@ -12,6 +12,7 @@ class CSR_Regfile_IO extends Bundle{
 
     // exception and ertn
     val exception       = Input(UInt(8.W))
+    val badv_exp        = Input(UInt(32.W))
     val is_eret         = Input(Bool())
     val pc_exp          = Input(UInt(32.W))
     val eentry_global   = Output(UInt(32.W))
@@ -81,14 +82,16 @@ class CSR_Regfile(TLB_INDEX_WIDTH: 5, PALEN: 20, TIMER_INIT_WIDTH: 30) extends M
     // ERA：例外返回地址
     val era = RegInit(0.U(32.W))
     when(exception(7)){
-        era := io.pc_exp
+        era := Mux(exception === 0x88.U(8.W), io.badv_exp, io.pc_exp)
     }.elsewhen(we && waddr === CSR_ERA){
         era := wdata
     }
 
     // BADV：出错虚地址
     val badv = RegInit(0.U(32.W))
-    when(we && waddr === CSR_BADV){
+    when(exception === 0x88.U(8.W) || exception === 0x89.U(8.W)){
+        badv := io.badv_exp
+    }.elsewhen(we && waddr === CSR_BADV){
         badv := wdata
     }
 

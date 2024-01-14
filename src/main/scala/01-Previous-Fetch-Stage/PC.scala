@@ -11,6 +11,7 @@ class PC_IO extends Bundle {
     val pred_npc        = Input(UInt(32.W))
     val branch_target   = Input(UInt(32.W))
     val inst_valid_PF   = Output(Vec(2, Bool()))
+    val exception_PF    = Output(UInt(8.W))
 
     val flush_by_pd     = Input(Bool())
     val flush_pd_target = Input(UInt(32.W))
@@ -45,5 +46,6 @@ class PC(reset_val: Int) extends Module {
     val valid_mask = !pc(2) ## true.B
 
     io.inst_valid_PF := (inst_valid_temp & valid_mask).asBools
+    io.exception_PF := Mux(pc(1, 0) === 0.U, 0.U, 0x88.U)
 
 }

@@ -83,6 +83,7 @@ class ROB_IO(n: Int) extends Bundle{
 
     // for exception
     val eentry_global           = Input(UInt(32.W))
+    val badv_cmt                = Output(UInt(32.W))
     val exception_cmt           = Output(UInt(8.W))
     val is_eret_cmt             = Output(Bool())
     val interrupt_vec           = Input(UInt(12.W))
@@ -187,6 +188,7 @@ class ROB(n: Int) extends Module{
     val eentry_global            = ShiftRegister(io.eentry_global, 1);
     val interrupt_vec            = ShiftRegister(io.interrupt_vec, 1);
     val interrupt                = interrupt_vec.orR && cmt_en(0)
+
     // update predict and ras
     val update_ptr               = Mux(cmt_en(1), head + 1.U, head)
     val rob_update_item          = Mux(cmt_en(0) === false.B, 0.U.asTypeOf(new rob_t), rob(update_ptr(FRONT_LOG2-1, 0))(update_ptr(log2Ceil(n)-1, FRONT_LOG2)))
@@ -213,7 +215,7 @@ class ROB(n: Int) extends Module{
 
     // update store buffer
     
-    val is_store_cmt_bit        = VecInit.tabulate(2)(i => rob_commit_items(i).is_store && cmt_en(i))
+    val is_store_cmt_bit        = VecInit.tabulate(2)(i => rob_commit_items(i).is_store && cmt_en(i) && !rob_commit_items(i).exception(7))
     val is_store_num_cmt        = PopCount(is_store_cmt_bit)
     io.is_store_num_cmt         := ShiftRegister(is_store_num_cmt, 1)
 
@@ -222,11 +224,13 @@ class ROB(n: Int) extends Module{
     val csr_wdata_cmt           = rob_update_item.branch_target
     val csr_we_cmt              = rob_update_item.is_priv_wrt && priv_buf.priv_vec(2, 1).orR
     val is_eret_cmt             = rob_update_item.is_priv_wrt && priv_buf.priv_vec(3)
+    val badv_cmt                = rob_update_item.branch_target
 
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1)
     io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1)
     io.csr_we_cmt               := ShiftRegister(csr_we_cmt, 1)
     io.is_eret_cmt              := ShiftRegister(is_eret_cmt, 1)
+    io.badv_cmt                 := ShiftRegister(badv_cmt, 1)
 
     when(io.predict_fail_cmt(0)){
         priv_buf.valid          := false.B
@@ -248,7 +252,7 @@ class ROB(n: Int) extends Module{
 
     // stat
     val rd_cmt                   = VecInit.tabulate(2)(i => rob_commit_items(i).rd)
-    val rd_valid_cmt             = VecInit.tabulate(2)(i => rob_commit_items(i).rd_valid)
+    val rd_valid_cmt             = VecInit.tabulate(2)(i => rob_commit_items(i).rd_valid && !rob_commit_items(i).exception(7))
     val prd_cmt                  = VecInit.tabulate(2)(i => rob_commit_items(i).prd)
     val pprd_cmt                 = VecInit.tabulate(2)(i => rob_commit_items(i).pprd)
     val pc_cmt                   = VecInit.tabulate(2)(i => Mux(rob_commit_items(i).exception(7) || interrupt, eentry_global, 

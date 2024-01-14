@@ -109,7 +109,7 @@ object Control_Signal{
 
     val default = List(
     // rs1_valid rs2_valid rf_we, alu_op   alu_rs1_sel alu_rs2_sel br_type mem_type iq_id, rk_sel, rd_sel, imm_type, priv_vec, csr_sel,   exception
-        N,       N,        N,     ALU_ADD, RS1_ZERO,   RS2_FOUR,   NO_BR,  NO_MEM,  ARITH, RK,     RD,     IMM_00U,  NOT_PRIV, FROM_INST, INE)
+        N,       N,        N,     ALU_ADD, RS1_ZERO,   RS2_FOUR,   NO_BR,  NO_MEM,  SYST, RK,     RD,     IMM_00U,  NOT_PRIV, FROM_INST, INE)
 
     val map = Array(
         //                  0| 1| 2| 3|         4|        5|       6|       7|        8|      9|  10| 11|      12|       13|       |14     
