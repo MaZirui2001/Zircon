@@ -236,7 +236,6 @@ object Inst_Pack{
         val csr_addr        = UInt(14.W)
         val priv_vec        = UInt(4.W)
         val pc              = UInt(32.W)
-        val has_exp         = Bool()
     }
     def inst_pack_DP_FU1_gen (inst_pack_RN : inst_pack_RN_t, _rob_index: UInt) : inst_pack_DP_FU1_t = {
         val inst_pack_DP_FU1 = Wire(new inst_pack_DP_FU1_t)
@@ -252,7 +251,6 @@ object Inst_Pack{
         inst_pack_DP_FU1.csr_addr       := inst_pack_RN.csr_addr
         inst_pack_DP_FU1.priv_vec       := inst_pack_RN.priv_vec
         inst_pack_DP_FU1.pc             := inst_pack_RN.pc
-        inst_pack_DP_FU1.has_exp        := inst_pack_RN.exception(7)
         inst_pack_DP_FU1
     }
     class inst_pack_DP_FU2_t extends inst_pack_DP_t{
@@ -336,7 +334,6 @@ object Inst_Pack{
         inst_pack_IS_FU1.priv_vec       := inst_pack_DP.priv_vec
         inst_pack_IS_FU1.pc             := inst_pack_DP.pc
         inst_pack_IS_FU1.inst_valid     := _inst_valid
-        inst_pack_IS_FU1.has_exp        := inst_pack_DP.has_exp
         inst_pack_IS_FU1
 
     }

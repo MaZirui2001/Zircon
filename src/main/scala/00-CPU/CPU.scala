@@ -5,12 +5,12 @@ import Control_Signal._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
     val FQ_NUM      = 8
-    val PREG_NUM    = 50
-    val ROB_NUM     = 20
+    val PREG_NUM    = 60
+    val ROB_NUM     = 26
     val SB_NUM      = 4
     val IQ_AP_NUM   = 6
     val IQ_AB_NUM   = 6
-    val IQ_MD_NUM   = 4
+    val IQ_MD_NUM   = 6
     val IQ_LS_NUM   = 6
 }
 
@@ -601,7 +601,7 @@ class CPU extends Module {
     rob.io.rob_index_wb         := VecInit(ew_reg1.io.inst_pack_WB.rob_index, ew_reg2.io.inst_pack_WB.rob_index, ew_reg3.io.inst_pack_WB.rob_index, ew_reg4.io.inst_pack_WB.rob_index)
     rob.io.predict_fail_wb      := VecInit(false.B, ew_reg2.io.predict_fail_WB, false.B, false.B)
     rob.io.real_jump_wb         := VecInit(false.B, ew_reg2.io.real_jump_WB, false.B, false.B)
-    rob.io.branch_target_wb     := VecInit(Mux(ew_reg1.io.inst_pack_WB.has_exp, ew_reg1.io.inst_pack_WB.pc, ew_reg1.io.csr_wdata_WB), ew_reg2.io.branch_target_WB, DontCare, ew_reg4.io.vaddr_WB)
+    rob.io.branch_target_wb     := VecInit(ew_reg1.io.csr_wdata_WB, ew_reg2.io.branch_target_WB, DontCare, ew_reg4.io.vaddr_WB)
     rob.io.rf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ew_reg4.io.mem_rdata_WB)
     rob.io.is_ucread_wb         := VecInit(ew_reg1.io.is_ucread_WB, false.B, false.B, ew_reg4.io.is_ucread_WB)
     rob.io.exception_wb         := VecInit(0.U, 0.U, 0.U, ew_reg4.io.exception_WB)
