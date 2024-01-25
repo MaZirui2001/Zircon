@@ -70,13 +70,16 @@ class ICache extends Module{
     // IF-RM SegReg
     val addr_reg_IF_RM      = RegInit(0.U(32.W))
     val rvalid_reg_IF_RM    = RegInit(false.B)
+    val uncache_reg_IF_RM   = RegInit(false.B)
 
     // RM Stage
     val addr_RM             = addr_reg_IF_RM
     val rvalid_RM           = rvalid_reg_IF_RM
     val cache_miss_RM       = WireDefault(false.B)
+    val uncache_RM          = uncache_reg_IF_RM
     val data_sel            = WireDefault(FROM_RBUF)
     val i_rvalid            = WireDefault(false.B)
+
 
     // mem we
     val tagv_we_RM          = WireDefault(VecInit(Seq.fill(2)(false.B)))
@@ -117,6 +120,7 @@ class ICache extends Module{
     when(!(stall || cache_miss_RM)){
         addr_reg_IF_RM      := io.addr_IF
         rvalid_reg_IF_RM    := io.rvalid_IF
+        uncache_reg_IF_RM   := io.addr_IF(31, 24) =/= 0x1c.U
     }
 
     // RM Stage
@@ -127,7 +131,7 @@ class ICache extends Module{
     /* rdata logic */
     val block_offset    = offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(5.W)
     val cmem_rdata_RM   = (cmem(hit_index_RM).douta >> block_offset)(127, 0)
-    val rbuf_rdata_RM   = (ret_buf >> block_offset)(127, 0)
+    val rbuf_rdata_RM   = Mux(uncache_RM, ret_buf(8*OFFSET_DEPTH-1, 8*OFFSET_DEPTH-64), (ret_buf >> block_offset)(127, 0))
     val rdata_RM        = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, cmem_rdata_RM(32*i+31, 32*i), rbuf_rdata_RM(32*i+31, 32*i))))
 
     /* return buffer update logic */
@@ -146,21 +150,28 @@ class ICache extends Module{
     val state = RegInit(s_idle)
     switch(state){
         is(s_idle){
-            addr_sel := Mux(stall, FROM_SEG, FROM_PIPE)
+            
             when(rvalid_RM){
-                state           := Mux(cache_hit_RM, s_idle, s_miss)
-                lru_hit_upd     := cache_hit_RM
-                cache_miss_RM   := !cache_hit_RM
-                data_sel        := FROM_CMEM
+                when(uncache_RM){
+                    state           := s_miss
+                    cache_miss_RM   := true.B
+                    addr_sel        := FROM_SEG
+                }.otherwise{
+                    state           := Mux(cache_hit_RM, s_idle, s_miss)
+                    lru_hit_upd     := cache_hit_RM
+                    cache_miss_RM   := !cache_hit_RM
+                    data_sel        := FROM_CMEM
+                    addr_sel        := Mux(stall, FROM_SEG, FROM_PIPE)
+                    icache_visit    := !stall
+                    icache_miss     := !cache_hit_RM
+                }
 
-                icache_visit    := !stall
-                icache_miss     := !cache_hit_RM
             }
         }
         is(s_miss){
             i_rvalid            := true.B
             cache_miss_RM       := true.B
-            state               := Mux(io.i_rready && io.i_rlast, s_refill, s_miss)
+            state               := Mux(io.i_rready && io.i_rlast, Mux(uncache_RM, s_wait, s_refill), s_miss)
         }
         is(s_refill){
             state               := s_wait
@@ -179,11 +190,11 @@ class ICache extends Module{
     // output
     io.cache_miss_RM    := cache_miss_RM
     io.rdata_RM         := rdata_RM
-    io.i_araddr         := tag_RM ## index_RM ## 0.U(OFFSET_WIDTH.W)
+    io.i_araddr         := Mux(uncache_RM, addr_RM, tag_RM ## index_RM ## 0.U(OFFSET_WIDTH.W))
     io.i_rvalid         := i_rvalid
     io.i_rsize          := 2.U
     io.i_rburst         := 1.U
-    io.i_rlen           := (8*OFFSET_DEPTH/32-1).U
+    io.i_rlen           := Mux(uncache_RM, 1.U, (8*OFFSET_DEPTH/32-1).U)
 
     io.commit_icache_miss    := icache_miss
     io.commit_icache_visit   := icache_visit
