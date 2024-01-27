@@ -2,6 +2,7 @@ import chisel3._
 import chisel3.util._
 import PRED_Config._
 import CPU_Config._
+import TLB_Config._
 
 object ROB_Pack{
     class rob_t extends Bundle(){
@@ -23,9 +24,10 @@ object ROB_Pack{
         val exception           = UInt(8.W)
     }
     class priv_t(n: Int) extends Bundle{
-        val valid = Bool()
-        val priv_vec = UInt(10.W)
-        val csr_addr = UInt(14.W)
+        val valid       = Bool()
+        val priv_vec    = UInt(10.W)
+        val csr_addr    = UInt(14.W)
+        val tlb_entry   = new TLB_ENTRY
     }
 }
 class ROB_IO(n: Int) extends Bundle{
@@ -40,7 +42,6 @@ class ROB_IO(n: Int) extends Bundle{
     val is_store_dp             = Input(Vec(2, Bool()))
     val br_type_pred_dp         = Input(Vec(2, UInt(2.W)))
     val pred_update_en_dp       = Input(Vec(2, Bool()))
-    val csr_addr_dp             = Input(Vec(2, UInt(14.W)))
     val priv_vec_dp             = Input(Vec(2, UInt(10.W)))
     val exception_dp            = Input(Vec(2, UInt(8.W)))
     val full                    = Output(Vec(10, Bool()))
@@ -91,6 +92,12 @@ class ROB_IO(n: Int) extends Bundle{
     // for tlb
     val tlbwr_en_cmt            = Output(Bool())
     val tlbrd_en_cmt            = Output(Bool())
+
+    // for priv
+    val priv_vec_ex             = Input(UInt(10.W))
+    val csr_addr_ex             = Input(UInt(14.W))
+    val tlbentry_ex             = Input(new TLB_ENTRY)
+    val tlbentry_cmt            = Output(new TLB_ENTRY)
 
     // diff
     val is_ucread_cmt           = Output(Vec(2, Bool()))
@@ -147,17 +154,21 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).exception       := io.exception_dp(i)
             }
         }
-        val priv_bits = VecInit.tabulate(2)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(9, 1).orR)
-        val priv_index = !priv_bits(0)
-        when(!priv_buf.valid && inst_valid_dp && priv_bits.asUInt.orR){
-            priv_buf.csr_addr  := io.csr_addr_dp(priv_index)
-            priv_buf.priv_vec  := io.priv_vec_dp(priv_index)
-            priv_buf.valid     := true.B
-        }
-
     }
     io.rob_index_dp := VecInit.tabulate(2)(i => tail ## i.U(FRONT_LOG2.W))
     io.full         := full
+
+    // ex stage
+    when(io.predict_fail_cmt(0)){
+        priv_buf.valid          := false.B
+    }.elsewhen(!priv_buf.valid && io.priv_vec_ex(0) && io.priv_vec_ex(9, 1).orR){
+        priv_buf.csr_addr  := io.csr_addr_ex
+        priv_buf.priv_vec  := io.priv_vec_ex
+        priv_buf.tlb_entry := io.tlbentry_ex
+        priv_buf.valid     := true.B
+    }
+
+
     // wb stage
     for(i <- 0 until 4){
         when(io.inst_valid_wb(i)){
@@ -229,6 +240,7 @@ class ROB(n: Int) extends Module{
     val badv_cmt                = rob_update_item.branch_target
     val tlbrd_en                = rob_update_item.is_priv_wrt && priv_buf.priv_vec(4)
     val tlbwr_en                = rob_update_item.is_priv_wrt && priv_buf.priv_vec(5)
+    val tlbentry_cmt            = priv_buf.tlb_entry
 
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1)
     io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1)
@@ -237,11 +249,8 @@ class ROB(n: Int) extends Module{
     io.badv_cmt                 := ShiftRegister(badv_cmt, 1)
     io.tlbrd_en_cmt             := ShiftRegister(tlbrd_en, 1)
     io.tlbwr_en_cmt             := ShiftRegister(tlbwr_en, 1)
+    io.tlbentry_cmt             := ShiftRegister(tlbentry_cmt, 1)
 
-    when(io.predict_fail_cmt(0)){
-        priv_buf.valid          := false.B
-    }
-    
     // update ptrs
     val cmt_num                 = PopCount(cmt_en)
     head                        := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(head + cmt_num >= n.U, head + cmt_num - n.U, head + cmt_num))                 

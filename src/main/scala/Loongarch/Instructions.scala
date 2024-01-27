@@ -230,8 +230,6 @@ object Inst_Pack{
         val alu_op          = UInt(5.W)
         val alu_rs1_sel     = UInt(2.W)
         val alu_rs2_sel     = UInt(2.W)
-        // val csr_addr        = UInt(14.W)
-        // val priv_vec        = UInt(10.W)
         val pc              = UInt(32.W)
     }
     def inst_pack_DP_FU1_gen (inst_pack_RN : inst_pack_RN_t, _rob_index: UInt) : inst_pack_DP_FU1_t = {
@@ -245,8 +243,6 @@ object Inst_Pack{
         inst_pack_DP_FU1.alu_op         := inst_pack_RN.alu_op
         inst_pack_DP_FU1.alu_rs1_sel    := inst_pack_RN.alu_rs1_sel
         inst_pack_DP_FU1.alu_rs2_sel    := inst_pack_RN.alu_rs2_sel
-        // inst_pack_DP_FU1.csr_addr       := inst_pack_RN.csr_addr
-        // inst_pack_DP_FU1.priv_vec       := inst_pack_RN.priv_vec
         inst_pack_DP_FU1.pc             := inst_pack_RN.pc
         inst_pack_DP_FU1
     }
@@ -329,8 +325,6 @@ object Inst_Pack{
         inst_pack_IS_FU1.alu_op         := inst_pack_DP.alu_op
         inst_pack_IS_FU1.alu_rs1_sel    := inst_pack_DP.alu_rs1_sel
         inst_pack_IS_FU1.alu_rs2_sel    := inst_pack_DP.alu_rs2_sel
-        // inst_pack_IS_FU1.csr_addr       := inst_pack_DP.csr_addr
-        // inst_pack_IS_FU1.priv_vec       := inst_pack_DP.priv_vec
         inst_pack_IS_FU1.pc             := inst_pack_DP.pc
         inst_pack_IS_FU1.inst_valid     := _inst_valid
         inst_pack_IS_FU1
