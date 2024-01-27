@@ -50,7 +50,7 @@ class Decode extends Module{
     def Imm_Gen(inst: UInt, imm_type: UInt): UInt = {
         val imm = Wire(UInt(32.W))
         import Control_Signal._
-        imm := 0.U(32.W)
+        imm := DontCare
         switch(imm_type) {
             is(IMM_00U)     { imm := 0.U(32.W) }
             is(IMM_05U)     { imm := Cat(0.U(27.W), inst(14, 10)) }
