@@ -285,9 +285,9 @@ class CPU extends Module {
     // rob
     val is_store_dp             = VecInit.tabulate(2)(i => (rp_reg.io.insts_pack_DP(i).mem_type(4)))
     val br_type_dp              = VecInit.tabulate(2)(i => Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rd === 1.U, 3.U, 
-                                                                     Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rj === 1.U, 1.U(2.W), 
-                                                                     Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
-    val pred_update_en          = VecInit.tabulate(2)(i => (rp_reg.io.insts_pack_DP(i).br_type =/= NO_BR))
+                                                           Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_JIRL && rp_reg.io.insts_pack_DP(i).rj === 1.U, 1.U(2.W), 
+                                                           Mux(rp_reg.io.insts_pack_DP(i).br_type === BR_BL, 2.U(2.W), 0.U(2.W)))))
+    val pred_update_en_dp       = VecInit.tabulate(2)(i => (rp_reg.io.insts_pack_DP(i).br_type =/= NO_BR))
     rob.io.inst_valid_dp        := rp_reg.io.insts_pack_DP.map(_.inst_valid)
     rob.io.rd_dp                := rp_reg.io.insts_pack_DP.map(_.rd)
     rob.io.rd_valid_dp          := rp_reg.io.insts_pack_DP.map(_.rd_valid)
@@ -296,7 +296,7 @@ class CPU extends Module {
     rob.io.pc_dp                := rp_reg.io.insts_pack_DP.map(_.pc)
     rob.io.is_store_dp          := is_store_dp
     rob.io.stall                := rp_reg.io.stall
-    rob.io.pred_update_en_dp    := pred_update_en
+    rob.io.pred_update_en_dp    := pred_update_en_dp
     rob.io.br_type_pred_dp      := br_type_dp
     rob.io.priv_vec_dp          := rp_reg.io.insts_pack_DP.map(_.priv_vec)
     rob.io.exception_dp         := rp_reg.io.insts_pack_DP.map(_.exception)
@@ -587,7 +587,7 @@ class CPU extends Module {
     dcache.io.rob_index_CMT       := rob.io.rob_index_cmt
     dcache.io.flush               := rob.io.predict_fail_cmt(6)
     dcache.io.store_cmt_RF        := sb.io.st_cmt_valid
-    dcache.io.uncache_RF          := sb.io.is_uncache_cmt
+    // dcache.io.uncache_RF          := sb.io.is_uncache_cmt
 
     val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(sb.io.ld_hit(i), sb.io.ld_data_mem(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
     val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.inst_pack_MEM.mem_type(2, 0), 0.U)(Seq(

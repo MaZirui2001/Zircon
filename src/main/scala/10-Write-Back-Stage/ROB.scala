@@ -126,6 +126,7 @@ class ROB(n: Int) extends Module{
 
     /* ROB ptrs */
     val head        = RegInit(0.U(log2Ceil(n).W))
+    val head_plus_1 = RegInit(1.U(log2Ceil(n).W))
     val head_each   = VecInit(Seq.tabulate(2)(i => head + i.U(log2Ceil(n).W)))
     val tail        = RegInit(0.U(log2Ceil(neach).W))
     val elem_num    = RegInit(VecInit(Seq.fill(10)(VecInit(Seq.fill(2)(0.U((log2Ceil(neach)+1).W))))))
@@ -162,10 +163,10 @@ class ROB(n: Int) extends Module{
     when(io.predict_fail_cmt(0)){
         priv_buf.valid          := false.B
     }.elsewhen(!priv_buf.valid && io.priv_vec_ex(0) && io.priv_vec_ex(9, 1).orR){
-        priv_buf.csr_addr  := io.csr_addr_ex
-        priv_buf.priv_vec  := io.priv_vec_ex
-        priv_buf.tlb_entry := io.tlbentry_ex
-        priv_buf.valid     := true.B
+        priv_buf.csr_addr       := io.csr_addr_ex
+        priv_buf.priv_vec       := io.priv_vec_ex
+        priv_buf.tlb_entry      := io.tlbentry_ex
+        priv_buf.valid          := true.B
     }
 
 
@@ -181,7 +182,6 @@ class ROB(n: Int) extends Module{
             rob(col_idx)(row_idx).real_jump       := io.real_jump_wb(i)
             rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
             rob(col_idx)(row_idx).exception       := Mux(io.exception_wb(i)(7), io.exception_wb(i), rob(col_idx)(row_idx).exception)
-            
         }
     }
     
@@ -204,7 +204,7 @@ class ROB(n: Int) extends Module{
     val interrupt                = interrupt_vec.orR && cmt_en(0)
 
     // update predict and ras
-    val update_ptr               = Mux(cmt_en(1), head + 1.U, head)
+    val update_ptr               = Mux(cmt_en(1), head_plus_1, head)
     val rob_update_item          = Mux(cmt_en(0) === false.B, 0.U.asTypeOf(new rob_t), rob(update_ptr(FRONT_LOG2-1, 0))(update_ptr(log2Ceil(n)-1, FRONT_LOG2)))
     
     val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.exception(7) || interrupt
@@ -238,8 +238,8 @@ class ROB(n: Int) extends Module{
     val csr_we_cmt              = rob_update_item.is_priv_wrt && priv_buf.priv_vec(2, 1).orR
     val is_eret_cmt             = rob_update_item.is_priv_wrt && priv_buf.priv_vec(3)
     val badv_cmt                = rob_update_item.branch_target
-    val tlbrd_en                = rob_update_item.is_priv_wrt && priv_buf.priv_vec(4)
-    val tlbwr_en                = rob_update_item.is_priv_wrt && priv_buf.priv_vec(5)
+    val tlbrd_en_cmt            = rob_update_item.is_priv_wrt && priv_buf.priv_vec(4)
+    val tlbwr_en_cmt            = rob_update_item.is_priv_wrt && priv_buf.priv_vec(5)
     val tlbentry_cmt            = priv_buf.tlb_entry
 
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1)
@@ -247,13 +247,14 @@ class ROB(n: Int) extends Module{
     io.csr_we_cmt               := ShiftRegister(csr_we_cmt, 1)
     io.is_eret_cmt              := ShiftRegister(is_eret_cmt, 1)
     io.badv_cmt                 := ShiftRegister(badv_cmt, 1)
-    io.tlbrd_en_cmt             := ShiftRegister(tlbrd_en, 1)
-    io.tlbwr_en_cmt             := ShiftRegister(tlbwr_en, 1)
+    io.tlbrd_en_cmt             := ShiftRegister(tlbrd_en_cmt, 1)
+    io.tlbwr_en_cmt             := ShiftRegister(tlbwr_en_cmt, 1)
     io.tlbentry_cmt             := ShiftRegister(tlbentry_cmt, 1)
 
     // update ptrs
     val cmt_num                 = PopCount(cmt_en)
-    head                        := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(head + cmt_num >= n.U, head + cmt_num - n.U, head + cmt_num))                 
+    head                        := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(head + cmt_num >= n.U, head + cmt_num - n.U, head + cmt_num))
+    head_plus_1                 := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 1.U, Mux(head_plus_1 + cmt_num >= n.U, head_plus_1 + cmt_num - n.U, head_plus_1 + cmt_num))                 
     val head_inc                = VecInit(Seq.fill(2)(false.B))
     for(i <- 0 until 2){
         head_inc(hsel_idx(i))   := cmt_en(i)
@@ -271,7 +272,7 @@ class ROB(n: Int) extends Module{
     val prd_cmt                  = VecInit.tabulate(2)(i => rob_commit_items(i).prd)
     val pprd_cmt                 = VecInit.tabulate(2)(i => rob_commit_items(i).pprd)
     val pc_cmt                   = VecInit.tabulate(2)(i => Mux(rob_commit_items(i).exception(7) || interrupt, eentry_global, 
-                                                                      Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, rob_commit_items(i).pc)))
+                                                            Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, rob_commit_items(i).pc)))
     val rf_wdata_cmt             = VecInit.tabulate(2)(i => rob_commit_items(i).rf_wdata)
     val is_ucread_cmt            = VecInit.tabulate(2)(i => rob_commit_items(i).is_ucread && cmt_en(i))
     val csr_diff_addr_cmt        = VecInit.fill(2)(priv_buf.csr_addr)

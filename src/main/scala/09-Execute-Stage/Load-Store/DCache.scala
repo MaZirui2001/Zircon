@@ -23,7 +23,7 @@ class DCache_IO extends Bundle{
     val mem_type_RF     = Input(UInt(5.W))
     val wdata_RF        = Input(UInt(32.W))
     val store_cmt_RF    = Input(Bool())
-    val uncache_RF      = Input(Bool())
+    // val uncache_RF      = Input(Bool())
 
     // EX stage
     val rob_index_EX    = Input(UInt(log2Ceil(ROB_NUM).W))
@@ -85,7 +85,7 @@ class DCache extends Module{
     val mem_type_reg_RF_EX  = RegInit(0.U(5.W))
     val wdata_reg_RF_EX     = RegInit(0.U(32.W))
     val store_cmt_reg_RF_EX = RegInit(false.B)
-    val uncache_reg_RF_EX   = RegInit(false.B)
+    // val uncache_reg_RF_EX   = RegInit(false.B)
 
     // TC Stage
     val tagv        = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_write_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
@@ -97,7 +97,6 @@ class DCache extends Module{
     val paddr_EX    = io.paddr_EX
     val tag_EX      = Mux(store_cmt_reg_RF_EX, addr_EX(31, 32-TAG_WIDTH), paddr_EX(31, 32-TAG_WIDTH))
     val index_EX    = addr_EX(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
-    // val offset_EX   = paddr_EX(OFFSET_WIDTH-1, 0)
 
     // TC-MEM SegReg
     val addr_reg_EX_MEM     = RegInit(0.U(32.W))
@@ -196,20 +195,20 @@ class DCache extends Module{
         wdata_reg_RF_EX     := io.wdata_RF
         flush_RF_EX         := io.flush
         store_cmt_reg_RF_EX := io.store_cmt_RF
-        uncache_reg_RF_EX   := io.uncache_RF
+        // uncache_reg_RF_EX   := io.uncache_RF
     }
     when(io.flush){
         flush_RF_EX         := true.B
     }
     
     // EX-MEM SegReg
-    val uncache_EX   = io.uncache_EX //addr_reg_RF_EX(31, 24) =/= 0x1c.U
+    val uncache_EX          =  Mux(store_cmt_reg_RF_EX, false.B, io.uncache_EX)//addr_reg_RF_EX(31, 24) =/= 0x1c.U
     when(!(stall || cache_miss_MEM(4))){
         addr_reg_EX_MEM     := addr_reg_RF_EX
         paddr_reg_EX_MEM    := Mux(store_cmt_reg_RF_EX, addr_reg_RF_EX, io.paddr_EX)
         mem_type_reg_EX_MEM := Mux((mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX) && !io.exception_EX, mem_type_reg_RF_EX, 0.U)
         wdata_reg_EX_MEM    := wdata_reg_RF_EX
-        uncache_reg_EX_MEM  := Mux(store_cmt_reg_RF_EX, uncache_reg_RF_EX, uncache_EX)
+        uncache_reg_EX_MEM  := uncache_EX
         rob_index_EX_MEM    := io.rob_index_EX
         hit_reg_EX_MEM      := hit_EX
         tag_reg_EX_MEM      := tag_r_EX
