@@ -34,6 +34,25 @@ object TLB_Config {
         val d    = Bool()
         val v    = Bool()
     }
+    def TLB_Entry_Gen(vppn: UInt, ps: UInt, g: Bool, asid: UInt, e: Bool, ppn0: UInt, plv0: UInt, mat0: UInt, d0: Bool, v0: Bool, ppn1: UInt, plv1: UInt, mat1: UInt, d1: Bool, v1: Bool): TLB_ENTRY = {
+        val tlb_entry = Wire(new TLB_ENTRY)
+        tlb_entry.vppn := vppn
+        tlb_entry.ps   := ps
+        tlb_entry.g    := g
+        tlb_entry.asid := asid
+        tlb_entry.e    := e
+        tlb_entry.ppn0 := ppn0
+        tlb_entry.plv0 := plv0
+        tlb_entry.mat0 := mat0
+        tlb_entry.d0   := d0
+        tlb_entry.v0   := v0
+        tlb_entry.ppn1 := ppn1
+        tlb_entry.plv1 := plv1
+        tlb_entry.mat1 := mat1
+        tlb_entry.d1   := d1
+        tlb_entry.v1   := v1
+        tlb_entry
+    }
     def TLB_Hit_Gen(tlb_entry: TLB_ENTRY, last: Bool): TLB_HIT_ENTRY = {
         val tlb_hit_entry = Wire(new TLB_HIT_ENTRY)
         tlb_hit_entry.vppn := tlb_entry.vppn

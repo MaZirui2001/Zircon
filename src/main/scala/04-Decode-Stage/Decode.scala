@@ -15,8 +15,7 @@ class DecodeIO extends Bundle{
     val br_type         = Output(UInt(4.W))
     val mem_type        = Output(UInt(5.W))
 
-    val priv_vec        = Output(UInt(4.W))
-    val csr_addr        = Output(UInt(14.W))
+    val priv_vec        = Output(UInt(10.W))
 
     val fu_id           = Output(UInt(3.W))
     val exception       = Output(UInt(8.W))
@@ -43,10 +42,9 @@ class Decode extends Module{
     io.mem_type         := ctrl(7)
 
     io.priv_vec         := ctrl(12)
-    io.csr_addr         := Mux(ctrl(13) === 2.U, 0x6.U(14.W), Mux(ctrl(13) === 0.U, io.inst(23, 10), 0x40.U(14.W)))
-
+    
     io.fu_id            := ctrl(8)
-    io.exception        := ctrl(14)
+    io.exception        := ctrl(13)
 
 
     def Imm_Gen(inst: UInt, imm_type: UInt): UInt = {
@@ -61,6 +59,9 @@ class Decode extends Module{
             is(IMM_16S)     { imm := Cat(Fill(14, inst(25)), inst(25, 10), 0.U(2.W)) }
             is(IMM_20S)     { imm := Cat(inst(24, 5), 0.U(12.W)) }
             is(IMM_26S)     { imm := Cat(Fill(4, inst(9)), inst(9, 0), inst(25, 10), 0.U(2.W)) }
+            is(IMM_CSR)     { imm := Cat(0.U(18.W), inst(23, 10)) }
+            is(IMM_TID)     { imm := 0x40.U(32.W) }
+            is(IMM_ERA)     { imm := 0x6.U(32.W) }
         }
         imm
     }

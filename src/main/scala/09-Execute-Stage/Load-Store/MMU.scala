@@ -6,6 +6,13 @@ class MMU_IO extends Bundle{
     val csr_asid        = Input(UInt(10.W))  
     val csr_plv         = Input(UInt(2.W))
 
+    // translate mode
+    val csr_crmd_trans  = Input(UInt(6.W))
+    
+    // csr dmw
+    val csr_dmw0        = Input(UInt(32.W))
+    val csr_dmw1        = Input(UInt(32.W))
+
     // for tlbsrch
     val csr_tlbehi      = Input(UInt(19.W))
     val tlbsrch_idx     = Output(UInt(log2Ceil(TLB_ENTRY_NUM).W))
@@ -36,13 +43,6 @@ class MMU_IO extends Bundle{
     val d_paddr         = Output(UInt(PA_LEN.W))
     val d_uncache       = Output(Bool())
     val d_exception     = Output(UInt(8.W))
-
-    // translate mode
-    val csr_crmd_trans  = Input(UInt(6.W))
-
-    // csr dmw
-    val csr_dmw0        = Input(UInt(32.W))
-    val csr_dmw1        = Input(UInt(32.W))
 }
 
 class MMU extends Module{
@@ -78,7 +78,7 @@ class MMU extends Module{
     io.i_paddr   := Mux(is_da, io.i_vaddr, 
                     Mux(i_dmw0_hit, io.csr_dmw0(27, 25) ## io.i_vaddr(28, 0), 
                     Mux(i_dmw1_hit, io.csr_dmw1(27, 25) ## io.i_vaddr(28, 0), tlb.io.i_paddr)))
-    io.i_uncache := Mux(is_da, io.csr_crmd_trans(2), 
+    io.i_uncache := Mux(is_da, !io.csr_crmd_trans(2), 
                     Mux(i_dmw0_hit, io.csr_dmw0(4),
                     Mux(i_dmw1_hit, io.csr_dmw1(4), tlb.io.i_uncache)))
     io.i_exception := Mux(is_da || i_dmw0_hit || i_dmw1_hit, 0.U, tlb.io.i_exception)
@@ -89,7 +89,7 @@ class MMU extends Module{
     io.d_paddr   := Mux(is_da, io.d_vaddr, 
                     Mux(d_dmw0_hit, io.csr_dmw0(27, 25) ## io.d_vaddr(28, 0), 
                     Mux(d_dmw1_hit, io.csr_dmw1(27, 25) ## io.d_vaddr(28, 0), tlb.io.d_paddr)))
-    io.d_uncache := Mux(is_da, io.csr_crmd_trans(4), 
+    io.d_uncache := Mux(is_da, !io.csr_crmd_trans(4), 
                     Mux(d_dmw0_hit, io.csr_dmw0(4),
                     Mux(d_dmw1_hit, io.csr_dmw1(4), tlb.io.d_uncache)))
     io.d_exception := Mux(is_da || d_dmw0_hit || d_dmw1_hit, 0.U, tlb.io.d_exception)

@@ -1,5 +1,6 @@
 import chisel3._
 import circt.stage.ChiselStage
+import chisel3.stage.ChiselOption
 
 object CPU_Main extends App {
     var firtool_options = Array("-disable-all-randomization", 

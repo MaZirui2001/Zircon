@@ -18,13 +18,18 @@ object DCache_Config{
 }
 
 class DCache_IO extends Bundle{
-    // EX stage
+    // RF stage
     val addr_RF         = Input(UInt(32.W))
     val mem_type_RF     = Input(UInt(5.W))
     val wdata_RF        = Input(UInt(32.W))
     val store_cmt_RF    = Input(Bool())
+
+    // EX stage
     val rob_index_EX    = Input(UInt(log2Ceil(ROB_NUM).W))
-    val exception_EX    = Input(UInt(8.W))
+    val paddr_EX        = Input(UInt(32.W))
+    val uncache_EX      = Input(Bool())
+    val exception_EX    = Input(Bool())
+
     // MEM stage
     val cache_miss_MEM  = Output(Vec(5, Bool()))
     val rdata_MEM       = Output(UInt(32.W))
@@ -73,7 +78,6 @@ class DCache extends Module{
     val tag_RF              = addr_RF(31, 32-TAG_WIDTH)
     val index_RF            = addr_RF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
     val offset_RF           = addr_RF(OFFSET_WIDTH-1, 0)
-           
 
     // EX-TC SegReg
     val addr_reg_RF_EX      = RegInit(0.U(32.W))
@@ -88,12 +92,14 @@ class DCache extends Module{
     
     // decode
     val addr_EX     = addr_reg_RF_EX
-    val tag_EX      = addr_EX(31, 32-TAG_WIDTH)
+    val paddr_EX    = io.paddr_EX
+    val tag_EX      = paddr_EX(31, 32-TAG_WIDTH)
     val index_EX    = addr_EX(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
-    val offset_EX   = addr_EX(OFFSET_WIDTH-1, 0)
+    // val offset_EX   = paddr_EX(OFFSET_WIDTH-1, 0)
 
     // TC-MEM SegReg
     val addr_reg_EX_MEM     = RegInit(0.U(32.W))
+    val paddr_reg_EX_MEM    = RegInit(0.U(32.W))
     val mem_type_reg_EX_MEM = RegInit(0.U(5.W))
     val wdata_reg_EX_MEM    = RegInit(0.U(32.W))
     val uncache_reg_EX_MEM  = RegInit(false.B)
@@ -106,7 +112,7 @@ class DCache extends Module{
 
     // MEM Stage
     val cmem            = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(OFFSET_DEPTH, 8, INDEX_DEPTH)).io))
-    val addr_MEM        = addr_reg_EX_MEM
+    val addr_MEM        = paddr_reg_EX_MEM
     val mem_type_MEM    = mem_type_reg_EX_MEM
     val wdata_MEM       = WireDefault(wdata_reg_EX_MEM)
 
@@ -194,9 +200,10 @@ class DCache extends Module{
     }
     
     // EX-MEM SegReg
-    val uncache_EX   = addr_reg_RF_EX(31, 24) =/= 0x1c.U
+    val uncache_EX   = io.uncache_EX //addr_reg_RF_EX(31, 24) =/= 0x1c.U
     when(!(stall || cache_miss_MEM(4))){
         addr_reg_EX_MEM     := addr_reg_RF_EX
+        paddr_reg_EX_MEM    := io.paddr_EX
         mem_type_reg_EX_MEM := Mux((mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX) && !io.exception_EX, mem_type_reg_RF_EX, 0.U)
         wdata_reg_EX_MEM    := wdata_reg_RF_EX
         uncache_reg_EX_MEM  := uncache_EX

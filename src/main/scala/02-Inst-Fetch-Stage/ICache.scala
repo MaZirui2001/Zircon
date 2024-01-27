@@ -21,7 +21,9 @@ object ICache_Config{
 class ICache_IO extends Bundle{
     // IF Stage
     val addr_IF         = Input(UInt(32.W))
+    val paddr_IF        = Input(UInt(32.W))
     val rvalid_IF       = Input(Bool())
+    val uncache_IF      = Input(Bool())
 
     // RM Stage
     val cache_miss_RM   = Output(Bool())
@@ -54,9 +56,9 @@ class ICache extends Module{
 
     // address decode IF
     val addr_IF     = io.addr_IF
-    val tag_IF      = addr_IF(31, 32-TAG_WIDTH)
+    //val tag_IF      = addr_IF(31, 32-TAG_WIDTH)
     val index_IF    = addr_IF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
-    val offset_IF   = addr_IF(OFFSET_WIDTH-1, 0)
+    //val offset_IF   = addr_IF(OFFSET_WIDTH-1, 0)
 
     // IF Stage
     val tagv                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_read_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
@@ -68,12 +70,13 @@ class ICache extends Module{
     val addr_sel            = WireDefault(FROM_PIPE)
     
     // IF-RM SegReg
-    val addr_reg_IF_RM      = RegInit(0.U(32.W))
+    //val addr_reg_IF_RM      = RegInit(0.U(32.W))
+    val paddr_reg_IF_RM     = RegInit(0.U(32.W))
     val rvalid_reg_IF_RM    = RegInit(false.B)
     val uncache_reg_IF_RM   = RegInit(false.B)
 
     // RM Stage
-    val addr_RM             = addr_reg_IF_RM
+    val addr_RM             = paddr_reg_IF_RM
     val rvalid_RM           = rvalid_reg_IF_RM
     val cache_miss_RM       = WireDefault(false.B)
     val uncache_RM          = uncache_reg_IF_RM
@@ -118,9 +121,10 @@ class ICache extends Module{
 
     // IF-RM SegReg
     when(!(stall || cache_miss_RM)){
-        addr_reg_IF_RM      := io.addr_IF
+        // addr_reg_IF_RM      := io.addr_IF
+        paddr_reg_IF_RM     := io.paddr_IF
         rvalid_reg_IF_RM    := io.rvalid_IF
-        uncache_reg_IF_RM   := io.addr_IF(31, 24) =/= 0x1c.U
+        uncache_reg_IF_RM   := io.uncache_IF
     }
 
     // RM Stage

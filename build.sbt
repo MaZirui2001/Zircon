@@ -4,7 +4,7 @@ ThisBuild / scalaVersion     := "2.13.11"
 ThisBuild / version          := "0.1.0"
 ThisBuild / organization     := "USTC"
 
-val chiselVersion = "6.0.0-RC1"
+val chiselVersion = "6.0.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -19,6 +19,7 @@ lazy val root = (project in file("."))
       "-feature",
       "-Xcheckinit",
       "-Ymacro-annotations",
+      "-opt:inline:**",
       // "-P:chiselplugin:genBundleElements",
     ),
     addCompilerPlugin("org.chipsalliance" % "chisel-plugin" % chiselVersion cross CrossVersion.full),

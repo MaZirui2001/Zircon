@@ -24,7 +24,7 @@ object ROB_Pack{
     }
     class priv_t(n: Int) extends Bundle{
         val valid = Bool()
-        val priv_vec = UInt(4.W)
+        val priv_vec = UInt(10.W)
         val csr_addr = UInt(14.W)
     }
 }
@@ -41,7 +41,7 @@ class ROB_IO(n: Int) extends Bundle{
     val br_type_pred_dp         = Input(Vec(2, UInt(2.W)))
     val pred_update_en_dp       = Input(Vec(2, Bool()))
     val csr_addr_dp             = Input(Vec(2, UInt(14.W)))
-    val priv_vec_dp             = Input(Vec(2, UInt(4.W)))
+    val priv_vec_dp             = Input(Vec(2, UInt(10.W)))
     val exception_dp            = Input(Vec(2, UInt(8.W)))
     val full                    = Output(Vec(10, Bool()))
     val stall                   = Input(Bool())
@@ -64,7 +64,6 @@ class ROB_IO(n: Int) extends Bundle{
 
     // for store buffer
     val is_store_num_cmt        = Output(UInt(2.W))
-    val priv_ready_to_cmt       = Output(Bool())
 
     // for predict and ras
     val predict_fail_cmt        = Output(UInt(10.W)) // opt fanout
@@ -88,6 +87,10 @@ class ROB_IO(n: Int) extends Bundle{
     val exception_cmt           = Output(UInt(8.W))
     val is_eret_cmt             = Output(Bool())
     val interrupt_vec           = Input(UInt(12.W))
+
+    // for tlb
+    val tlbwr_en_cmt            = Output(Bool())
+    val tlbrd_en_cmt            = Output(Bool())
 
     // diff
     val is_ucread_cmt           = Output(Vec(2, Bool()))
@@ -140,11 +143,11 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).br_type_pred    := io.br_type_pred_dp(i)
                 rob(i)(tail).pred_update_en  := io.pred_update_en_dp(i)
                 rob(i)(tail).complete        := false.B
-                rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR
+                rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(9, 1).orR
                 rob(i)(tail).exception       := io.exception_dp(i)
             }
         }
-        val priv_bits = VecInit.tabulate(2)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(3, 1).orR)
+        val priv_bits = VecInit.tabulate(2)(i => io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(9, 1).orR)
         val priv_index = !priv_bits(0)
         when(!priv_buf.valid && inst_valid_dp && priv_bits.asUInt.orR){
             priv_buf.csr_addr  := io.csr_addr_dp(priv_index)
@@ -166,9 +169,7 @@ class ROB(n: Int) extends Module{
             rob(col_idx)(row_idx).rf_wdata        := io.rf_wdata_wb(i)
             rob(col_idx)(row_idx).real_jump       := io.real_jump_wb(i)
             rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
-            when(!rob(col_idx)(row_idx).exception(7)){
-                rob(col_idx)(row_idx).exception   := io.exception_wb(i)
-            }
+            rob(col_idx)(row_idx).exception       := Mux(io.exception_wb(i)(7), io.exception_wb(i), rob(col_idx)(row_idx).exception)
             
         }
     }
@@ -176,8 +177,6 @@ class ROB(n: Int) extends Module{
     // cmt stage
     val cmt_en                  = Wire(Vec(2, Bool()))
     val rob_commit_items        = VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)))
-    val priv_ready_to_cmt       = VecInit.tabulate(2)(i => rob_commit_items(i).is_priv_wrt || rob_commit_items(i).exception(7))
-    io.priv_ready_to_cmt        := ShiftRegister(priv_ready_to_cmt.asUInt.orR, 1)
 
     cmt_en(0) := rob_commit_items(0).complete && !empty(hsel_idx(0))
     cmt_en(1) := (cmt_en(0) && rob_commit_items(1).complete 
@@ -218,7 +217,6 @@ class ROB(n: Int) extends Module{
 
 
     // update store buffer
-    
     val is_store_cmt_bit        = VecInit.tabulate(2)(i => rob_commit_items(i).is_store && cmt_en(i) && !rob_commit_items(i).exception(7))
     val is_store_num_cmt        = PopCount(is_store_cmt_bit)
     io.is_store_num_cmt         := ShiftRegister(is_store_num_cmt, 1)
@@ -229,12 +227,16 @@ class ROB(n: Int) extends Module{
     val csr_we_cmt              = rob_update_item.is_priv_wrt && priv_buf.priv_vec(2, 1).orR
     val is_eret_cmt             = rob_update_item.is_priv_wrt && priv_buf.priv_vec(3)
     val badv_cmt                = rob_update_item.branch_target
+    val tlbrd_en                = rob_update_item.is_priv_wrt && priv_buf.priv_vec(4)
+    val tlbwr_en                = rob_update_item.is_priv_wrt && priv_buf.priv_vec(5)
 
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1)
     io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1)
     io.csr_we_cmt               := ShiftRegister(csr_we_cmt, 1)
     io.is_eret_cmt              := ShiftRegister(is_eret_cmt, 1)
     io.badv_cmt                 := ShiftRegister(badv_cmt, 1)
+    io.tlbrd_en_cmt             := ShiftRegister(tlbrd_en, 1)
+    io.tlbwr_en_cmt             := ShiftRegister(tlbwr_en, 1)
 
     when(io.predict_fail_cmt(0)){
         priv_buf.valid          := false.B

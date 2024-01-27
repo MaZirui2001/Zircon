@@ -155,12 +155,11 @@ object Inst_Pack{
         val alu_rs2_sel     = UInt(2.W)
         val br_type         = UInt(4.W)
         val mem_type        = UInt(5.W)
-        val csr_addr        = UInt(14.W)
-        val priv_vec        = UInt(4.W)
+        val priv_vec        = UInt(10.W)
         val fu_id           = UInt(3.W)
     }
     def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rk : UInt, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, 
-                          _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _priv_vec: UInt, _csr_addr: UInt, _exception: UInt) : inst_pack_ID_t = {
+                          _alu_rs1_sel : UInt, _alu_rs2_sel : UInt, _br_type : UInt, _mem_type : UInt, _fu_id : UInt, _priv_vec: UInt, _exception: UInt) : inst_pack_ID_t = {
         val inst_pack_ID = Wire(new inst_pack_ID_t)
         inst_pack_ID.pc             := inst_pack_PD.pc
         inst_pack_ID.inst           := inst_pack_PD.inst
@@ -177,7 +176,6 @@ object Inst_Pack{
         inst_pack_ID.alu_rs2_sel    := _alu_rs2_sel
         inst_pack_ID.br_type        := _br_type
         inst_pack_ID.mem_type       := _mem_type
-        inst_pack_ID.csr_addr       := _csr_addr
         inst_pack_ID.priv_vec       := _priv_vec
         inst_pack_ID.fu_id          := _fu_id
         inst_pack_ID.exception      := _exception
@@ -208,7 +206,6 @@ object Inst_Pack{
         inst_pack_RN.alu_rs2_sel    := inst_pack_ID.alu_rs2_sel
         inst_pack_RN.br_type        := inst_pack_ID.br_type
         inst_pack_RN.mem_type       := inst_pack_ID.mem_type
-        inst_pack_RN.csr_addr       := inst_pack_ID.csr_addr
         inst_pack_RN.priv_vec       := inst_pack_ID.priv_vec
         inst_pack_RN.fu_id          := inst_pack_ID.fu_id
         inst_pack_RN.prj            := _prj
@@ -233,8 +230,8 @@ object Inst_Pack{
         val alu_op          = UInt(5.W)
         val alu_rs1_sel     = UInt(2.W)
         val alu_rs2_sel     = UInt(2.W)
-        val csr_addr        = UInt(14.W)
-        val priv_vec        = UInt(4.W)
+        // val csr_addr        = UInt(14.W)
+        // val priv_vec        = UInt(10.W)
         val pc              = UInt(32.W)
     }
     def inst_pack_DP_FU1_gen (inst_pack_RN : inst_pack_RN_t, _rob_index: UInt) : inst_pack_DP_FU1_t = {
@@ -248,8 +245,8 @@ object Inst_Pack{
         inst_pack_DP_FU1.alu_op         := inst_pack_RN.alu_op
         inst_pack_DP_FU1.alu_rs1_sel    := inst_pack_RN.alu_rs1_sel
         inst_pack_DP_FU1.alu_rs2_sel    := inst_pack_RN.alu_rs2_sel
-        inst_pack_DP_FU1.csr_addr       := inst_pack_RN.csr_addr
-        inst_pack_DP_FU1.priv_vec       := inst_pack_RN.priv_vec
+        // inst_pack_DP_FU1.csr_addr       := inst_pack_RN.csr_addr
+        // inst_pack_DP_FU1.priv_vec       := inst_pack_RN.priv_vec
         inst_pack_DP_FU1.pc             := inst_pack_RN.pc
         inst_pack_DP_FU1
     }
@@ -294,6 +291,7 @@ object Inst_Pack{
         inst_pack_DP_LS
     }
     class inst_pack_DP_MD_t extends inst_pack_DP_t{
+        val priv_vec        = UInt(10.W)
         val alu_op          = UInt(5.W)
     }
     def inst_pack_DP_MD_gen (inst_pack_RN : inst_pack_RN_t, _rob_index: UInt) : inst_pack_DP_MD_t = {
@@ -305,6 +303,7 @@ object Inst_Pack{
         inst_pack_DP_MD.imm            := inst_pack_RN.imm
         inst_pack_DP_MD.rob_index      := _rob_index
         inst_pack_DP_MD.alu_op         := inst_pack_RN.alu_op
+        inst_pack_DP_MD.priv_vec       := inst_pack_RN.priv_vec
         inst_pack_DP_MD
     }
     class inst_pack_IS_t extends Bundle{
@@ -330,8 +329,8 @@ object Inst_Pack{
         inst_pack_IS_FU1.alu_op         := inst_pack_DP.alu_op
         inst_pack_IS_FU1.alu_rs1_sel    := inst_pack_DP.alu_rs1_sel
         inst_pack_IS_FU1.alu_rs2_sel    := inst_pack_DP.alu_rs2_sel
-        inst_pack_IS_FU1.csr_addr       := inst_pack_DP.csr_addr
-        inst_pack_IS_FU1.priv_vec       := inst_pack_DP.priv_vec
+        // inst_pack_IS_FU1.csr_addr       := inst_pack_DP.csr_addr
+        // inst_pack_IS_FU1.priv_vec       := inst_pack_DP.priv_vec
         inst_pack_IS_FU1.pc             := inst_pack_DP.pc
         inst_pack_IS_FU1.inst_valid     := _inst_valid
         inst_pack_IS_FU1
@@ -385,6 +384,7 @@ object Inst_Pack{
         inst_pack_IS_MD.imm            := inst_pack_DP.imm
         inst_pack_IS_MD.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_MD.alu_op         := inst_pack_DP.alu_op
+        inst_pack_IS_MD.priv_vec       := inst_pack_DP.priv_vec
         inst_pack_IS_MD.inst_valid     := _inst_valid
         inst_pack_IS_MD
     }
