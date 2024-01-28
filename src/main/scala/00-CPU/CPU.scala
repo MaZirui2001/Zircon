@@ -563,12 +563,13 @@ class CPU extends Module {
     ls_ex_mem_reg.io.src1_EX            := re_reg4.io.src1_EX
     ls_ex_mem_reg.io.src2_EX            := re_reg4.io.src2_EX
     ls_ex_mem_reg.io.uncache_EX         := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U // mmu.io.d_uncache 
+    ls_ex_mem_reg.io.paddr_EX           := mmu.io.d_paddr
     ls_ex_mem_reg.io.exception_EX       := Mux(exception_ls.io.exception_ls(7), exception_ls.io.exception_ls, mmu.io.d_exception)
 
     // MEM Stage
     // store_buf
     sb.io.flush                         := rob.io.predict_fail_cmt(6)
-    sb.io.addr_mem                      := ls_ex_mem_reg.io.src1_MEM
+    sb.io.addr_mem                      := ls_ex_mem_reg.io.paddr_MEM
     sb.io.st_data_mem                   := ls_ex_mem_reg.io.src2_MEM
     sb.io.mem_type_ex                   := Mux(re_reg4.io.stall || exception_ls.io.exception_ls(7), 0.U, re_reg4.io.inst_pack_EX.mem_type)
     sb.io.mem_type_mem                  := Mux(ls_ex_mem_reg.io.stall || ls_ex_mem_reg.io.exception_MEM(7), 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
@@ -593,7 +594,6 @@ class CPU extends Module {
     dcache.io.rob_index_CMT       := rob.io.rob_index_cmt
     dcache.io.flush               := rob.io.predict_fail_cmt(6)
     dcache.io.store_cmt_RF        := sb.io.st_cmt_valid
-    // dcache.io.uncache_RF          := sb.io.is_uncache_cmt
 
     val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(sb.io.ld_hit(i), sb.io.ld_data_mem(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
     val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.inst_pack_MEM.mem_type(2, 0), 0.U)(Seq(
@@ -629,7 +629,7 @@ class CPU extends Module {
     ew_reg3.io.flush                := rob.io.predict_fail_cmt(9) || mdu.io.busy
     ew_reg3.io.stall                := false.B
     ew_reg3.io.inst_pack_EX         := md_ex2_ex3_reg.io.inst_pack_EX2
-    ew_reg3.io.md_out_EX            := Mux(md_ex2_ex3_reg.io.inst_pack_EX2.priv_vec.orR, md_ex2_ex3_reg.io.csr_rdata_EX2, Mux(!md_ex2_ex3_reg.io.inst_pack_EX2.alu_op(4), mdu.io.mul_out, mdu.io.div_out))
+    ew_reg3.io.md_out_EX            := Mux(md_ex2_ex3_reg.io.inst_pack_EX2.priv_vec(0), md_ex2_ex3_reg.io.csr_rdata_EX2, Mux(!md_ex2_ex3_reg.io.inst_pack_EX2.alu_op(4), mdu.io.mul_out, mdu.io.div_out))
     ew_reg3.io.csr_wdata_EX         := md_ex2_ex3_reg.io.csr_wdata_EX2
 
     ew_reg4.io.flush                := rob.io.predict_fail_cmt(9) || dcache.io.cache_miss_MEM(3)
@@ -727,18 +727,18 @@ class CPU extends Module {
         io.commit_en           := rob.io.cmt_en
         io.commit_rd           := rob.io.rd_cmt
         io.commit_prd          := rob.io.prd_cmt
-        io.commit_rd_valid     := rob.io.rd_valid_cmt
-        io.commit_rf_wdata     := rob.io.rf_wdata_cmt
-        io.commit_csr_wdata    := rob.io.csr_diff_wdata_cmt
-        io.commit_csr_we       := rob.io.csr_diff_we_cmt
-        io.commit_csr_waddr    := rob.io.csr_diff_addr_cmt
-        io.commit_pc           := rob.io.pc_cmt
-        io.commit_is_ucread    := rob.io.is_ucread_cmt
-        io.commit_is_br        := rob.io.is_br_stat
-        io.commit_br_type      := rob.io.br_type_stat
-        io.commit_predict_fail := rob.io.predict_fail_stat
-        io.commit_interrupt    := rob.io.exception_cmt(7) && rob.io.exception_cmt(6, 0) === 0.U
-        io.commit_interrupt_type:= csr_rf.io.estat_13
+        io.commit_rd_valid          := rob.io.rd_valid_cmt
+        io.commit_rf_wdata          := rob.io.rf_wdata_cmt
+        io.commit_csr_wdata         := rob.io.csr_diff_wdata_cmt
+        io.commit_csr_we            := rob.io.csr_diff_we_cmt
+        io.commit_csr_waddr         := rob.io.csr_diff_addr_cmt
+        io.commit_pc                := rob.io.pc_cmt
+        io.commit_is_ucread         := rob.io.is_ucread_cmt
+        io.commit_is_br             := rob.io.is_br_stat
+        io.commit_br_type           := rob.io.br_type_stat
+        io.commit_predict_fail      := rob.io.predict_fail_stat
+        io.commit_interrupt         := rob.io.exception_cmt(7) && rob.io.exception_cmt(6, 0) === 0.U
+        io.commit_interrupt_type    := csr_rf.io.estat_13
 
 
         io.commit_stall_by_fetch_queue  := fq.io.full
@@ -760,21 +760,21 @@ class CPU extends Module {
         io.commit_tlbfill_idx          := stable_cnt.io.value(3, 0)
     }
     else {
-        io.commit_en            := DontCare
-        io.commit_rd            := DontCare
-        io.commit_prd           := DontCare
-        io.commit_rd_valid      := DontCare
-        io.commit_rf_wdata      := DontCare
-        io.commit_csr_wdata     := DontCare
-        io.commit_csr_we        := DontCare
-        io.commit_csr_waddr     := DontCare
-        io.commit_pc            := DontCare
-        io.commit_is_ucread     := DontCare
-        io.commit_is_br         := DontCare
-        io.commit_br_type       := DontCare
-        io.commit_predict_fail  := DontCare
-        io.commit_interrupt     := DontCare
-        io.commit_interrupt_type:= DontCare
+        io.commit_en                := DontCare
+        io.commit_rd                := DontCare
+        io.commit_prd               := DontCare
+        io.commit_rd_valid          := DontCare
+        io.commit_rf_wdata          := DontCare
+        io.commit_csr_wdata         := DontCare
+        io.commit_csr_we            := DontCare
+        io.commit_csr_waddr         := DontCare
+        io.commit_pc                := DontCare
+        io.commit_is_ucread         := DontCare
+        io.commit_is_br             := DontCare
+        io.commit_br_type           := DontCare
+        io.commit_predict_fail      := DontCare
+        io.commit_interrupt         := DontCare
+        io.commit_interrupt_type    := DontCare
 
 
         io.commit_stall_by_fetch_queue  := DontCare
