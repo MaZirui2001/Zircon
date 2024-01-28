@@ -432,7 +432,6 @@ class CPU extends Module {
     csr_rf.io.ip_int        := false.B
     csr_rf.io.tlbentry_in   := rob.io.tlbentry_cmt
     csr_rf.io.tlbrd_en      := rob.io.tlbrd_en_cmt
-    csr_rf.io.tlbidx_srch   := rob.io.csr_wdata_cmt(log2Ceil(TLB_ENTRY_NUM), 0)
     csr_rf.io.tlbsrch_en    := rob.io.tlbsrch_en_cmt
 
     /* ---------- RF-EX SegReg ---------- */
