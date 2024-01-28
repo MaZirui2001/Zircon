@@ -16,10 +16,11 @@
   - 移位运算类指令：`SLL.W`, `SRL.W`, `SRA.W`, `SLLI.W`, `SRLI.W`, `SRAI.W`
   - 转移指令：`BEQ`, `BNE`, `BLT[U]`, `BGE[U]`, `B`, `BL`, `JIRL`
   - 普通访存指令：`LD.B`, `LD.H`, `LD.W`, `LD.BU`, `LD.HU`, `ST.B`, `ST.H`, `ST.W`
-  - 其他杂项指令：`SYSCALL`, `RDCNTVL.W`, `RDCNTVH.W`, `RDCNTID`
+  - 其他杂项指令：`RDCNTVL.W`, `RDCNTVH.W`, `RDCNTID`, `SYSCALL`, `BREAK`
 * 特权架构：
 
   - CSR访问指令：`CSRRD`, `CSRWR`, `CSRXCHG`
+  - TLB维护指令：`TLBSRCH`, `TLBRD`, `TLBWR`, `TLBFILL`
   - 其他杂项指令：`ERTN`
 
 计划实现的其他指令有：
@@ -29,16 +30,15 @@
   - 普通访存指令：`PRELD`
   - 原子访存指令：`LL.W`, `SC.W`
   - 栅障指令：`DBAR`, `IBAR`
-  - 其他杂项指令：`BREAK`
 * 特权架构：
 
   - Cache维护指令：`CACOP`
-  - TLB维护指令：`TLBSRCH`, `TLBRD`, `TLBWR`, `TLBFILL`, `INVTLB`
+  - TLB维护指令：`INVTLB`
   - 其他杂项指令：`IDLE`
 
 ## 构建方式
 
-本项目使用sbt和java进行构建并生成可综合的verilog代码，使用方法如下：
+本项目使用sbt进行构建并生成可综合的verilog代码，使用方法如下：
 
 * 基于仿真进行构建：
 
