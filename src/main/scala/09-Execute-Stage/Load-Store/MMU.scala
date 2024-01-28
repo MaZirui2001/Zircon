@@ -16,6 +16,7 @@ class MMU_IO extends Bundle{
     // for tlbsrch
     val csr_tlbehi      = Input(UInt(19.W))
     val tlbsrch_idx     = Output(UInt(log2Ceil(TLB_ENTRY_NUM).W))
+    val tlbsrch_hit     = Output(Bool())
     
     // for tlbrd 
     val csr_tlbidx     = Input(UInt(log2Ceil(TLB_ENTRY_NUM).W))
@@ -53,6 +54,7 @@ class MMU extends Module{
     tlb.io.csr_plv        := io.csr_plv
     tlb.io.csr_tlbehi     := io.csr_tlbehi
     io.tlbsrch_idx        := tlb.io.tlbsrch_idx
+    io.tlbsrch_hit        := tlb.io.tlbsrch_hit
     tlb.io.csr_tlbidx     := io.csr_tlbidx
     io.tlbrd_entry        := tlb.io.tlbrd_entry
     tlb.io.tlbwr_entry    := io.tlbwr_entry

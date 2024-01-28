@@ -89,6 +89,7 @@ class TLB_IO extends Bundle {
     // for tlbsrch
     val csr_tlbehi      = Input(UInt(19.W))
     val tlbsrch_idx     = Output(UInt(log2Ceil(TLB_ENTRY_NUM).W))
+    val tlbsrch_hit     = Output(Bool())
     
     // for tlbrd 
     val csr_tlbidx     = Input(UInt(log2Ceil(TLB_ENTRY_NUM).W))
@@ -135,6 +136,7 @@ class TLB extends Module{
                         && tlb_vppn === csr_vppn)
     }
     io.tlbsrch_idx := tlbsrch_hit_idx
+    io.tlbsrch_hit := tlbsrch_hit.asUInt.orR
 
     // for tlbrd
     io.tlbrd_entry := tlb(io.csr_tlbidx)

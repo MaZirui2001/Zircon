@@ -92,6 +92,8 @@ class ROB_IO(n: Int) extends Bundle{
     // for tlb
     val tlbwr_en_cmt            = Output(Bool())
     val tlbrd_en_cmt            = Output(Bool())
+    val tlbfill_en_cmt          = Output(Bool())
+    val tlbsrch_en_cmt          = Output(Bool())
 
     // for priv
     val priv_vec_ex             = Input(UInt(10.W))
@@ -240,6 +242,8 @@ class ROB(n: Int) extends Module{
     val badv_cmt                = rob_update_item.branch_target
     val tlbrd_en_cmt            = rob_update_item.is_priv_wrt && priv_buf.priv_vec(4)
     val tlbwr_en_cmt            = rob_update_item.is_priv_wrt && priv_buf.priv_vec(5)
+    val tlbfill_en_cmt          = rob_update_item.is_priv_wrt && priv_buf.priv_vec(6)
+    val tlbsrch_en_cmt          = rob_update_item.is_priv_wrt && priv_buf.priv_vec(7)
     val tlbentry_cmt            = priv_buf.tlb_entry
 
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1)
@@ -249,6 +253,8 @@ class ROB(n: Int) extends Module{
     io.badv_cmt                 := ShiftRegister(badv_cmt, 1)
     io.tlbrd_en_cmt             := ShiftRegister(tlbrd_en_cmt, 1)
     io.tlbwr_en_cmt             := ShiftRegister(tlbwr_en_cmt, 1)
+    io.tlbfill_en_cmt           := ShiftRegister(tlbfill_en_cmt, 1)
+    io.tlbsrch_en_cmt           := ShiftRegister(tlbsrch_en_cmt, 1)
     io.tlbentry_cmt             := ShiftRegister(tlbentry_cmt, 1)
 
     // update ptrs

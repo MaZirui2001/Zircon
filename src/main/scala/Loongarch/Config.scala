@@ -71,6 +71,8 @@ object Control_Signal{
     val PRV_ERET = 0x9.U(10.W)  // bit 3
     val TLB_RD   = 0x11.U(10.W) // bit 4
     val TLB_WR   = 0x21.U(10.W) // bit 5
+    val TLB_FILL = 0x41.U(10.W) // bit 6
+    val TLB_SRCH = 0x81.U(10.W) // bit 7
 
     // csr_sel
     val FROM_INST = 0.U(2.W)
@@ -140,11 +142,6 @@ object Control_Signal{
         MODW        -> List(Y, Y, Y, ALU_MOD,   RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   MD,    RK, RD, IMM_00U, NOT_PRIV, NO_EXP),
         DIVWU       -> List(Y, Y, Y, ALU_DIVU,  RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   MD,    RK, RD, IMM_00U, NOT_PRIV, NO_EXP),
         MODWU       -> List(Y, Y, Y, ALU_MODU,  RS1_REG,  RS2_REG,  NO_BR,   NO_MEM,   MD,    RK, RD, IMM_00U, NOT_PRIV, NO_EXP),
-        CSRRD       -> List(N, N, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_RD,   NO_EXP),
-        CSRWR       -> List(N, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_WR,   NO_EXP),
-        CSRXCHG     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_XCHG, NO_EXP),
-        TLBRD       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_RD,   NO_EXP),
-        TLBWR       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_WR,   NO_EXP),
         BREAK       -> List(N, N, N, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, NOT_PRIV, BRK),
         SYSCALL     -> List(N, N, N, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, NOT_PRIV, SYS),
         SLLIW       -> List(Y, N, Y, ALU_SLL,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_05U, NOT_PRIV, NO_EXP),
@@ -156,6 +153,13 @@ object Control_Signal{
         ANDI        -> List(Y, N, Y, ALU_AND,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, NOT_PRIV, NO_EXP),
         ORI         -> List(Y, N, Y, ALU_OR,    RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, NOT_PRIV, NO_EXP),
         XORI        -> List(Y, N, Y, ALU_XOR,   RS1_REG,  RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_12U, NOT_PRIV, NO_EXP),
+        CSRRD       -> List(N, N, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_RD,   NO_EXP),
+        CSRWR       -> List(N, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_WR,   NO_EXP),
+        CSRXCHG     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_XCHG, NO_EXP),
+        TLBSRCH     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_TID, TLB_SRCH, NO_EXP),
+        TLBRD       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_RD,   NO_EXP),
+        TLBWR       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_WR,   NO_EXP),
+        TLBFILL     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_FILL, NO_EXP),
         ERTN        -> List(N, N, N, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_ERA, PRV_ERET, NO_EXP),
         LU12IW      -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, NOT_PRIV, NO_EXP),
         PCADDU12I   -> List(N, N, Y, ALU_ADD,   RS1_PC,   RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, NOT_PRIV, NO_EXP),

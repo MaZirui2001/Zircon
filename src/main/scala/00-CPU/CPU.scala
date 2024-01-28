@@ -2,6 +2,7 @@ import chisel3._
 import chisel3.util._
 import Inst_Pack._
 import Control_Signal._
+import TLB_Config._
 object CPU_Config{
     val RESET_VEC   = 0x1c000000
     val FQ_NUM      = 8
@@ -78,6 +79,8 @@ class CPU_IO extends Bundle{
     val commit_dcache_visit         = Output(Bool())
     
     val commit_iq_issue             = Output(Vec(5, Bool()))
+    val commit_tlbfill_en           = Output(Bool())
+    val commit_tlbfill_idx          = Output(UInt(4.W))
 
 }
 class CPU extends Module {
@@ -429,6 +432,8 @@ class CPU extends Module {
     csr_rf.io.ip_int        := false.B
     csr_rf.io.tlbentry_in   := rob.io.tlbentry_cmt
     csr_rf.io.tlbrd_en      := rob.io.tlbrd_en_cmt
+    csr_rf.io.tlbidx_srch   := rob.io.csr_wdata_cmt(log2Ceil(TLB_ENTRY_NUM), 0)
+    csr_rf.io.tlbsrch_en    := rob.io.tlbsrch_en_cmt
 
     /* ---------- RF-EX SegReg ---------- */
     re_reg1.io.flush         := rob.io.predict_fail_cmt(8)
@@ -502,9 +507,12 @@ class CPU extends Module {
     // CSR update
     val csr_op      = re_reg3.io.inst_pack_EX.priv_vec(2)
     val is_mret     = re_reg3.io.inst_pack_EX.priv_vec(3)
+    val is_tlbsrch  = re_reg3.io.inst_pack_EX.priv_vec(7)
     val csr_src1    = re_reg3.io.src1_EX
     val csr_src2    = re_reg3.io.src2_EX
-    val csr_wdata   = Mux(is_mret, re_reg3.io.csr_rdata_EX, Mux(csr_op, csr_src1 & csr_src2 | ~csr_src1 & re_reg3.io.csr_rdata_EX,csr_src2))
+    val csr_wdata   = Mux(is_tlbsrch, mmu.io.tlbsrch_hit ## mmu.io.tlbsrch_idx, 
+                      Mux(is_mret, re_reg3.io.csr_rdata_EX, 
+                      Mux(csr_op, csr_src1 & csr_src2 | ~csr_src1 & re_reg3.io.csr_rdata_EX,csr_src2)))
 
     rob.io.priv_vec_ex              := re_reg3.io.inst_pack_EX.priv_vec
     rob.io.csr_addr_ex              := re_reg3.io.inst_pack_EX.imm(13, 0)
@@ -533,7 +541,7 @@ class CPU extends Module {
     mmu.io.tlbwr_entry                  := csr_rf.io.tlbentry_global
     mmu.io.tlbwr_en                     := rob.io.tlbwr_en_cmt
     mmu.io.tlbfill_idx                  := stable_cnt.io.value(3, 0)
-    mmu.io.tlbfill_en                   := false.B // TODO
+    mmu.io.tlbfill_en                   := rob.io.tlbfill_en_cmt
     mmu.io.csr_crmd_trans               := csr_rf.io.crmd_trans
     mmu.io.csr_dmw0                     := csr_rf.io.dmw0_global
     mmu.io.csr_dmw1                     := csr_rf.io.dmw1_global
@@ -749,9 +757,8 @@ class CPU extends Module {
         io.commit_stall_by_div          := mdu.io.busy
 
         io.commit_iq_issue             := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, sel3.io.inst_issue_valid, sel4.io.inst_issue_valid, DontCare)
-
-
-
+        io.commit_tlbfill_en           := rob.io.tlbfill_en_cmt
+        io.commit_tlbfill_idx          := stable_cnt.io.value(3, 0)
     }
     else {
         io.commit_en            := DontCare
@@ -786,6 +793,8 @@ class CPU extends Module {
         io.commit_stall_by_div          := DontCare
 
         io.commit_iq_issue              := DontCare
+        io.commit_tlbfill_en            := DontCare
+        io.commit_tlbfill_idx           := DontCare
 
     }
 

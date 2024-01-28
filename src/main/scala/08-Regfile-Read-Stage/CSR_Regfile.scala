@@ -40,6 +40,10 @@ class CSR_Regfile_IO extends Bundle{
     val tlbentry_in     = Input(new TLB_ENTRY)
     val tlbrd_en        = Input(Bool())
 
+    // tlbsrch
+    val tlbidx_srch     = Input(UInt((log2Ceil(TLB_ENTRY_NUM)+1).W))
+    val tlbsrch_en      = Input(Bool())
+
     // debug
     val estat_13        = Output(UInt(13.W))
 }
@@ -164,7 +168,15 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
 
     // TLBIDX：TLB索引
     val tlbidx = RegInit(0.U(32.W))
-    when(io.tlbrd_en){
+    when(io.tlbsrch_en){
+        when(io.tlbidx_srch(TLB_INDEX_WIDTH) === 1.U){
+            // hit
+            tlbidx := 0.U(1.W) ## tlbidx(30, TLB_INDEX_WIDTH) ## io.tlbidx_srch(TLB_INDEX_WIDTH-1, 0)
+        }.otherwise{
+            // not hit
+            tlbidx := 1.U(1.W) ## tlbidx(30, 0)
+        }
+    }.elsewhen(io.tlbrd_en){
         tlbidx := !tlbentry_in.e ## 0.U(1.W) ## Mux(tlbentry_in.e, tlbentry_in.ps, 0.U(6.W)) ## tlbidx(23, 0)
     }.elsewhen(we && waddr === CSR_TLBIDX){
         tlbidx := wdata(31) ## 0.U(1.W) ## wdata(29, 24) ## 0.U((24-TLB_INDEX_WIDTH).W) ## wdata(TLB_INDEX_WIDTH-1, 0)
