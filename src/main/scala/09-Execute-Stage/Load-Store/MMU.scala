@@ -30,18 +30,25 @@ class MMU_IO extends Bundle{
     val tlbfill_idx    = Input(UInt(log2Ceil(TLB_ENTRY_NUM).W))
     val tlbfill_en     = Input(Bool())
 
+    // for invtlb
+    val invtlb_en       = Input(Bool())
+    val invtlb_op       = Input(UInt(5.W))
+    val invtlb_asid     = Input(UInt(10.W))
+    val invtlb_vaddr    = Input(UInt(32.W))
+    
+
     // icache tlb search
     val i_valid         = Input(Bool())
-    val i_vaddr         = Input(UInt(VA_LEN.W))
-    val i_paddr         = Output(UInt(PA_LEN.W))
+    val i_vaddr         = Input(UInt(32.W))
+    val i_paddr         = Output(UInt(32.W))
     val i_uncache       = Output(Bool())
     val i_exception     = Output(UInt(8.W))
 
     // dcache tlb search
     val d_rvalid        = Input(Bool())
     val d_wvalid        = Input(Bool())
-    val d_vaddr         = Input(UInt(VA_LEN.W))
-    val d_paddr         = Output(UInt(PA_LEN.W))
+    val d_vaddr         = Input(UInt(32.W))
+    val d_paddr         = Output(UInt(32.W))
     val d_uncache       = Output(Bool())
     val d_exception     = Output(UInt(8.W))
 }
@@ -61,6 +68,10 @@ class MMU extends Module{
     tlb.io.tlbwr_en       := io.tlbwr_en
     tlb.io.tlbfill_idx    := io.tlbfill_idx
     tlb.io.tlbfill_en     := io.tlbfill_en
+    tlb.io.invtlb_en      := io.invtlb_en
+    tlb.io.invtlb_op      := io.invtlb_op
+    tlb.io.invtlb_asid    := io.invtlb_asid
+    tlb.io.invtlb_vaddr   := io.invtlb_vaddr
 
     // icache tlb search
     tlb.io.i_valid        := io.i_valid

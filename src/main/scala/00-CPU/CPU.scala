@@ -516,6 +516,9 @@ class CPU extends Module {
     rob.io.priv_vec_ex              := re_reg3.io.inst_pack_EX.priv_vec
     rob.io.csr_addr_ex              := re_reg3.io.inst_pack_EX.imm(13, 0)
     rob.io.tlbentry_ex              := mmu.io.tlbrd_entry
+    rob.io.invtlb_op_ex             := re_reg3.io.inst_pack_EX.imm(4, 0)
+    rob.io.invtlb_asid_ex           := re_reg3.io.src1_EX(9, 0)
+    rob.io.invtlb_vaddr_ex          := re_reg3.io.src2_EX
 
     md_ex1_ex2_reg.io.flush         := rob.io.predict_fail_cmt(6)
     md_ex1_ex2_reg.io.stall         := mdu.io.busy
@@ -541,6 +544,10 @@ class CPU extends Module {
     mmu.io.tlbwr_en                     := rob.io.tlbwr_en_cmt
     mmu.io.tlbfill_idx                  := stable_cnt.io.value(3, 0)
     mmu.io.tlbfill_en                   := rob.io.tlbfill_en_cmt
+    mmu.io.invtlb_en                    := rob.io.invtlb_en_cmt
+    mmu.io.invtlb_op                    := rob.io.invtlb_op_cmt
+    mmu.io.invtlb_asid                  := rob.io.invtlb_asid_cmt
+    mmu.io.invtlb_vaddr                 := rob.io.invtlb_vaddr_cmt
     mmu.io.csr_crmd_trans               := csr_rf.io.crmd_trans
     mmu.io.csr_dmw0                     := csr_rf.io.dmw0_global
     mmu.io.csr_dmw1                     := csr_rf.io.dmw1_global

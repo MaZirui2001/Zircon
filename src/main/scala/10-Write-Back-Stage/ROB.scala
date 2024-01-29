@@ -28,6 +28,9 @@ object ROB_Pack{
         val priv_vec    = UInt(10.W)
         val csr_addr    = UInt(14.W)
         val tlb_entry   = new TLB_ENTRY
+        val inv_op      = UInt(5.W)
+        val inv_vaddr   = UInt(32.W)
+        val inv_asid    = UInt(10.W)
     }
 }
 class ROB_IO(n: Int) extends Bundle{
@@ -94,12 +97,19 @@ class ROB_IO(n: Int) extends Bundle{
     val tlbrd_en_cmt            = Output(Bool())
     val tlbfill_en_cmt          = Output(Bool())
     val tlbsrch_en_cmt          = Output(Bool())
+    val invtlb_en_cmt           = Output(Bool())
+    val invtlb_op_cmt           = Output(UInt(5.W))
+    val invtlb_vaddr_cmt        = Output(UInt(32.W))
+    val invtlb_asid_cmt         = Output(UInt(10.W))
 
     // for priv
     val priv_vec_ex             = Input(UInt(10.W))
     val csr_addr_ex             = Input(UInt(14.W))
     val tlbentry_ex             = Input(new TLB_ENTRY)
     val tlbentry_cmt            = Output(new TLB_ENTRY)
+    val invtlb_op_ex            = Input(UInt(5.W))
+    val invtlb_vaddr_ex         = Input(UInt(32.W))
+    val invtlb_asid_ex          = Input(UInt(10.W))
 
     // diff
     val is_ucread_cmt           = Output(Vec(2, Bool()))
@@ -168,6 +178,9 @@ class ROB(n: Int) extends Module{
         priv_buf.csr_addr       := io.csr_addr_ex
         priv_buf.priv_vec       := io.priv_vec_ex
         priv_buf.tlb_entry      := io.tlbentry_ex
+        priv_buf.inv_op         := io.invtlb_op_ex
+        priv_buf.inv_vaddr      := io.invtlb_vaddr_ex
+        priv_buf.inv_asid       := io.invtlb_asid_ex
         priv_buf.valid          := true.B
     }
 
@@ -245,6 +258,10 @@ class ROB(n: Int) extends Module{
     val tlbfill_en_cmt          = rob_update_item.is_priv_wrt && priv_buf.priv_vec(6)
     val tlbsrch_en_cmt          = rob_update_item.is_priv_wrt && priv_buf.priv_vec(7)
     val tlbentry_cmt            = priv_buf.tlb_entry
+    val invtlb_en_cmt           = priv_buf.valid && priv_buf.priv_vec(8)
+    val invtlb_op_cmt           = priv_buf.inv_op
+    val invtlb_vaddr_cmt        = priv_buf.inv_vaddr
+    val invtlb_asid_cmt         = priv_buf.inv_asid
 
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1)
     io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1)
@@ -256,6 +273,10 @@ class ROB(n: Int) extends Module{
     io.tlbfill_en_cmt           := ShiftRegister(tlbfill_en_cmt, 1)
     io.tlbsrch_en_cmt           := ShiftRegister(tlbsrch_en_cmt, 1)
     io.tlbentry_cmt             := ShiftRegister(tlbentry_cmt, 1)
+    io.invtlb_en_cmt            := ShiftRegister(invtlb_en_cmt, 1)
+    io.invtlb_op_cmt            := ShiftRegister(invtlb_op_cmt, 1)
+    io.invtlb_vaddr_cmt         := ShiftRegister(invtlb_vaddr_cmt, 1)
+    io.invtlb_asid_cmt          := ShiftRegister(invtlb_asid_cmt, 1)
 
     // update ptrs
     val cmt_num                 = PopCount(cmt_en)

@@ -3,32 +3,30 @@ import chisel3.util._
 import EXCEPTION._
 object TLB_Config {
     val TLB_ENTRY_NUM = 16
-    val VA_LEN = 32
-    val PA_LEN = 32
     class TLB_ENTRY extends Bundle{
-        val vppn = UInt((VA_LEN-13).W)
+        val vppn = UInt(19.W)
         val ps   = UInt(6.W)
         val g    = Bool()
         val asid = UInt(10.W)
         val e    = Bool()
-        val ppn0 = UInt((PA_LEN-12).W)
+        val ppn0 = UInt(20.W)
         val plv0 = UInt(2.W)
         val mat0 = UInt(2.W)
         val d0   = Bool()
         val v0   = Bool()
-        val ppn1 = UInt((PA_LEN-12).W)
+        val ppn1 = UInt(20.W)
         val plv1 = UInt(2.W)
         val mat1 = UInt(2.W)
         val d1   = Bool()
         val v1   = Bool()
     }
     class TLB_HIT_ENTRY extends Bundle{
-        val vppn = UInt((VA_LEN-13).W)
+        val vppn = UInt(19.W)
         val ps   = UInt(6.W)
         val g    = Bool()
         val asid = UInt(10.W)
         val e    = Bool()
-        val ppn  = UInt((PA_LEN-12).W)
+        val ppn  = UInt(20.W)
         val plv  = UInt(2.W)
         val mat  = UInt(2.W)
         val d    = Bool()
@@ -103,18 +101,24 @@ class TLB_IO extends Bundle {
     val tlbfill_idx    = Input(UInt(log2Ceil(TLB_ENTRY_NUM).W))
     val tlbfill_en     = Input(Bool())
 
+    // for invtlb
+    val invtlb_en      = Input(Bool())
+    val invtlb_op      = Input(UInt(5.W))
+    val invtlb_asid    = Input(UInt(10.W))
+    val invtlb_vaddr   = Input(UInt(32.W))
+
     // icache tlb search
     val i_valid         = Input(Bool())
-    val i_vaddr         = Input(UInt(VA_LEN.W))
-    val i_paddr         = Output(UInt(PA_LEN.W))
+    val i_vaddr         = Input(UInt(32.W))
+    val i_paddr         = Output(UInt(32.W))
     val i_uncache       = Output(Bool())
     val i_exception     = Output(UInt(8.W))
     
     // dcache tlb search
     val d_rvalid        = Input(Bool())
     val d_wvalid        = Input(Bool())
-    val d_vaddr         = Input(UInt(VA_LEN.W))
-    val d_paddr         = Output(UInt(PA_LEN.W))
+    val d_vaddr         = Input(UInt(32.W))
+    val d_paddr         = Output(UInt(32.W))
     val d_uncache       = Output(Bool())
     val d_exception     = Output(UInt(8.W))
 }
@@ -129,8 +133,8 @@ class TLB extends Module{
     val tlbsrch_hit       = WireDefault(VecInit(Seq.fill(TLB_ENTRY_NUM)(false.B)))
     val tlbsrch_hit_idx   = OHToUInt(tlbsrch_hit)
     for(i <- 0 until TLB_ENTRY_NUM){
-        val tlb_vppn = Mux(tlb(i).ps === 12.U, tlb(i).vppn, tlb(i).vppn(VA_LEN-14, VA_LEN-22) ## 0.U(10.W))
-        val csr_vppn = Mux(io.csr_tlbehi(18, 12) === 0.U, csr_tlbehi_vppn, csr_tlbehi_vppn(VA_LEN-14, VA_LEN-22) ## 0.U(10.W))
+        val tlb_vppn = Mux(tlb(i).ps === 12.U, tlb(i).vppn, tlb(i).vppn(18, 10) ## 0.U(10.W))
+        val csr_vppn = Mux(io.csr_tlbehi(18, 12) === 0.U, csr_tlbehi_vppn, csr_tlbehi_vppn(18, 10) ## 0.U(10.W))
         tlbsrch_hit(i) := (tlb(i).e 
                         && (tlb(i).g || tlb(i).asid === io.csr_asid)
                         && tlb_vppn === csr_vppn)
@@ -147,22 +151,71 @@ class TLB extends Module{
         tlb(tlb_idx) := io.tlbwr_entry
     }
 
+    // for invtlb
+    val invtlb_op = io.invtlb_op
+    val invtlb_asid = io.invtlb_asid
+    val invtlb_vaddr = io.invtlb_vaddr
+    when(io.invtlb_en){
+        for(i <- 0 until TLB_ENTRY_NUM){
+            switch(invtlb_op){
+                is(0.U){
+                    // clear all TLB entries
+                    tlb(i).e := false.B
+                }
+                is(1.U){
+                    // clear all TLB entries
+                    tlb(i).e := false.B
+                }
+                is(2.U){
+                    // clear all TLB entries with g = 1
+                    when(tlb(i).g){
+                        tlb(i).e := false.B
+                    }
+                }
+                is(3.U){
+                    // clear all TLB entries with g = 0
+                    when(!tlb(i).g){
+                        tlb(i).e := false.B
+                    }
+                }
+                is(4.U){
+                    // clear all TLB entries with asid = invtlb_asid and g = 0
+                    when(tlb(i).asid === invtlb_asid && !tlb(i).g){
+                        tlb(i).e := false.B
+                    }
+                }
+                is(5.U){
+                    // clear all TLB entries with asid = invtlb_asid and g = 0 and va[31:13] = invtlb_vaddr[31:13]
+                    when(tlb(i).asid === invtlb_asid && !tlb(i).g && tlb(i).vppn === invtlb_vaddr(31, 13)){
+                        tlb(i).e := false.B
+                    }
+                }
+                is(6.U){
+                    // clear all TLB entries with asid = invtlb_asid or g = 1,  and va[31:13] = invtlb_vaddr[31:13]
+                    when((tlb(i).asid === invtlb_asid || tlb(i).g) && tlb(i).vppn === invtlb_vaddr(31, 13)){
+                        tlb(i).e := false.B
+                    }
+                }
+            }
+        }
+    }
+
     // icache tlb search
     val i_tlb_hit       = WireDefault(VecInit(Seq.fill(TLB_ENTRY_NUM)(false.B)))
     val i_tlb_hit_idx   = OHToUInt(i_tlb_hit)
     val i_tlb_hit_entry = TLB_Hit_Gen(tlb(i_tlb_hit_idx), Mux(tlb(i_tlb_hit_idx).ps === 12.U, io.i_vaddr(12), io.i_vaddr(21)))
 
     for(i <- 0 until TLB_ENTRY_NUM){
-        val tlb_vppn = Mux(tlb(i).ps === 12.U, tlb(i).vppn, tlb(i).vppn(VA_LEN-14, VA_LEN-22) ## 0.U(10.W))
-        val i_vppn = Mux(tlb(i).ps === 12.U, io.i_vaddr(VA_LEN-1,VA_LEN-19), io.i_vaddr(VA_LEN-1,VA_LEN-9) ## 0.U(10.W))
+        val tlb_vppn = Mux(tlb(i).ps === 12.U, tlb(i).vppn, tlb(i).vppn(18, 10) ## 0.U(10.W))
+        val i_vppn = Mux(tlb(i).ps === 12.U, io.i_vaddr(31, 13), io.i_vaddr(31, 23) ## 0.U(10.W))
         i_tlb_hit(i) := (tlb(i).e 
                      && (tlb(i).g || tlb(i).asid === io.csr_asid)
                      && tlb_vppn === i_vppn)
     }
     io.i_uncache   := i_tlb_hit_entry.mat(0)
     io.i_paddr     := Mux(i_tlb_hit_entry.ps === 12.U, 
-                          Cat(i_tlb_hit_entry.ppn, io.i_vaddr(PA_LEN-21, 0)),
-                          Cat(i_tlb_hit_entry.ppn(PA_LEN-13, 9), io.i_vaddr(PA_LEN-12, 0)))
+                          Cat(i_tlb_hit_entry.ppn, io.i_vaddr(11, 0)),
+                          Cat(i_tlb_hit_entry.ppn(19, 9), io.i_vaddr(20, 0)))
     io.i_exception := Signal_Exception(i_tlb_hit.asUInt.orR, i_tlb_hit_entry, io.csr_plv, io.i_valid, false.B, false.B)
     
     // dcache tlb search
@@ -171,16 +224,16 @@ class TLB extends Module{
     val d_tlb_hit_entry = TLB_Hit_Gen(tlb(d_tlb_hit_idx), Mux(tlb(d_tlb_hit_idx).ps === 12.U, io.d_vaddr(12), io.d_vaddr(21)))
 
     for(i <- 0 until TLB_ENTRY_NUM){
-        val tlb_vppn = Mux(tlb(i).ps === 12.U, tlb(i).vppn, tlb(i).vppn(VA_LEN-14, VA_LEN-22) ## 0.U(10.W))
-        val d_vppn = Mux(tlb(i).ps === 12.U, io.d_vaddr(VA_LEN-1,VA_LEN-19), io.d_vaddr(VA_LEN-1,VA_LEN-9) ## 0.U(10.W))
+        val tlb_vppn = Mux(tlb(i).ps === 12.U, tlb(i).vppn, tlb(i).vppn(18, 10) ## 0.U(10.W))
+        val d_vppn = Mux(tlb(i).ps === 12.U, io.d_vaddr(31, 13), io.d_vaddr(31, 23) ## 0.U(10.W))
         d_tlb_hit(i) := (tlb(i).e 
                      && (tlb(i).g || tlb(i).asid === io.csr_asid)
                      && tlb_vppn === d_vppn)
     }
     io.d_uncache   := d_tlb_hit_entry.mat(0)
     io.d_paddr     := Mux(d_tlb_hit_entry.ps === 12.U, 
-                          Cat(d_tlb_hit_entry.ppn, io.d_vaddr(PA_LEN-21, 0)),
-                          Cat(d_tlb_hit_entry.ppn(PA_LEN-13, 9), io.d_vaddr(PA_LEN-12, 0)))
+                          Cat(d_tlb_hit_entry.ppn, io.d_vaddr(11, 0)),
+                          Cat(d_tlb_hit_entry.ppn(19, 9), io.d_vaddr(20, 0)))
     io.d_exception := Signal_Exception(d_tlb_hit.asUInt.orR, d_tlb_hit_entry, io.csr_plv, false.B, io.d_rvalid, io.d_wvalid)
     
 }

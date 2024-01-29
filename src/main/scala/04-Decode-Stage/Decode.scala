@@ -44,7 +44,7 @@ class Decode extends Module{
     io.priv_vec         := ctrl(12)
     
     io.fu_id            := ctrl(8)
-    io.exception        := ctrl(13)
+    io.exception        := Mux(ctrl(12)(8) && io.inst(4, 0) >= 7.U, 1.U ## Control_Signal.INE, ctrl(13))
 
 
     def Imm_Gen(inst: UInt, imm_type: UInt): UInt = {
@@ -62,6 +62,7 @@ class Decode extends Module{
             is(IMM_CSR)     { imm := Cat(0.U(18.W), inst(23, 10)) }
             is(IMM_TID)     { imm := 0x40.U(32.W) }
             is(IMM_ERA)     { imm := 0x6.U(32.W) }
+            is(IMM_COP)     { imm := Cat(Fill(15, inst(21)), inst(21, 10), inst(4, 0))}
         }
         imm
     }

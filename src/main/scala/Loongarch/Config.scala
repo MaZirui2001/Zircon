@@ -66,13 +66,14 @@ object Control_Signal{
     // priv vec: last bit signed whether it is priv
     val NOT_PRIV = 0x0.U(10.W)
     val CSR_RD   = 0x1.U(10.W)
-    val CSR_WR   = 0x3.U(10.W)  // bit 1
-    val CSR_XCHG = 0x5.U(10.W)  // bit 2
-    val PRV_ERET = 0x9.U(10.W)  // bit 3
-    val TLB_RD   = 0x11.U(10.W) // bit 4
-    val TLB_WR   = 0x21.U(10.W) // bit 5
-    val TLB_FILL = 0x41.U(10.W) // bit 6
-    val TLB_SRCH = 0x81.U(10.W) // bit 7
+    val CSR_WR   = 0x3.U(10.W)   // bit 1
+    val CSR_XCHG = 0x5.U(10.W)   // bit 2
+    val PRV_ERET = 0x9.U(10.W)   // bit 3
+    val TLB_RD   = 0x11.U(10.W)  // bit 4
+    val TLB_WR   = 0x21.U(10.W)  // bit 5
+    val TLB_FILL = 0x41.U(10.W)  // bit 6
+    val TLB_SRCH = 0x81.U(10.W)  // bit 7
+    val INV_TLB  = 0x101.U(10.W) // bit 8
 
     // csr_sel
     val FROM_INST = 0.U(2.W)
@@ -112,6 +113,7 @@ object Control_Signal{
     val IMM_CSR   = 7.U(4.W)
     val IMM_TID   = 8.U(4.W)
     val IMM_ERA   = 9.U(4.W)
+    val IMM_COP   = 10.U(4.W)
 
     import Instructions._
 
@@ -161,6 +163,7 @@ object Control_Signal{
         TLBWR       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_WR,   NO_EXP),
         TLBFILL     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_FILL, NO_EXP),
         ERTN        -> List(N, N, N, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_ERA, PRV_ERET, NO_EXP),
+        INVTLB      -> List(Y, Y, N, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RK, RD, IMM_COP, INV_TLB,  NO_EXP),
         LU12IW      -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, NOT_PRIV, NO_EXP),
         PCADDU12I   -> List(N, N, Y, ALU_ADD,   RS1_PC,   RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, NOT_PRIV, NO_EXP),
         LDB         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDB,  LS,    RK, RD, IMM_12S, NOT_PRIV, NO_EXP),
