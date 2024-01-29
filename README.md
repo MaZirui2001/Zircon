@@ -20,7 +20,7 @@
 * 特权架构：
 
   - CSR访问指令：`CSRRD`, `CSRWR`, `CSRXCHG`
-  - TLB维护指令：`TLBSRCH`, `TLBRD`, `TLBWR`, `TLBFILL`
+  - TLB维护指令：`TLBSRCH`, `TLBRD`, `TLBWR`, `TLBFILL`, `INVTLB`
   - 其他杂项指令：`ERTN`
 
 计划实现的其他指令有：
@@ -33,7 +33,6 @@
 * 特权架构：
 
   - Cache维护指令：`CACOP`
-  - TLB维护指令：`INVTLB`
   - 其他杂项指令：`IDLE`
 
 ## 构建方式
