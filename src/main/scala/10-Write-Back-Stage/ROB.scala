@@ -18,6 +18,7 @@ class ROB_IO(n: Int) extends Bundle{
     val pred_update_en_dp       = Input(Vec(2, Bool()))
     val priv_vec_dp             = Input(Vec(2, UInt(10.W)))
     val exception_dp            = Input(Vec(2, UInt(8.W)))
+    val inst_dp                 = Input(Vec(2, UInt(32.W)))
     val full                    = Output(Vec(10, Bool()))
     val stall                   = Input(Bool())
 
@@ -92,6 +93,7 @@ class ROB_IO(n: Int) extends Bundle{
     val csr_diff_addr_cmt       = Output(Vec(2, UInt(14.W)))
     val csr_diff_wdata_cmt      = Output(Vec(2, UInt(32.W)))
     val csr_diff_we_cmt         = Output(Vec(2, Bool()))
+    val inst_cmt                = Output(Vec(2, UInt(32.W)))
 
     // stat
     val predict_fail_stat       = Output(Vec(2, Bool()))
@@ -137,6 +139,7 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).complete        := false.B
                 rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(9, 1).orR
                 rob(i)(tail).exception       := io.exception_dp(i)
+                rob(i)(tail).inst            := io.inst_dp(i)
             }
         }
     }
@@ -279,6 +282,7 @@ class ROB(n: Int) extends Module{
     val csr_diff_addr_cmt        = VecInit.fill(2)(priv_buf.csr_addr)
     val csr_diff_wdata_cmt       = VecInit.fill(2)(rob_update_item.branch_target)
     val csr_diff_we_cmt          = VecInit.tabulate(2)(i => Mux(rob_commit_items(i).is_priv_wrt, priv_buf.priv_vec(2, 1).orR, false.B))
+    val inst_cmt                 = VecInit.tabulate(2)(i => rob_commit_items(i).inst)
 
     io.rd_valid_cmt             := ShiftRegister(rd_valid_cmt, 1)
     io.rd_cmt                   := ShiftRegister(rd_cmt, 1)
@@ -293,4 +297,5 @@ class ROB(n: Int) extends Module{
     io.predict_fail_stat        := ShiftRegister(VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)).predict_fail & cmt_en(i)), 1)
     io.br_type_stat             := ShiftRegister(VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)).br_type_pred), 1)
     io.is_br_stat               := ShiftRegister(VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)).pred_update_en & cmt_en(i)), 1)
+    io.inst_cmt                 := ShiftRegister(inst_cmt, 1)
 } 

@@ -51,6 +51,7 @@ class CPU_IO extends Bundle{
     val commit_is_br               = Output(Vec(2, Bool()))
     val commit_br_type             = Output(Vec(2, UInt(2.W)))
     val commit_predict_fail        = Output(Vec(2, Bool()))
+    val commit_inst                = Output(Vec(2, UInt(32.W)))
     val commit_interrupt           = Output(Bool())
     val commit_interrupt_type      = Output(UInt(13.W))
 
@@ -198,7 +199,7 @@ class CPU extends Module {
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
     icache.io.addr_IF           := pc.io.pc_PF
-    icache.io.rvalid_IF         := !reset.asBool && pc.io.pc_PF(31, 24) >= 0x1c.U && pc.io.pc_PF(31, 24) < 0x24.U && !mmu.io.i_exception(7)
+    icache.io.rvalid_IF         := !reset.asBool && !mmu.io.i_exception(7)
     icache.io.paddr_IF          := mmu.io.i_paddr
     icache.io.uncache_IF        := pc.io.pc_PF(31, 24) =/= 0x1c.U//mmu.io.i_uncache
     icache.io.stall             := fq.io.full
@@ -242,6 +243,7 @@ class CPU extends Module {
                                                                             decode(i).rd, decode(i).rd_valid, decode(i).imm, decode(i).alu_op, decode(i).alu_rs1_sel, decode(i).alu_rs2_sel, 
                                                                             decode(i).br_type, decode(i).mem_type, Mux(fq.io.insts_pack_id(i).exception(7), SYST, decode(i).fu_id), decode(i).priv_vec, Mux(fq.io.insts_pack_id(i).exception(7), fq.io.insts_pack_id(i).exception, decode(i).exception)))
     dr_reg.io.alloc_preg_ID  := free_list.io.alloc_preg
+    dr_reg.io.inst_ID        := VecInit.tabulate(2)(i => fq.io.insts_pack_id(i).inst)
     /* ---------- 5. Rename Stage ---------- */
     // Rename
     rename.io.rj                := dr_reg.io.insts_pack_RN.map(_.rj)
@@ -257,6 +259,7 @@ class CPU extends Module {
     rp_reg.io.flush             := rob.io.predict_fail_cmt(5)
     rp_reg.io.stall             := stall_by_iq || rob.io.full(4)
     rp_reg.io.insts_pack_RN     := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i), rename.io.prj_raw(i), rename.io.prk_raw(i)))
+    rp_reg.io.inst_RN           := dr_reg.io.inst_RN
 
     /* ---------- 6. Dispatch Stage ---------- */
     // Dispatch
@@ -292,6 +295,7 @@ class CPU extends Module {
     rob.io.br_type_pred_dp      := br_type_dp
     rob.io.priv_vec_dp          := rp_reg.io.insts_pack_DP.map(_.priv_vec)
     rob.io.exception_dp         := rp_reg.io.insts_pack_DP.map(_.exception)
+    rob.io.inst_dp              := rp_reg.io.inst_DP
     
     
     /* ---------- 7. Issue Stage ---------- */
@@ -734,6 +738,7 @@ class CPU extends Module {
         io.commit_is_br             := rob.io.is_br_stat
         io.commit_br_type           := rob.io.br_type_stat
         io.commit_predict_fail      := rob.io.predict_fail_stat
+        io.commit_inst              := rob.io.inst_cmt
         io.commit_interrupt         := rob.io.exception_cmt(7) && rob.io.exception_cmt(6, 0) === 0.U
         io.commit_interrupt_type    := csr_rf.io.estat_13
 
@@ -770,6 +775,7 @@ class CPU extends Module {
         io.commit_is_br             := DontCare
         io.commit_br_type           := DontCare
         io.commit_predict_fail      := DontCare
+        io.commit_inst              := DontCare
         io.commit_interrupt         := DontCare
         io.commit_interrupt_type    := DontCare
 

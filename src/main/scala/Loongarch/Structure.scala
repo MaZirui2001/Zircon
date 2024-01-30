@@ -163,6 +163,7 @@ object ROB_Struct{
         val is_ucread           = Bool()
         val is_priv_wrt         = Bool()
         val exception           = UInt(8.W)
+        val inst                = UInt(32.W)
     }
     class priv_t(n: Int) extends Bundle{
         val valid       = Bool()
