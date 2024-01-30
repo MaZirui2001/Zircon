@@ -1,26 +1,8 @@
 import chisel3._
 import chisel3.util._
 import CPU_Config._
-object PRED_Config{
-    val BTB_INDEX_WIDTH     = 7
-    val BTB_TAG_WIDTH       = 28 - BTB_INDEX_WIDTH
-    val BTB_DEPTH           = 1 << BTB_INDEX_WIDTH
-    class btb_t extends Bundle{
-        val valid       = Bool()
-        val target      = UInt(30.W)
-        val tag         = UInt(BTB_TAG_WIDTH.W)
-        val typ         = UInt(2.W)
-    }
-    val BHT_INDEX_WIDTH = 7
-    val BHT_DEPTH       = 1 << BHT_INDEX_WIDTH
-    val PHT_INDEX_WIDTH = 7
-    val PHT_DEPTH       = 1 << PHT_INDEX_WIDTH
-
-    val RET     = 1.U(2.W)
-    val BL      = 2.U(2.W)
-    val ICALL   = 3.U(2.W)
-    val ELSE    = 0.U(2.W)
-}
+import Predict_Config._
+import Predict_Struct._
 
 class Predict_IO extends Bundle{
     // check
@@ -47,8 +29,6 @@ class Predict_IO extends Bundle{
     val pd_pc_plus_4        = Input(UInt(32.W))
     
 }
-
-import PRED_Config._
 class Predict extends Module{
     
     val io = IO(new Predict_IO)

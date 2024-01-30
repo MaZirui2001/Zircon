@@ -1,38 +1,9 @@
 import chisel3._
 import chisel3.util._
-import PRED_Config._
+import Predict_Config._
 import CPU_Config._
-import TLB_Config._
+import TLB_Struct._
 
-object ROB_Pack{
-    class rob_t extends Bundle(){
-        val rd                  = UInt(5.W)
-        val rd_valid            = Bool()
-        val prd                 = UInt(log2Ceil(PREG_NUM).W)
-        val pprd                = UInt(log2Ceil(PREG_NUM).W)
-        val predict_fail        = Bool()
-        val branch_target       = UInt(32.W)
-        val real_jump           = Bool()
-        val pred_update_en      = Bool()
-        val br_type_pred        = UInt(2.W)
-        val complete            = Bool()
-        val pc                  = UInt(32.W)
-        val rf_wdata            = UInt(32.W)
-        val is_store            = Bool()
-        val is_ucread           = Bool()
-        val is_priv_wrt         = Bool()
-        val exception           = UInt(8.W)
-    }
-    class priv_t(n: Int) extends Bundle{
-        val valid       = Bool()
-        val priv_vec    = UInt(10.W)
-        val csr_addr    = UInt(14.W)
-        val tlb_entry   = new TLB_ENTRY
-        val inv_op      = UInt(5.W)
-        val inv_vaddr   = UInt(32.W)
-        val inv_asid    = UInt(10.W)
-    }
-}
 class ROB_IO(n: Int) extends Bundle{
     // for reg rename
     val inst_valid_dp           = Input(Vec(2, Bool()))
@@ -106,8 +77,8 @@ class ROB_IO(n: Int) extends Bundle{
     // for priv
     val priv_vec_ex             = Input(UInt(10.W))
     val csr_addr_ex             = Input(UInt(14.W))
-    val tlbentry_ex             = Input(new TLB_ENTRY)
-    val tlbentry_cmt            = Output(new TLB_ENTRY)
+    val tlbentry_ex             = Input(new tlb_t)
+    val tlbentry_cmt            = Output(new tlb_t)
     val invtlb_op_ex            = Input(UInt(5.W))
     val invtlb_vaddr_ex         = Input(UInt(32.W))
     val invtlb_asid_ex          = Input(UInt(10.W))
@@ -132,7 +103,7 @@ class ROB(n: Int) extends Module{
     val io              = IO(new ROB_IO(n))
     val FRONT_LOG2      = 1
     val neach           = n / 2
-    import ROB_Pack._
+    import ROB_Struct._
     /* ROB items */
     val rob         = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
     val priv_buf    = RegInit(0.U.asTypeOf(new priv_t(n)))
@@ -185,7 +156,6 @@ class ROB(n: Int) extends Module{
         priv_buf.valid          := true.B
     }
 
-
     // wb stage
     for(i <- 0 until 4){
         when(io.inst_valid_wb(i)){
@@ -200,7 +170,6 @@ class ROB(n: Int) extends Module{
             if(i == 3){
                 rob(col_idx)(row_idx).exception   := io.exception_wb(i)
             }
-            // rob(col_idx)(row_idx).exception       := Mux(io.exception_wb(i)(7), io.exception_wb(i), rob(col_idx)(row_idx).exception)
         }
     }
     

@@ -3,29 +3,8 @@ import chisel3.util._
 import Inst_Pack._
 import Control_Signal._
 import CPU_Config._
+import Issue_Queue_Struct._
 
-// LUT: 1036, FF: 780
-object Issue_Queue_Pack{
-    class issue_queue_t[T <: inst_pack_DP_t](inst_pack_t: T) extends Bundle{
-        val inst = inst_pack_t.cloneType
-        val prj_waked       = Bool()
-        val prk_waked       = Bool()
-        val prj_wake_by_ld  = Bool()
-        val prk_wake_by_ld  = Bool()
-        // val issued = Bool()
-    }
-    def Wake_Up(wake_preg: Vec[UInt], pr: UInt) : Bool = {
-        val wf = Cat(
-                    pr === wake_preg(3), 
-                    pr === wake_preg(2),
-                    pr === wake_preg(1),
-                    pr === wake_preg(0)
-                    )
-        wf.orR
-    }
-}
-
-import Issue_Queue_Pack._
 class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle{
     // input from dispatch
     val insts_disp_index = Input(Vec(2, UInt(1.W)))

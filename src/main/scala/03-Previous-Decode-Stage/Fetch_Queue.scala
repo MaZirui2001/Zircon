@@ -2,7 +2,6 @@ import chisel3._
 import chisel3.util._
 import Inst_Pack._
 import CPU_Config._
-// LUT: 1886 FF: 1042
 
 class Fetch_Queue_IO extends Bundle{
     val insts_pack          = Input(Vec(2, new inst_pack_PD_t))

@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 import CPU_Config._
-// LUT: 435 FF: 416
+
 class Free_List(n: Int) extends Module{
     val io = IO(new Bundle{
         val rd_valid            = Input(Vec(2, Bool()))

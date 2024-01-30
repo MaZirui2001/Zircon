@@ -1,6 +1,6 @@
 import chisel3._
 import chisel3.util._
-import EXCEPTION._
+import Exception._
 class Exception_LS_IO extends Bundle{
     val addr_EX          = Input(UInt(32.W))
     val mem_type_EX      = Input(UInt(5.W))

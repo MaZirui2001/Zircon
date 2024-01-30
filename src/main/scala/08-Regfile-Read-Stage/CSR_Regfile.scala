@@ -1,9 +1,10 @@
 
 import chisel3._
 import chisel3.util._
-import CSR_CONFIG._
-import TLB_Config._
-import EXCEPTION._
+import CSR._
+import TLB_Struct._
+import CPU_Config._
+import Exception._
 
 class CSR_Regfile_IO extends Bundle{
     val raddr           = Input(UInt(14.W))
@@ -36,10 +37,10 @@ class CSR_Regfile_IO extends Bundle{
     val dmw1_global     = Output(UInt(32.W))
 
     // tlbwr
-    val tlbentry_global = Output(new TLB_ENTRY)
+    val tlbentry_global = Output(new tlb_t)
 
     // tlbrd
-    val tlbentry_in     = Input(new TLB_ENTRY)
+    val tlbentry_in     = Input(new tlb_t)
     val tlbrd_en        = Input(Bool())
 
     // tlbsrch

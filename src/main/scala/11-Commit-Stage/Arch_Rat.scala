@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
-import RAT._
-import PRED_Config._
+import Rat._
+import Predict_Config._
 import CPU_Config._
 
 class Arch_Rat_IO(n: Int) extends Bundle {

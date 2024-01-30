@@ -2,12 +2,7 @@ import chisel3._
 import chisel3.util._
 import CPU_Config._
 // LUT: 3255 FF: 378
-object RAT{
-    class rat_t extends Bundle{
-        val valid = Bool()
-        val lr    = UInt(5.W)
-    }
-}
+
 
 class CRat_IO(n: Int) extends Bundle{
     val rj           = Input(Vec(2, UInt(5.W)))
@@ -27,7 +22,7 @@ class CRat_IO(n: Int) extends Bundle{
 }
 class CRat(n: Int) extends Module{
     val io = IO(new CRat_IO(n))
-    import RAT._
+    import Rat._
     val crat = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new rat_t))))
 
 

@@ -1,8 +1,7 @@
 import chisel3._ 
 import chisel3.util._
-
 import Control_Signal._
-// LUT: 337 FF: 0
+
 class ALU_IO extends Bundle{
     val src1        = Input(UInt(32.W))
     val src2        = Input(UInt(32.W))

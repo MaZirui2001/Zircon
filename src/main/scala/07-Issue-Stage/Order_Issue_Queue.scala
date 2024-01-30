@@ -1,6 +1,6 @@
 import chisel3._
 import chisel3.util._
-import Issue_Queue_Pack._
+import Issue_Queue_Struct._
 import Inst_Pack._
 import CPU_Config._
 

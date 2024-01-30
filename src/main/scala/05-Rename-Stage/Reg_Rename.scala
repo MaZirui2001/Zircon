@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 import CPU_Config._
-// LUT: 3759 FF: 794
+
 class Reg_rename_IO(n: Int) extends Bundle{
     val rj                  = Input(Vec(2, UInt(5.W)))
     val rk                  = Input(Vec(2, UInt(5.W)))

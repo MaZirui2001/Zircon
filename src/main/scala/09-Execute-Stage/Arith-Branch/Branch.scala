@@ -2,8 +2,6 @@ import chisel3._
 import chisel3.util._
 import Control_Signal._
 
-// LUt: 136
-
 class Branch_IO extends Bundle {
     val br_type         = Input(UInt(4.W))
     val src1            = Input(UInt(32.W))

@@ -2,14 +2,7 @@ import chisel3._
 import chisel3.util._
 import Control_Signal._
 
-object SB_Pack {
-    class sb_t extends Bundle{
-        val addr = UInt(32.W)
-        val data = UInt(32.W)
-        val wstrb = UInt(4.W)
-        val uncache = Bool()
-    }
-}
+
 
 class SB_IO extends Bundle {
     // for write in ex stage
@@ -37,7 +30,7 @@ class SB_IO extends Bundle {
 
 class SB(n: Int) extends Module {
     val io = IO(new SB_IO)
-    import SB_Pack._
+    import SB_Struct._
     val sb = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new sb_t))))
 
     val head            = RegInit(0.U(log2Ceil(n).W))

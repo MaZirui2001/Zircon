@@ -1,10 +1,8 @@
 import chisel3._
 import chisel3.util._
 import Inst_Pack._
-import Issue_Queue_Pack._
+import Issue_Queue_Struct._
 import CPU_Config._
-
-// LUT: 402
 
 class Unorder_Select_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle {
     val insts_issue         = Input(Vec(n, new issue_queue_t(inst_pack_t)))

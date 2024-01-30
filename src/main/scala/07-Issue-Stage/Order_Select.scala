@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 import Inst_Pack._
-import Issue_Queue_Pack._
+import Issue_Queue_Struct._
 import CPU_Config._
 
 class Order_Select_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bundle {
