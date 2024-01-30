@@ -3,6 +3,7 @@ import chisel3._
 import chisel3.util._
 import CSR_CONFIG._
 import TLB_Config._
+import EXCEPTION._
 
 class CSR_Regfile_IO extends Bundle{
     val raddr           = Input(UInt(14.W))
@@ -12,11 +13,12 @@ class CSR_Regfile_IO extends Bundle{
     val wdata           = Input(UInt(32.W))
 
     // exception and ertn
-    val exception       = Input(UInt(8.W))
-    val badv_exp        = Input(UInt(32.W))
-    val is_eret         = Input(Bool())
-    val pc_exp          = Input(UInt(32.W))
-    val eentry_global   = Output(UInt(32.W))
+    val exception           = Input(UInt(8.W))
+    val badv_exp            = Input(UInt(32.W))
+    val is_eret             = Input(Bool())
+    val pc_exp              = Input(UInt(32.W))
+    val eentry_global       = Output(UInt(32.W))
+    val tlbreentry_global   = Output(UInt(32.W))
 
     // interrupt
     val interrupt       = Input(UInt(8.W))
@@ -64,10 +66,16 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
     // CRMD：当前模式信息
     val crmd = RegInit(8.U(32.W))
     val prmd = RegInit(0.U(32.W))
+    val estat = RegInit(0.U(32.W))
+    val has_tlbr = estat(21, 16) === 0x3f.U
+    val is_tlbr = exception(6, 0) === 0x3f.U
+    val vppn_save = is_tlbr || exception(6, 0) >= PIL && exception(6, 0) <= PPI
+    val badv_save = vppn_save || exception(5, 0) === 0x8.U || exception(6, 0) === ALE
+
     when(exception(7)){
-        crmd := crmd(31, 3) ## 0.U(3.W) 
+        crmd := crmd(31, 5) ## Mux(is_tlbr, 1.U(2.W), crmd(4, 3))  ## 0.U(3.W) 
     }.elsewhen(is_eret){
-        crmd := crmd(31, 3) ## prmd(2, 0)
+        crmd := crmd(31, 5) ## Mux(has_tlbr, 2.U(2.W), crmd(4, 3)) ## prmd(2, 0)
     }.elsewhen(we && waddr === CSR_CRMD){
         crmd := 0.U(23.W) ## wdata(8, 0)
     }
@@ -94,7 +102,6 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
     }
 
     // ESTAT：例外状态
-    val estat = RegInit(0.U(32.W))
     when(exception(7)){
         estat := estat(31) ## 0.U(8.W) ## exception(6, 0) ## estat(15, 0)
     }.elsewhen(we && waddr === CSR_ESTAT){
@@ -114,9 +121,11 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
 
     // BADV：出错虚地址
     val badv = RegInit(0.U(32.W))
-    when(exception === 0x88.U(8.W)){
-        badv := io.pc_exp
-    }.elsewhen(exception === 0x89.U(8.W)){
+    // when(exception === 0x88.U(8.W)){
+    //     badv := io.pc_exp
+    // }.elsewhen(exception === 0x89.U(8.W)){
+    //     badv := io.badv_exp
+    when(exception(7) && badv_save){
         badv := io.badv_exp
     }.elsewhen(we && waddr === CSR_BADV){
         badv := wdata
@@ -184,7 +193,9 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
 
     // TLBEHI：TLB表项高位
     val tlbehi = RegInit(0.U(32.W))
-    when(io.tlbrd_en){
+    when(exception(7) && vppn_save){
+        tlbehi := io.badv_exp(31, 13) ## 0.U(13.W)
+    }.elsewhen(io.tlbrd_en){
         tlbehi := Mux(tlbentry_in.e, tlbentry_in.vppn ## 0.U(13.W), 0.U(32.W))
     }.elsewhen(we && waddr === CSR_TLBEHI){
         tlbehi := wdata(31, 13) ## 0.U(13.W)
@@ -241,7 +252,7 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
     // TLBRENTRY：TLB表项重填例外入口地址
     val tlbreentry = RegInit(0.U(32.W))
     when(we && waddr === CSR_TLBRENTRY){
-        tlbreentry := wdata(31, 6) ## 0.U(5.W)
+        tlbreentry := wdata(31, 6) ## 0.U(6.W)
     }
 
     // DMW0：直接映射窗口
@@ -294,7 +305,7 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
 
     io.interrupt_vec := Mux(!crmd(2), 0.U(12.W), (estat(12, 11) & ecfg(12, 11)) ## (estat(9, 0) & ecfg(9, 0)))  
 
-    io.tlbentry_global := TLB_Entry_Gen(tlbehi(31, 13), tlbidx(29, 24), tlbelo0(6) && tlbelo1(6), asid(9, 0), !tlbidx(31), 
+    io.tlbentry_global := TLB_Entry_Gen(tlbehi(31, 13), tlbidx(29, 24), tlbelo0(6) && tlbelo1(6), asid(9, 0), Mux(estat(21, 16) === 0x3f.U, true.B, !tlbidx(31)), 
                                         tlbelo0(PALEN-5, 8), tlbelo0(3, 2), tlbelo0(5, 4), tlbelo0(1), tlbelo0(0), 
                                         tlbelo1(PALEN-5, 8), tlbelo1(3, 2), tlbelo1(5, 4), tlbelo1(1), tlbelo1(0)) 
     val rdata = WireDefault(0.U(32.W))
@@ -330,7 +341,8 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
         is(CSR_TVAL)        { rdata := tval }
         is(CSR_TICLR)       { rdata := ticlr }
     }
-    io.rdata            := rdata
-    io.eentry_global    := eentry
+    io.rdata             := rdata
+    io.eentry_global     := eentry
+    io.tlbreentry_global := tlbreentry
 
 }

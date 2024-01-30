@@ -197,7 +197,7 @@ class CPU extends Module {
     predict.io.ras_arch             := arat.io.ras_arch
 
     // mmu
-    mmu.io.i_valid                  := !reset.asBool && pc.io.pc_PF(31, 24) >= 0x1c.U && pc.io.pc_PF(31, 24) < 0x24.U
+    mmu.io.i_valid                  := !reset.asBool 
     mmu.io.i_vaddr                  := pc.io.pc_PF
 
     /* ---------- PF-IF SegReg ---------- */
@@ -209,7 +209,7 @@ class CPU extends Module {
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
     icache.io.addr_IF           := pc.io.pc_PF
-    icache.io.rvalid_IF         := !reset.asBool && pc.io.pc_PF(31, 24) >= 0x1c.U && pc.io.pc_PF(31, 24) < 0x24.U
+    icache.io.rvalid_IF         := !reset.asBool && pc.io.pc_PF(31, 24) >= 0x1c.U && pc.io.pc_PF(31, 24) < 0x24.U && !mmu.io.i_exception(7)
     icache.io.paddr_IF          := mmu.io.i_paddr
     icache.io.uncache_IF        := pc.io.pc_PF(31, 24) =/= 0x1c.U//mmu.io.i_uncache
     icache.io.stall             := fq.io.full
@@ -657,6 +657,7 @@ class CPU extends Module {
     rob.io.rf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ew_reg4.io.mem_rdata_WB)
     rob.io.is_ucread_wb         := VecInit(ew_reg1.io.is_ucread_WB, false.B, false.B, ew_reg4.io.is_ucread_WB)
     rob.io.exception_wb         := VecInit(0.U, 0.U, 0.U, ew_reg4.io.exception_WB)
+    rob.io.tlbreentry_global    := csr_rf.io.tlbreentry_global
     rob.io.eentry_global        := csr_rf.io.eentry_global
     rob.io.interrupt_vec        := csr_rf.io.interrupt_vec
     

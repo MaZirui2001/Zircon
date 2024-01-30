@@ -87,6 +87,7 @@ class ROB_IO(n: Int) extends Bundle{
 
     // for exception
     val eentry_global           = Input(UInt(32.W))
+    val tlbreentry_global       = Input(UInt(32.W))
     val badv_cmt                = Output(UInt(32.W))
     val exception_cmt           = Output(UInt(8.W))
     val is_eret_cmt             = Output(Bool())
@@ -192,11 +193,14 @@ class ROB(n: Int) extends Module{
             val row_idx = io.rob_index_wb(i)(log2Ceil(n)-1, FRONT_LOG2)
             rob(col_idx)(row_idx).complete        := true.B
             rob(col_idx)(row_idx).predict_fail    := io.predict_fail_wb(i)
-            rob(col_idx)(row_idx).branch_target   := io.branch_target_wb(i)
+            rob(col_idx)(row_idx).branch_target   := Mux(rob(col_idx)(row_idx).exception(7), rob(col_idx)(row_idx).pc - 4.U, io.branch_target_wb(i))
             rob(col_idx)(row_idx).rf_wdata        := io.rf_wdata_wb(i)
             rob(col_idx)(row_idx).real_jump       := io.real_jump_wb(i)
             rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
-            rob(col_idx)(row_idx).exception       := Mux(io.exception_wb(i)(7), io.exception_wb(i), rob(col_idx)(row_idx).exception)
+            if(i == 3){
+                rob(col_idx)(row_idx).exception   := io.exception_wb(i)
+            }
+            // rob(col_idx)(row_idx).exception       := Mux(io.exception_wb(i)(7), io.exception_wb(i), rob(col_idx)(row_idx).exception)
         }
     }
     
@@ -215,6 +219,7 @@ class ROB(n: Int) extends Module{
     io.rob_index_cmt        := ShiftRegister(head, 1)
 
     val eentry_global            = ShiftRegister(io.eentry_global, 1);
+    val tlbreentry_global        = ShiftRegister(io.tlbreentry_global, 1);
     val interrupt_vec            = ShiftRegister(io.interrupt_vec, 1);
     val interrupt                = interrupt_vec.orR && cmt_en(0)
 
@@ -223,7 +228,7 @@ class ROB(n: Int) extends Module{
     val rob_update_item          = Mux(cmt_en(0) === false.B, 0.U.asTypeOf(new rob_t), rob(update_ptr(FRONT_LOG2-1, 0))(update_ptr(log2Ceil(n)-1, FRONT_LOG2)))
     
     val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.exception(7) || interrupt
-    val branch_target_cmt        = Mux(rob_update_item.exception(7)|| interrupt_vec.orR, eentry_global, 
+    val branch_target_cmt        = Mux(rob_update_item.exception(7) || interrupt_vec.orR, Mux(rob_update_item.exception(5, 0) === 0x3f.U, tlbreentry_global, eentry_global), 
                                    Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.real_jump, rob_update_item.branch_target, rob_update_item.pc))
     val pred_update_en_cmt       = rob_update_item.pred_update_en
     val pred_branch_target_cmt   = rob_update_item.branch_target
@@ -298,7 +303,7 @@ class ROB(n: Int) extends Module{
     val rd_valid_cmt             = VecInit.tabulate(2)(i => rob_commit_items(i).rd_valid && !rob_commit_items(i).exception(7))
     val prd_cmt                  = VecInit.tabulate(2)(i => rob_commit_items(i).prd)
     val pprd_cmt                 = VecInit.tabulate(2)(i => rob_commit_items(i).pprd)
-    val pc_cmt                   = VecInit.tabulate(2)(i => Mux(rob_commit_items(i).exception(7) || interrupt, eentry_global, 
+    val pc_cmt                   = VecInit.tabulate(2)(i => Mux(rob_commit_items(i).exception(7) || interrupt, Mux(rob_commit_items(i).exception(5, 0) === 0x3f.U, tlbreentry_global, eentry_global), 
                                                             Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, rob_commit_items(i).pc)))
     val rf_wdata_cmt             = VecInit.tabulate(2)(i => rob_commit_items(i).rf_wdata)
     val is_ucread_cmt            = VecInit.tabulate(2)(i => rob_commit_items(i).is_ucread && cmt_en(i))
