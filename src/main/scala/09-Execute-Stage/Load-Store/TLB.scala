@@ -158,6 +158,6 @@ class TLB extends Module{
     io.d_paddr     := Mux(d_tlb_hit_entry.ps === 12.U, 
                           Cat(d_tlb_hit_entry.ppn, io.d_vaddr(11, 0)),
                           Cat(d_tlb_hit_entry.ppn(19, 9), io.d_vaddr(20, 0)))
-    io.d_exception := Signal_Exception(d_tlb_hit.asUInt.orR, d_tlb_hit_entry, io.csr_plv, false.B, io.d_rvalid, io.d_wvalid)
+    io.d_exception := Mux(io.csr_plv === 3.U && io.d_vaddr(31), 1.U(1.W) ## ADEM, Signal_Exception(d_tlb_hit.asUInt.orR, d_tlb_hit_entry, io.csr_plv, false.B, io.d_rvalid, io.d_wvalid))
     
 }
