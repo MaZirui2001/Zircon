@@ -353,8 +353,7 @@ class DCache extends Module{
                 when(cacop_en_MEM){
                     state_backup(i)     := Mux(cacop_exec_MEM, s_refill, s_idle)
                     cache_miss_MEM(i)   := cacop_exec_MEM
-                }
-                when(mem_type_MEM_backup(i)(4, 3).orR){
+                }.elsewhen(mem_type_MEM_backup(i)(4, 3).orR){
                     when(uncache_MEM){
                         state_backup(i)     := s_hold
                         cache_miss_MEM(i)   := true.B
@@ -401,7 +400,9 @@ class DCache extends Module{
     switch(wrt_state){
         is(w_idle){
             when(wfsm_en){
-                when(uncache_MEM){
+                when(cacop_en_MEM){
+                    wrt_state       := Mux(cacop_op_MEM === 0.U, w_finish, Mux(is_dirty, w_write, w_finish))
+                }.elsewhen(uncache_MEM){
                     wrt_state       := Mux(is_store_MEM, w_write, w_finish)
                 }.otherwise{
                     wrt_state       := Mux(is_dirty, w_write, w_finish)

@@ -76,7 +76,7 @@ class ROB_IO(n: Int) extends Bundle{
     val invtlb_asid_cmt         = Output(UInt(10.W))
 
     // for priv
-    val priv_vec_ex             = Input(UInt(10.W))
+    val priv_vec_ex             = Input(UInt(9.W))
     val csr_addr_ex             = Input(UInt(14.W))
     val tlbentry_ex             = Input(new tlb_t)
     val tlbentry_cmt            = Output(new tlb_t)
@@ -137,7 +137,8 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).br_type_pred    := io.br_type_pred_dp(i)
                 rob(i)(tail).pred_update_en  := io.pred_update_en_dp(i)
                 rob(i)(tail).complete        := false.B
-                rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(9, 1).orR
+                rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(8, 1).orR
+                rob(i)(tail).is_priv_ls      := io.priv_vec_dp(i)(9)
                 rob(i)(tail).exception       := io.exception_dp(i)
                 rob(i)(tail).inst            := io.inst_dp(i)
             }
@@ -149,7 +150,8 @@ class ROB(n: Int) extends Module{
     // ex stage
     when(io.predict_fail_cmt(0)){
         priv_buf.valid          := false.B
-    }.elsewhen(!priv_buf.valid && io.priv_vec_ex(0) && io.priv_vec_ex(9, 1).orR){
+        // priv_buf.priv_vec       := 0.U
+    }.elsewhen(!priv_buf.valid && io.priv_vec_ex(0) && io.priv_vec_ex(8, 1).orR){
         priv_buf.csr_addr       := io.csr_addr_ex
         priv_buf.priv_vec       := io.priv_vec_ex
         priv_buf.tlb_entry      := io.tlbentry_ex
@@ -185,6 +187,7 @@ class ROB(n: Int) extends Module{
                             && !empty(hsel_idx(1))
                             && !rob_commit_items(0).pred_update_en
                             && !rob_commit_items(0).is_priv_wrt
+                            && !rob_commit_items(0).is_priv_ls
                             && !rob_commit_items(0).exception(7))
     
     io.cmt_en               := ShiftRegister(cmt_en, 1)
@@ -199,7 +202,7 @@ class ROB(n: Int) extends Module{
     val update_ptr               = Mux(cmt_en(1), head_plus_1, head)
     val rob_update_item          = Mux(cmt_en(0) === false.B, 0.U.asTypeOf(new rob_t), rob(update_ptr(FRONT_LOG2-1, 0))(update_ptr(log2Ceil(n)-1, FRONT_LOG2)))
     
-    val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.exception(7) || interrupt
+    val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.is_priv_ls || rob_update_item.exception(7) || interrupt
     val branch_target_cmt        = Mux(rob_update_item.exception(7) || interrupt_vec.orR, Mux(rob_update_item.exception(5, 0) === 0x3f.U, tlbreentry_global, eentry_global), 
                                    Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.real_jump, rob_update_item.branch_target, rob_update_item.pc))
     val pred_update_en_cmt       = rob_update_item.pred_update_en

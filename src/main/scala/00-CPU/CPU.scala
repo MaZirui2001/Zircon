@@ -193,7 +193,7 @@ class CPU extends Module {
     /* ---------- PF-IF SegReg ---------- */
     val pcs_PF                  = VecInit(pc.io.pc_PF, pc.io.pc_PF + 4.U)
     pi_reg.io.flush             := rob.io.predict_fail_cmt(0) || (!fq.io.full && pd.io.pred_fix)
-    pi_reg.io.stall             := fq.io.full || icache.io.cache_miss_RM
+    pi_reg.io.stall             := fq.io.full || icache.io.cache_miss_RM || icache.io.has_cacop_IF
     pi_reg.io.inst_pack_PF      := VecInit.tabulate(2)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i), Mux(pc.io.exception_PF(7), pc.io.exception_PF, mmu.io.i_exception)))
 
     /* ---------- 2. Inst Fetch Stage ---------- */
