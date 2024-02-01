@@ -44,6 +44,7 @@ object Decode_Map{
         CSRRD       -> List(N, N, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_RD,   NO_EXP),
         CSRWR       -> List(N, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_WR,   NO_EXP),
         CSRXCHG     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_XCHG, NO_EXP),
+        CACOP       -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDW,  LS,    RK, RD, IMM_COP, CACHE_OP, NO_EXP),
         TLBSRCH     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_TID, TLB_SRCH, NO_EXP),
         TLBRD       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_RD,   NO_EXP),
         TLBWR       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_WR,   NO_EXP),

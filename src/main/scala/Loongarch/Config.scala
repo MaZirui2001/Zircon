@@ -150,6 +150,7 @@ object Control_Signal{
     val TLB_FILL = 0x41.U(10.W)  // bit 6
     val TLB_SRCH = 0x81.U(10.W)  // bit 7
     val INV_TLB  = 0x101.U(10.W) // bit 8
+    val CACHE_OP = 0x201.U(10.W) // bit 9
 
     // csr_sel
     val FROM_INST = 0.U(2.W)

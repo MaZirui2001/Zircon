@@ -183,6 +183,7 @@ object Inst_Pack{
     }
     class inst_pack_DP_LS_t extends inst_pack_DP_t{
         val mem_type        = UInt(5.W)
+        val is_cacop        = Bool()
     }
     def inst_pack_DP_LS_gen (inst_pack_RN : inst_pack_RN_t, _rob_index: UInt) : inst_pack_DP_LS_t = {
         val inst_pack_DP_LS = Wire(new inst_pack_DP_LS_t)
@@ -193,6 +194,7 @@ object Inst_Pack{
         inst_pack_DP_LS.imm            := inst_pack_RN.imm
         inst_pack_DP_LS.rob_index      := _rob_index
         inst_pack_DP_LS.mem_type       := inst_pack_RN.mem_type
+        inst_pack_DP_LS.is_cacop       := inst_pack_RN.priv_vec(9)
         inst_pack_DP_LS
     }
     class inst_pack_DP_MD_t extends inst_pack_DP_t{
@@ -272,6 +274,7 @@ object Inst_Pack{
         inst_pack_IS_LS.imm            := inst_pack_DP.imm
         inst_pack_IS_LS.rob_index      := inst_pack_DP.rob_index
         inst_pack_IS_LS.mem_type       := inst_pack_DP.mem_type
+        inst_pack_IS_LS.is_cacop       := inst_pack_DP.is_cacop
         inst_pack_IS_LS.inst_valid     := _inst_valid
         inst_pack_IS_LS
     }

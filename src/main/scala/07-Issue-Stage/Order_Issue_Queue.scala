@@ -18,6 +18,8 @@ class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends 
 
     // input from load
     val ld_mem_prd       = Input(UInt(log2Ceil(PREG_NUM).W))
+    val is_store_cmt_num = Input(UInt(2.W))
+    val rob_index_cmt    = Input(UInt(log2Ceil(ROB_NUM).W))
 
     // input for issue ack
     val issue_ack        = Input(Bool())
@@ -75,7 +77,25 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
     }
     tail    := Mux(io.flush, 0.U, Mux(io.stall, tail_pop, tail_pop + Mux(io.queue_ready, insert_num, 0.U)))
 
+    // store in pipeline
+    val store_num = RegInit(0.U)
+    when(io.flush){
+        store_num := 0.U
+    }.otherwise{
+        if(inst_pack_t.isInstanceOf[inst_pack_DP_LS_t]){
+            store_num := store_num + (io.issue_ack && queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].mem_type(4)) - io.is_store_cmt_num
+        }else{
+            store_num := 0.U
+        }
+    }
     // output
     io.insts_issue := queue(0)
-    io.issue_req := tail =/= 0.U && queue(0).prj_waked && queue(0).prk_waked && (!((queue(0).prj_wake_by_ld || queue(0).prk_wake_by_ld) && io.dcache_miss))
+    if(inst_pack_t.isInstanceOf[inst_pack_DP_LS_t]){
+        io.issue_req := (tail =/= 0.U && queue(0).prj_waked && queue(0).prk_waked 
+                                      && (!((queue(0).prj_wake_by_ld || queue(0).prk_wake_by_ld) && io.dcache_miss))
+                                      && (!(queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].is_cacop && (store_num =/= 0.U || queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].rob_index =/= io.rob_index_cmt || io.dcache_miss))))
+    }else{
+        io.issue_req := tail =/= 0.U && queue(0).prj_waked && queue(0).prk_waked && (!((queue(0).prj_wake_by_ld || queue(0).prk_wake_by_ld) && io.dcache_miss))
+    }
+    
 }

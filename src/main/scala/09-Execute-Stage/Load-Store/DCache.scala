@@ -24,6 +24,10 @@ class DCache_IO extends Bundle{
     // uncache cmt
     val rob_index_CMT   = Input(UInt(log2Ceil(ROB_NUM).W))
 
+    // cacop 
+    val cacop_en        = Input(Bool())
+    val cacop_op        = Input(UInt(2.W))
+
     // control
     val stall           = Input(Bool())
     val flush           = Input(Bool())
@@ -71,6 +75,8 @@ class DCache extends Module{
     val mem_type_reg_RF_EX  = RegInit(0.U(5.W))
     val wdata_reg_RF_EX     = RegInit(0.U(32.W))
     val store_cmt_reg_RF_EX = RegInit(false.B)
+    val cacop_en_reg_RF_EX  = RegInit(false.B)
+    val cacop_op_reg_RF_EX  = RegInit(0.U(2.W))
     // val uncache_reg_RF_EX   = RegInit(false.B)
 
     // TC Stage
@@ -93,6 +99,8 @@ class DCache extends Module{
     val rob_index_EX_MEM    = RegInit(0.U(log2Ceil(ROB_NUM).W))
     val hit_reg_EX_MEM      = RegInit(0.U(2.W))
     val tag_reg_EX_MEM      = RegInit(VecInit(Seq.fill(2)(0.U(TAG_WIDTH.W))))
+    val cacop_en_reg_EX_MEM = RegInit(false.B)
+    val cacop_op_reg_EX_MEM = RegInit(0.U(2.W))
 
     // optimize fanout
     val mem_type_reg_EX_MEM_backup = RegInit(VecInit(Seq.fill(5)(0.U(5.W))))
@@ -102,6 +110,8 @@ class DCache extends Module{
     val addr_MEM        = paddr_reg_EX_MEM
     val mem_type_MEM    = mem_type_reg_EX_MEM
     val wdata_MEM       = WireDefault(wdata_reg_EX_MEM)
+    val cacop_en_MEM    = cacop_en_reg_EX_MEM
+    val cacop_op_MEM    = cacop_op_reg_EX_MEM
 
     // optimize fanout
     val mem_type_MEM_backup = mem_type_reg_EX_MEM_backup
@@ -160,7 +170,7 @@ class DCache extends Module{
     for(i <- 0 until 2){
         tagv(i).addra   := index_MEM
         tagv(i).addrb   := Mux(addr_sel === FROM_PIPE, index_RF, index_EX)
-        tagv(i).dina    := true.B ## tag_MEM
+        tagv(i).dina    := Mux(cacop_en_MEM, 0.U, true.B ## tag_MEM)
         tagv(i).clka    := clock
         tagv(i).wea     := tagv_we_EX(i)
     }
@@ -181,6 +191,8 @@ class DCache extends Module{
         wdata_reg_RF_EX     := io.wdata_RF
         flush_RF_EX         := io.flush
         store_cmt_reg_RF_EX := io.store_cmt_RF
+        cacop_en_reg_RF_EX  := io.cacop_en
+        cacop_op_reg_RF_EX  := io.cacop_op
         // uncache_reg_RF_EX   := io.uncache_RF
     }
     when(io.flush){
@@ -199,6 +211,8 @@ class DCache extends Module{
         hit_reg_EX_MEM      := hit_EX
         tag_reg_EX_MEM      := tag_r_EX
         flush_EX_MEM        := flush_RF_EX
+        cacop_en_reg_EX_MEM := cacop_en_reg_RF_EX
+        cacop_op_reg_EX_MEM := cacop_op_reg_RF_EX
         mem_type_reg_EX_MEM_backup.foreach(_ := Mux((mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX) && !io.exception_EX, mem_type_reg_RF_EX, 0.U))
     }
     when(io.flush){
@@ -209,6 +223,8 @@ class DCache extends Module{
     val hit_MEM         = hit_reg_EX_MEM
     val hit_index_MEM   = OHToUInt(hit_MEM)
     val cache_hit_MEM   = hit_MEM.orR
+    val cacop_way_MEM   = Mux(cacop_op_MEM(1), hit_index_MEM, addr_MEM(0))
+    val cacop_exec_MEM  = Mux(cacop_op_MEM(1), cache_hit_MEM, true.B)
     
     /* rdata logic */
     val block_offset    = offset_MEM ## 0.U(3.W)
@@ -251,7 +267,10 @@ class DCache extends Module{
 
     /* write buffer */
     when(wbuf_we){
-        when(uncache_MEM){
+        when(cacop_en_MEM){
+            val cmem_wb_idx = Mux(cacop_op_MEM(1), hit_index_MEM, addr_MEM(0))
+            wrt_buf := cmem(cmem_wb_idx).doutb ## addr_MEM
+        }.elsewhen(uncache_MEM){
             wrt_buf := 0.U((8*OFFSET_DEPTH-32).W) ## wdata_reg_EX_MEM ## addr_MEM
         }.otherwise{
             wrt_buf := cmem(lru_sel).doutb ## tag_r_MEM(lru_sel) ## addr_MEM(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH) ## 0.U(OFFSET_WIDTH.W)
@@ -268,8 +287,13 @@ class DCache extends Module{
 
     switch(state){
         is(s_idle){
-            // has req
-            when(mem_type_MEM(4, 3).orR){
+            when(cacop_en_MEM){
+                state           := Mux(cacop_exec_MEM, s_refill, s_idle)
+                // cache_miss_MEM  := cacop_exec_MEM
+                addr_sel        := Mux(cacop_exec_MEM, FROM_SEG, FROM_PIPE)
+                wbuf_we         := cacop_exec_MEM
+                wfsm_en         := cacop_exec_MEM
+            }.elsewhen(mem_type_MEM(4, 3).orR){
                 when(uncache_MEM){
                     state               := s_hold
                     //cache_miss_MEM      := true.B
@@ -296,12 +320,13 @@ class DCache extends Module{
             addr_sel            := FROM_SEG
         }
         is(s_refill){
+            val tag_idx         = Mux(cacop_en_MEM, cacop_way_MEM, lru_sel)
             state                   := s_wait
             //cache_miss_MEM          := true.B
-            lru_miss_upd            := true.B
-            tagv_we_EX(lru_sel)     := true.B
-            cmem_we_MEM(lru_sel)    := Fill(OFFSET_DEPTH, 1.U(1.W))
-            dirty_clean             := is_load_MEM
+            lru_miss_upd            := !cacop_en_MEM
+            tagv_we_EX(tag_idx)     := true.B
+            cmem_we_MEM(lru_sel)    := Mux(cacop_en_MEM, 0.U(OFFSET_DEPTH.W), Fill(OFFSET_DEPTH, 1.U(1.W)))
+            dirty_clean             := is_load_MEM || cacop_en_MEM
             dirty_we                := is_store_MEM
             addr_sel                := FROM_SEG
         }
@@ -325,6 +350,10 @@ class DCache extends Module{
     for(i <- 0 until 5){
         switch(state_backup(i)){
             is(s_idle){
+                when(cacop_en_MEM){
+                    state_backup(i)     := Mux(cacop_exec_MEM, s_refill, s_idle)
+                    cache_miss_MEM(i)   := cacop_exec_MEM
+                }
                 when(mem_type_MEM_backup(i)(4, 3).orR){
                     when(uncache_MEM){
                         state_backup(i)     := s_hold

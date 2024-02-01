@@ -162,7 +162,7 @@ class CPU extends Module {
 
     /* ---------- 1. Previous Fetch Stage ---------- */
     // PC
-    pc.io.pc_stall                  := fq.io.full || icache.io.cache_miss_RM
+    pc.io.pc_stall                  := fq.io.full || icache.io.cache_miss_RM || icache.io.has_cacop_IF
     pc.io.predict_fail              := rob.io.predict_fail_cmt(0)
     pc.io.branch_target             := rob.io.branch_target_cmt
     pc.io.pred_jump                 := predict.io.predict_jump
@@ -198,15 +198,17 @@ class CPU extends Module {
 
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
-    icache.io.addr_IF           := pc.io.pc_PF
+    icache.io.addr_IF           := Mux(re_reg4.io.inst_pack_EX.is_cacop, re_reg4.io.src1_EX, pc.io.pc_PF)
     icache.io.rvalid_IF         := !reset.asBool && !mmu.io.i_exception(7)
-    icache.io.paddr_IF          := mmu.io.i_paddr
+    icache.io.paddr_IF          := Mux(re_reg4.io.inst_pack_EX.is_cacop, mmu.io.d_paddr, mmu.io.i_paddr)
     icache.io.uncache_IF        := pc.io.pc_PF(31, 24) =/= 0x1c.U//mmu.io.i_uncache
     icache.io.stall             := fq.io.full
     icache.io.flush             := false.B
     icache.io.i_rready          := arb.io.i_rready
     icache.io.i_rdata           := arb.io.i_rdata
     icache.io.i_rlast           := arb.io.i_rlast
+    icache.io.cacop_en          := re_reg4.io.inst_pack_EX.is_cacop && re_reg4.io.inst_pack_EX.imm(2, 0) === 0.U
+    icache.io.cacop_op          := re_reg4.io.inst_pack_EX.imm(4, 3)
 
     /* ---------- IF-PD SegReg ---------- */
     val NOP_inst                = 0x001c0000.U
@@ -346,6 +348,8 @@ class CPU extends Module {
     iq3.io.flush                := rob.io.predict_fail_cmt(6)
     iq3.io.stall                := stall_by_iq || rob.io.full(5)
     iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq3.io.is_store_cmt_num     := DontCare
+    iq3.io.rob_index_cmt        := DontCare
     iq3.io.dcache_miss          := dcache.io.cache_miss_MEM(2) || ShiftRegister(dcache.io.cache_miss_MEM(2), 1)
 
     // select
@@ -364,6 +368,8 @@ class CPU extends Module {
     iq4.io.flush                := rob.io.predict_fail_cmt(6)
     iq4.io.stall                := stall_by_iq || rob.io.full(5)
     iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq4.io.is_store_cmt_num     := rob.io.is_store_num_cmt
+    iq4.io.rob_index_cmt        := rob.io.rob_index_cmt
     iq4.io.dcache_miss          := dcache.io.cache_miss_MEM(3) || ShiftRegister(dcache.io.cache_miss_MEM(3), 1)
 
     // select
@@ -452,7 +458,7 @@ class CPU extends Module {
     re_reg4.io.flush         := rob.io.predict_fail_cmt(8) || !re_reg4.io.stall && (sb.io.st_cmt_valid && ir_reg4.io.inst_pack_RF.mem_type(4, 3).orR)
     re_reg4.io.stall         := sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4) || dcache.io.cache_miss_MEM(3)
     re_reg4.io.inst_pack_RF  := ir_reg4.io.inst_pack_RF
-    re_reg4.io.src1_RF       := rf.io.prj_data(3) + ir_reg4.io.inst_pack_RF.imm
+    re_reg4.io.src1_RF       := rf.io.prj_data(3) + Mux(ir_reg4.io.inst_pack_RF.is_cacop, Fill(5, ir_reg4.io.inst_pack_RF.imm(31)) ## ir_reg4.io.inst_pack_RF.imm(31, 5), ir_reg4.io.inst_pack_RF.imm)
     re_reg4.io.src2_RF       := rf.io.prk_data(3)
     re_reg4.io.csr_rdata_RF  := DontCare
 
@@ -564,7 +570,7 @@ class CPU extends Module {
     ls_ex_mem_reg.io.src2_EX            := re_reg4.io.src2_EX
     ls_ex_mem_reg.io.uncache_EX         := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U // mmu.io.d_uncache 
     ls_ex_mem_reg.io.paddr_EX           := mmu.io.d_paddr
-    ls_ex_mem_reg.io.exception_EX       := Mux(exception_ls.io.exception_ls(7), exception_ls.io.exception_ls, mmu.io.d_exception)
+    ls_ex_mem_reg.io.exception_EX       := Mux(re_reg4.io.inst_pack_EX.is_cacop && re_reg4.io.inst_pack_EX.imm(4, 3) =/= 0x2.U, 0.U, Mux(exception_ls.io.exception_ls(7), exception_ls.io.exception_ls, mmu.io.d_exception))
 
     // MEM Stage
     // store_buf
@@ -580,11 +586,11 @@ class CPU extends Module {
     // dcache
     dcache.io.addr_RF             := Mux(sb.io.st_cmt_valid, sb.io.st_addr_cmt, re_reg4.io.src1_RF)
     dcache.io.paddr_EX            := mmu.io.d_paddr 
-    dcache.io.uncache_EX          := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U //mmu.io.d_uncache
+    dcache.io.uncache_EX          := mmu.io.d_uncache // re_reg4.io.src1_EX(31, 24) =/= 0x1c.U 
     dcache.io.mem_type_RF         := Mux(sb.io.st_cmt_valid, Mux(sb.io.is_uncache_cmt, 0.U, 4.U(3.W) ## sb.io.st_wlen_cmt(1, 0)), re_reg4.io.inst_pack_RF.mem_type)
     dcache.io.wdata_RF            := Mux(sb.io.st_cmt_valid, sb.io.st_data_cmt, re_reg4.io.src2_RF)
     dcache.io.stall               := false.B
-    dcache.io.exception_EX        := exception_ls.io.exception_ls(7) || mmu.io.d_exception(7)
+    dcache.io.exception_EX        := Mux(re_reg4.io.inst_pack_EX.is_cacop && re_reg4.io.inst_pack_EX.imm(4, 3) =/= 2.U, 0.U, exception_ls.io.exception_ls(7) || mmu.io.d_exception(7))
     dcache.io.d_rready            := arb.io.d_rready
     dcache.io.d_rdata             := arb.io.d_rdata
     dcache.io.d_rlast             := arb.io.d_rlast
@@ -594,6 +600,8 @@ class CPU extends Module {
     dcache.io.rob_index_CMT       := rob.io.rob_index_cmt
     dcache.io.flush               := rob.io.predict_fail_cmt(6)
     dcache.io.store_cmt_RF        := sb.io.st_cmt_valid
+    dcache.io.cacop_en            := Mux(sb.io.st_cmt_valid, false.B, re_reg4.io.inst_pack_RF.is_cacop && re_reg4.io.inst_pack_RF.imm(2, 0) === 1.U)
+    dcache.io.cacop_op            := re_reg4.io.inst_pack_RF.imm(4, 3)
 
     val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(sb.io.ld_hit(i), sb.io.ld_data_mem(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
     val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.inst_pack_MEM.mem_type(2, 0), 0.U)(Seq(

@@ -93,8 +93,8 @@ class MMU extends Module{
                     Mux(i_dmw0_hit, io.csr_dmw0(27, 25) ## io.i_vaddr(28, 0), 
                     Mux(i_dmw1_hit, io.csr_dmw1(27, 25) ## io.i_vaddr(28, 0), tlb.io.i_paddr)))
     io.i_uncache := Mux(is_da, !io.csr_crmd_trans(2), 
-                    Mux(i_dmw0_hit, io.csr_dmw0(4),
-                    Mux(i_dmw1_hit, io.csr_dmw1(4), tlb.io.i_uncache)))
+                    Mux(i_dmw0_hit, !io.csr_dmw0(4),
+                    Mux(i_dmw1_hit, !io.csr_dmw1(4), tlb.io.i_uncache)))
     io.i_exception := Mux(is_da || i_dmw0_hit || i_dmw1_hit, 0.U, tlb.io.i_exception)
 
     // d_paddr
@@ -104,8 +104,8 @@ class MMU extends Module{
                     Mux(d_dmw0_hit, io.csr_dmw0(27, 25) ## io.d_vaddr(28, 0), 
                     Mux(d_dmw1_hit, io.csr_dmw1(27, 25) ## io.d_vaddr(28, 0), tlb.io.d_paddr)))
     io.d_uncache := Mux(is_da, !io.csr_crmd_trans(4), 
-                    Mux(d_dmw0_hit, io.csr_dmw0(4),
-                    Mux(d_dmw1_hit, io.csr_dmw1(4), tlb.io.d_uncache)))
+                    Mux(d_dmw0_hit, !io.csr_dmw0(4),
+                    Mux(d_dmw1_hit, !io.csr_dmw1(4), tlb.io.d_uncache)))
     io.d_exception := Mux(is_da || d_dmw0_hit || d_dmw1_hit, 0.U, tlb.io.d_exception)
 
 }

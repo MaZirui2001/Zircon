@@ -235,7 +235,7 @@ class ROB(n: Int) extends Module{
     val tlbfill_en_cmt          = rob_update_item.is_priv_wrt && priv_buf.priv_vec(6)
     val tlbsrch_en_cmt          = rob_update_item.is_priv_wrt && priv_buf.priv_vec(7)
     val tlbentry_cmt            = priv_buf.tlb_entry
-    val invtlb_en_cmt           = priv_buf.valid && priv_buf.priv_vec(8)
+    val invtlb_en_cmt           = rob_update_item.is_priv_wrt && priv_buf.priv_vec(8)
     val invtlb_op_cmt           = priv_buf.inv_op
     val invtlb_vaddr_cmt        = priv_buf.inv_vaddr
     val invtlb_asid_cmt         = priv_buf.inv_asid
