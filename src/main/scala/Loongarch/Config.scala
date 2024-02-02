@@ -140,17 +140,20 @@ object Control_Signal{
     val MEM_LDHU = 13.U(5.W)
 
     // priv vec: last bit signed whether it is priv
-    val NOT_PRIV = 0x0.U(10.W)
-    val CSR_RD   = 0x1.U(10.W)
-    val CSR_WR   = 0x3.U(10.W)   // bit 1
-    val CSR_XCHG = 0x5.U(10.W)   // bit 2
-    val PRV_ERET = 0x9.U(10.W)   // bit 3
-    val TLB_RD   = 0x11.U(10.W)  // bit 4
-    val TLB_WR   = 0x21.U(10.W)  // bit 5
-    val TLB_FILL = 0x41.U(10.W)  // bit 6
-    val TLB_SRCH = 0x81.U(10.W)  // bit 7
-    val INV_TLB  = 0x101.U(10.W) // bit 8
-    val CACHE_OP = 0x201.U(10.W) // bit 9
+    val NOT_PRIV = 0x0.U(13.W)
+    val CSR_RD   = 0x1.U(13.W)
+    val CSR_WR   = 0x3.U(13.W)    // bit 1
+    val CSR_XCHG = 0x5.U(13.W)    // bit 2
+    val PRV_ERET = 0x9.U(13.W)    // bit 3
+    val TLB_RD   = 0x11.U(13.W)   // bit 4
+    val TLB_WR   = 0x21.U(13.W)   // bit 5
+    val TLB_FILL = 0x41.U(13.W)   // bit 6
+    val TLB_SRCH = 0x81.U(13.W)   // bit 7
+    val INV_TLB  = 0x101.U(13.W)  // bit 8
+    val PRV_IDLE = 0x201.U(13.W)  // bit 9
+    val CACHE_OP = 0x401.U(13.W)  // bit 10
+    val LS_LL    = 0x801.U(13.W)  // bit 11
+    val LS_SC    = 0x1001.U(13.W) // bit 12
 
     // csr_sel
     val FROM_INST = 0.U(2.W)

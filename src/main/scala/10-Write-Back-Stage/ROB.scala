@@ -16,7 +16,7 @@ class ROB_IO(n: Int) extends Bundle{
     val is_store_dp             = Input(Vec(2, Bool()))
     val br_type_pred_dp         = Input(Vec(2, UInt(2.W)))
     val pred_update_en_dp       = Input(Vec(2, Bool()))
-    val priv_vec_dp             = Input(Vec(2, UInt(10.W)))
+    val priv_vec_dp             = Input(Vec(2, UInt(13.W)))
     val exception_dp            = Input(Vec(2, UInt(8.W)))
     val inst_dp                 = Input(Vec(2, UInt(32.W)))
     val full                    = Output(Vec(10, Bool()))
@@ -75,8 +75,11 @@ class ROB_IO(n: Int) extends Bundle{
     val invtlb_vaddr_cmt        = Output(UInt(32.W))
     val invtlb_asid_cmt         = Output(UInt(10.W))
 
+    // for idle
+    val idle_en_cmt             = Output(Bool())
+
     // for priv
-    val priv_vec_ex             = Input(UInt(9.W))
+    val priv_vec_ex             = Input(UInt(10.W))
     val csr_addr_ex             = Input(UInt(14.W))
     val tlbentry_ex             = Input(new tlb_t)
     val tlbentry_cmt            = Output(new tlb_t)
@@ -137,8 +140,8 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).br_type_pred    := io.br_type_pred_dp(i)
                 rob(i)(tail).pred_update_en  := io.pred_update_en_dp(i)
                 rob(i)(tail).complete        := false.B
-                rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(8, 1).orR
-                rob(i)(tail).is_priv_ls      := io.priv_vec_dp(i)(9)
+                rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(9, 1).orR
+                rob(i)(tail).is_priv_ls      := io.priv_vec_dp(i)(12, 10).orR
                 rob(i)(tail).exception       := io.exception_dp(i)
                 rob(i)(tail).inst            := io.inst_dp(i)
             }
@@ -151,7 +154,7 @@ class ROB(n: Int) extends Module{
     when(io.predict_fail_cmt(0)){
         priv_buf.valid          := false.B
         // priv_buf.priv_vec       := 0.U
-    }.elsewhen(!priv_buf.valid && io.priv_vec_ex(0) && io.priv_vec_ex(8, 1).orR){
+    }.elsewhen(!priv_buf.valid && io.priv_vec_ex(0) && io.priv_vec_ex(9, 1).orR){
         priv_buf.csr_addr       := io.csr_addr_ex
         priv_buf.priv_vec       := io.priv_vec_ex
         priv_buf.tlb_entry      := io.tlbentry_ex
@@ -239,6 +242,7 @@ class ROB(n: Int) extends Module{
     val tlbsrch_en_cmt          = rob_update_item.is_priv_wrt && priv_buf.priv_vec(7)
     val tlbentry_cmt            = priv_buf.tlb_entry
     val invtlb_en_cmt           = rob_update_item.is_priv_wrt && priv_buf.priv_vec(8)
+    val idle_en_cmt             = rob_update_item.is_priv_wrt && priv_buf.priv_vec(9)
     val invtlb_op_cmt           = priv_buf.inv_op
     val invtlb_vaddr_cmt        = priv_buf.inv_vaddr
     val invtlb_asid_cmt         = priv_buf.inv_asid
@@ -257,6 +261,7 @@ class ROB(n: Int) extends Module{
     io.invtlb_op_cmt            := ShiftRegister(invtlb_op_cmt, 1)
     io.invtlb_vaddr_cmt         := ShiftRegister(invtlb_vaddr_cmt, 1)
     io.invtlb_asid_cmt          := ShiftRegister(invtlb_asid_cmt, 1)
+    io.idle_en_cmt              := ShiftRegister(idle_en_cmt, 1)
 
     // update ptrs
     val cmt_num                 = PopCount(cmt_en)

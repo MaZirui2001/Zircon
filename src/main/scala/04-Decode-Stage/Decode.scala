@@ -44,12 +44,13 @@ object Decode_Map{
         CSRRD       -> List(N, N, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_RD,   NO_EXP),
         CSRWR       -> List(N, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_WR,   NO_EXP),
         CSRXCHG     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_CSR, CSR_XCHG, NO_EXP),
-        CACOP       -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDW,  LS,    RK, RD, IMM_COP, CACHE_OP, NO_EXP),
+        CACOP       -> List(Y, N, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDB,  LS,    RK, RD, IMM_COP, CACHE_OP, NO_EXP),
         TLBSRCH     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_TID, TLB_SRCH, NO_EXP),
         TLBRD       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_RD,   NO_EXP),
         TLBWR       -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_WR,   NO_EXP),
         TLBFILL     -> List(Y, Y, Y, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, TLB_FILL, NO_EXP),
         ERTN        -> List(N, N, N, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_ERA, PRV_ERET, NO_EXP),
+        IDLE        -> List(N, N, N, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RD, RD, IMM_00U, PRV_IDLE, NO_EXP),
         INVTLB      -> List(Y, Y, N, ALU_MUL,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   SYST,  RK, RD, IMM_COP, INV_TLB,  NO_EXP),
         LU12IW      -> List(N, N, Y, ALU_ADD,   RS1_ZERO, RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, NOT_PRIV, NO_EXP),
         PCADDU12I   -> List(N, N, Y, ALU_ADD,   RS1_PC,   RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, NOT_PRIV, NO_EXP),
@@ -87,7 +88,7 @@ class DecodeIO extends Bundle{
     val br_type         = Output(UInt(4.W))
     val mem_type        = Output(UInt(5.W))
 
-    val priv_vec        = Output(UInt(10.W))
+    val priv_vec        = Output(UInt(13.W))
 
     val fu_id           = Output(UInt(3.W))
     val exception       = Output(UInt(8.W))

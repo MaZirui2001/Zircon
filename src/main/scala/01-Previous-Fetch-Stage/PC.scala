@@ -15,14 +15,27 @@ class PC_IO extends Bundle {
 
     val flush_by_pd     = Input(Bool())
     val flush_pd_target = Input(UInt(32.W))
+
+    // idle
+    val is_idle_cmt     = Input(Bool())
+    val has_intr        = Input(Bool())
 }
 
 class PC(reset_val: Int) extends Module {
     val io = IO(new PC_IO)
 
     val pc = RegInit(reset_val.U(32.W))
+    val idle_en = RegInit(false.B)
 
-    when(io.predict_fail) {
+    when(io.has_intr){
+        idle_en := false.B
+    }.elsewhen(!idle_en){
+        idle_en := io.is_idle_cmt
+    }
+
+    when(idle_en){
+        io.npc := pc
+    }.elsewhen(io.predict_fail) {
         io.npc := io.branch_target
     }
     .elsewhen(io.flush_by_pd){
@@ -34,15 +47,14 @@ class PC(reset_val: Int) extends Module {
         }.otherwise{
             io.npc := (pc + 8.U)(31, 3) ## 0.U(3.W)
         }
-    }
-    .otherwise{
+    }.otherwise{
         io.npc := pc
     }
 
     io.pc_PF := pc
     pc := io.npc
 
-    val inst_valid_temp = !io.pred_jump(0) ## true.B
+    val inst_valid_temp = Mux(idle_en, 0.U, !io.pred_jump(0) ## true.B)
     val valid_mask = !pc(2) ## true.B
 
     io.inst_valid_PF := (inst_valid_temp & valid_mask).asBools

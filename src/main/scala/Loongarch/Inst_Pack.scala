@@ -64,7 +64,7 @@ object Inst_Pack{
         val alu_rs2_sel     = UInt(2.W)
         val br_type         = UInt(4.W)
         val mem_type        = UInt(5.W)
-        val priv_vec        = UInt(10.W)
+        val priv_vec        = UInt(13.W)
         val fu_id           = UInt(3.W)
     }
     def inst_pack_ID_gen (inst_pack_PD : inst_pack_PD_t, _inst_valid: Bool, _rj : UInt, _rk : UInt, _rd : UInt, _rd_valid : Bool, _imm : UInt, _alu_op : UInt, 
@@ -194,11 +194,11 @@ object Inst_Pack{
         inst_pack_DP_LS.imm            := inst_pack_RN.imm
         inst_pack_DP_LS.rob_index      := _rob_index
         inst_pack_DP_LS.mem_type       := inst_pack_RN.mem_type
-        inst_pack_DP_LS.is_cacop       := inst_pack_RN.priv_vec(9)
+        inst_pack_DP_LS.is_cacop       := inst_pack_RN.priv_vec(10)
         inst_pack_DP_LS
     }
     class inst_pack_DP_MD_t extends inst_pack_DP_t{
-        val priv_vec        = UInt(9.W)
+        val priv_vec        = UInt(10.W)
         val alu_op          = UInt(5.W)
     }
     def inst_pack_DP_MD_gen (inst_pack_RN : inst_pack_RN_t, _rob_index: UInt) : inst_pack_DP_MD_t = {
@@ -210,7 +210,7 @@ object Inst_Pack{
         inst_pack_DP_MD.imm            := inst_pack_RN.imm
         inst_pack_DP_MD.rob_index      := _rob_index
         inst_pack_DP_MD.alu_op         := inst_pack_RN.alu_op
-        inst_pack_DP_MD.priv_vec       := inst_pack_RN.priv_vec(8, 0)
+        inst_pack_DP_MD.priv_vec       := inst_pack_RN.priv_vec(9, 0)
         inst_pack_DP_MD
     }
     class inst_pack_IS_t extends Bundle{
