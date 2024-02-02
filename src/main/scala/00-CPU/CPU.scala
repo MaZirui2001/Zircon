@@ -217,10 +217,16 @@ class CPU extends Module {
     ip_reg.io.flush             := rob.io.predict_fail_cmt(1) || (!ip_reg.io.stall && (pd.io.pred_fix || icache.io.cache_miss_RM))
     ip_reg.io.stall             := fq.io.full
     ip_reg.io.insts_pack_IF     := VecInit.tabulate(2)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), Mux(pi_reg.io.inst_pack_IF(i).exception(7), NOP_inst, icache.io.rdata_RM(i))))
+    ip_reg.io.npc16_IF          := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + Cat(Fill(14, icache.io.rdata_RM(i)(25)), icache.io.rdata_RM(i)(25, 10), 0.U(2.W)))
+    ip_reg.io.npc26_IF          := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + Cat(Fill(4, icache.io.rdata_RM(i)(9)), icache.io.rdata_RM(i)(9, 0), icache.io.rdata_RM(i)(25, 10), 0.U(2.W)))
+    ip_reg.io.npc4_IF           := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + 4.U)
 
     /* ---------- 3. Previous Decode Stage ---------- */
     // Previous Decoder
     pd.io.insts_pack_IF             := ip_reg.io.insts_pack_PD  
+    pd.io.npc4_IF                   := ip_reg.io.npc4_PD
+    pd.io.npc16_IF                  := ip_reg.io.npc16_PD
+    pd.io.npc26_IF                  := ip_reg.io.npc26_PD
 
     /* ---------- Fetch Queue ---------- */
     fq.io.insts_pack    := pd.io.insts_pack_PD

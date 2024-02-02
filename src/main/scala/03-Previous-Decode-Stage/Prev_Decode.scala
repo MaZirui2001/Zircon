@@ -6,12 +6,18 @@ import PreDecode_Config._
 
 class Prev_Decode_IO extends Bundle {
     val insts_pack_IF       = Input(Vec(2, new inst_pack_IF_t))
+
+    val npc16_IF            = Input(Vec(2, UInt(32.W)))
+    val npc26_IF            = Input(Vec(2, UInt(32.W)))
+    val npc4_IF             = Input(Vec(2, UInt(32.W)))
     
     val insts_pack_PD       = Output(Vec(2, new inst_pack_IF_t))
     val pred_fix            = Output(Bool())
     val pred_fix_target     = Output(UInt(32.W))
     val pred_fix_is_bl      = Output(Bool())
     val pred_fix_pc         = Output(UInt(32.W))
+
+
 }
 class Prev_Decode extends Module {
     val io = IO(new Prev_Decode_IO)
@@ -50,27 +56,36 @@ class Prev_Decode extends Module {
     for(i <- 0 until 2){
         switch(jump_type(i)){
             is(YES_JUMP){
-                val pc_target = inst_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W))
+                // val pc_target = io.npc26_IF(i)
                 inst_pack_pd(i).predict_jump    := true.B
+                inst_pack_pd(i).pred_npc        := io.npc26_IF(i)
                 when(!inst_pack_IF(i).pred_valid){
                     need_fix(i)                     := inst_pack_IF(i).inst_valid 
-                    inst_pack_pd(i).pred_npc        := pc_target
                 }.otherwise{
-                    need_fix(i)                     := inst_pack_IF(i).inst_valid && (!inst_pack_IF(i).predict_jump || inst_pack_IF(i).pred_npc =/= pc_target)
-                    inst_pack_pd(i).pred_npc        := pc_target
+                    need_fix(i)                     := inst_pack_IF(i).inst_valid && (!inst_pack_IF(i).predict_jump || inst_pack_IF(i).pred_npc =/= io.npc16_IF(i))
                 }
             }
             is(MAY_JUMP){
-                val pc_target = inst_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W))
                 when(!inst_pack_IF(i).pred_valid){
                     need_fix(i)                     := inst(i)(25) && inst_pack_IF(i).inst_valid
                     inst_pack_pd(i).predict_jump    := inst(i)(25)
-                    inst_pack_pd(i).pred_npc        := Mux(inst(i)(25), pc_target, (inst_pack_IF(i).pc(31, 2) + 1.U) ## 0.U(2.W))
+                    inst_pack_pd(i).pred_npc        := Mux(inst(i)(25), io.npc16_IF(i), io.npc4_IF(i))
                 }
+                // .otherwise{
+                //     when(inst_pack_IF(i).predict_jump){
+                //         need_fix(i)                     := inst_pack_IF(i).inst_valid && (inst_pack_IF(i).pred_npc =/= io.npc16_IF(i))
+                //         inst_pack_pd(i).predict_jump    := true.B
+                //         inst_pack_pd(i).pred_npc        := io.npc16_IF(i)
+                //     }.otherwise{
+                //         need_fix(i)                     := inst_pack_IF(i).inst_valid && (inst_pack_IF(i).pred_npc =/= io.npc4_IF(i))
+                //         inst_pack_pd(i).predict_jump    := false.B
+                //         inst_pack_pd(i).pred_npc        := io.npc4_IF(i)
+                //     }
+                // }
             }
             is(NOT_BR){
                 inst_pack_pd(i).predict_jump    := false.B
-                inst_pack_pd(i).pred_npc        := (inst_pack_IF(i).pc(31, 2) + 1.U) ## 0.U(2.W)
+                inst_pack_pd(i).pred_npc        := io.npc4_IF(i)
                 need_fix(i)                     := inst_pack_IF(i).inst_valid && inst_pack_IF(i).predict_jump
             }
         }
