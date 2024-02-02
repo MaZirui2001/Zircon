@@ -74,6 +74,8 @@ class ROB_IO(n: Int) extends Bundle{
     val invtlb_op_cmt           = Output(UInt(5.W))
     val invtlb_vaddr_cmt        = Output(UInt(32.W))
     val invtlb_asid_cmt         = Output(UInt(10.W))
+    val llbit_set_cmt           = Output(Bool())
+    val llbit_clear_cmt         = Output(Bool())
 
     // for idle
     val idle_en_cmt             = Output(Bool())
@@ -86,6 +88,9 @@ class ROB_IO(n: Int) extends Bundle{
     val invtlb_op_ex            = Input(UInt(5.W))
     val invtlb_vaddr_ex         = Input(UInt(32.W))
     val invtlb_asid_ex          = Input(UInt(10.W))
+
+    // for ls priv
+    val priv_vec_ls             = Input(UInt(3.W))
 
     // diff
     val is_ucread_cmt           = Output(Vec(2, Bool()))
@@ -112,6 +117,7 @@ class ROB(n: Int) extends Module{
     /* ROB items */
     val rob         = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
     val priv_buf    = RegInit(0.U.asTypeOf(new priv_t(n)))
+    val priv_ls_buf = RegInit(0.U.asTypeOf(new priv_ls_t))
 
     /* ROB ptrs */
     val head        = RegInit(0.U(log2Ceil(n).W))
@@ -162,6 +168,12 @@ class ROB(n: Int) extends Module{
         priv_buf.inv_vaddr      := io.invtlb_vaddr_ex
         priv_buf.inv_asid       := io.invtlb_asid_ex
         priv_buf.valid          := true.B
+    }
+    when(io.predict_fail_cmt(0)){
+        priv_ls_buf.valid       := false.B
+    }.elsewhen(!priv_ls_buf.valid && io.priv_vec_ls.orR){
+        priv_ls_buf.priv_vec    := io.priv_vec_ls
+        priv_ls_buf.valid       := true.B
     }
 
     // wb stage
@@ -246,6 +258,8 @@ class ROB(n: Int) extends Module{
     val invtlb_op_cmt           = priv_buf.inv_op
     val invtlb_vaddr_cmt        = priv_buf.inv_vaddr
     val invtlb_asid_cmt         = priv_buf.inv_asid
+    val llbit_set_cmt           = rob_update_item.is_priv_ls && priv_ls_buf.priv_vec(1)
+    val llbit_clear_cmt         = rob_update_item.is_priv_ls && priv_ls_buf.priv_vec(2)
 
     io.csr_addr_cmt             := ShiftRegister(csr_addr_cmt, 1)
     io.csr_wdata_cmt            := ShiftRegister(csr_wdata_cmt, 1)
@@ -262,6 +276,8 @@ class ROB(n: Int) extends Module{
     io.invtlb_vaddr_cmt         := ShiftRegister(invtlb_vaddr_cmt, 1)
     io.invtlb_asid_cmt          := ShiftRegister(invtlb_asid_cmt, 1)
     io.idle_en_cmt              := ShiftRegister(idle_en_cmt, 1)
+    io.llbit_set_cmt            := ShiftRegister(llbit_set_cmt, 1)
+    io.llbit_clear_cmt          := ShiftRegister(llbit_clear_cmt, 1)
 
     // update ptrs
     val cmt_num                 = PopCount(cmt_en)

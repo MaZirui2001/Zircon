@@ -13,6 +13,7 @@ class LS_EX_MEM_Reg extends Module {
         val src2_EX        = Input(UInt(32.W))
         val paddr_EX       = Input(UInt(32.W))
         val exception_EX   = Input(UInt(8.W))
+        val llbit_EX       = Input(Bool())
 
         val inst_pack_MEM = Output(new inst_pack_IS_LS_t)
         val is_ucread_MEM = Output(Bool())
@@ -21,6 +22,7 @@ class LS_EX_MEM_Reg extends Module {
         val src2_MEM      = Output(UInt(32.W))
         val paddr_MEM     = Output(UInt(32.W))
         val exception_MEM = Output(UInt(8.W))
+        val llbit_MEM     = Output(Bool())
     })
 
     val inst_pack_reg = RegInit(0.U.asTypeOf(new inst_pack_IS_LS_t))
@@ -30,6 +32,7 @@ class LS_EX_MEM_Reg extends Module {
     val uncache_reg = RegInit(false.B)
     val paddr_reg = RegInit(0.U(32.W))
     val exception_reg = RegInit(0.U(8.W))
+    val llbit_reg = RegInit(false.B)
 
     when(io.flush) {
         inst_pack_reg := 0.U.asTypeOf(new inst_pack_IS_LS_t)
@@ -39,6 +42,7 @@ class LS_EX_MEM_Reg extends Module {
         uncache_reg := false.B
         paddr_reg := 0.U
         exception_reg := 0.U
+        llbit_reg := false.B
     }.elsewhen(!io.stall) {
         inst_pack_reg := io.inst_pack_EX
         is_ucread_Reg := io.is_ucread_EX
@@ -47,6 +51,7 @@ class LS_EX_MEM_Reg extends Module {
         uncache_reg := io.uncache_EX
         paddr_reg := io.paddr_EX
         exception_reg := io.exception_EX
+        llbit_reg := io.llbit_EX
     }
 
     io.inst_pack_MEM := inst_pack_reg
@@ -56,5 +61,6 @@ class LS_EX_MEM_Reg extends Module {
     io.uncache_MEM := uncache_reg
     io.paddr_MEM := paddr_reg
     io.exception_MEM := exception_reg
+    io.llbit_MEM := llbit_reg
 
 }

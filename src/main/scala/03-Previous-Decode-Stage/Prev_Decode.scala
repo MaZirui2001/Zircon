@@ -50,10 +50,14 @@ class Prev_Decode extends Module {
     for(i <- 0 until 2){
         switch(jump_type(i)){
             is(YES_JUMP){
+                val pc_target = inst_pack_IF(i).pc + Cat(Fill(14, inst(i)(25)), inst(i)(25, 10), 0.U(2.W))
+                inst_pack_pd(i).predict_jump    := true.B
                 when(!inst_pack_IF(i).pred_valid){
-                    inst_pack_pd(i).predict_jump    := true.B
-                    inst_pack_pd(i).pred_npc        := inst_pack_IF(i).pc + Cat(Fill(4, inst(i)(9)), inst(i)(9, 0), inst(i)(25, 10), 0.U(2.W))
-                    need_fix(i)                     := inst_pack_IF(i).inst_valid && !inst_pack_IF(i).predict_jump
+                    need_fix(i)                     := inst_pack_IF(i).inst_valid 
+                    inst_pack_pd(i).pred_npc        := pc_target
+                }.otherwise{
+                    need_fix(i)                     := inst_pack_IF(i).inst_valid && (!inst_pack_IF(i).predict_jump || inst_pack_IF(i).pred_npc =/= pc_target)
+                    inst_pack_pd(i).pred_npc        := pc_target
                 }
             }
             is(MAY_JUMP){

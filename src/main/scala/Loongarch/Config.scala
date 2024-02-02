@@ -194,6 +194,7 @@ object Control_Signal{
     val IMM_TID   = 8.U(4.W)
     val IMM_ERA   = 9.U(4.W)
     val IMM_COP   = 10.U(4.W)
+    val IMM_14S   = 11.U(4.W)
 
 }
 

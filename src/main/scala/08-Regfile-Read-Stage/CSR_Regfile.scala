@@ -46,6 +46,11 @@ class CSR_Regfile_IO extends Bundle{
     // tlbsrch
     val tlbsrch_en      = Input(Bool())
 
+    // llbit
+    val llbit_global    = Output(Bool())
+    val llbit_set       = Input(Bool())
+    val llbit_clear     = Input(Bool())  
+
     // debug
     val estat_13        = Output(UInt(13.W))
 }
@@ -170,10 +175,17 @@ class CSR_Regfile(PALEN: 32, TIMER_INIT_WIDTH: 30) extends Module{
 
     // LLBCTL：LLBit控制
     val llbctl = RegInit(0.U(32.W))
-    when(we && waddr === CSR_LLBCTL){
-        llbctl := 0.U(28.W) ## wdata(2) ## 0.U(1.W) ## Mux(wdata(1), 0.U(1.W), llbctl(0)) 
+    when(io.llbit_set){
+        llbctl := 0.U(29.W) ## llbctl(2) ## 1.U(2.W)
+    }.elsewhen(io.llbit_clear){
+        llbctl := 0.U(29.W) ## llbctl(2) ## 0.U(2.W)
+    }.elsewhen(is_eret){
+        llbctl := 0.U(31.W) ## Mux(llbctl(2), llbctl(0), 0.U(1.W))
+    }.elsewhen(we && waddr === CSR_LLBCTL){
+        llbctl := 0.U(29.W) ## wdata(2) ## 0.U(1.W) ## Mux(wdata(1), 0.U(1.W), llbctl(0)) 
     }
     val tlbentry_in = io.tlbentry_in
+    io.llbit_global := llbctl(0)
 
     // TLBIDX：TLB索引
     val tlbidx = RegInit(0.U(32.W))

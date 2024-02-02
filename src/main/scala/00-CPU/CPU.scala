@@ -200,16 +200,16 @@ class CPU extends Module {
 
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
-    icache.io.addr_IF           := Mux(re_reg4.io.inst_pack_EX.is_cacop, re_reg4.io.src1_EX, pc.io.pc_PF)
+    icache.io.addr_IF           := Mux(re_reg4.io.inst_pack_EX.priv_vec(0), re_reg4.io.src1_EX, pc.io.pc_PF)
     icache.io.rvalid_IF         := !reset.asBool && !mmu.io.i_exception(7)
-    icache.io.paddr_IF          := Mux(re_reg4.io.inst_pack_EX.is_cacop, mmu.io.d_paddr, mmu.io.i_paddr)
-    icache.io.uncache_IF        := pc.io.pc_PF(31, 24) =/= 0x1c.U//mmu.io.i_uncache
+    icache.io.paddr_IF          := Mux(re_reg4.io.inst_pack_EX.priv_vec(0), mmu.io.d_paddr, mmu.io.i_paddr)
+    icache.io.uncache_IF        := mmu.io.i_uncache //pc.io.pc_PF(31, 24) =/= 0x1c.U//
     icache.io.stall             := fq.io.full
     icache.io.flush             := false.B
     icache.io.i_rready          := arb.io.i_rready
     icache.io.i_rdata           := arb.io.i_rdata
     icache.io.i_rlast           := arb.io.i_rlast
-    icache.io.cacop_en          := re_reg4.io.inst_pack_EX.is_cacop && re_reg4.io.inst_pack_EX.imm(2, 0) === 0.U
+    icache.io.cacop_en          := re_reg4.io.inst_pack_EX.priv_vec(0) && re_reg4.io.inst_pack_EX.imm(2, 0) === 0.U
     icache.io.cacop_op          := re_reg4.io.inst_pack_EX.imm(4, 3)
 
     /* ---------- IF-PD SegReg ---------- */
@@ -434,6 +434,8 @@ class CPU extends Module {
     csr_rf.io.tlbentry_in   := rob.io.tlbentry_cmt
     csr_rf.io.tlbrd_en      := rob.io.tlbrd_en_cmt
     csr_rf.io.tlbsrch_en    := rob.io.tlbsrch_en_cmt
+    csr_rf.io.llbit_clear   := rob.io.llbit_clear_cmt
+    csr_rf.io.llbit_set     := rob.io.llbit_set_cmt
 
     /* ---------- RF-EX SegReg ---------- */
     re_reg1.io.flush         := rob.io.predict_fail_cmt(8)
@@ -460,7 +462,7 @@ class CPU extends Module {
     re_reg4.io.flush         := rob.io.predict_fail_cmt(8) || !re_reg4.io.stall && (sb.io.st_cmt_valid && ir_reg4.io.inst_pack_RF.mem_type(4, 3).orR)
     re_reg4.io.stall         := sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4) || dcache.io.cache_miss_MEM(3)
     re_reg4.io.inst_pack_RF  := ir_reg4.io.inst_pack_RF
-    re_reg4.io.src1_RF       := rf.io.prj_data(3) + Mux(ir_reg4.io.inst_pack_RF.is_cacop, Fill(5, ir_reg4.io.inst_pack_RF.imm(31)) ## ir_reg4.io.inst_pack_RF.imm(31, 5), ir_reg4.io.inst_pack_RF.imm)
+    re_reg4.io.src1_RF       := rf.io.prj_data(3) + Mux(ir_reg4.io.inst_pack_RF.priv_vec(0), Fill(5, ir_reg4.io.inst_pack_RF.imm(31)) ## ir_reg4.io.inst_pack_RF.imm(31, 5), ir_reg4.io.inst_pack_RF.imm)
     re_reg4.io.src2_RF       := rf.io.prk_data(3)
     re_reg4.io.csr_rdata_RF  := DontCare
 
@@ -563,27 +565,31 @@ class CPU extends Module {
     exception_ls.io.csr_crmd_plv        := csr_rf.io.plv_global
     exception_ls.io.mem_type_EX         := re_reg4.io.inst_pack_EX.mem_type
 
+    rob.io.priv_vec_ls                  := re_reg4.io.inst_pack_EX.priv_vec
+
     // EX-MEM SegReg
     ls_ex_mem_reg.io.flush              := rob.io.predict_fail_cmt(6) || (!ls_ex_mem_reg.io.stall && sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4))
     ls_ex_mem_reg.io.stall              := dcache.io.cache_miss_MEM(4)
     ls_ex_mem_reg.io.inst_pack_EX       := re_reg4.io.inst_pack_EX
-    ls_ex_mem_reg.io.is_ucread_EX       := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U // mmu.io.d_uncache 
+    ls_ex_mem_reg.io.is_ucread_EX       := mmu.io.d_uncache // re_reg4.io.src1_EX(31, 24) =/= 0x1c.U // 
     ls_ex_mem_reg.io.src1_EX            := re_reg4.io.src1_EX
     ls_ex_mem_reg.io.src2_EX            := re_reg4.io.src2_EX
-    ls_ex_mem_reg.io.uncache_EX         := re_reg4.io.src1_EX(31, 24) =/= 0x1c.U // mmu.io.d_uncache 
+    ls_ex_mem_reg.io.uncache_EX         := mmu.io.d_uncache // re_reg4.io.src1_EX(31, 24) =/= 0x1c.U // 
     ls_ex_mem_reg.io.paddr_EX           := mmu.io.d_paddr
-    ls_ex_mem_reg.io.exception_EX       := Mux(re_reg4.io.inst_pack_EX.is_cacop && re_reg4.io.inst_pack_EX.imm(4, 3) =/= 0x2.U, 0.U, Mux(exception_ls.io.exception_ls(7), exception_ls.io.exception_ls, mmu.io.d_exception))
+    ls_ex_mem_reg.io.llbit_EX           := csr_rf.io.llbit_global
+    ls_ex_mem_reg.io.exception_EX       := Mux((re_reg4.io.inst_pack_EX.priv_vec(0) && re_reg4.io.inst_pack_EX.imm(4, 3) =/= 0x2.U
+                                             || re_reg4.io.inst_pack_EX.priv_vec(2) && !csr_rf.io.llbit_global), 0.U, Mux(exception_ls.io.exception_ls(7), exception_ls.io.exception_ls, mmu.io.d_exception))
 
     // MEM Stage
     // store_buf
-    sb.io.flush                         := rob.io.predict_fail_cmt(6)
-    sb.io.addr_mem                      := ls_ex_mem_reg.io.paddr_MEM
-    sb.io.st_data_mem                   := ls_ex_mem_reg.io.src2_MEM
-    sb.io.mem_type_ex                   := Mux(re_reg4.io.stall || exception_ls.io.exception_ls(7), 0.U, re_reg4.io.inst_pack_EX.mem_type)
-    sb.io.mem_type_mem                  := Mux(ls_ex_mem_reg.io.stall || ls_ex_mem_reg.io.exception_MEM(7), 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
-    sb.io.uncache_mem                   := ls_ex_mem_reg.io.uncache_MEM
-    sb.io.is_store_num_cmt              := rob.io.is_store_num_cmt
-    sb.io.dcache_miss                   := dcache.io.cache_miss_MEM(4)
+    sb.io.flush                   := rob.io.predict_fail_cmt(6)
+    sb.io.addr_mem                := ls_ex_mem_reg.io.paddr_MEM
+    sb.io.st_data_mem             := ls_ex_mem_reg.io.src2_MEM
+    sb.io.mem_type_ex             := Mux(re_reg4.io.stall || exception_ls.io.exception_ls(7), 0.U, re_reg4.io.inst_pack_EX.mem_type)
+    sb.io.mem_type_mem            := Mux(ls_ex_mem_reg.io.stall || ls_ex_mem_reg.io.exception_MEM(7) || ls_ex_mem_reg.io.inst_pack_MEM.priv_vec(2) && !ls_ex_mem_reg.io.llbit_MEM, 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
+    sb.io.uncache_mem             := ls_ex_mem_reg.io.uncache_MEM 
+    sb.io.is_store_num_cmt        := rob.io.is_store_num_cmt
+    sb.io.dcache_miss             := dcache.io.cache_miss_MEM(4)
 
     // dcache
     dcache.io.addr_RF             := Mux(sb.io.st_cmt_valid, sb.io.st_addr_cmt, re_reg4.io.src1_RF)
@@ -592,7 +598,7 @@ class CPU extends Module {
     dcache.io.mem_type_RF         := Mux(sb.io.st_cmt_valid, Mux(sb.io.is_uncache_cmt, 0.U, 4.U(3.W) ## sb.io.st_wlen_cmt(1, 0)), re_reg4.io.inst_pack_RF.mem_type)
     dcache.io.wdata_RF            := Mux(sb.io.st_cmt_valid, sb.io.st_data_cmt, re_reg4.io.src2_RF)
     dcache.io.stall               := false.B
-    dcache.io.exception_EX        := Mux(re_reg4.io.inst_pack_EX.is_cacop && re_reg4.io.inst_pack_EX.imm(4, 3) =/= 2.U, 0.U, exception_ls.io.exception_ls(7) || mmu.io.d_exception(7))
+    dcache.io.exception_EX        := Mux(re_reg4.io.inst_pack_EX.priv_vec(0) && re_reg4.io.inst_pack_EX.imm(4, 3) =/= 2.U, 0.U, exception_ls.io.exception_ls(7) || mmu.io.d_exception(7))
     dcache.io.d_rready            := arb.io.d_rready
     dcache.io.d_rdata             := arb.io.d_rdata
     dcache.io.d_rlast             := arb.io.d_rlast
@@ -602,7 +608,7 @@ class CPU extends Module {
     dcache.io.rob_index_CMT       := rob.io.rob_index_cmt
     dcache.io.flush               := rob.io.predict_fail_cmt(6)
     dcache.io.store_cmt_RF        := sb.io.st_cmt_valid
-    dcache.io.cacop_en            := Mux(sb.io.st_cmt_valid, false.B, re_reg4.io.inst_pack_RF.is_cacop && re_reg4.io.inst_pack_RF.imm(2, 0) === 1.U)
+    dcache.io.cacop_en            := Mux(sb.io.st_cmt_valid, false.B, re_reg4.io.inst_pack_RF.priv_vec(0) && re_reg4.io.inst_pack_RF.imm(2, 0) === 1.U)
     dcache.io.cacop_op            := re_reg4.io.inst_pack_RF.imm(4, 3)
 
     val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(sb.io.ld_hit(i), sb.io.ld_data_mem(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
@@ -647,7 +653,7 @@ class CPU extends Module {
     ew_reg4.io.inst_pack_EX2        := ls_ex_mem_reg.io.inst_pack_MEM
     ew_reg4.io.exception_EX2        := ls_ex_mem_reg.io.exception_MEM
     ew_reg4.io.vaddr_EX2            := ls_ex_mem_reg.io.src1_MEM
-    ew_reg4.io.mem_rdata_EX2        := mem_rdata
+    ew_reg4.io.mem_rdata_EX2        := Mux(ls_ex_mem_reg.io.inst_pack_MEM.priv_vec(2), 0.U(31.W) ## ls_ex_mem_reg.io.llbit_MEM, mem_rdata)
     ew_reg4.io.is_ucread_EX2        := ls_ex_mem_reg.io.is_ucread_MEM
 
     /* ---------- 10. Write Back Stage ---------- */

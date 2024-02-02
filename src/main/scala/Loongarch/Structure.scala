@@ -175,4 +175,8 @@ object ROB_Struct{
         val inv_vaddr   = UInt(32.W)
         val inv_asid    = UInt(10.W)
     }
+    class priv_ls_t extends Bundle{
+        val valid       = Bool()
+        val priv_vec    = UInt(3.W)
+    }
 }

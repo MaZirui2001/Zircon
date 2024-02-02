@@ -200,10 +200,10 @@ class DCache extends Module{
     }
     
     // EX-MEM SegReg
-    val uncache_EX          =  Mux(store_cmt_reg_RF_EX, false.B, io.uncache_EX)//addr_reg_RF_EX(31, 24) =/= 0x1c.U
+    val uncache_EX          =  Mux(store_cmt_reg_RF_EX, false.B, Mux(flush_RF_EX, true.B, io.uncache_EX))//addr_reg_RF_EX(31, 24) =/= 0x1c.U
     when(!(stall || cache_miss_MEM(4))){
         addr_reg_EX_MEM     := addr_reg_RF_EX
-        paddr_reg_EX_MEM    := Mux(store_cmt_reg_RF_EX, addr_reg_RF_EX, io.paddr_EX)
+        paddr_reg_EX_MEM    := Mux(store_cmt_reg_RF_EX || flush_RF_EX, addr_reg_RF_EX, io.paddr_EX)
         mem_type_reg_EX_MEM := Mux((mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX) && !io.exception_EX, mem_type_reg_RF_EX, 0.U)
         wdata_reg_EX_MEM    := wdata_reg_RF_EX
         uncache_reg_EX_MEM  := uncache_EX
