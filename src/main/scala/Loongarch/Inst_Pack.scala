@@ -24,7 +24,7 @@ object Inst_Pack{
     class inst_pack_IF_t extends inst_pack_PF_t{
         val inst            = UInt(32.W)
     }
-    def inst_pack_IF_gen(_inst_pack_PF: inst_pack_PF_t, _inst : UInt) : inst_pack_IF_t = {
+    def inst_pack_IF_gen(_inst_pack_PF: inst_pack_PF_t, _inst : UInt, _exception : UInt) : inst_pack_IF_t = {
         val inst_pack_IF = Wire(new inst_pack_IF_t)
         inst_pack_IF.pc             := _inst_pack_PF.pc
         inst_pack_IF.inst           := _inst
@@ -32,7 +32,7 @@ object Inst_Pack{
         inst_pack_IF.predict_jump   := _inst_pack_PF.predict_jump
         inst_pack_IF.pred_npc       := _inst_pack_PF.pred_npc
         inst_pack_IF.pred_valid     := _inst_pack_PF.pred_valid
-        inst_pack_IF.exception      := _inst_pack_PF.exception
+        inst_pack_IF.exception      := Mux(_inst_pack_PF.exception(7), _inst_pack_PF.exception, _exception)
         inst_pack_IF
     }
     class inst_pack_PD_t extends Bundle{

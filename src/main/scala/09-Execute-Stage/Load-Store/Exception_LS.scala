@@ -4,7 +4,7 @@ import Exception._
 class Exception_LS_IO extends Bundle{
     val addr_EX          = Input(UInt(32.W))
     val mem_type_EX      = Input(UInt(5.W))
-    val csr_crmd_plv     = Input(UInt(2.W))
+    // val csr_crmd_plv     = Input(UInt(2.W))
     val exception_ls     = Output(UInt(8.W))
 }
 

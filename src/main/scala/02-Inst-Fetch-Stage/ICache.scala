@@ -13,6 +13,7 @@ class ICache_IO extends Bundle{
     // RM Stage
     val cache_miss_RM   = Output(Bool())
     val rdata_RM        = Output(Vec(2, UInt(32.W)))
+    val exception_RM    = Input(Bool())
 
     // control
     val stall           = Input(Bool())
@@ -166,7 +167,9 @@ class ICache extends Module{
     val state = RegInit(s_idle)
     switch(state){
         is(s_idle){
-            when(cacop_en_RM){
+            when(io.exception_RM){
+                state               := s_idle
+            }.elsewhen(cacop_en_RM){
                 state               := Mux(cacop_exec_RM, s_refill, s_idle)
                 addr_sel            := Mux(cacop_exec_RM, FROM_SEG, FROM_PIPE)
                 cache_miss_RM       := cacop_exec_RM

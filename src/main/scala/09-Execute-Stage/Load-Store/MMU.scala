@@ -44,6 +44,7 @@ class MMU_IO extends Bundle{
     val i_paddr         = Output(UInt(32.W))
     val i_uncache       = Output(Bool())
     val i_exception     = Output(UInt(8.W))
+    val i_stall         = Input(Bool())
 
     // dcache tlb search
     val d_rvalid        = Input(Bool())
@@ -52,6 +53,7 @@ class MMU_IO extends Bundle{
     val d_paddr         = Output(UInt(32.W))
     val d_uncache       = Output(Bool())
     val d_exception     = Output(UInt(8.W))
+    val d_stall         = Input(Bool())
 }
 
 class MMU extends Module{
@@ -77,11 +79,13 @@ class MMU extends Module{
     // icache tlb search
     tlb.io.i_valid        := io.i_valid
     tlb.io.i_vaddr        := io.i_vaddr
+    tlb.io.i_stall        := io.i_stall
 
     // dcache tlb search
     tlb.io.d_rvalid       := io.d_rvalid
     tlb.io.d_wvalid       := io.d_wvalid
     tlb.io.d_vaddr        := io.d_vaddr
+    tlb.io.d_stall        := io.d_stall
 
     val is_da   = io.csr_crmd_trans(0)
     val is_pg   = io.csr_crmd_trans(1)
@@ -95,7 +99,8 @@ class MMU extends Module{
     io.i_uncache := Mux(is_da, !io.csr_crmd_trans(2), 
                     Mux(i_dmw0_hit, !io.csr_dmw0(4),
                     Mux(i_dmw1_hit, !io.csr_dmw1(4), tlb.io.i_uncache)))
-    io.i_exception := Mux(is_da || i_dmw0_hit || i_dmw1_hit, 0.U, tlb.io.i_exception)
+    val i_exception_ne = ShiftRegister(is_da || i_dmw0_hit || i_dmw1_hit, 1, !io.i_stall)
+    io.i_exception := Mux(i_exception_ne, 0.U, tlb.io.i_exception)
 
     // d_paddr
     val d_dmw0_hit = (io.d_vaddr(31, 29) === io.csr_dmw0(31, 29)) && io.csr_dmw0(0.U(3.W) ## io.csr_plv)
@@ -106,6 +111,7 @@ class MMU extends Module{
     io.d_uncache := Mux(is_da, !io.csr_crmd_trans(4), 
                     Mux(d_dmw0_hit, !io.csr_dmw0(4),
                     Mux(d_dmw1_hit, !io.csr_dmw1(4), tlb.io.d_uncache)))
-    io.d_exception := Mux(is_da || d_dmw0_hit || d_dmw1_hit, 0.U, tlb.io.d_exception)
+    val d_exception_ne = ShiftRegister(is_da || d_dmw0_hit || d_dmw1_hit, 1, !io.d_stall)
+    io.d_exception := Mux(d_exception_ne, 0.U, tlb.io.d_exception)
 
 }
