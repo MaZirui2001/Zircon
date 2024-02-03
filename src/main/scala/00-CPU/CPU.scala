@@ -424,9 +424,6 @@ class CPU extends Module {
     // Regfile
     rf.io.prj               := VecInit(ir_reg1.io.inst_pack_RF.prj, ir_reg2.io.inst_pack_RF.prj, ir_reg3.io.inst_pack_RF.prj, ir_reg4.io.inst_pack_RF.prj)
     rf.io.prk               := VecInit(ir_reg1.io.inst_pack_RF.prk, ir_reg2.io.inst_pack_RF.prk, ir_reg3.io.inst_pack_RF.prk, ir_reg4.io.inst_pack_RF.prk)
-    rf.io.wdata             := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ew_reg4.io.mem_rdata_WB)
-    rf.io.rf_we             := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg3.io.inst_pack_WB.rd_valid, ew_reg4.io.inst_pack_WB.rd_valid && ! ew_reg4.io.exception_WB(7))
-    rf.io.prd               := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd, ew_reg3.io.inst_pack_WB.prd, ew_reg4.io.inst_pack_WB.prd)
 
     // CSR Regfile
     csr_rf.io.raddr         := ir_reg3.io.inst_pack_RF.imm(13, 0)
@@ -570,7 +567,6 @@ class CPU extends Module {
     mmu.io.d_stall                      := ls_ex_mem_reg.io.stall
 
     // exception detect
-
     rob.io.priv_vec_ls                  := re_reg4.io.inst_pack_EX.priv_vec
 
     // EX-MEM SegReg
@@ -612,7 +608,6 @@ class CPU extends Module {
     dcache.io.mem_type_RF         := Mux(sb.io.st_cmt_valid, Mux(sb.io.is_uncache_cmt, 0.U, 4.U(3.W) ## sb.io.st_wlen_cmt(1, 0)), re_reg4.io.inst_pack_RF.mem_type)
     dcache.io.wdata_RF            := Mux(sb.io.st_cmt_valid, sb.io.st_data_cmt, re_reg4.io.src2_RF)
     dcache.io.stall               := false.B
-    // dcache.io.exception_EX        := Mux(re_reg4.io.inst_pack_EX.priv_vec(0) && re_reg4.io.inst_pack_EX.imm(4, 3) =/= 2.U, 0.U, exception_ls.io.exception_ls(7) || mmu.io.d_exception(7))
     dcache.io.exception_MEM       := exception_MEM(7)
     dcache.io.d_rready            := arb.io.d_rready
     dcache.io.d_rdata             := arb.io.d_rdata
@@ -625,14 +620,6 @@ class CPU extends Module {
     dcache.io.store_cmt_RF        := sb.io.st_cmt_valid
     dcache.io.cacop_en            := Mux(sb.io.st_cmt_valid, false.B, re_reg4.io.inst_pack_RF.priv_vec(0) && re_reg4.io.inst_pack_RF.imm(2, 0) === 1.U)
     dcache.io.cacop_op            := re_reg4.io.inst_pack_RF.imm(4, 3)
-
-    val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(sb.io.ld_hit(i), sb.io.ld_data_mem(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
-    val mem_rdata                 = MuxLookup(ls_ex_mem_reg.io.inst_pack_MEM.mem_type(2, 0), 0.U)(Seq(
-                                                0.U -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
-                                                1.U -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
-                                                2.U -> mem_rdata_raw,
-                                                4.U -> 0.U(24.W) ## mem_rdata_raw(7, 0),
-                                                5.U -> 0.U(16.W) ## mem_rdata_raw(15, 0)))
 
     // bypass for 1, 2
     bypass12.io.prd_wb             := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd)
@@ -668,17 +655,33 @@ class CPU extends Module {
     ew_reg4.io.inst_pack_EX2        := ls_ex_mem_reg.io.inst_pack_MEM
     ew_reg4.io.exception_EX2        := exception_MEM
     ew_reg4.io.vaddr_EX2            := ls_ex_mem_reg.io.src1_MEM
-    ew_reg4.io.mem_rdata_EX2        := Mux(ls_ex_mem_reg.io.inst_pack_MEM.priv_vec(2), 0.U(31.W) ## ls_ex_mem_reg.io.llbit_MEM, mem_rdata)
+    ew_reg4.io.mem_rdata_EX2        := dcache.io.rdata_MEM //Mux(ls_ex_mem_reg.io.inst_pack_MEM.priv_vec(2), 0.U(31.W) ## ls_ex_mem_reg.io.llbit_MEM, mem_rdata)
+    ew_reg4.io.sb_rdata_EX2         := sb.io.ld_data_mem
+    ew_reg4.io.llbit_EX2            := ls_ex_mem_reg.io.llbit_MEM
+    ew_reg4.io.sb_hit_EX2           := sb.io.ld_hit
     ew_reg4.io.is_ucread_EX2        := ls_ex_mem_reg.io.is_ucread_MEM
 
     /* ---------- 10. Write Back Stage ---------- */
+    val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(ew_reg4.io.sb_hit_WB(i), ew_reg4.io.sb_rdata_WB(i*8+7, i*8), ew_reg4.io.mem_rdata_WB(i*8+7, i*8))).asUInt 
+    val mem_rdata                 = MuxLookup(ew_reg4.io.inst_pack_WB.mem_type(2, 0), 0.U)(Seq(
+                                                0.U -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
+                                                1.U -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
+                                                2.U -> mem_rdata_raw,
+                                                4.U -> 0.U(24.W) ## mem_rdata_raw(7, 0),
+                                                5.U -> 0.U(16.W) ## mem_rdata_raw(15, 0)))
+    val ls_wb_data              = Mux(ew_reg4.io.llbit_WB, 0.U(31.W) ## 1.U(1.W), mem_rdata)
+
+    rf.io.wdata             := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ls_wb_data)
+    rf.io.rf_we             := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg3.io.inst_pack_WB.rd_valid, ew_reg4.io.inst_pack_WB.rd_valid && ! ew_reg4.io.exception_WB(7))
+    rf.io.prd               := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd, ew_reg3.io.inst_pack_WB.prd, ew_reg4.io.inst_pack_WB.prd)
+    
     // rob
     rob.io.inst_valid_wb        := VecInit(ew_reg1.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg2.io.inst_pack_WB.inst_valid && !ew_reg2.io.stall, ew_reg3.io.inst_pack_WB.inst_valid && !ew_reg3.io.stall, ew_reg4.io.inst_pack_WB.inst_valid && !ew_reg4.io.stall)
     rob.io.rob_index_wb         := VecInit(ew_reg1.io.inst_pack_WB.rob_index, ew_reg2.io.inst_pack_WB.rob_index, ew_reg3.io.inst_pack_WB.rob_index, ew_reg4.io.inst_pack_WB.rob_index)
     rob.io.predict_fail_wb      := VecInit(false.B, ew_reg2.io.predict_fail_WB, false.B, false.B)
     rob.io.real_jump_wb         := VecInit(false.B, ew_reg2.io.real_jump_WB, false.B, false.B)
     rob.io.branch_target_wb     := VecInit(DontCare, ew_reg2.io.branch_target_WB, ew_reg3.io.csr_wdata_WB, ew_reg4.io.vaddr_WB)
-    rob.io.rf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ew_reg4.io.mem_rdata_WB)
+    rob.io.rf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ls_wb_data)
     rob.io.is_ucread_wb         := VecInit(ew_reg1.io.is_ucread_WB, false.B, false.B, ew_reg4.io.is_ucread_WB)
     rob.io.exception_wb         := VecInit(0.U, 0.U, 0.U, ew_reg4.io.exception_WB)
     rob.io.tlbreentry_global    := csr_rf.io.tlbreentry_global
