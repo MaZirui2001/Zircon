@@ -24,8 +24,8 @@ class Fetch_Queue extends Module{
     val head = RegInit(0.U(log2Ceil(ROW_WIDTH).W))
     val tail = RegInit(0.U(log2Ceil(FQ_NUM).W))
 
-    val full  = head === tail(log2Ceil(FQ_NUM)-1, 1) + 1.U
-    val empty = head === tail(log2Ceil(FQ_NUM)-1, 1)
+    val full  = !(head ^ (tail(log2Ceil(FQ_NUM)-1, 1) + 1.U))
+    val empty = !(head ^ tail(log2Ceil(FQ_NUM)-1, 1))
 
 
     // Enqueue

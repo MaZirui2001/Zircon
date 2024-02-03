@@ -583,7 +583,6 @@ class CPU extends Module {
     // MEM Stage
     // exception detect
     exception_ls.io.addr_EX             := ls_ex_mem_reg.io.paddr_MEM
-    // exception_ls.io.csr_crmd_plv        := csr_rf.io.plv_global
     exception_ls.io.mem_type_EX         := ls_ex_mem_reg.io.inst_pack_MEM.mem_type
     val exception_MEM                   = Mux((ls_ex_mem_reg.io.inst_pack_MEM.priv_vec(0) && ls_ex_mem_reg.io.inst_pack_MEM.imm(4, 3) =/= 2.U
                                             || ls_ex_mem_reg.io.inst_pack_MEM.priv_vec(2) && !ls_ex_mem_reg.io.llbit_MEM), 0.U, 

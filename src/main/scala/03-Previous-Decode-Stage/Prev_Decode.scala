@@ -38,17 +38,17 @@ class Prev_Decode extends Module {
 
     val jump_type       = VecInit(Seq.fill(2)(NOT_JUMP))
     for(i <- 0 until 2){
-        when(insts_opcode(i) === "b01".U){
-            when(br_type(i) === BR_B || br_type(i) === BR_BL){
+        when(!(insts_opcode(i) ^ "b01".U)){
+            when(!(br_type(i) ^ BR_B) || !(br_type(i) ^ BR_BL)){
                 jump_type(i) := YES_JUMP
-            }.elsewhen(br_type(i) =/= BR_JIRL){
+            }.elsewhen((br_type(i) ^ BR_JIRL).orR){
                 jump_type(i) := MAY_JUMP
             }
         }.otherwise{
             jump_type(i) := NOT_BR
         }
     }
-    val pred_fix_is_bl      = VecInit.tabulate(2)(i => inst_pack_IF(i).inst(29, 26) === BR_BL)
+    val pred_fix_is_bl      = VecInit.tabulate(2)(i => !(inst_pack_IF(i).inst(29, 26) ^ BR_BL))
     val pred_fix_pc         = VecInit.tabulate(2)(i => inst_pack_IF(i).pc)
     io.pred_fix_is_bl       := pred_fix_is_bl(fix_index)
     io.pred_fix_pc          := pred_fix_pc(fix_index)
@@ -62,7 +62,7 @@ class Prev_Decode extends Module {
                 when(!inst_pack_IF(i).pred_valid){
                     need_fix(i)                     := inst_pack_IF(i).inst_valid 
                 }.otherwise{
-                    need_fix(i)                     := inst_pack_IF(i).inst_valid && (!inst_pack_IF(i).predict_jump || inst_pack_IF(i).pred_npc =/= io.npc16_IF(i))
+                    need_fix(i)                     := inst_pack_IF(i).inst_valid && (!inst_pack_IF(i).predict_jump || (inst_pack_IF(i).pred_npc ^ io.npc16_IF(i)).orR)
                 }
             }
             is(MAY_JUMP){

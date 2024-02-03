@@ -137,7 +137,7 @@ class ICache extends Module{
 
     // RM Stage
     /* hit logic */
-    val hit_RM          = VecInit.tabulate(2)(i => valid_r_RM(i) && tag_r_RM(i) === tag_RM)
+    val hit_RM          = VecInit.tabulate(2)(i => valid_r_RM(i) && !(tag_r_RM(i) ^ tag_RM))
     val hit_index_RM    = OHToUInt(hit_RM)
     val cache_hit_RM    = hit_RM.asUInt.orR
 

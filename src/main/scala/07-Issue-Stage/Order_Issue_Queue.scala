@@ -63,8 +63,8 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
             queue_next(i).inst              := io.insts_dispatch(io.insts_disp_index(idx))
             queue_next(i).prj_waked         := io.prj_ready(io.insts_disp_index(idx))
             queue_next(i).prk_waked         := io.prk_ready(io.insts_disp_index(idx))
-            queue_next(i).prj_wake_by_ld    := io.insts_dispatch(io.insts_disp_index(idx)).asInstanceOf[inst_pack_DP_t].prj === io.ld_mem_prd && io.ld_mem_prd =/= 0.U
-            queue_next(i).prk_wake_by_ld    := io.insts_dispatch(io.insts_disp_index(idx)).asInstanceOf[inst_pack_DP_t].prk === io.ld_mem_prd && io.ld_mem_prd =/= 0.U
+            queue_next(i).prj_wake_by_ld    := !(io.insts_dispatch(io.insts_disp_index(idx)).asInstanceOf[inst_pack_DP_t].prj ^ io.ld_mem_prd) && io.ld_mem_prd.orR
+            queue_next(i).prk_wake_by_ld    := !(io.insts_dispatch(io.insts_disp_index(idx)).asInstanceOf[inst_pack_DP_t].prk ^ io.ld_mem_prd) && io.ld_mem_prd.orR
         }
     }
 
@@ -72,8 +72,8 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
         queue(i).inst           := queue_next(i).inst
         queue(i).prj_waked      := queue_next(i).prj_waked || Wake_Up(io.wake_preg, queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prj)
         queue(i).prk_waked      := queue_next(i).prk_waked || Wake_Up(io.wake_preg, queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prk)
-        queue(i).prj_wake_by_ld := queue_next(i).prj_wake_by_ld || queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prj === io.wake_preg(3) && io.wake_preg(3) =/= 0.U
-        queue(i).prk_wake_by_ld := queue_next(i).prk_wake_by_ld || queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prk === io.wake_preg(3) && io.wake_preg(3) =/= 0.U
+        queue(i).prj_wake_by_ld := queue_next(i).prj_wake_by_ld || !(queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prj ^ io.wake_preg(3)) && io.wake_preg(3).orR
+        queue(i).prk_wake_by_ld := queue_next(i).prk_wake_by_ld || !(queue_next(i).inst.asInstanceOf[inst_pack_DP_t].prk ^ io.wake_preg(3)) && io.wake_preg(3).orR
     }
     tail    := Mux(io.flush, 0.U, Mux(io.stall, tail_pop, tail_pop + Mux(io.queue_ready, insert_num, 0.U)))
 
@@ -93,11 +93,11 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
     if(inst_pack_t.isInstanceOf[inst_pack_DP_LS_t]){
         io.issue_req := (tail =/= 0.U && queue(0).prj_waked && queue(0).prk_waked 
                                       // && (!((queue(0).prj_wake_by_ld || queue(0).prk_wake_by_ld) && io.dcache_miss))
-                                      && (!(queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].priv_vec(0) && (store_num =/= 0.U || queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].rob_index =/= io.rob_index_cmt || io.dcache_miss))))
+                                      && (!(queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].priv_vec(0) && (store_num =/= 0.U || queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].rob_index =/= io.rob_index_cmt))))
     }else{
         io.issue_req := (tail =/= 0.U && queue(0).prj_waked && queue(0).prk_waked 
-                                      && (!((queue(0).prj_wake_by_ld && queue(0).inst.prj === io.ld_mem_prd 
-                                          || queue(0).prk_wake_by_ld && queue(0).inst.prk === io.ld_mem_prd) && io.dcache_miss)))
+                                      && (!((queue(0).prj_wake_by_ld && !(queue(0).inst.prj ^ io.ld_mem_prd)
+                                          || queue(0).prk_wake_by_ld && !(queue(0).inst.prk ^ io.ld_mem_prd)) && io.dcache_miss)))
     }
     
 }

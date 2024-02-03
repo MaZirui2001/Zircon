@@ -71,8 +71,8 @@ class DCache extends Module{
     val index_RF            = addr_RF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
     val offset_RF           = addr_RF(OFFSET_WIDTH-1, 0)
 
-
     val cache_miss_MEM  = WireDefault(VecInit(Seq.fill(5)(false.B)))
+    // val hit_xor_EX      = WireDefault(VecInit.fill(2)(0.U(TAG_WIDTH.W)))
     val hit_EX          = WireDefault(0.U(2.W))
     val data_sel        = WireDefault(FROM_RBUF)
     val d_rvalid        = WireDefault(false.B)
@@ -110,6 +110,8 @@ class DCache extends Module{
     val uncache_reg_EX_MEM          = ShiftRegister(uncache_EX, 1, TC_MEM_en)
     val rob_index_EX_MEM            = ShiftRegister(io.rob_index_EX, 1, TC_MEM_en)
     val hit_reg_EX_MEM              = ShiftRegister(hit_EX, 1, TC_MEM_en)
+    val valid_reg_EX_MEM            = ShiftRegister(valid_r_EX, 1, TC_MEM_en)
+    //val hit_xor_reg_EX_MEM          = ShiftRegister(hit_xor_EX, 1, TC_MEM_en)
     val tag_reg_EX_MEM              = ShiftRegister(tag_r_EX, 1, TC_MEM_en)
     val cacop_en_reg_EX_MEM         = ShiftRegister(cacop_en_reg_RF_EX, 1, TC_MEM_en)
     val cacop_op_reg_EX_MEM         = ShiftRegister(cacop_op_reg_RF_EX, 1, TC_MEM_en)
@@ -140,6 +142,8 @@ class DCache extends Module{
     val offset_MEM      = addr_MEM(OFFSET_WIDTH-1, 0)
     val uncache_MEM     = uncache_reg_EX_MEM
     val tag_r_MEM       = tag_reg_EX_MEM
+    val valid_r_MEM     = valid_reg_EX_MEM
+    // val hit_xor_MEM     = hit_xor_reg_EX_MEM
 
     // lru
     val lru_mem         = RegInit(VecInit(Seq.fill(INDEX_DEPTH)(0.U(1.W))))
@@ -188,10 +192,11 @@ class DCache extends Module{
         cmem(i).wea     := cmem_we_MEM(i)
     }
     /* hit logic */
-    hit_EX          := VecInit.tabulate(2)(i => valid_r_EX(i) && tag_r_EX(i) === tag_EX).asUInt
+    hit_EX            := VecInit.tabulate(2)(i => valid_r_EX(i) && !(tag_r_EX(i) ^ tag_EX)).asUInt
+    // hit_xor_EX        := VecInit.tabulate(2)(i => (0.U(31.W) ## !valid_r_EX(i)) | (tag_r_EX(i) ^ tag_EX))
 
     // MEM Stage
-    val hit_MEM         = hit_reg_EX_MEM
+    val hit_MEM         = hit_reg_EX_MEM//VecInit.tabulate(2)(i => hit_xor_MEM(i)  === 0.U).asUInt
     val hit_index_MEM   = OHToUInt(hit_MEM)
     val cache_hit_MEM   = hit_MEM.orR
     val cacop_way_MEM   = Mux(cacop_op_MEM(1), hit_index_MEM, addr_MEM(0))

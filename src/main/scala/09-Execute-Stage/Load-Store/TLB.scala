@@ -60,10 +60,10 @@ class TLB extends Module{
     val tlbsrch_hit_idx   = OHToUInt(tlbsrch_hit)
     for(i <- 0 until TLB_ENTRY_NUM){
         val tlb_vppn = Mux(tlb(i).ps(3), tlb(i).vppn, tlb(i).vppn(18, 10) ## 0.U(10.W))
-        val csr_vppn = Mux(io.csr_tlbehi(18, 12) === 0.U, csr_tlbehi_vppn, csr_tlbehi_vppn(18, 10) ## 0.U(10.W))
+        val csr_vppn = Mux(!io.csr_tlbehi(18, 12), csr_tlbehi_vppn, csr_tlbehi_vppn(18, 10) ## 0.U(10.W))
         tlbsrch_hit(i) := (tlb(i).e 
-                        && (tlb(i).g || tlb(i).asid === io.csr_asid)
-                        && tlb_vppn === csr_vppn)
+                        && (tlb(i).g || !(tlb(i).asid ^ io.csr_asid))
+                        && !(tlb_vppn ^ csr_vppn))
     }
     io.tlbsrch_idx := tlbsrch_hit_idx
     io.tlbsrch_hit := tlbsrch_hit.asUInt.orR
@@ -135,8 +135,8 @@ class TLB extends Module{
         val tlb_vppn = Mux(tlb(i).ps(3), tlb(i).vppn, tlb(i).vppn(18, 10) ## 0.U(10.W))
         val i_vppn = Mux(tlb(i).ps(3), io.i_vaddr(31, 13), io.i_vaddr(31, 23) ## 0.U(10.W))
         i_tlb_hit(i) := (tlb(i).e 
-                     && (tlb(i).g || tlb(i).asid === io.csr_asid)
-                     && tlb_vppn === i_vppn)
+                     && (tlb(i).g || !(tlb(i).asid ^ io.csr_asid))
+                     && !(tlb_vppn ^ i_vppn))
     }
     io.i_uncache   := i_tlb_hit_entry.mat(0)
     io.i_paddr     := Mux(i_tlb_hit_entry.ps(3), 
@@ -155,12 +155,13 @@ class TLB extends Module{
     val d_tlb_hit_idx   = OHToUInt(d_tlb_hit)
     val d_tlb_hit_entry = TLB_Hit_Gen(tlb(d_tlb_hit_idx), Mux(tlb(d_tlb_hit_idx).ps(3), io.d_vaddr(12), io.d_vaddr(21)))
 
+
     for(i <- 0 until TLB_ENTRY_NUM){
         val tlb_vppn = Mux(tlb(i).ps(3), tlb(i).vppn, tlb(i).vppn(18, 10) ## 0.U(10.W))
         val d_vppn = Mux(tlb(i).ps(3), io.d_vaddr(31, 13), io.d_vaddr(31, 23) ## 0.U(10.W))
         d_tlb_hit(i) := (tlb(i).e 
-                     && (tlb(i).g || tlb(i).asid === io.csr_asid)
-                     && tlb_vppn === d_vppn)
+                     && (tlb(i).g || !(tlb(i).asid ^ RegNext(io.csr_asid)))
+                     && !(tlb_vppn ^ d_vppn))
     }
     io.d_uncache   := d_tlb_hit_entry.mat(0)
     io.d_paddr     := Mux(d_tlb_hit_entry.ps(3), 

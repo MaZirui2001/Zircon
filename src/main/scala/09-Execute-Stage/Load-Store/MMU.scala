@@ -91,8 +91,8 @@ class MMU extends Module{
     val is_pg   = io.csr_crmd_trans(1)
 
     // i_paddr
-    val i_dmw0_hit = (io.i_vaddr(31, 29) === io.csr_dmw0(31, 29)) && io.csr_dmw0(0.U(3.W) ## io.csr_plv)
-    val i_dmw1_hit = (io.i_vaddr(31, 29) === io.csr_dmw1(31, 29)) && io.csr_dmw1(0.U(3.W) ## io.csr_plv)
+    val i_dmw0_hit = (!(io.i_vaddr(31, 29) ^ io.csr_dmw0(31, 29))) && io.csr_dmw0(0.U(3.W) ## io.csr_plv)
+    val i_dmw1_hit = (!(io.i_vaddr(31, 29) ^ io.csr_dmw1(31, 29))) && io.csr_dmw1(0.U(3.W) ## io.csr_plv)
     io.i_paddr   := Mux(is_da, io.i_vaddr, 
                     Mux(i_dmw0_hit, io.csr_dmw0(27, 25) ## io.i_vaddr(28, 0), 
                     Mux(i_dmw1_hit, io.csr_dmw1(27, 25) ## io.i_vaddr(28, 0), tlb.io.i_paddr)))
@@ -103,8 +103,8 @@ class MMU extends Module{
     io.i_exception := Mux(i_exception_ne, 0.U, tlb.io.i_exception)
 
     // d_paddr
-    val d_dmw0_hit = (io.d_vaddr(31, 29) === io.csr_dmw0(31, 29)) && io.csr_dmw0(0.U(3.W) ## io.csr_plv)
-    val d_dmw1_hit = (io.d_vaddr(31, 29) === io.csr_dmw1(31, 29)) && io.csr_dmw1(0.U(3.W) ## io.csr_plv)
+    val d_dmw0_hit = (!(io.d_vaddr(31, 29) ^ io.csr_dmw0(31, 29))) && io.csr_dmw0(0.U(3.W) ## io.csr_plv)
+    val d_dmw1_hit = (!(io.d_vaddr(31, 29) ^ io.csr_dmw1(31, 29))) && io.csr_dmw1(0.U(3.W) ## io.csr_plv)
     io.d_paddr   := Mux(is_da, io.d_vaddr, 
                     Mux(d_dmw0_hit, io.csr_dmw0(27, 25) ## io.d_vaddr(28, 0), 
                     Mux(d_dmw1_hit, io.csr_dmw1(27, 25) ## io.d_vaddr(28, 0), tlb.io.d_paddr)))

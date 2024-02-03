@@ -57,7 +57,7 @@ class Predict extends Module{
     val pht_rindex      = VecInit.tabulate(2)(i => bht_rdata(i)(3, 2)  ## (bht_rdata(i)(1, 0) ^ pc(i+2)(PHT_INDEX_WIDTH, PHT_INDEX_WIDTH-1)) ## pc(i+2)(PHT_INDEX_WIDTH-2, 3))
     val pht_rdata       = VecInit.tabulate(2)(i => pht(i)(pht_rindex(i)))
 
-    val predict_valid   = VecInit.tabulate(2)(i => btb_rdata(i).valid && (btb_rdata(i).tag === pc(i+4)(31, 32 - BTB_TAG_WIDTH)))
+    val predict_valid   = VecInit.tabulate(2)(i => btb_rdata(i).valid && !(btb_rdata(i).tag ^ pc(i+4)(31, 32 - BTB_TAG_WIDTH)))
     val predict_jump    = VecInit.tabulate(2)(i => (pht_rdata(i)(1)) && predict_valid(i))
 
     val valid_mask      = true.B ## !pc(6)(2)
