@@ -579,8 +579,6 @@ class CPU extends Module {
     ls_ex_mem_reg.io.uncache_EX         := mmu.io.d_uncache
     ls_ex_mem_reg.io.paddr_EX           := mmu.io.d_paddr
     ls_ex_mem_reg.io.llbit_EX           := csr_rf.io.llbit_global
-    // ls_ex_mem_reg.io.exception_EX       := Mux((re_reg4.io.inst_pack_EX.priv_vec(0) && re_reg4.io.inst_pack_EX.imm(4, 3) =/= 0x2.U
-    //                                          || re_reg4.io.inst_pack_EX.priv_vec(2) && !csr_rf.io.llbit_global), 0.U, exception_ls.io.exception_ls)
 
     // MEM Stage
     // exception detect

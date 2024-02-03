@@ -2,7 +2,6 @@ import chisel3._
 import chisel3.util._
 import Inst_Pack._
 import CPU_Config._
-// LUT: 1FRONT_WIDTH FF: 260
 class IF_PD_Reg extends Module {
     val io = IO(new Bundle {
         val flush           = Input(Bool())
@@ -26,9 +25,6 @@ class IF_PD_Reg extends Module {
 
     when(io.flush) {
         insts_pack_reg  := VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_IF_t)))
-        npc16_reg       := VecInit.fill(2)(0.U(32.W))
-        npc26_reg       := VecInit.fill(2)(0.U(32.W))
-        npc4_reg        := VecInit.fill(2)(0.U(32.W))
     }
     .elsewhen(!io.stall){
         insts_pack_reg  := io.insts_pack_IF
@@ -36,8 +32,8 @@ class IF_PD_Reg extends Module {
         npc26_reg       := io.npc26_IF
         npc4_reg        := io.npc4_IF
     }
-    io.insts_pack_PD := insts_pack_reg
-    io.npc16_PD      := npc16_reg
-    io.npc26_PD      := npc26_reg
-    io.npc4_PD       := npc4_reg
+    io.insts_pack_PD    := insts_pack_reg
+    io.npc16_PD         := npc16_reg
+    io.npc26_PD         := npc26_reg
+    io.npc4_PD          := npc4_reg
 }

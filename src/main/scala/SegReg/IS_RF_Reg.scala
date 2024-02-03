@@ -15,8 +15,7 @@ class IS_RF_Reg[T <: Bundle](inst_pack_t: T) extends Module {
 
     when(io.flush) {
         inst_pack_reg := 0.U.asTypeOf(inst_pack_t)
-    }
-    .elsewhen(!io.stall){
+    }.elsewhen(!io.stall){
         inst_pack_reg := io.inst_pack_IS
     }
 

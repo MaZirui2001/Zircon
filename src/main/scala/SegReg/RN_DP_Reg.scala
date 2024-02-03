@@ -17,20 +17,18 @@ class RN_DP_Reg extends Module {
 
     })
 
-    val insts_pack_reg = RegInit(VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_RN_t))))
-    val inst_reg      = RegInit(VecInit(Seq.fill(2)(0.U(32.W))))
+    val insts_pack_reg  = RegInit(VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_RN_t))))
+    val inst_reg        = RegInit(VecInit(Seq.fill(2)(0.U(32.W))))
 
     when(io.flush) {
-        insts_pack_reg := VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_RN_t)))
-        inst_reg := VecInit(Seq.fill(2)(0.U(32.W)))
-    }
-    .elsewhen(!io.stall){
-        insts_pack_reg := io.insts_pack_RN
-        inst_reg := io.inst_RN
+        insts_pack_reg  := VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_RN_t)))
+    }.elsewhen(!io.stall){
+        insts_pack_reg  := io.insts_pack_RN
+        inst_reg        := io.inst_RN
     }
 
-    io.insts_pack_DP := insts_pack_reg
-    io.inst_DP := inst_reg
+    io.insts_pack_DP    := insts_pack_reg
+    io.inst_DP          := inst_reg
 
 
 }

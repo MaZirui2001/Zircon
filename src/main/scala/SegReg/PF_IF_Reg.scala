@@ -14,12 +14,11 @@ class PF_IF_Reg extends Module {
     val inst_pack_reg = RegInit(VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_PF_t))))
 
     when(io.flush) {
-        inst_pack_reg := VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_PF_t)))
+        inst_pack_reg   := VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_PF_t)))
+    }.elsewhen(!io.stall){
+        inst_pack_reg   := io.inst_pack_PF
     }
-    .elsewhen(!io.stall){
-        inst_pack_reg := io.inst_pack_PF
-    }
-    io.inst_pack_IF := inst_pack_reg
+    io.inst_pack_IF     := inst_pack_reg
 
 
 }

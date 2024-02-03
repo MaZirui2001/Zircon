@@ -17,28 +17,24 @@ class RF_EX_Reg[T <: Bundle](inst_pack_t: T) extends Module {
         val csr_rdata_EX    = Output(UInt(32.W))
     })
 
-    val inst_pack_reg = RegInit(0.U.asTypeOf(inst_pack_t))
-    val src1_reg = RegInit(0.U(32.W))
-    val src2_reg = RegInit(0.U(32.W))
-    val csr_rdata_reg = RegInit(0.U(32.W))
+    val inst_pack_reg   = RegInit(0.U.asTypeOf(inst_pack_t))
+    val src1_reg        = RegInit(0.U(32.W))
+    val src2_reg        = RegInit(0.U(32.W))
+    val csr_rdata_reg   = RegInit(0.U(32.W))
 
     when(io.flush) {
-        inst_pack_reg := 0.U.asTypeOf(inst_pack_t)
-        src1_reg := 0.U(32.W)
-        src2_reg := 0.U(32.W)
-        csr_rdata_reg := 0.U(32.W)
-    }
-    .elsewhen(!io.stall){
-        inst_pack_reg := io.inst_pack_RF
-        src1_reg := io.src1_RF
-        src2_reg := io.src2_RF
-        csr_rdata_reg := io.csr_rdata_RF
+        inst_pack_reg   := 0.U.asTypeOf(inst_pack_t)
+    }.elsewhen(!io.stall){
+        inst_pack_reg   := io.inst_pack_RF
+        src1_reg        := io.src1_RF
+        src2_reg        := io.src2_RF
+        csr_rdata_reg   := io.csr_rdata_RF
     }
 
-    io.inst_pack_EX := inst_pack_reg
-    io.src1_EX := src1_reg
-    io.src2_EX := src2_reg
-    io.csr_rdata_EX := csr_rdata_reg
+    io.inst_pack_EX     := inst_pack_reg
+    io.src1_EX          := src1_reg
+    io.src2_EX          := src2_reg
+    io.csr_rdata_EX     := csr_rdata_reg
 }
 
 
