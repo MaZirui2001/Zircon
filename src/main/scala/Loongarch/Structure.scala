@@ -32,10 +32,10 @@ object Issue_Queue_Struct{
     }
     def Wake_Up(wake_preg: Vec[UInt], pr: UInt) : Bool = {
         val wf = Cat(
-                    pr === wake_preg(3), 
-                    pr === wake_preg(2),
-                    pr === wake_preg(1),
-                    pr === wake_preg(0)
+                    !(pr ^ wake_preg(3)), 
+                    !(pr ^ wake_preg(2)),
+                    !(pr ^ wake_preg(1)),
+                    !(pr ^ wake_preg(0))
                     )
         wf.orR
     }

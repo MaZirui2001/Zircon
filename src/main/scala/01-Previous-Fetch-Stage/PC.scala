@@ -19,6 +19,9 @@ class PC_IO extends Bundle {
     // idle
     val is_idle_cmt     = Input(Bool())
     val has_intr        = Input(Bool())
+
+    // csr change
+    val has_csr_change  = Input(Bool())
 }
 
 class PC(reset_val: Int) extends Module {
@@ -33,7 +36,7 @@ class PC(reset_val: Int) extends Module {
         idle_en := io.is_idle_cmt
     }
     for(i <- 0 until 10){
-        when(idle_en){
+        when(idle_en || io.has_csr_change){
             io.npc(i) := pc(i)
         }.elsewhen(io.predict_fail) {
             io.npc(i) := io.branch_target
@@ -55,7 +58,7 @@ class PC(reset_val: Int) extends Module {
         pc(i) := io.npc(i)
     }
 
-    val inst_valid_temp = Mux(idle_en, 0.U, !io.pred_jump(0) ## true.B)
+    val inst_valid_temp = Mux(idle_en || io.has_csr_change, 0.U, !io.pred_jump(0) ## true.B)
     val valid_mask = !pc(0)(2) ## true.B
 
     io.inst_valid_PF := (inst_valid_temp & valid_mask).asBools

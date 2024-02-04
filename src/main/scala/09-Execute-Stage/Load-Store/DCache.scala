@@ -192,11 +192,11 @@ class DCache extends Module{
         cmem(i).wea     := cmem_we_MEM(i)
     }
     /* hit logic */
-    hit_EX            := VecInit.tabulate(2)(i => valid_r_EX(i) && !(tag_r_EX(i) ^ tag_EX)).asUInt
+    hit_EX            := VecInit.tabulate(2)(i => !(tag_r_EX(i) ^ tag_EX)).asUInt
     // hit_xor_EX        := VecInit.tabulate(2)(i => (0.U(31.W) ## !valid_r_EX(i)) | (tag_r_EX(i) ^ tag_EX))
 
     // MEM Stage
-    val hit_MEM         = hit_reg_EX_MEM//VecInit.tabulate(2)(i => hit_xor_MEM(i)  === 0.U).asUInt
+    val hit_MEM         = VecInit.tabulate(2)(i => valid_r_MEM(i) && hit_reg_EX_MEM(i)).asUInt
     val hit_index_MEM   = OHToUInt(hit_MEM)
     val cache_hit_MEM   = hit_MEM.orR
     val cacop_way_MEM   = Mux(cacop_op_MEM(1), hit_index_MEM, addr_MEM(0))

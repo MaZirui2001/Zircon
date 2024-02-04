@@ -170,7 +170,8 @@ class CPU extends Module {
     pc.io.flush_by_pd               := pd.io.pred_fix
     pc.io.flush_pd_target           := pd.io.pred_fix_target
     pc.io.is_idle_cmt               := rob.io.idle_en_cmt
-    pc.io.has_intr                  := ShiftRegister(csr_rf.io.interrupt_vec.orR, 1)
+    pc.io.has_intr                  := ShiftRegister(csr_rf.io.interrupt_vec.orR, 1, false.B, true.B)
+    pc.io.has_csr_change            := ShiftRegister(rob.io.tlbrd_en_cmt || rob.io.csr_we_cmt, 1, false.B, true.B)
     
     // Branch Prediction
     predict.io.npc                  := pc.io.npc
