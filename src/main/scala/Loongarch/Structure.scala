@@ -44,10 +44,10 @@ object Issue_Queue_Struct{
 object RF_Func{
     def Write_First_Read(rf_we: Vec[Bool], wdata: Vec[UInt], prd: Vec[UInt], pr: UInt, rf: Vec[UInt]) : UInt = {
         val wf = Cat(
-                    pr === prd(3) && rf_we(3), 
-                    pr === prd(2) && rf_we(2),
-                    pr === prd(1) && rf_we(1),
-                    pr === prd(0) && rf_we(0)
+                    !(pr ^ prd(3)) && rf_we(3), 
+                    !(pr ^ prd(2)) && rf_we(2),
+                    !(pr ^ prd(1)) && rf_we(1),
+                    !(pr ^ prd(0)) && rf_we(0)
                     )
         val wf_data = wdata(OHToUInt(wf))
         Mux(wf.orR, wf_data, rf(pr))

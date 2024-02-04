@@ -478,8 +478,8 @@ class CPU extends Module {
     alu1.io.alu_op  := re_reg1.io.inst_pack_EX.alu_op
     alu1.io.src1    := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
         RS1_REG     -> Mux(bypass12.io.forward_prj_en(0), bypass12.io.forward_prj_data(0), re_reg1.io.src1_EX),
-        RS1_PC      -> re_reg1.io.inst_pack_EX.pc,
-        RS1_ZERO    -> 0.U))
+        RS1_PC      -> re_reg1.io.inst_pack_EX.pc))
+
     alu1.io.src2    := MuxLookup(re_reg1.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
         RS2_REG     -> Mux(bypass12.io.forward_prk_en(0), bypass12.io.forward_prk_data(0), re_reg1.io.src2_EX),
         RS2_IMM     -> re_reg1.io.inst_pack_EX.imm,
@@ -491,8 +491,8 @@ class CPU extends Module {
     alu2.io.alu_op  := re_reg2.io.inst_pack_EX.alu_op
     alu2.io.src1    := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs1_sel, 0.U)(Seq(
         RS1_REG     -> Mux(bypass12.io.forward_prj_en(1), bypass12.io.forward_prj_data(1), re_reg2.io.src1_EX),
-        RS1_PC      -> re_reg2.io.inst_pack_EX.pc,
-        RS1_ZERO    -> 0.U))
+        RS1_PC      -> re_reg2.io.inst_pack_EX.pc))
+    
     alu2.io.src2    := MuxLookup(re_reg2.io.inst_pack_EX.alu_rs2_sel, 0.U)(Seq(
         RS2_REG     -> Mux(bypass12.io.forward_prk_en(1), bypass12.io.forward_prk_data(1), re_reg2.io.src2_EX),
         RS2_IMM     -> re_reg2.io.inst_pack_EX.imm,

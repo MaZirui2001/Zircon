@@ -60,7 +60,7 @@ object Inst_Pack{
         val rd_valid        = Bool()
         val imm             = UInt(32.W)
         val alu_op          = UInt(4.W)
-        val alu_rs1_sel     = UInt(2.W)
+        val alu_rs1_sel     = UInt(1.W)
         val alu_rs2_sel     = UInt(2.W)
         val br_type         = UInt(4.W)
         val mem_type        = UInt(5.W)
@@ -137,7 +137,7 @@ object Inst_Pack{
     }
     class inst_pack_DP_FU1_t extends inst_pack_DP_t{
         val alu_op          = UInt(4.W)
-        val alu_rs1_sel     = UInt(2.W)
+        val alu_rs1_sel     = UInt(1.W)
         val alu_rs2_sel     = UInt(2.W)
         val pc              = UInt(32.W)
     }
@@ -157,7 +157,7 @@ object Inst_Pack{
     }
     class inst_pack_DP_FU2_t extends inst_pack_DP_t{
         val alu_op          = UInt(4.W)
-        val alu_rs1_sel     = UInt(2.W)
+        val alu_rs1_sel     = UInt(1.W)
         val alu_rs2_sel     = UInt(2.W)
         val pc              = UInt(32.W)
         val br_type         = UInt(4.W)

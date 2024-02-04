@@ -105,9 +105,9 @@ object Control_Signal{
 
 
     // alu_rs1_sel
-    val RS1_REG  = 0.U(2.W)
-    val RS1_PC   = 1.U(2.W)
-    val RS1_ZERO = 2.U(2.W)
+    val RS1_REG  = 0.U(1.W)
+    val RS1_PC   = 1.U(1.W)
+    // val RS1_ZERO = 2.U(2.W)
 
     // alu_rs2_sel
     val RS2_REG  = 0.U(2.W)
@@ -154,11 +154,6 @@ object Control_Signal{
     val CACHE_OP = 0x401.U(13.W)  // bit 10
     val LS_LL    = 0x801.U(13.W)  // bit 11
     val LS_SC    = 0x1001.U(13.W) // bit 12
-
-    // csr_sel
-    val FROM_INST = 0.U(2.W)
-    val FROM_TID  = 1.U(2.W)
-    val FROM_ERA  = 2.U(2.W)
 
     // exception
     val NO_EXP    = 0.U(8.W)

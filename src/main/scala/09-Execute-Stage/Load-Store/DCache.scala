@@ -120,10 +120,10 @@ class DCache extends Module{
     val flush_EX_MEM                = ShiftRegister(Mux(io.flush, io.flush, flush_RF_EX), 1, TC_MEM_en || io.flush)
     val mem_type_reg_EX_MEM_backup  = ShiftRegister(VecInit.fill(5)(Mux(mem_type_reg_RF_EX(3) || uncache_EX || store_cmt_reg_RF_EX, mem_type_reg_RF_EX, 0.U)), 1, EX_TC_en)
 
-    val exception_MEM       = ShiftRegister(io.exception_MEM, 1)
+    val exception_MEM               = ShiftRegister(io.exception_MEM, 1)
 
     // MEM Stage
-    val cmem            = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(OFFSET_DEPTH, 8, INDEX_DEPTH)).io))
+    val cmem            = VecInit.fill(2)(Module(new xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(OFFSET_DEPTH, 8, INDEX_DEPTH)).io)
     val addr_MEM        = paddr_reg_EX_MEM
     val mem_type_MEM    = mem_type_reg_EX_MEM
     val wdata_MEM       = WireDefault(wdata_reg_EX_MEM)
@@ -135,8 +135,8 @@ class DCache extends Module{
 
 
     // mem we
-    val tagv_we_EX      = WireDefault(VecInit(Seq.fill(2)(false.B)))
-    val cmem_we_MEM     = WireDefault(VecInit(Seq.fill(2)(0.U(OFFSET_DEPTH.W))))
+    val tagv_we_EX      = WireDefault(VecInit.fill(2)(false.B))
+    val cmem_we_MEM     = WireDefault(VecInit.fill(2)(0.U(OFFSET_DEPTH.W)))
 
     // addr decode
     val tag_MEM         = addr_MEM(31, 32-TAG_WIDTH)
@@ -161,7 +161,7 @@ class DCache extends Module{
     val wbuf_we         = WireDefault(false.B)
 
     // dirty table
-    val dirty_table     = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(INDEX_DEPTH)(false.B)))))
+    val dirty_table     = RegInit(VecInit(Seq.fill(2)(VecInit.fill(INDEX_DEPTH)(false.B))))
     val dirty_we        = WireDefault(false.B)
     val dirty_clean     = WireDefault(false.B)
     val is_dirty        = dirty_table(lru_sel)(index_MEM)
@@ -263,7 +263,7 @@ class DCache extends Module{
     val s_idle :: s_miss :: s_refill :: s_wait :: s_hold :: Nil = Enum(5)
     val state = RegInit(s_idle)
     // optimize fanout
-    val state_backup = RegInit(VecInit(Seq.fill(5)(s_idle)))
+    val state_backup = RegInit(VecInit.fill(5)(s_idle))
 
     switch(state){
         is(s_idle){
