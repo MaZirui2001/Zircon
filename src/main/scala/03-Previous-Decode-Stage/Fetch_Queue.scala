@@ -41,7 +41,7 @@ class Fetch_Queue extends Module{
     // write to queue
     for(i <- 0 until 2){
         when(!full && io.insts_pack(i).inst_valid){
-            queue(entry_idxs(i)(1-1, 0))(entry_idxs(i)(log2Ceil(FQ_NUM)-1, 1)) := io.insts_pack(i)
+            queue(entry_idxs(i)(0))(entry_idxs(i)(log2Ceil(FQ_NUM)-1, 1)) := io.insts_pack(i)
         }
     }
     // Dequeue

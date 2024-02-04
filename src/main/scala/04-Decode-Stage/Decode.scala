@@ -56,7 +56,7 @@ object Decode_Map{
         PCADDU12I   -> List(N, N, Y, ALU_ADD,   RS1_PC,   RS2_IMM,  NO_BR,   NO_MEM,   ARITH, RK, RD, IMM_20S, NOT_PRIV, NO_EXP),
         LLW         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDW,  LS,    RK, RD, IMM_14S, LS_LL,    NO_EXP),
         SCW         -> List(Y, Y, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STW,  LS,    RD, RD, IMM_14S, LS_SC,    NO_EXP),
-        LDB         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDB,  LS,     RK, RD, IMM_12S, NOT_PRIV, NO_EXP),
+        LDB         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDB,  LS,    RK, RD, IMM_12S, NOT_PRIV, NO_EXP),
         LDH         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDH,  LS,    RK, RD, IMM_12S, NOT_PRIV, NO_EXP),
         LDW         -> List(Y, N, Y, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_LDW,  LS,    RK, RD, IMM_12S, NOT_PRIV, NO_EXP),
         STB         -> List(Y, Y, N, ALU_ADD,   RS1_REG,  RS2_IMM,  NO_BR,   MEM_STB,  LS,    RD, RD, IMM_12S, NOT_PRIV, NO_EXP),
@@ -119,7 +119,7 @@ class Decode extends Module{
     io.priv_vec         := ctrl(12)
     
     io.fu_id            := ctrl(8)
-    io.exception        := Mux(ctrl(12)(8) && io.inst(4, 0) >= 7.U, 1.U ## Control_Signal.INE, ctrl(13))
+    io.exception        := ctrl(13)
 
 
     def Imm_Gen(inst: UInt, imm_type: UInt): UInt = {

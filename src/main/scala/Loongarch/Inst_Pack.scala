@@ -59,7 +59,7 @@ object Inst_Pack{
         val rd              = UInt(5.W)
         val rd_valid        = Bool()
         val imm             = UInt(32.W)
-        val alu_op          = UInt(5.W)
+        val alu_op          = UInt(4.W)
         val alu_rs1_sel     = UInt(2.W)
         val alu_rs2_sel     = UInt(2.W)
         val br_type         = UInt(4.W)
@@ -136,7 +136,7 @@ object Inst_Pack{
         
     }
     class inst_pack_DP_FU1_t extends inst_pack_DP_t{
-        val alu_op          = UInt(5.W)
+        val alu_op          = UInt(4.W)
         val alu_rs1_sel     = UInt(2.W)
         val alu_rs2_sel     = UInt(2.W)
         val pc              = UInt(32.W)
@@ -156,7 +156,7 @@ object Inst_Pack{
         inst_pack_DP_FU1
     }
     class inst_pack_DP_FU2_t extends inst_pack_DP_t{
-        val alu_op          = UInt(5.W)
+        val alu_op          = UInt(4.W)
         val alu_rs1_sel     = UInt(2.W)
         val alu_rs2_sel     = UInt(2.W)
         val pc              = UInt(32.W)
@@ -199,7 +199,7 @@ object Inst_Pack{
     }
     class inst_pack_DP_MD_t extends inst_pack_DP_t{
         val priv_vec        = UInt(10.W)
-        val alu_op          = UInt(5.W)
+        val alu_op          = UInt(4.W)
     }
     def inst_pack_DP_MD_gen (inst_pack_RN : inst_pack_RN_t, _rob_index: UInt) : inst_pack_DP_MD_t = {
         val inst_pack_DP_MD = Wire(new inst_pack_DP_MD_t)

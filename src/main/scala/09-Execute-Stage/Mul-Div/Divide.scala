@@ -11,7 +11,7 @@ class Divide extends Module{
         val busy        = Output(Bool())
     })
 
-    val en = io.op(4)
+    val en = io.op(2)
     // stage1 : record src2 and op and sign
     val res_sign = MuxLookup(io.op, false.B)(Seq(
         ALU_DIV  -> (io.src1(31) ^ io.src2(31)),
