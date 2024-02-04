@@ -323,7 +323,7 @@ class CPU extends Module {
     iq1.io.flush                := rob.io.predict_fail_cmt(6)
     iq1.io.stall                := stall_by_iq || rob.io.full(5)
     iq1.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq1.io.dcache_miss          := dcache.io.cache_miss_MEM(0) || ShiftRegister(dcache.io.cache_miss_MEM(0), 1)
+    iq1.io.dcache_miss          := dcache.io.cache_miss_iq//dcache.io.cache_miss_MEM(0) || ShiftRegister(dcache.io.cache_miss_MEM(0), 1)
 
     // select
     sel1.io.insts_issue         := iq1.io.insts_issue
@@ -341,7 +341,7 @@ class CPU extends Module {
     iq2.io.flush                := rob.io.predict_fail_cmt(6)
     iq2.io.stall                := stall_by_iq || rob.io.full(5)
     iq2.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
-    iq2.io.dcache_miss          := dcache.io.cache_miss_MEM(1) || ShiftRegister(dcache.io.cache_miss_MEM(1), 1)
+    iq2.io.dcache_miss          := dcache.io.cache_miss_iq//dcache.io.cache_miss_MEM(1) || ShiftRegister(dcache.io.cache_miss_MEM(1), 1)
 
     // select
     sel2.io.insts_issue         := iq2.io.insts_issue
@@ -361,7 +361,7 @@ class CPU extends Module {
     iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq3.io.is_store_cmt_num     := DontCare
     iq3.io.rob_index_cmt        := DontCare
-    iq3.io.dcache_miss          := dcache.io.cache_miss_MEM(2) || ShiftRegister(dcache.io.cache_miss_MEM(2), 1)
+    iq3.io.dcache_miss          := dcache.io.cache_miss_iq //dcache.io.cache_miss_MEM(2) || ShiftRegister(dcache.io.cache_miss_MEM(2), 1)
 
     // select
     sel3.io.insts_issue         := iq3.io.insts_issue
@@ -381,7 +381,7 @@ class CPU extends Module {
     iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
     iq4.io.is_store_cmt_num     := rob.io.is_store_num_cmt
     iq4.io.rob_index_cmt        := rob.io.rob_index_cmt
-    iq4.io.dcache_miss          := dcache.io.cache_miss_MEM(3) || ShiftRegister(dcache.io.cache_miss_MEM(3), 1)
+    iq4.io.dcache_miss          := dcache.io.cache_miss_iq //dcache.io.cache_miss_MEM(3) || ShiftRegister(dcache.io.cache_miss_MEM(3), 1)
 
     // select
     sel4.io.insts_issue         := iq4.io.insts_issue

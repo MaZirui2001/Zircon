@@ -119,7 +119,7 @@ object Inst_Pack{
         inst_pack_RN.fu_id          := inst_pack_ID.fu_id
         inst_pack_RN.prj            := _prj
         inst_pack_RN.prk            := _prk
-        inst_pack_RN.prd            := _prd
+        inst_pack_RN.prd            := Mux(inst_pack_ID.rd_valid, _prd, 0.U)
         inst_pack_RN.pprd           := _pprd
         inst_pack_RN.prj_raw        := _prj_raw
         inst_pack_RN.prk_raw        := _prk_raw

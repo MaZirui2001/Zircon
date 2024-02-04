@@ -22,6 +22,8 @@ class DCache_IO extends Bundle{
     val rdata_MEM       = Output(UInt(32.W))
     val exception_MEM   = Input(Bool())
 
+    val cache_miss_iq   = Output(Bool())
+
     // uncache cmt
     val rob_index_CMT   = Input(UInt(log2Ceil(ROB_NUM).W))
 
@@ -212,6 +214,8 @@ class DCache extends Module{
     val highest_mask    = (UIntToOH(highest_index)(31, 0) - 1.U)(31, 0)
     val rmask           = highest_mask
     val rdata_MEM       = (rmask & rdata_MEM_temp)
+
+    io.cache_miss_iq    := cacop_en_MEM || mem_type_reg_EX_MEM(4, 3).orR && (uncache_MEM || !hit_MEM.orR)
 
     /* write logic */
     val wmask           = Mux(mem_type_MEM(3), 0.U((8*OFFSET_DEPTH).W), ((0.U((8*OFFSET_DEPTH-32).W) ## highest_mask) << block_offset))

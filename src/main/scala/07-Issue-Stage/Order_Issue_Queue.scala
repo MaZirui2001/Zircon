@@ -18,6 +18,7 @@ class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends 
 
     // input from load
     val ld_mem_prd       = Input(UInt(log2Ceil(PREG_NUM).W))
+    // val is_ld_mem        = Input(Bool())
     val is_store_cmt_num = Input(UInt(2.W))
     val rob_index_cmt    = Input(UInt(log2Ceil(ROB_NUM).W))
 

@@ -10,7 +10,7 @@ object CPU_Config{
     val SB_NUM          = 4
     val IQ_AP_NUM       = 6
     val IQ_AB_NUM       = 6
-    val IQ_MD_NUM       = 6
+    val IQ_MD_NUM       = 4
     val IQ_LS_NUM       = 6
     val TLB_ENTRY_NUM   = 16
 }
@@ -19,9 +19,9 @@ object Predict_Config {
     val BTB_INDEX_WIDTH = 7
     val BTB_TAG_WIDTH   = 28 - BTB_INDEX_WIDTH
     val BTB_DEPTH       = 1 << BTB_INDEX_WIDTH
-    val BHT_INDEX_WIDTH = 7
+    val BHT_INDEX_WIDTH = 6
     val BHT_DEPTH       = 1 << BHT_INDEX_WIDTH
-    val PHT_INDEX_WIDTH = 7
+    val PHT_INDEX_WIDTH = 6
     val PHT_DEPTH       = 1 << PHT_INDEX_WIDTH
 
     val RET       = 1.U(2.W)

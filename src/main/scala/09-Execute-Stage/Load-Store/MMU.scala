@@ -102,16 +102,22 @@ class MMU extends Module{
     val i_exception_ne = ShiftRegister(is_da || i_dmw0_hit || i_dmw1_hit, 1, !io.i_stall)
     io.i_exception := Mux(i_exception_ne, 0.U, tlb.io.i_exception)
 
+
+    val d_csr_dmw0 = RegNext(io.csr_dmw0)
+    val d_csr_dmw1 = RegNext(io.csr_dmw1)
+    val d_csr_plv  = RegNext(io.csr_plv)
+    val d_is_da    = RegNext(is_da)
+    val d_is_pg    = RegNext(is_pg)
     // d_paddr
-    val d_dmw0_hit = (!(io.d_vaddr(31, 29) ^ io.csr_dmw0(31, 29))) && io.csr_dmw0(0.U(3.W) ## io.csr_plv)
-    val d_dmw1_hit = (!(io.d_vaddr(31, 29) ^ io.csr_dmw1(31, 29))) && io.csr_dmw1(0.U(3.W) ## io.csr_plv)
-    io.d_paddr   := Mux(is_da, io.d_vaddr, 
-                    Mux(d_dmw0_hit, io.csr_dmw0(27, 25) ## io.d_vaddr(28, 0), 
-                    Mux(d_dmw1_hit, io.csr_dmw1(27, 25) ## io.d_vaddr(28, 0), tlb.io.d_paddr)))
-    io.d_uncache := Mux(is_da, !io.csr_crmd_trans(4), 
-                    Mux(d_dmw0_hit, !io.csr_dmw0(4),
-                    Mux(d_dmw1_hit, !io.csr_dmw1(4), tlb.io.d_uncache)))
-    val d_exception_ne = ShiftRegister(is_da || d_dmw0_hit || d_dmw1_hit, 1, !io.d_stall)
+    val d_dmw0_hit = (!(io.d_vaddr(31, 29) ^ d_csr_dmw0(31, 29))) && d_csr_dmw0(0.U(3.W) ## d_csr_plv)
+    val d_dmw1_hit = (!(io.d_vaddr(31, 29) ^ d_csr_dmw1(31, 29))) && d_csr_dmw1(0.U(3.W) ## d_csr_plv)
+    io.d_paddr   := Mux(d_is_da, io.d_vaddr, 
+                    Mux(d_dmw0_hit, d_csr_dmw0(27, 25) ## io.d_vaddr(28, 0), 
+                    Mux(d_dmw1_hit, d_csr_dmw1(27, 25) ## io.d_vaddr(28, 0), tlb.io.d_paddr)))
+    io.d_uncache := Mux(d_is_da, !io.csr_crmd_trans(4), 
+                    Mux(d_dmw0_hit, !d_csr_dmw0(4),
+                    Mux(d_dmw1_hit, !d_csr_dmw1(4), tlb.io.d_uncache)))
+    val d_exception_ne = ShiftRegister(d_is_da || d_dmw0_hit || d_dmw1_hit, 1, !io.d_stall)
     io.d_exception := Mux(d_exception_ne, 0.U, tlb.io.d_exception)
 
 }
