@@ -25,6 +25,7 @@ class ID_RN_Reg extends Module {
 
     when(io.flush) {
         insts_pack_reg  := VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_ID_t)))
+        alloc_preg_reg  := VecInit(Seq.fill(2)(0.U(log2Ceil(PREG_NUM).W)))
     }.elsewhen(!io.stall){
         insts_pack_reg  := io.insts_pack_ID
         alloc_preg_reg  := io.alloc_preg_ID

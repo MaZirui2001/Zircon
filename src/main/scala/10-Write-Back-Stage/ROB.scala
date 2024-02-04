@@ -91,6 +91,7 @@ class ROB_IO(n: Int) extends Bundle{
 
     // for ls priv
     val priv_vec_ls             = Input(UInt(3.W))
+    val llbit_global            = Input(Bool())
 
     // diff
     val is_ucread_cmt           = Output(Vec(2, Bool()))
@@ -238,7 +239,7 @@ class ROB(n: Int) extends Module{
 
 
     // update store buffer
-    val is_store_cmt_bit        = VecInit.tabulate(2)(i => rob_commit_items(i).is_store && cmt_en(i) && !rob_commit_items(i).exception(7))
+    val is_store_cmt_bit        = VecInit.tabulate(2)(i => rob_commit_items(i).is_store && cmt_en(i) && !rob_commit_items(i).exception(7) && !(rob_commit_items(i).is_priv_ls && !RegNext(io.llbit_global)))
     val is_store_num_cmt        = PopCount(is_store_cmt_bit)
     io.is_store_num_cmt         := ShiftRegister(is_store_num_cmt, 1)
 

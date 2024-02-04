@@ -568,6 +568,7 @@ class CPU extends Module {
 
     // exception detect
     rob.io.priv_vec_ls                  := re_reg4.io.inst_pack_EX.priv_vec
+    rob.io.llbit_global                 := csr_rf.io.llbit_global
 
     // EX-MEM SegReg
     ls_ex_mem_reg.io.flush              := rob.io.predict_fail_cmt(6) || (!ls_ex_mem_reg.io.stall && sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4))
@@ -593,7 +594,7 @@ class CPU extends Module {
     sb.io.addr_mem                := ls_ex_mem_reg.io.paddr_MEM
     sb.io.st_data_mem             := ls_ex_mem_reg.io.src2_MEM
     sb.io.mem_type_ex             := Mux(re_reg4.io.stall, 0.U, re_reg4.io.inst_pack_EX.mem_type)
-    sb.io.mem_type_mem            := Mux(ls_ex_mem_reg.io.stall || exception_MEM(7) || ls_ex_mem_reg.io.inst_pack_MEM.priv_vec(2) && !ls_ex_mem_reg.io.llbit_MEM, 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
+    sb.io.mem_type_mem            := Mux(ls_ex_mem_reg.io.stall, 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
     sb.io.uncache_mem             := ls_ex_mem_reg.io.uncache_MEM 
     sb.io.is_store_num_cmt        := rob.io.is_store_num_cmt
     sb.io.dcache_miss             := dcache.io.cache_miss_MEM(4)
@@ -659,14 +660,14 @@ class CPU extends Module {
     ew_reg4.io.is_ucread_EX2        := ls_ex_mem_reg.io.is_ucread_MEM
 
     /* ---------- 10. Write Back Stage ---------- */
-    val mem_rdata_raw             = VecInit.tabulate(4)(i => Mux(ew_reg4.io.sb_hit_WB(i), ew_reg4.io.sb_rdata_WB(i*8+7, i*8), ew_reg4.io.mem_rdata_WB(i*8+7, i*8))).asUInt 
-    val mem_rdata                 = MuxLookup(ew_reg4.io.inst_pack_WB.mem_type(2, 0), 0.U)(Seq(
+    val mem_rdata_raw       = VecInit.tabulate(4)(i => Mux(ew_reg4.io.sb_hit_WB(i), ew_reg4.io.sb_rdata_WB(i*8+7, i*8), ew_reg4.io.mem_rdata_WB(i*8+7, i*8))).asUInt 
+    val mem_rdata           = MuxLookup(ew_reg4.io.inst_pack_WB.mem_type(2, 0), 0.U)(Seq(
                                                 0.U -> Fill(24, mem_rdata_raw(7)) ## mem_rdata_raw(7, 0),
                                                 1.U -> Fill(16, mem_rdata_raw(15)) ## mem_rdata_raw(15, 0),
                                                 2.U -> mem_rdata_raw,
                                                 4.U -> 0.U(24.W) ## mem_rdata_raw(7, 0),
                                                 5.U -> 0.U(16.W) ## mem_rdata_raw(15, 0)))
-    val ls_wb_data              = Mux(ew_reg4.io.llbit_WB, 0.U(31.W) ## 1.U(1.W), mem_rdata)
+    val ls_wb_data          = Mux(ew_reg4.io.inst_pack_WB.priv_vec(2), 0.U(31.W) ## ew_reg4.io.llbit_WB, mem_rdata)
 
     rf.io.wdata             := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ls_wb_data)
     rf.io.rf_we             := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg3.io.inst_pack_WB.rd_valid, ew_reg4.io.inst_pack_WB.rd_valid && ! ew_reg4.io.exception_WB(7))
