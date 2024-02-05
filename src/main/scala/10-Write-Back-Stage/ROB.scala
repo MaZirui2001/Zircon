@@ -124,6 +124,7 @@ class ROB(n: Int) extends Module{
     val head        = RegInit(0.U(log2Ceil(n).W))
     val head_plus_1 = RegInit(1.U(log2Ceil(n).W))
     val head_each   = VecInit(head, head_plus_1)
+    // val head_each   = VecInit(Seq.tabulate(2)(i => head + i.U(log2Ceil(n).W)))
     val tail        = RegInit(0.U(log2Ceil(neach).W))
     val elem_num    = RegInit(VecInit(Seq.fill(10)(VecInit(Seq.fill(2)(0.U((log2Ceil(neach)+1).W))))))
     val hsel_idx    = VecInit.tabulate(2)(i => head_each(i)(FRONT_LOG2-1, 0))
