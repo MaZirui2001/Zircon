@@ -163,6 +163,7 @@ object ROB_Struct{
         val is_ucread           = Bool()
         val is_priv_wrt         = Bool()
         val is_priv_ls          = Bool()
+        val allow_next_cmt      = Bool()
         val exception           = UInt(8.W)
         val inst                = UInt(32.W)
     }
