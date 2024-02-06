@@ -21,14 +21,14 @@ class PD_FQ_Reg extends Module {
         
     })
 
-    val insts_pack_reg          = RegInit(VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_PD_t))))
+    val insts_pack_reg          = RegInit(VecInit.fill(2)(0.U.asTypeOf(new inst_pack_PD_t)))
     val pred_fix_reg            = RegInit(false.B)
     val pred_fix_target_reg     = RegInit(0.U(32.W))
     val pred_fix_is_bl_reg      = RegInit(false.B)
     val pred_fix_pc_plus_4_reg  = RegInit(0.U(32.W))
 
     when(io.flush) {
-        insts_pack_reg          := VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_PD_t)))
+        insts_pack_reg          := VecInit.fill(2)(0.U.asTypeOf(new inst_pack_PD_t))
     }.elsewhen(!io.stall){
         insts_pack_reg          := io.insts_pack_PD
         pred_fix_reg            := io.pred_fix_PD

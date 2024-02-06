@@ -33,12 +33,12 @@ class LS_EX_MEM_Reg extends Module {
     val uncache_reg     = RegInit(false.B)
     val paddr_reg       = RegInit(0.U(32.W))
     val llbit_reg       = RegInit(false.B)
-    val prd_reg         = RegInit(VecInit(Seq.fill(4)(0.U(PREG_NUM.W))))
+    val prd_reg         = RegInit(VecInit.fill(4)(0.U(PREG_NUM.W)))
 
 
     when(io.flush) {
         inst_pack_reg   := 0.U.asTypeOf(new inst_pack_IS_LS_t)
-        prd_reg         := VecInit(Seq.fill(4)(0.U(PREG_NUM.W)))
+        prd_reg         := VecInit.fill(4)(0.U(PREG_NUM.W))
     }.elsewhen(!io.stall) {
         inst_pack_reg   := io.inst_pack_EX
         is_ucread_Reg   := io.is_ucread_EX

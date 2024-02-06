@@ -49,11 +49,11 @@ class ICache extends Module{
     val index_IF    = addr_IF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
 
     // IF Stage
-    val tagv                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_read_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
+    val tagv                = VecInit.fill(2)(Module(new xilinx_single_port_ram_read_first(TAG_WIDTH+1, INDEX_DEPTH)).io)
     val tag_r_RM            = VecInit.tabulate(2)(i => tagv(i).douta(TAG_WIDTH-1, 0))
     val valid_r_RM          = VecInit.tabulate(2)(i => tagv(i).douta(TAG_WIDTH))
 
-    val cmem                = VecInit(Seq.fill(2)(Module(new xilinx_single_port_ram_read_first(8 * OFFSET_DEPTH, INDEX_DEPTH)).io))
+    val cmem                = VecInit.fill(2)(Module(new xilinx_single_port_ram_read_first(8 * OFFSET_DEPTH, INDEX_DEPTH)).io)
     
     val addr_sel            = WireDefault(FROM_PIPE)
 
@@ -82,8 +82,8 @@ class ICache extends Module{
 
 
     // mem we
-    val tagv_we_RM          = WireDefault(VecInit(Seq.fill(2)(false.B)))
-    val cmem_we_RM          = WireDefault(VecInit(Seq.fill(2)(false.B)))
+    val tagv_we_RM          = WireDefault(VecInit.fill(2)(false.B))
+    val cmem_we_RM          = WireDefault(VecInit.fill(2)(false.B))
 
     // addr decode
     val tag_RM              = addr_RM(31, 32-TAG_WIDTH)
@@ -91,7 +91,7 @@ class ICache extends Module{
     val offset_RM           = addr_RM(OFFSET_WIDTH-1, 0)
 
     // lru 
-    val lru_mem             = RegInit(VecInit(Seq.fill(INDEX_DEPTH)(0.U(1.W))))
+    val lru_mem             = RegInit(VecInit.fill(INDEX_DEPTH)(0.U(1.W)))
     val lru_sel             = lru_mem(index_RM)
     val lru_miss_upd        = WireDefault(false.B)
     val lru_hit_upd         = WireDefault(false.B)

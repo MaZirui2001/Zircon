@@ -116,7 +116,7 @@ class ROB(n: Int) extends Module{
     val neach           = n / 2
     import ROB_Struct._
     /* ROB items */
-    val rob         = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(neach)(0.U.asTypeOf(new rob_t))))))
+    val rob         = RegInit(VecInit.fill(2)(VecInit.fill(neach)(0.U.asTypeOf(new rob_t))))
     val priv_buf    = RegInit(0.U.asTypeOf(new priv_t(n)))
     val priv_ls_buf = RegInit(0.U.asTypeOf(new priv_ls_t))
 
@@ -124,9 +124,9 @@ class ROB(n: Int) extends Module{
     val head        = RegInit(0.U(log2Ceil(n).W))
     val head_plus_1 = RegInit(1.U(log2Ceil(n).W))
     val head_each   = VecInit(head, head_plus_1)
-    // val head_each   = VecInit(Seq.tabulate(2)(i => head + i.U(log2Ceil(n).W)))
+    // val head_each   = VecInit.tabulate(2)(i => head + i.U(log2Ceil(n).W)))
     val tail        = RegInit(0.U(log2Ceil(neach).W))
-    val elem_num    = RegInit(VecInit(Seq.fill(10)(VecInit(Seq.fill(2)(0.U((log2Ceil(neach)+1).W))))))
+    val elem_num    = RegInit(VecInit.fill(10)(VecInit.fill(2)(0.U((log2Ceil(neach)+1).W))))
     val hsel_idx    = VecInit.tabulate(2)(i => head_each(i)(FRONT_LOG2-1, 0))
     val head_idx    = VecInit.tabulate(2)(i => head_each(i)(log2Ceil(n)-1, FRONT_LOG2))
 
@@ -281,7 +281,7 @@ class ROB(n: Int) extends Module{
     val cmt_num                 = PopCount(cmt_en)
     head                        := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(head + cmt_num >= n.U, head + cmt_num - n.U, head + cmt_num))
     head_plus_1                 := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 1.U, Mux(head_plus_1 + cmt_num >= n.U, head_plus_1 + cmt_num - n.U, head_plus_1 + cmt_num))                 
-    val head_inc                = VecInit(Seq.fill(2)(false.B))
+    val head_inc                = VecInit.fill(2)(false.B)
     for(i <- 0 until 2){
         head_inc(hsel_idx(i))   := cmt_en(i)
         for(j <- 0 until 10){

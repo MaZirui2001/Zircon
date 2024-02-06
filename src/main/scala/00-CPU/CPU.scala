@@ -91,7 +91,7 @@ class CPU extends Module {
     val fq              = Module(new Fetch_Queue)
 
     /* Decode Stage */
-    val decode          = VecInit(Seq.fill(2)(Module(new Decode).io))
+    val decode          = VecInit.fill(2)(Module(new Decode).io)
     val dr_reg          = Module(new ID_RN_Reg)
     val free_list       = Module(new Free_List(PREG_NUM))
 

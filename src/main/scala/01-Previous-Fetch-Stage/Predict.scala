@@ -35,8 +35,8 @@ class Predict extends Module{
 
     val btb_tagv    = VecInit.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(BTB_TAG_WIDTH+1, BTB_DEPTH)).io)
     val btb_targ    = VecInit.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(30+2, BTB_DEPTH)).io)
-    val bht         = RegInit(VecInit.fill(2)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W)))))
-    val pht         = RegInit(VecInit.fill(2)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W)))))
+    val bht         = RegInit(VecInit.fill(2)(VecInit.fill(BHT_DEPTH)(0.U(4.W))))
+    val pht         = RegInit(VecInit.fill(2)(VecInit.fill(PHT_DEPTH)(2.U(2.W))))
 
     val ras         = RegInit(VecInit.fill(8)(0x1c000000.U(32.W)))
     val jirl_sel    = RegInit(2.U(2.W))

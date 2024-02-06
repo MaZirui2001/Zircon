@@ -49,24 +49,24 @@ class Arch_Rat(n: Int) extends Module {
 
 
     // ras
-    val top = RegInit(0x7.U(3.W))
-    val top_next = Wire(UInt(3.W))
-    val ras = RegInit(VecInit.fill(8)(0x1c000000.U(32.W)))
-    val ras_next = Wire(Vec(8, UInt(32.W)))
-    top_next := top
-    ras_next := ras
+    val top         = RegInit(0x7.U(3.W))
+    val top_next    = Wire(UInt(3.W))
+    val ras         = RegInit(VecInit.fill(8)(0x1c000000.U(32.W)))
+    val ras_next    = Wire(Vec(8, UInt(32.W)))
+    top_next        := top
+    ras_next        := ras
     when(io.br_type_pred_cmt === RET && io.pred_update_en_cmt){
         top_next := top - 1.U
     }.elsewhen(io.br_type_pred_cmt(1) && io.pred_update_en_cmt){
         top_next := top + 1.U
         ras_next(top) := io.pc_cmt
     }
-    top := top_next
-    ras := ras_next
+    top         := top_next
+    ras         := ras_next
     io.top_arch := top_next
     io.ras_arch := ras
 
-    io.arch_rat := arat
-    io.head_arch := head
+    io.arch_rat     := arat
+    io.head_arch    := head
 
 }

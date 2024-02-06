@@ -37,7 +37,7 @@ class Unorder_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extend
 
 class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Module{
     val io              = IO(new Unorder_Issue_Queue_IO(n, inst_pack_t))
-    val queue           = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new issue_queue_t(inst_pack_t)))))
+    val queue           = RegInit(VecInit.fill(n)(0.U.asTypeOf(new issue_queue_t(inst_pack_t))))
     val tail            = RegInit(0.U((log2Ceil(n)+1).W))
 
     val empty           = tail === 0.U

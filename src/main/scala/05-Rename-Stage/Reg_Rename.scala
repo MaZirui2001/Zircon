@@ -43,14 +43,14 @@ class Reg_Rename(n: Int) extends Module{
 
     // RAW
     io.prj              := prj_temp
-    io.prj_raw          := VecInit(Seq.fill(2)(false.B))
+    io.prj_raw          := VecInit.fill(2)(false.B)
     when (io.rd_valid(0) & (io.rd(0) === io.rj(1))){
         io.prj(1)       := alloc_preg(0)
         io.prj_raw(1)   := true.B
     }
 
     io.prk              := prk_temp
-    io.prk_raw          := VecInit(Seq.fill(2)(false.B))
+    io.prk_raw          := VecInit.fill(2)(false.B)
     when (io.rd_valid(0) & (io.rd(0) === io.rk(1))){
         io.prk(1)       := alloc_preg(0)
         io.prk_raw(1)   := true.B

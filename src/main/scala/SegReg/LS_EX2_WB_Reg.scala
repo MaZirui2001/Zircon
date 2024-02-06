@@ -31,7 +31,7 @@ class LS_EX2_WB_Reg extends Module {
     val mem_rdata_reg   = RegInit(0.U(32.W))
     val sb_rdata_reg    = RegInit(0.U(32.W))
     val llbit_reg       = RegInit(false.B)
-    val sb_hit_reg      = RegInit(VecInit(Seq.fill(4)(false.B)))
+    val sb_hit_reg      = RegInit(VecInit.fill(4)(false.B))
     val is_ucread_reg   = RegInit(false.B)
 
     

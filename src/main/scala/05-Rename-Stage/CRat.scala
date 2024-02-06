@@ -23,7 +23,7 @@ class CRat_IO(n: Int) extends Bundle{
 class CRat(n: Int) extends Module{
     val io = IO(new CRat_IO(n))
     import Rat._
-    val crat = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new rat_t))))
+    val crat = RegInit(VecInit.fill(n)(0.U.asTypeOf(new rat_t)))
 
 
     // write

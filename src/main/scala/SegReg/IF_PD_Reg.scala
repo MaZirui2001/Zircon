@@ -24,7 +24,7 @@ class IF_PD_Reg extends Module {
     val npc4_reg        = RegInit(VecInit.fill(2)(0.U(32.W)))
 
     when(io.flush) {
-        insts_pack_reg  := VecInit(Seq.fill(2)(0.U.asTypeOf(new inst_pack_IF_t)))
+        insts_pack_reg  := VecInit.fill(2)(0.U.asTypeOf(new inst_pack_IF_t))
     }
     .elsewhen(!io.stall){
         insts_pack_reg  := io.insts_pack_IF

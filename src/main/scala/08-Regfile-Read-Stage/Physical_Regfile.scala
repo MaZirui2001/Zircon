@@ -19,7 +19,7 @@ class Physical_Regfile_IO(n: Int) extends Bundle{
 class Physical_Regfile(n: Int) extends Module{
     val io = IO(new Physical_Regfile_IO(n))
 
-    val rf = RegInit(VecInit(Seq.fill(n)(0.U(32.W))))
+    val rf = RegInit(VecInit.fill(n)(0.U(32.W)))
 
     // read, write first regfile
     import RF_Func._

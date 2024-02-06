@@ -28,8 +28,8 @@ class Dispatch extends Module{
     
     // alloc insts to issue queue, pressed
     io.insts_disp_index     := DontCare
-    io.insts_disp_valid     := VecInit(Seq.fill(4)(VecInit(Seq.fill(2)(false.B))))
-    var alloc_index         = VecInit(Seq.fill(4)(0.U(1.W)))
+    io.insts_disp_valid     := VecInit.fill(4)(VecInit.fill(2)(false.B))
+    var alloc_index         = VecInit.fill(4)(0.U(1.W))
     for(i <- 0 until 2){
         var next_alloc_index = Wire(Vec(4, UInt(1.W)))
         for(j <- 0 until 4){

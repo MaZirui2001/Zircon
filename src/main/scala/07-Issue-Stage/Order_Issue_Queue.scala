@@ -40,7 +40,7 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
     val io          = IO(new Order_Issue_Queue_IO(n, inst_pack_t))
 
     // queue
-    val queue       = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new issue_queue_t(inst_pack_t)))))
+    val queue       = RegInit(VecInit.fill(n)(0.U.asTypeOf(new issue_queue_t(inst_pack_t))))
     val tail        = RegInit(0.U((log2Ceil(n)+1).W))
 
     val insert_num  = PopCount(io.insts_disp_valid)

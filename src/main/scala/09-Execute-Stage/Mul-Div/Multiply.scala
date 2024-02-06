@@ -33,22 +33,22 @@ class Multiply extends Module{
 
     // stage 1: booth and wallce tree
     // booth encode
-    val booth = VecInit(Seq.tabulate(33){ i => 
+    val booth = VecInit.tabulate(33){ i => 
         Booth2(src1(65-2*i, 0) ## 0.U((2*i).W),
             (if(i == 0) src2(1, 0) ## 0.U(1.W) else src2(2*i+1, 2*i-1)), 66
         )
-    })
+    }
     val booth_reg = ShiftRegister(booth, 1, !io.busy)
     // wallce tree
     // level1: input 33, output 22
-    val level1         = VecInit(Seq.tabulate(11){i => CSA(booth_reg(3*i), booth_reg(3*i+1), booth_reg(3*i+2), 66)})
+    val level1         = VecInit.tabulate(11){i => CSA(booth_reg(3*i), booth_reg(3*i+1), booth_reg(3*i+2), 66)}
     val res1           = Wire(Vec(22, UInt(66.W)))
     for(i <- 0 until 11){
         res1(2*i)       := level1(i)(65, 0)
         res1(2*i+1)     := level1(i)(131, 66)
     }
     // level2: input 22, output 15
-    val level2         = VecInit(Seq.tabulate(7){i => CSA(res1(3*i), res1(3*i+1), res1(3*i+2), 66)})
+    val level2         = VecInit.tabulate(7){i => CSA(res1(3*i), res1(3*i+1), res1(3*i+2), 66)}
     val res2           = Wire(Vec(15, UInt(66.W)))
     for(i <- 0 until 7){
         res2(2*i)       := level2(i)(65, 0)
@@ -56,21 +56,21 @@ class Multiply extends Module{
     }
     res2(14) := res1(21)
     // level3: input 15, output 10
-    val level3         = VecInit(Seq.tabulate(5){i => CSA(res2(3*i), res2(3*i+1), res2(3*i+2), 66)})
+    val level3         = VecInit.tabulate(5){i => CSA(res2(3*i), res2(3*i+1), res2(3*i+2), 66)}
     val res3           = Wire(Vec(10, UInt(66.W)))
     for(i <- 0 until 5){
         res3(2*i)       := level3(i)(65, 0)
         res3(2*i+1)     := level3(i)(131, 66)
     }
     // level4: input 10, output 7
-    val level4         = VecInit(Seq.tabulate(3){i => CSA(res3(3*i), res3(3*i+1), res3(3*i+2), 66)})
+    val level4         = VecInit.tabulate(3){i => CSA(res3(3*i), res3(3*i+1), res3(3*i+2), 66)}
     val res4           = Wire(Vec(7, UInt(66.W)))
     for(i <- 0 until 3){
         res4(2*i)       := level4(i)(65, 0)
         res4(2*i+1)     := level4(i)(131, 66)
     }
     res4(6) := res3(9)
-    val level5        = VecInit(Seq.tabulate(2){i => CSA(res4(3*i), res4(3*i+1), res4(3*i+2), 66)})
+    val level5        = VecInit.tabulate(2){i => CSA(res4(3*i), res4(3*i+1), res4(3*i+2), 66)}
     val res5          = Wire(Vec(5, UInt(66.W)))
     for(i <- 0 until 2){
         res5(2*i)       := level5(i)(65, 0)
@@ -78,20 +78,20 @@ class Multiply extends Module{
     }
     res5(4) := res4(6)
     // level6: input 5, output 4
-    val level6     = VecInit(Seq.tabulate(1){i => CSA(res5(0), res5(1), res5(2), 66)})
+    val level6     = VecInit.tabulate(1){i => CSA(res5(0), res5(1), res5(2), 66)}
     val res6       = Wire(Vec(4, UInt(66.W)))
     res6(0)        := level6(0)(65, 0)
     res6(1)        := level6(0)(131, 66)
     res6(2)        := res5(3)
     res6(3)        := res5(4)
     // level7: input 4, output 3
-    val level7      = VecInit(Seq.tabulate(1){i => CSA(res6(0), res6(1), res6(2), 66)})
+    val level7      = VecInit.tabulate(1){i => CSA(res6(0), res6(1), res6(2), 66)}
     val res7        = Wire(Vec(3, UInt(66.W)))
     res7(0)         := level7(0)(65, 0)
     res7(1)         := level7(0)(131, 66)
     res7(2)         := res6(3)
     // level8: input 3, output 2
-    val level8      = VecInit(Seq.tabulate(1){i => CSA(res7(0), res7(1), res7(2), 66)})
+    val level8      = VecInit.tabulate(1){i => CSA(res7(0), res7(1), res7(2), 66)}
     val res8        = Wire(Vec(2, UInt(66.W)))
     res8(0)         := level8(0)(65, 0)
     res8(1)         := level8(0)(131, 66)

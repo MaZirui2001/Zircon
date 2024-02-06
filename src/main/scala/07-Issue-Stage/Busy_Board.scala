@@ -24,7 +24,7 @@ class Busy_Board_IO extends Bundle{
 
 class Busy_Board extends Module {
     val io = IO(new Busy_Board_IO)
-    val busy_board = RegInit(VecInit(Seq.fill(PREG_NUM)(false.B)))
+    val busy_board = RegInit(VecInit.fill(PREG_NUM)(false.B))
 
     // read by insts
     for(i <- 0 until 2){
@@ -46,6 +46,6 @@ class Busy_Board extends Module {
     }
 
     when(io.flush){
-        busy_board := VecInit(Seq.fill(PREG_NUM)(false.B))
+        busy_board := VecInit.fill(PREG_NUM)(false.B)
     }
 }

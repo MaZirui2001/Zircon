@@ -73,7 +73,7 @@ class DCache extends Module{
     val index_RF            = addr_RF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
     val offset_RF           = addr_RF(OFFSET_WIDTH-1, 0)
 
-    val cache_miss_MEM  = WireDefault(VecInit(Seq.fill(5)(false.B)))
+    val cache_miss_MEM  = WireDefault(VecInit.fill(5)(false.B))
     // val hit_xor_EX      = WireDefault(VecInit.fill(2)(0.U(TAG_WIDTH.W)))
     val hit_EX          = WireDefault(0.U(2.W))
     val data_sel        = WireDefault(FROM_RBUF)
@@ -92,7 +92,7 @@ class DCache extends Module{
     val flush_RF_EX         = ShiftRegister(io.flush, 1, EX_TC_en || io.flush)
 
     // TC Stage
-    val tagv        = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_write_first(TAG_WIDTH+1, INDEX_DEPTH)).io))
+    val tagv        = VecInit.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_write_first(TAG_WIDTH+1, INDEX_DEPTH)).io)
     val tag_r_EX    = VecInit.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH-1, 0))
     val valid_r_EX  = VecInit.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH))
     val uncache_EX  = Mux(store_cmt_reg_RF_EX, false.B, Mux(flush_RF_EX, true.B, io.uncache_EX))
@@ -148,7 +148,7 @@ class DCache extends Module{
     // val hit_xor_MEM     = hit_xor_reg_EX_MEM
 
     // lru
-    val lru_mem         = RegInit(VecInit(Seq.fill(INDEX_DEPTH)(0.U(1.W))))
+    val lru_mem         = RegInit(VecInit.fill(INDEX_DEPTH)(0.U(1.W)))
     val lru_sel         = lru_mem(index_MEM)
     val lru_miss_upd    = WireDefault(false.B)
     val lru_hit_upd     = WireDefault(false.B)
@@ -161,7 +161,7 @@ class DCache extends Module{
     val wbuf_we         = WireDefault(false.B)
 
     // dirty table
-    val dirty_table     = RegInit(VecInit(Seq.fill(2)(VecInit.fill(INDEX_DEPTH)(false.B))))
+    val dirty_table     = RegInit(VecInit.fill(2)(VecInit.fill(INDEX_DEPTH)(false.B)))
     val dirty_we        = WireDefault(false.B)
     val dirty_clean     = WireDefault(false.B)
     val is_dirty        = dirty_table(lru_sel)(index_MEM)

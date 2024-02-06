@@ -31,7 +31,7 @@ class SB_IO extends Bundle {
 class SB(n: Int) extends Module {
     val io = IO(new SB_IO)
     import SB_Struct._
-    val sb = RegInit(VecInit(Seq.fill(n)(0.U.asTypeOf(new sb_t))))
+    val sb = RegInit(VecInit.fill(n)(0.U.asTypeOf(new sb_t)))
 
     val head            = RegInit(0.U(log2Ceil(n).W))
     val tail            = RegInit(0.U(log2Ceil(n).W))

@@ -30,13 +30,13 @@ class Prev_Decode extends Module {
     inst_pack_pd        := inst_pack_IF
     val inst            = VecInit(inst_pack_IF.map(_.inst))
 
-    val need_fix        = VecInit(Seq.fill(2)(false.B))
+    val need_fix        = VecInit.fill(2)(false.B)
     val fix_index       = !need_fix(0)
     io.pred_fix         := need_fix.asUInt.orR
 
     io.pred_fix_target  := inst_pack_pd(fix_index).pred_npc
 
-    val jump_type       = VecInit(Seq.fill(2)(NOT_JUMP))
+    val jump_type       = VecInit.fill(2)(NOT_JUMP)
     for(i <- 0 until 2){
         when(!(insts_opcode(i) ^ "b01".U)){
             when(!((br_type(i) ^ BR_B) & (br_type(i) ^ BR_BL))){
@@ -80,7 +80,7 @@ class Prev_Decode extends Module {
             }
         }
     }
-    val inst_valid              = VecInit(Seq.fill(2)(false.B))
+    val inst_valid              = VecInit.fill(2)(false.B)
     inst_valid(0)               := inst_pack_IF(0).inst_valid
     inst_pack_pd(0).inst_valid  := inst_valid(0)
     for(i <- 1 until 2){
