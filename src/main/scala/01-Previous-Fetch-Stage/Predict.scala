@@ -33,14 +33,14 @@ class Predict extends Module{
     
     val io = IO(new Predict_IO)
 
-    val btb_tagv    = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(BTB_TAG_WIDTH+1, BTB_DEPTH)).io))
-    val btb_targ    = VecInit(Seq.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(30+2, BTB_DEPTH)).io))
-    val bht         = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W))))))
-    val pht         = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W))))))
+    val btb_tagv    = VecInit.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(BTB_TAG_WIDTH+1, BTB_DEPTH)).io)
+    val btb_targ    = VecInit.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(30+2, BTB_DEPTH)).io)
+    val bht         = RegInit(VecInit.fill(2)(VecInit(Seq.fill(BHT_DEPTH)(0.U(4.W)))))
+    val pht         = RegInit(VecInit.fill(2)(VecInit(Seq.fill(PHT_DEPTH)(2.U(2.W)))))
 
-    val ras         = RegInit(VecInit(Seq.fill(8)(0x1c000000.U(32.W))))
+    val ras         = RegInit(VecInit.fill(8)(0x1c000000.U(32.W)))
     val jirl_sel    = RegInit(2.U(2.W))
-    val top         = RegInit(0.U(3.W))
+    val top         = RegInit(0x7.U(3.W))
 
     // check
     val npc             = io.npc
@@ -127,11 +127,11 @@ class Predict extends Module{
     .elsewhen(io.pd_pred_fix){
         when(io.pd_pred_fix_is_bl){
             top         := top + 1.U
-            ras(top)    := io.pd_pc_plus_4
+            ras(top + 1.U)    := io.pd_pc_plus_4
         }
     }.elsewhen(btb_rdata(pred_hit_index).typ(1) && pred_valid_hit(pred_hit_index)){
         top             := top + 1.U
-        ras(top)        := pc(6)(31, 3) ## pred_hit_index ## 0.U(2.W)
+        ras(top + 1.U)        := pc(6)(31, 3) ## pred_hit_index ## 0.U(2.W)
     }.elsewhen(btb_rdata(pred_hit_index).typ === RET && pred_valid_hit(pred_hit_index)){
         top             := top - 1.U
     }

@@ -49,7 +49,7 @@ class Arch_Rat(n: Int) extends Module {
 
 
     // ras
-    val top = RegInit(0.U(3.W))
+    val top = RegInit(0x7.U(3.W))
     val top_next = Wire(UInt(3.W))
     val ras = RegInit(VecInit.fill(8)(0x1c000000.U(32.W)))
     val ras_next = Wire(Vec(8, UInt(32.W)))

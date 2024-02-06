@@ -203,7 +203,7 @@ class CPU extends Module {
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
     icache.io.addr_IF           := Mux(RegNext(re_reg4.io.inst_pack_EX.priv_vec(0)), RegNext(re_reg4.io.src1_EX), pc.io.pc_PF(9))
-    icache.io.rvalid_IF         := !reset.asBool //&& !mmu.io.i_exception(7)
+    icache.io.rvalid_IF         := !reset.asBool 
     icache.io.paddr_IF          := Mux(RegNext(re_reg4.io.inst_pack_EX.priv_vec(0)), RegNext(mmu.io.d_paddr), mmu.io.i_paddr)
     icache.io.uncache_IF        := mmu.io.i_uncache 
     icache.io.stall             := fq.io.full
@@ -227,9 +227,9 @@ class CPU extends Module {
     /* ---------- 3. Previous Decode Stage ---------- */
     // Previous Decoder
     pd.io.insts_pack_IF             := ip_reg.io.insts_pack_PD  
-    pd.io.npc4_IF                   := ip_reg.io.npc4_PD
-    pd.io.npc16_IF                  := ip_reg.io.npc16_PD
-    pd.io.npc26_IF                  := ip_reg.io.npc26_PD
+    pd.io.npc4_IF                   := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + 4.U)
+    pd.io.npc16_IF                  := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + Cat(Fill(14, ip_reg.io.insts_pack_PD(i).inst(25)), ip_reg.io.insts_pack_PD(i).inst(25, 10), 0.U(2.W)))
+    pd.io.npc26_IF                  := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + Cat(Fill(4, ip_reg.io.insts_pack_PD(i).inst(9)), ip_reg.io.insts_pack_PD(i).inst(9, 0), ip_reg.io.insts_pack_PD(i).inst(25, 10), 0.U(2.W)))
 
     /* ---------- Fetch Queue ---------- */
     fq.io.insts_pack    := pd.io.insts_pack_PD
