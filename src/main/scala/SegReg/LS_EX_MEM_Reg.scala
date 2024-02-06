@@ -3,6 +3,7 @@ import chisel3.util._
 import Inst_Pack._
 
 class LS_EX_MEM_Reg extends Module {
+    import CPU_Config._
     val io = IO(new Bundle {
         val flush           = Input(Bool())
         val stall           = Input(Bool())
@@ -13,6 +14,7 @@ class LS_EX_MEM_Reg extends Module {
         val src2_EX         = Input(UInt(32.W))
         val paddr_EX        = Input(UInt(32.W))
         val llbit_EX        = Input(Bool())
+        val prd_EX          = Input(Vec(4, UInt(PREG_NUM.W)))
 
         val inst_pack_MEM   = Output(new inst_pack_IS_LS_t)
         val is_ucread_MEM   = Output(Bool())
@@ -21,6 +23,7 @@ class LS_EX_MEM_Reg extends Module {
         val src2_MEM        = Output(UInt(32.W))
         val paddr_MEM       = Output(UInt(32.W))
         val llbit_MEM       = Output(Bool())
+        val prd_MEM         = Output(Vec(4, UInt(PREG_NUM.W)))
     })
 
     val inst_pack_reg   = RegInit(0.U.asTypeOf(new inst_pack_IS_LS_t))
@@ -30,9 +33,12 @@ class LS_EX_MEM_Reg extends Module {
     val uncache_reg     = RegInit(false.B)
     val paddr_reg       = RegInit(0.U(32.W))
     val llbit_reg       = RegInit(false.B)
+    val prd_reg         = RegInit(VecInit(Seq.fill(4)(0.U(PREG_NUM.W))))
+
 
     when(io.flush) {
         inst_pack_reg   := 0.U.asTypeOf(new inst_pack_IS_LS_t)
+        prd_reg         := VecInit(Seq.fill(4)(0.U(PREG_NUM.W)))
     }.elsewhen(!io.stall) {
         inst_pack_reg   := io.inst_pack_EX
         is_ucread_Reg   := io.is_ucread_EX
@@ -41,6 +47,7 @@ class LS_EX_MEM_Reg extends Module {
         uncache_reg     := io.uncache_EX
         paddr_reg       := io.paddr_EX
         llbit_reg       := io.llbit_EX
+        prd_reg         := io.prd_EX
     }
 
     io.inst_pack_MEM    := inst_pack_reg
@@ -50,5 +57,6 @@ class LS_EX_MEM_Reg extends Module {
     io.uncache_MEM      := uncache_reg
     io.paddr_MEM        := paddr_reg
     io.llbit_MEM        := llbit_reg
+    io.prd_MEM          := prd_reg
 
 }

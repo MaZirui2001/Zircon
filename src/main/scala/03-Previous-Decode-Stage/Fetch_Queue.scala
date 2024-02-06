@@ -19,13 +19,13 @@ class Fetch_Queue extends Module{
 
     /* config */
     val ROW_WIDTH = FQ_NUM / 2
-    val queue = RegInit(VecInit(Seq.fill(2)(VecInit(Seq.fill(ROW_WIDTH)(0.U.asTypeOf(new inst_pack_PD_t))))))
+    val queue = RegInit(VecInit.fill(2)(VecInit.fill(ROW_WIDTH)(0.U.asTypeOf(new inst_pack_PD_t))))
 
-    val head = RegInit(0.U(log2Ceil(ROW_WIDTH).W))
+    val head = RegInit(VecInit.fill(2)(0.U(log2Ceil(ROW_WIDTH).W)))
     val tail = RegInit(0.U(log2Ceil(FQ_NUM).W))
 
-    val full  = !(head ^ (tail(log2Ceil(FQ_NUM)-1, 1) + 1.U))
-    val empty = !(head ^ tail(log2Ceil(FQ_NUM)-1, 1))
+    val full  = !(head(0) ^ (tail(log2Ceil(FQ_NUM)-1, 1) + 1.U))
+    val empty = !(head(1) ^ tail(log2Ceil(FQ_NUM)-1, 1))
 
 
     // Enqueue
@@ -46,7 +46,7 @@ class Fetch_Queue extends Module{
     }
     // Dequeue
     for(i <- 0 until 2){
-        io.insts_pack_id(i) := queue(i)(head)
+        io.insts_pack_id(i) := queue(i)(head(i))
         io.insts_valid_decode(i) := !empty
     }
     // update ptrs
@@ -54,10 +54,13 @@ class Fetch_Queue extends Module{
         tail := entry_index
     }
     when(io.next_ready && !empty){
-        head := head + 1.U
+        // head := head + 1.U
+        for(i <- 0 until 2){
+            head(i) := head(i) + 1.U
+        }
     }
     when(io.flush){
-        head := 0.U
+        head.foreach(_ := 0.U)
         tail := 0.U
     }
 

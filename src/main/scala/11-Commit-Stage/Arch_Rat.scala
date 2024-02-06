@@ -27,7 +27,7 @@ class Arch_Rat_IO(n: Int) extends Bundle {
 class Arch_Rat(n: Int) extends Module {
     val io = IO(new Arch_Rat_IO(n))
 
-    val arat = RegInit(VecInit(Seq.fill(n)(false.B)))
+    val arat = RegInit(VecInit.fill(n)(false.B))
     val arat_next = Wire(Vec(n, Bool()))
 
 
@@ -51,7 +51,7 @@ class Arch_Rat(n: Int) extends Module {
     // ras
     val top = RegInit(0.U(3.W))
     val top_next = Wire(UInt(3.W))
-    val ras = RegInit(VecInit(Seq.fill(8)(0x1c000000.U(32.W))))
+    val ras = RegInit(VecInit.fill(8)(0x1c000000.U(32.W)))
     val ras_next = Wire(Vec(8, UInt(32.W)))
     top_next := top
     ras_next := ras
@@ -64,7 +64,7 @@ class Arch_Rat(n: Int) extends Module {
     top := top_next
     ras := ras_next
     io.top_arch := top_next
-    io.ras_arch := ras_next
+    io.ras_arch := ras
 
     io.arch_rat := arat
     io.head_arch := head

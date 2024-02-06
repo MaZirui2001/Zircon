@@ -39,7 +39,7 @@ class Prev_Decode extends Module {
     val jump_type       = VecInit(Seq.fill(2)(NOT_JUMP))
     for(i <- 0 until 2){
         when(!(insts_opcode(i) ^ "b01".U)){
-            when(!(br_type(i) ^ BR_B) || !(br_type(i) ^ BR_BL)){
+            when(!((br_type(i) ^ BR_B) & (br_type(i) ^ BR_BL))){
                 jump_type(i) := YES_JUMP
             }.elsewhen((br_type(i) ^ BR_JIRL).orR){
                 jump_type(i) := MAY_JUMP

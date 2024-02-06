@@ -322,7 +322,7 @@ class CPU extends Module {
     iq1.io.issue_ack            := sel1.io.issue_ack
     iq1.io.flush                := rob.io.predict_fail_cmt(6)
     iq1.io.stall                := stall_by_iq || rob.io.full(5)
-    iq1.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq1.io.ld_mem_prd           := ls_ex_mem_reg.io.prd_MEM(0)
     iq1.io.dcache_miss          := dcache.io.cache_miss_iq
 
     // select
@@ -340,7 +340,7 @@ class CPU extends Module {
     iq2.io.issue_ack            := sel2.io.issue_ack
     iq2.io.flush                := rob.io.predict_fail_cmt(6)
     iq2.io.stall                := stall_by_iq || rob.io.full(5)
-    iq2.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq2.io.ld_mem_prd           := ls_ex_mem_reg.io.prd_MEM(1)
     iq2.io.dcache_miss          := dcache.io.cache_miss_iq
 
     // select
@@ -358,7 +358,7 @@ class CPU extends Module {
     iq3.io.issue_ack            := sel3.io.issue_ack
     iq3.io.flush                := rob.io.predict_fail_cmt(6)
     iq3.io.stall                := stall_by_iq || rob.io.full(5)
-    iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq3.io.ld_mem_prd           := ls_ex_mem_reg.io.prd_MEM(2)
     iq3.io.is_store_cmt_num     := DontCare
     iq3.io.rob_index_cmt        := DontCare
     iq3.io.dcache_miss          := dcache.io.cache_miss_iq
@@ -378,7 +378,7 @@ class CPU extends Module {
     iq4.io.issue_ack            := sel4.io.issue_ack
     iq4.io.flush                := rob.io.predict_fail_cmt(6)
     iq4.io.stall                := stall_by_iq || rob.io.full(5)
-    iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.inst_pack_MEM.prd
+    iq4.io.ld_mem_prd           := ls_ex_mem_reg.io.prd_MEM(3)
     iq4.io.is_store_cmt_num     := rob.io.is_store_num_cmt
     iq4.io.rob_index_cmt        := rob.io.rob_index_cmt
     iq4.io.dcache_miss          := dcache.io.cache_miss_iq 
@@ -581,6 +581,7 @@ class CPU extends Module {
     ls_ex_mem_reg.io.uncache_EX         := mmu.io.d_uncache
     ls_ex_mem_reg.io.paddr_EX           := mmu.io.d_paddr
     ls_ex_mem_reg.io.llbit_EX           := csr_rf.io.llbit_global
+    ls_ex_mem_reg.io.prd_EX             := VecInit.fill(4)(re_reg4.io.inst_pack_EX.prd)
 
     // MEM Stage
     // exception detect

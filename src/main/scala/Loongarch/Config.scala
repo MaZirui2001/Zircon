@@ -63,15 +63,7 @@ object DCache_Config{
 }
 
 object PreDecode_Config {
-    // val JIRL = 3.U(4.W)
-    // val B    = 4.U(4.W)
-    // val BL   = 5.U(4.W)
-    // val BEQ  = 6.U(4.W)
-    // val BNE  = 7.U(4.W)
-    // val BLT  = 8.U(4.W)
-    // val BGE  = 9.U(4.W)
-    // val BLTU = 10.U(4.W)
-    // val BGEU = 11.U(4.W)
+
 
     val NOT_JUMP = 0.U(2.W)
     val YES_JUMP = 1.U(2.W)
@@ -107,7 +99,6 @@ object Control_Signal{
     // alu_rs1_sel
     val RS1_REG  = 0.U(1.W)
     val RS1_PC   = 1.U(1.W)
-    // val RS1_ZERO = 2.U(2.W)
 
     // alu_rs2_sel
     val RS2_REG  = 0.U(2.W)
