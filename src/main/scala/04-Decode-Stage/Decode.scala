@@ -119,7 +119,7 @@ class Decode extends Module{
     io.priv_vec         := ctrl(12)
     
     io.fu_id            := ctrl(8)
-    io.exception        := ctrl(13)
+    io.exception        := Mux(ctrl(12)(8) && io.inst(4, 0) >= 7.U, 1.U ## Control_Signal.INE, ctrl(13))
 
 
     def Imm_Gen(inst: UInt, imm_type: UInt): UInt = {

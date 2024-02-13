@@ -15,6 +15,9 @@ class LS_EX_MEM_Reg extends Module {
         val paddr_EX        = Input(UInt(32.W))
         val llbit_EX        = Input(Bool())
         val prd_EX          = Input(Vec(4, UInt(PREG_NUM.W)))
+        val exception_EX    = Input(UInt(8.W))
+        val sb_rdata_EX     = Input(UInt(32.W))
+        val sb_hit_EX       = Input(Vec(4, Bool()))
 
         val inst_pack_MEM   = Output(new inst_pack_IS_LS_t)
         val is_ucread_MEM   = Output(Bool())
@@ -24,6 +27,9 @@ class LS_EX_MEM_Reg extends Module {
         val paddr_MEM       = Output(UInt(32.W))
         val llbit_MEM       = Output(Bool())
         val prd_MEM         = Output(Vec(4, UInt(PREG_NUM.W)))
+        val exception_MEM   = Output(UInt(8.W))
+        val sb_rdata_MEM    = Output(UInt(32.W))
+        val sb_hit_MEM      = Output(Vec(4, Bool()))
     })
 
     val inst_pack_reg   = RegInit(0.U.asTypeOf(new inst_pack_IS_LS_t))
@@ -34,6 +40,9 @@ class LS_EX_MEM_Reg extends Module {
     val paddr_reg       = RegInit(0.U(32.W))
     val llbit_reg       = RegInit(false.B)
     val prd_reg         = RegInit(VecInit.fill(4)(0.U(PREG_NUM.W)))
+    val exception_reg   = RegInit(0.U(8.W))
+    val sb_rdata_reg    = RegInit(0.U(32.W))
+    val sb_hit_reg      = RegInit(VecInit.fill(4)(false.B))
 
 
     when(io.flush) {
@@ -48,6 +57,9 @@ class LS_EX_MEM_Reg extends Module {
         paddr_reg       := io.paddr_EX
         llbit_reg       := io.llbit_EX
         prd_reg         := io.prd_EX
+        exception_reg   := io.exception_EX
+        sb_rdata_reg    := io.sb_rdata_EX
+        sb_hit_reg      := io.sb_hit_EX
     }
 
     io.inst_pack_MEM    := inst_pack_reg
@@ -58,5 +70,8 @@ class LS_EX_MEM_Reg extends Module {
     io.paddr_MEM        := paddr_reg
     io.llbit_MEM        := llbit_reg
     io.prd_MEM          := prd_reg
+    io.exception_MEM    := exception_reg
+    io.sb_rdata_MEM     := sb_rdata_reg
+    io.sb_hit_MEM       := sb_hit_reg
 
 }
