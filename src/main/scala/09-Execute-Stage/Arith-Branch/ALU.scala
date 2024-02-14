@@ -19,7 +19,7 @@ class ALU extends Module {
 
     val alu_out = Wire(UInt(32.W))
 
-    alu_out := 0.U
+    alu_out := DontCare
 
     switch(alu_op){
         is(ALU_ADD) {

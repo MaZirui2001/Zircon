@@ -73,15 +73,13 @@ class DCache extends Module{
     val index_RF                    = addr_RF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
     val offset_RF                   = addr_RF(OFFSET_WIDTH-1, 0)
 
-    val cache_miss_MEM              = WireDefault(VecInit.fill(5)(false.B))
-    val hit_EX                      = WireDefault(0.U(2.W))
     val data_sel                    = WireDefault(FROM_RBUF)
     val d_rvalid                    = WireDefault(false.B)
     val addr_sel                    = WireDefault(FROM_PIPE)
+    val cache_miss_MEM              = WireDefault(VecInit.fill(5)(false.B))
 
-    // EX-TC SegReg     
+    // RF-EX SegReg     
     val EX_TC_en                    = !(stall || cache_miss_MEM(4))
-
     val addr_reg_RF_EX              = ShiftRegister(io.addr_RF, 1, EX_TC_en)
     val mem_type_reg_RF_EX          = ShiftRegister(io.mem_type_RF, 1, EX_TC_en)
     val wdata_reg_RF_EX             = ShiftRegister(io.wdata_RF, 1, EX_TC_en)
@@ -90,19 +88,21 @@ class DCache extends Module{
     val cacop_op_reg_RF_EX          = ShiftRegister(io.cacop_op, 1, EX_TC_en)
     val flush_RF_EX                 = ShiftRegister(io.flush, 1, EX_TC_en || io.flush)
 
-    // TC Stage
+    // EX Stage
     val tagv                        = VecInit.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_write_first(TAG_WIDTH+1, INDEX_DEPTH)).io)
     val cmem                        = VecInit.fill(2)(Module(new xilinx_simple_dual_port_byte_write_1_clock_ram_write_first(OFFSET_DEPTH, 8, INDEX_DEPTH)).io)
     val tag_r_EX                    = VecInit.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH-1, 0))
     val valid_r_EX                  = VecInit.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH))
     val uncache_EX                  = Mux(store_cmt_reg_RF_EX, false.B, Mux(flush_RF_EX, true.B, io.uncache_EX))
     val cmem_rdata_EX               = VecInit.tabulate(2)(i => cmem(i).doutb)
+    val hit_EX                      = WireDefault(0.U(2.W))
     
     // decode
     val addr_EX                     = addr_reg_RF_EX
     val paddr_EX                    = io.paddr_EX
     val tag_EX                      = Mux(store_cmt_reg_RF_EX, addr_EX(31, 32-TAG_WIDTH), paddr_EX(31, 32-TAG_WIDTH))
     val index_EX                    = addr_EX(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
+
 
     // TC-MEM SegReg
     val TC_MEM_en                   = !(stall || cache_miss_MEM(4))
@@ -194,7 +194,7 @@ class DCache extends Module{
         cmem(i).wea     := cmem_we_MEM(i)
     }
     /* hit logic */
-    hit_EX            := VecInit.tabulate(2)(i => valid_r_EX(i) && !(tag_r_EX(i) ^ tag_EX)).asUInt
+    hit_EX              := VecInit.tabulate(2)(i => valid_r_EX(i) && !(tag_r_EX(i) ^ tag_EX)).asUInt
 
     // MEM Stage
     val hit_MEM         = VecInit.tabulate(2)(i => hit_reg_EX_MEM(i)).asUInt
@@ -235,8 +235,8 @@ class DCache extends Module{
     }
 
     /* dirty table logic */
-    val is_store_MEM = mem_type_MEM(4)
-    val is_load_MEM = mem_type_MEM(3)
+    val is_store_MEM    = mem_type_MEM(4)
+    val is_load_MEM     = mem_type_MEM(3)
     when(dirty_we){
         val write_way = Mux(cache_hit_MEM, hit_index_MEM, lru_sel)
         dirty_table(write_way)(index_MEM) := true.B
@@ -386,7 +386,7 @@ class DCache extends Module{
                 }.otherwise{
                     wrt_state       := Mux(is_dirty, w_write, w_finish)
                 }
-                wrt_count_reset := true.B
+                wrt_count_reset     := true.B
             }
         }
         is(w_write){

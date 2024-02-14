@@ -415,7 +415,6 @@ class CPU extends Module {
     ir_reg2.io.stall                := false.B
     ir_reg2.io.inst_pack_IS         := inst_pack_IS_FU2_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
 
-
     ir_reg3.io.flush                := rob.io.predict_fail_cmt(7)
     ir_reg3.io.stall                := mdu.io.busy
     ir_reg3.io.inst_pack_IS         := inst_pack_IS_MD_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
@@ -586,13 +585,13 @@ class CPU extends Module {
 
     // store_buf
     sb.io.flush                     := rob.io.predict_fail_cmt(6)
-    sb.io.addr_mem                  := ls_ex_mem_reg.io.paddr_MEM
-    sb.io.st_data_mem               := ls_ex_mem_reg.io.src2_MEM
+    sb.io.addr_ex                   := re_reg4.io.src1_EX
+    sb.io.st_data_ex                := re_reg4.io.src2_EX
     sb.io.mem_type_ex               := Mux(re_reg4.io.stall, 0.U, re_reg4.io.inst_pack_EX.mem_type)
-    sb.io.mem_type_mem              := Mux(ls_ex_mem_reg.io.stall, 0.U, ls_ex_mem_reg.io.inst_pack_MEM.mem_type)
-    sb.io.uncache_mem               := ls_ex_mem_reg.io.uncache_MEM 
+    sb.io.uncache_ex                := mmu.io.d_uncache
     sb.io.is_store_num_cmt          := rob.io.is_store_num_cmt
     sb.io.dcache_miss               := dcache.io.cache_miss_MEM(4)
+    sb.io.em_stall                  := ls_ex_mem_reg.io.stall
 
     // EX-MEM SegReg
     ls_ex_mem_reg.io.flush          := rob.io.predict_fail_cmt(6) || (!ls_ex_mem_reg.io.stall && sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4))
@@ -610,7 +609,6 @@ class CPU extends Module {
     ls_ex_mem_reg.io.sb_hit_EX      := sb.io.ld_hit
 
     // MEM Stage
-
     // dcache
     dcache.io.addr_RF               := Mux(sb.io.st_cmt_valid, sb.io.st_addr_cmt, re_reg4.io.src1_RF)
     dcache.io.paddr_EX              := mmu.io.d_paddr
@@ -653,6 +651,7 @@ class CPU extends Module {
     bypass_ls.io.rd_valid_ex        := VecInit(re_reg1.io.inst_pack_EX.rd_valid, re_reg2.io.inst_pack_EX.rd_valid, ls_ex_mem_reg.io.inst_pack_MEM.rd_valid)
     bypass_ls.io.prj_is             := iq4.io.insts_issue.inst.prj
     bypass_ls.io.prk_is             := iq4.io.insts_issue.inst.prk
+    
     /* ---------- EX-WB SegReg ---------- */
     ew_reg1.io.flush                := rob.io.predict_fail_cmt(9)
     ew_reg1.io.stall                := false.B

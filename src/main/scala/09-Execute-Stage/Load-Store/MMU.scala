@@ -110,12 +110,13 @@ class MMU extends Module{
     val d_csr_plv  = RegNext(io.csr_plv)
     val d_is_da    = RegNext(is_da)
     val d_is_pg    = RegNext(is_pg)
+    val d_vaddr    = ShiftRegister(io.d_vaddr, 1, !io.d_stall)
     // d_paddr
-    val d_dmw0_hit = (!(ShiftRegister(io.d_vaddr(31, 29), 1, !io.d_stall) ^ d_csr_dmw0(31, 29))) && d_csr_dmw0(3, 0)(d_csr_plv)
-    val d_dmw1_hit = (!(ShiftRegister(io.d_vaddr(31, 29), 1, !io.d_stall) ^ d_csr_dmw1(31, 29))) && d_csr_dmw1(3, 0)(d_csr_plv)
-    io.d_paddr   := Mux(d_is_da, ShiftRegister(io.d_vaddr, 1, !io.d_stall), 
-                    Mux(d_dmw0_hit, d_csr_dmw0(27, 25) ## ShiftRegister(io.d_vaddr(28, 0), 1, !io.d_stall), 
-                    Mux(d_dmw1_hit, d_csr_dmw1(27, 25) ## ShiftRegister(io.d_vaddr(28, 0), 1, !io.d_stall), tlb.io.d_paddr)))
+    val d_dmw0_hit = (!(d_vaddr(31, 29) ^ d_csr_dmw0(31, 29))) && d_csr_dmw0(3, 0)(d_csr_plv)
+    val d_dmw1_hit = (!(d_vaddr(31, 29) ^ d_csr_dmw1(31, 29))) && d_csr_dmw1(3, 0)(d_csr_plv)
+    io.d_paddr   := Mux(d_is_da, d_vaddr,
+                    Mux(d_dmw0_hit, d_csr_dmw0(27, 25) ## d_vaddr(28, 0), 
+                    Mux(d_dmw1_hit, d_csr_dmw1(27, 25) ## d_vaddr(28, 0), tlb.io.d_paddr)))
     io.d_uncache := Mux(d_is_da, !io.csr_crmd_trans(4), 
                     Mux(d_dmw0_hit, !d_csr_dmw0(4),
                     Mux(d_dmw1_hit, !d_csr_dmw1(4), tlb.io.d_uncache)))
