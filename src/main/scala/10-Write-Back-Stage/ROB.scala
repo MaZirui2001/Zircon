@@ -63,7 +63,7 @@ class ROB_IO(n: Int) extends Bundle{
     val badv_cmt                = Output(UInt(32.W))
     val exception_cmt           = Output(UInt(8.W))
     val is_eret_cmt             = Output(Bool())
-    val interrupt_vec           = Input(UInt(12.W))
+    val interrupt_vec           = Input(UInt(13.W))
 
     // for tlb
     val tlbwr_en_cmt            = Output(Bool())
@@ -119,7 +119,8 @@ class ROB(n: Int) extends Module{
     val rob         = RegInit(VecInit.fill(2)(VecInit.fill(neach)(0.U.asTypeOf(new rob_t))))
     val priv_buf    = RegInit(0.U.asTypeOf(new priv_t(n)))
     val priv_ls_buf = RegInit(0.U.asTypeOf(new priv_ls_t))
-
+    val int_vec_buf = RegInit(0.U(13.W))
+ 
     /* ROB ptrs */
     val head        = RegInit(0.U(log2Ceil(n).W))
     val head_plus_1 = RegInit(1.U(log2Ceil(n).W))
@@ -178,6 +179,11 @@ class ROB(n: Int) extends Module{
         priv_ls_buf.priv_vec    := io.priv_vec_ls
         priv_ls_buf.valid       := true.B
     }
+    when(io.cmt_en(0)){
+        int_vec_buf             := 0.U(1.W) ## io.interrupt_vec
+    }.elsewhen(!int_vec_buf(12)){
+        int_vec_buf             := 1.U(1.W) ## io.interrupt_vec
+    }
 
     // wb stage
     for(i <- 0 until 4){
@@ -198,32 +204,32 @@ class ROB(n: Int) extends Module{
     }
     
     // cmt stage
-    val interrupt_vec           = ShiftRegister(io.interrupt_vec.orR, 1);
+    val interrupt_vec           = int_vec_buf(11, 0).orR 
     val cmt_en                  = Wire(Vec(2, Bool()))
     val rob_commit_items        = VecInit.tabulate(2)(i => rob(hsel_idx(i))(head_idx(i)))
 
-    cmt_en(0) := rob_commit_items(0).complete && !empty(hsel_idx(0))
-    cmt_en(1) := rob_commit_items(1).complete && !empty(hsel_idx(1)) && cmt_en(0) && rob_commit_items(0).allow_next_cmt && !interrupt_vec
+    cmt_en(0)                   := rob_commit_items(0).complete && !empty(hsel_idx(0))
+    cmt_en(1)                   := rob_commit_items(1).complete && !empty(hsel_idx(1)) && cmt_en(0) && rob_commit_items(0).allow_next_cmt && !interrupt_vec
     
-    io.cmt_en               := ShiftRegister(cmt_en, 1)
-    io.rob_index_cmt        := ShiftRegister(head, 1)
+    io.cmt_en                   := ShiftRegister(cmt_en, 1)
+    io.rob_index_cmt            := ShiftRegister(head, 1)
 
-    val eentry_global            = ShiftRegister(io.eentry_global, 1);
-    val tlbreentry_global        = ShiftRegister(io.tlbreentry_global, 1);
-    val interrupt                = interrupt_vec && cmt_en(0)
+    val eentry_global           = ShiftRegister(io.eentry_global, 1);
+    val tlbreentry_global       = ShiftRegister(io.tlbreentry_global, 1);
+    val interrupt               = interrupt_vec && cmt_en(0)
 
     // update predict and ras
-    val rob_update_item          = Mux(cmt_en(0), Mux(cmt_en(1), rob_commit_items(1), rob_commit_items(0)), 0.U.asTypeOf(new rob_t))
-    
-    val predict_fail_cmt         = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.is_priv_ls || rob_update_item.exception(7) || interrupt
-    val branch_target_cmt        = Mux(rob_update_item.exception(7) || interrupt_vec, Mux(rob_update_item.exception(5, 0) === 0x3f.U, tlbreentry_global, eentry_global), 
-                                   Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.real_jump, rob_update_item.branch_target, rob_update_item.pc))
-    val pred_update_en_cmt       = rob_update_item.pred_update_en
-    val pred_branch_target_cmt   = rob_update_item.branch_target
-    val pred_br_type_cmt         = rob_update_item.br_type_pred
-    val pred_pc_cmt              = rob_update_item.pc - 4.U
-    val pred_real_jump_cmt       = rob_update_item.real_jump
-    val exception_cmt            = Mux(interrupt, 0x80.U(8.W), rob_update_item.exception)
+    val rob_update_item         = Mux(cmt_en(0), Mux(cmt_en(1), rob_commit_items(1), rob_commit_items(0)), 0.U.asTypeOf(new rob_t))
+
+    val predict_fail_cmt        = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.is_priv_ls || rob_update_item.exception(7) || interrupt
+    val branch_target_cmt       = Mux(rob_update_item.exception(7) || interrupt_vec, Mux(rob_update_item.exception(5, 0) === 0x3f.U, tlbreentry_global, eentry_global), 
+                                  Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.real_jump, rob_update_item.branch_target, rob_update_item.pc))
+    val pred_update_en_cmt      = rob_update_item.pred_update_en
+    val pred_branch_target_cmt  = rob_update_item.branch_target
+    val pred_br_type_cmt        = rob_update_item.br_type_pred
+    val pred_pc_cmt             = rob_update_item.pc - 4.U
+    val pred_real_jump_cmt      = rob_update_item.real_jump
+    val exception_cmt           = Mux(interrupt, 0x80.U(8.W), rob_update_item.exception)
 
     io.predict_fail_cmt         := ShiftRegister(VecInit.fill(10)(predict_fail_cmt).asUInt, 1)
     io.branch_target_cmt        := ShiftRegister(branch_target_cmt, 1)
