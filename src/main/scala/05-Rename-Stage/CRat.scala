@@ -47,9 +47,9 @@ class CRat(n: Int) extends Module{
         val rk_hit_oh = Wire(Vec(n, Bool()))
         val rd_hit_oh = Wire(Vec(n, Bool()))
         for(j <- 0 until n){
-            rj_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rj(i))
-            rk_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rk(i))
-            rd_hit_oh(j) := crat(j).valid && (crat(j).lr === io.rd(i))
+            rj_hit_oh(j) := crat(j).valid && !(crat(j).lr ^ io.rj(i))
+            rk_hit_oh(j) := crat(j).valid && !(crat(j).lr ^ io.rk(i))
+            rd_hit_oh(j) := crat(j).valid && !(crat(j).lr ^ io.rd(i))
         }
         io.prj(i)   := OHToUInt(rj_hit_oh)
         io.prk(i)   := OHToUInt(rk_hit_oh)
