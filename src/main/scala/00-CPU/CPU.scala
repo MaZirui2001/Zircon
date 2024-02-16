@@ -585,7 +585,7 @@ class CPU extends Module {
 
     // store_buf
     sb.io.flush                     := rob.io.predict_fail_cmt(6)
-    sb.io.addr_ex                   := re_reg4.io.src1_EX
+    sb.io.addr_ex                   := mmu.io.d_paddr
     sb.io.st_data_ex                := re_reg4.io.src2_EX
     sb.io.mem_type_ex               := Mux(re_reg4.io.stall, 0.U, re_reg4.io.inst_pack_EX.mem_type)
     sb.io.uncache_ex                := mmu.io.d_uncache
