@@ -127,9 +127,7 @@ class TLB extends Module{
 
     // icache tlb search
     val i_tlb_hit       = WireDefault(VecInit.fill(TLB_ENTRY_NUM)(false.B))
-    val (i_tlb_hit_idx, i_tlb_bundle) = FullyAssociativeSearch(i_tlb_hit, i_tlb.asTypeOf(Vec(TLB_ENTRY_NUM, new tlb_t)))
-    val i_tlb_entry     = i_tlb_bundle.asTypeOf(new tlb_t)
-    // val i_tlb_hit_idx   = OHToUInt(i_tlb_hit)
+    val i_tlb_entry     = Mux1H(i_tlb_hit, i_tlb)
     val i_tlb_hit_entry = TLB_Hit_Gen(i_tlb_entry, Mux(i_tlb_entry.ps(3), io.i_vaddr(12), io.i_vaddr(21)))
 
     for(i <- 0 until TLB_ENTRY_NUM){
@@ -151,8 +149,8 @@ class TLB extends Module{
     
     // dcache tlb search
     val d_tlb_hit       = WireDefault(VecInit.fill(TLB_ENTRY_NUM)(false.B))
-    val d_tlb_hit_idx   = ShiftRegister(OHToUInt(d_tlb_hit), 1, !io.d_stall)
-    val d_tlb_hit_entry = TLB_Hit_Gen(d_tlb(d_tlb_hit_idx), Mux(d_tlb(d_tlb_hit_idx).ps(3), ShiftRegister(io.d_vaddr(12), 1, !io.d_stall), ShiftRegister(io.d_vaddr(21), 1, !io.d_stall)))
+    val d_tlb_entry     = Mux1H(ShiftRegister(d_tlb_hit, 1, !io.d_stall), d_tlb)
+    val d_tlb_hit_entry = TLB_Hit_Gen(d_tlb_entry, Mux(d_tlb_entry.ps(3), ShiftRegister(io.d_vaddr(12), 1, !io.d_stall), ShiftRegister(io.d_vaddr(21), 1, !io.d_stall)))
 
 
     for(i <- 0 until TLB_ENTRY_NUM){

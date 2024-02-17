@@ -69,15 +69,12 @@ class CRat(n: Int) extends Module{
             rk_hit_oh(j) := crat(j).valid && !(crat(j).lr ^ io.rk(i))
             rd_hit_oh(j) := crat(j).valid && !(crat(j).lr ^ io.rd(i))
         }
-        // val temp = VecInit(crat.map(_.busy))
-        val (prj, prj_item) = FullyAssociativeSearch(rj_hit_oh, crat.asTypeOf(Vec(size, new rat_t)))
-        val (prk, prk_item) = FullyAssociativeSearch(rk_hit_oh, crat.asTypeOf(Vec(size, new rat_t)))
         
-        io.prj(i)       := prj
-        io.prk(i)       := prk
+        io.prj(i)       := OHToUInt(rj_hit_oh)
+        io.prk(i)       := OHToUInt(rk_hit_oh)
         io.pprd(i)      := OHToUInt(rd_hit_oh)
-        io.prj_busy(i)  := prj_item.asTypeOf(new rat_t).busy
-        io.prk_busy(i)  := prk_item.asTypeOf(new rat_t).busy
+        io.prj_busy(i)  := Mux1H(rj_hit_oh, crat.map(_.busy))
+        io.prk_busy(i)  := Mux1H(rk_hit_oh, crat.map(_.busy))
     }
     
 }
