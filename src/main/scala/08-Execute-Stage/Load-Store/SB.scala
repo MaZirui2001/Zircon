@@ -98,9 +98,10 @@ class SB(n: Int) extends Module {
     val ld_hit_mask     = ShiftRegister(Mux(io.mem_type_ex(4), 0xf.U, (15.U << UIntToOH(io.mem_type_ex(1, 0)))(3, 0)), 1, !io.em_stall)
     
     // check for each bit
+    val ld_hit_temp         = VecInit.tabulate(n)(j => !(sb_order(j).addr(31, 2) ^ ld_addr_mem(31, 2)))
     for(i <- 0 until 4){
         val addr_mem        = ld_addr_mem(31, 2) ## (ld_addr_mem(1, 0) + i.U(2.W))(1, 0)
-        val ld_hit          = VecInit.tabulate(n)(j => !(sb_order(j).addr(31, 2) ^ addr_mem(31, 2)) && sb_order(j).wstrb(addr_mem(1, 0)))
+        val ld_hit          = VecInit.tabulate(n)(j => ld_hit_temp(j) && sb_order(j).wstrb(addr_mem(1, 0)))
         val ld_bit_hit      = ld_hit.asUInt.orR && ld_mask(i)
         val ld_hit_index    = ShiftRegister(PriorityEncoderOH(ld_hit.asUInt), 1, !io.em_stall)
         val hit_byte        = Mux1H(ld_hit_index, sb_order_reg.map(_.data)) >> (ShiftRegister(addr_mem(1, 0), 1, !io.em_stall) ## 0.U(3.W))

@@ -272,17 +272,8 @@ class CPU extends Module {
     rename.io.alloc_preg            := dr_reg.io.alloc_preg_RN
     rename.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, md_ex2_ex3_reg.io.inst_pack_EX2.prd, re_reg4.io.inst_pack_EX.prd)
     rename.io.wake_valid            := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, !mdu.io.busy, !dcache.io.cache_miss_MEM(4))
-    
-    /* ---------- RN-DP SegReg ---------- */
-    // rp_reg.io.flush                 := rob.io.predict_fail_cmt(5)
-    // rp_reg.io.stall                 := stall_by_iq || rob.io.full(4)
-    // rp_reg.io.insts_pack_RN         := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i), rename.io.prj_raw(i), rename.io.prk_raw(i)))
-    // rp_reg.io.inst_RN               := dr_reg.io.inst_RN
 
-    /* ---------- 6. Dispatch Stage ---------- */
-    // Dispatch
-    // dp.io.inst_packs                := rp_reg.io.insts_pack_DP
-    // dp.io.elem_num                  := VecInit(iq1.io.elem_num, iq2.io.elem_num)
+    // dispatch
     dp.io.inst_packs                   := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i)))
     dp.io.elem_num                     := VecInit(iq1.io.elem_num, iq2.io.elem_num)
 
@@ -310,7 +301,7 @@ class CPU extends Module {
     rob.io.inst_dp                  := dr_reg.io.inst_RN
     
     
-    /* ---------- 7. Issue Stage ---------- */
+    /* ---------- 6. Issue Stage ---------- */
     // 1. arith1, common calculate
     // issue queue
     iq1.io.insts_dispatch           := VecInit.tabulate(2)(i => inst_pack_DP_FU1_gen(dp.io.inst_packs(i), rob.io.rob_index_dp(i)))
@@ -416,7 +407,7 @@ class CPU extends Module {
     ir_reg3.io.inst_pack_IS         := inst_pack_IS_MD_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
 
 
-    /* ---------- 8. Regfile Read Stage ---------- */
+    /* ---------- 7. Regfile Read Stage ---------- */
     // Regfile
     rf.io.prj                       := VecInit(ir_reg1.io.inst_pack_RF.prj, ir_reg2.io.inst_pack_RF.prj, ir_reg3.io.inst_pack_RF.prj, ir_reg4.io.inst_pack_RF.prj)
     rf.io.prk                       := VecInit(ir_reg1.io.inst_pack_RF.prk, ir_reg2.io.inst_pack_RF.prk, ir_reg3.io.inst_pack_RF.prk, ir_reg4.io.inst_pack_RF.prk)
@@ -480,7 +471,7 @@ class CPU extends Module {
     re_reg4.io.src2_RF              := ir_reg4.io.src2_EX
     re_reg4.io.csr_rdata_RF         := DontCare
 
-    /* ---------- 9. Execute Stage ---------- */
+    /* ---------- 8. Execute Stage ---------- */
     // 1. arith common fu1
     // ALU
     alu1.io.alu_op                  := re_reg1.io.inst_pack_EX.alu_op
@@ -680,7 +671,7 @@ class CPU extends Module {
     ew_reg4.io.sb_hit_EX2           := sb.io.ld_hit
     ew_reg4.io.is_ucread_EX2        := ls_ex_mem_reg.io.is_ucread_MEM
 
-    /* ---------- 10. Write Back Stage ---------- */
+    /* ---------- 9. Write Back Stage ---------- */
     rf.io.wdata                     := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ew_reg4.io.mem_rdata_WB)
     rf.io.rf_we                     := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg3.io.inst_pack_WB.rd_valid, ew_reg4.io.inst_pack_WB.rd_valid && ! ew_reg4.io.exception_WB(7))
     rf.io.prd                       := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd, ew_reg3.io.inst_pack_WB.prd, ew_reg4.io.inst_pack_WB.prd)
@@ -698,7 +689,7 @@ class CPU extends Module {
     rob.io.eentry_global            := csr_rf.io.eentry_global
     rob.io.interrupt_vec            := csr_rf.io.interrupt_vec
     
-    /* ---------- 11. Commit Stage ---------- */
+    /* ---------- 10. Commit Stage ---------- */
     // Arch Rat
     arat.io.cmt_en                  := rob.io.cmt_en
     arat.io.prd_cmt                 := rob.io.prd_cmt
