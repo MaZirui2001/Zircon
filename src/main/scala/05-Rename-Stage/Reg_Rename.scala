@@ -16,11 +16,15 @@ class Reg_rename_IO(n: Int) extends Bundle{
     val prk                 = Output(Vec(2, UInt(log2Ceil(n).W)))
     val prd                 = Output(Vec(2, UInt(log2Ceil(n).W)))
     val pprd                = Output(Vec(2, UInt(log2Ceil(n).W)))
-    val prj_raw             = Output(Vec(2, Bool()))
-    val prk_raw             = Output(Vec(2, Bool()))
 
     val predict_fail        = Input(Bool())
     val arch_rat            = Input(Vec(n, UInt(1.W)))
+
+    val prj_busy            = Output(Vec(2, Bool()))
+    val prk_busy            = Output(Vec(2, Bool()))
+
+    val prd_wake            = Input(Vec(4, UInt(log2Ceil(n).W)))
+    val wake_valid          = Input(Vec(4, Bool()))
 
 }
 
@@ -43,17 +47,19 @@ class Reg_Rename(n: Int) extends Module{
 
     // RAW
     io.prj              := prj_temp
-    io.prj_raw          := VecInit.fill(2)(false.B)
+    val prj_raw         = VecInit.fill(2)(false.B)
+    io.prj_busy         := VecInit.tabulate(2)(i => crat.io.prj_busy(i) || prj_raw(i))
     when (io.rd_valid(0) & !(io.rd(0) ^ io.rj(1))){
         io.prj(1)       := alloc_preg(0)
-        io.prj_raw(1)   := true.B
+        prj_raw(1)      := true.B
     }
 
     io.prk              := prk_temp
-    io.prk_raw          := VecInit.fill(2)(false.B)
+    val prk_raw         = VecInit.fill(2)(false.B)
+    io.prk_busy         := VecInit.tabulate(2)(i => crat.io.prk_busy(i) || prk_raw(i))
     when (io.rd_valid(0) & !(io.rd(0) ^ io.rk(1))){
         io.prk(1)       := alloc_preg(0)
-        io.prk_raw(1)   := true.B
+        prk_raw(1)      := true.B
     }
 
 
@@ -74,5 +80,7 @@ class Reg_Rename(n: Int) extends Module{
     crat.io.alloc_preg      := io.alloc_preg
     crat.io.arch_rat        := io.arch_rat
     crat.io.predict_fail    := io.predict_fail
+    crat.io.prd_wake        := io.prd_wake
+    crat.io.wake_valid      := io.wake_valid
 }
 

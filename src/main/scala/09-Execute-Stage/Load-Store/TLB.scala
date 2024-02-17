@@ -127,8 +127,10 @@ class TLB extends Module{
 
     // icache tlb search
     val i_tlb_hit       = WireDefault(VecInit.fill(TLB_ENTRY_NUM)(false.B))
-    val i_tlb_hit_idx   = OHToUInt(i_tlb_hit)
-    val i_tlb_hit_entry = TLB_Hit_Gen(i_tlb(i_tlb_hit_idx), Mux(i_tlb(i_tlb_hit_idx).ps(3), io.i_vaddr(12), io.i_vaddr(21)))
+    val (i_tlb_hit_idx, i_tlb_bundle) = FullyAssociativeSearch(i_tlb_hit, i_tlb.asTypeOf(Vec(TLB_ENTRY_NUM, new tlb_t)))
+    val i_tlb_entry     = i_tlb_bundle.asTypeOf(new tlb_t)
+    // val i_tlb_hit_idx   = OHToUInt(i_tlb_hit)
+    val i_tlb_hit_entry = TLB_Hit_Gen(i_tlb_entry, Mux(i_tlb_entry.ps(3), io.i_vaddr(12), io.i_vaddr(21)))
 
     for(i <- 0 until TLB_ENTRY_NUM){
         val tlb_vppn    = Mux(i_tlb(i).ps(3), i_tlb(i).vppn, i_tlb(i).vppn(18, 10) ## 0.U(10.W))

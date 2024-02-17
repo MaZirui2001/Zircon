@@ -101,7 +101,7 @@ class CPU extends Module {
 
     /* Dispatch Stage */
     val dp              = Module(new Dispatch)
-    val bd              = Module(new Busy_Board)
+    // val bd              = Module(new Busy_Board)
     
     /* Issue Stage */
     val iq1             = Module(new Unorder_Issue_Queue(IQ_AP_NUM, new inst_pack_DP_FU1_t))
@@ -270,6 +270,8 @@ class CPU extends Module {
     rename.io.predict_fail          := ShiftRegister(rob.io.predict_fail_cmt(4), 1)
     rename.io.arch_rat              := arat.io.arch_rat
     rename.io.alloc_preg            := dr_reg.io.alloc_preg_RN
+    rename.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, md_ex2_ex3_reg.io.inst_pack_EX2.prd, re_reg4.io.inst_pack_EX.prd)
+    rename.io.wake_valid            := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, !mdu.io.busy, !dcache.io.cache_miss_MEM(4))
     
     /* ---------- RN-DP SegReg ---------- */
     // rp_reg.io.flush                 := rob.io.predict_fail_cmt(5)
@@ -281,27 +283,11 @@ class CPU extends Module {
     // Dispatch
     // dp.io.inst_packs                := rp_reg.io.insts_pack_DP
     // dp.io.elem_num                  := VecInit(iq1.io.elem_num, iq2.io.elem_num)
-    dp.io.inst_packs                   := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i), rename.io.prj_raw(i), rename.io.prk_raw(i)))
+    dp.io.inst_packs                   := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i)))
     dp.io.elem_num                     := VecInit(iq1.io.elem_num, iq2.io.elem_num)
 
-    // busyboard    
-    // bd.io.flush                     := rob.io.predict_fail_cmt(5)
-    // bd.io.prj                       := rp_reg.io.insts_pack_DP.map(_.prj)
-    // bd.io.prk                       := rp_reg.io.insts_pack_DP.map(_.prk)
-    // bd.io.prd_wake                  := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, md_ex2_ex3_reg.io.inst_pack_EX2.prd, re_reg4.io.inst_pack_EX.prd)
-    // bd.io.prd_wake_valid            := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, !mdu.io.busy, !dcache.io.cache_miss_MEM(4))
-    // bd.io.prd_disp                  := rp_reg.io.insts_pack_DP.map(_.prd)
-    // bd.io.prd_disp_valid            := rp_reg.io.insts_pack_DP.map(_.rd_valid)
-
-    bd.io.flush                       := rob.io.predict_fail_cmt(5)
-    bd.io.prj                         := rename.io.prj
-    bd.io.prk                         := rename.io.prk
-    bd.io.prd_wake                    := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, md_ex2_ex3_reg.io.inst_pack_EX2.prd, re_reg4.io.inst_pack_EX.prd)
-    bd.io.prd_wake_valid              := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, !mdu.io.busy, !dcache.io.cache_miss_MEM(4))
-    bd.io.prd_disp                    := rename.io.prd
-    bd.io.prd_disp_valid              := rename.io.rd_valid
-    val prj_ready                     = VecInit.tabulate(2)(i => !(rename.io.prj_raw(i) || bd.io.prj_busy(i)))
-    val prk_ready                     = VecInit.tabulate(2)(i => !(rename.io.prk_raw(i) || bd.io.prk_busy(i)))
+    val prj_ready                     = VecInit.tabulate(2)(i => !(rename.io.prj_busy(i)))
+    val prk_ready                     = VecInit.tabulate(2)(i => !(rename.io.prk_busy(i)))
 
     // rob  
     val is_store_dp                 = VecInit.tabulate(2)(i => (dr_reg.io.insts_pack_RN(i).mem_type(4)))

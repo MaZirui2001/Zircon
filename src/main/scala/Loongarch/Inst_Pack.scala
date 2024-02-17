@@ -95,10 +95,8 @@ object Inst_Pack{
         val prk             = UInt(log2Ceil(PREG_NUM).W)
         val prd             = UInt(log2Ceil(PREG_NUM).W)
         val pprd            = UInt(log2Ceil(PREG_NUM).W)
-        val prj_raw         = Bool()
-        val prk_raw         = Bool()
     }
-    def inst_pack_RN_gen (inst_pack_ID : inst_pack_ID_t, _prj : UInt, _prk : UInt, _prd : UInt, _pprd : UInt, _prj_raw : Bool, _prk_raw : Bool) : inst_pack_RN_t = {
+    def inst_pack_RN_gen (inst_pack_ID : inst_pack_ID_t, _prj : UInt, _prk : UInt, _prd : UInt, _pprd : UInt) : inst_pack_RN_t = {
         val inst_pack_RN = Wire(new inst_pack_RN_t)
         inst_pack_RN.pc             := inst_pack_ID.pc
         inst_pack_RN.inst           := inst_pack_ID.inst
@@ -121,8 +119,6 @@ object Inst_Pack{
         inst_pack_RN.prk            := _prk
         inst_pack_RN.prd            := Mux(inst_pack_ID.rd_valid, _prd, 0.U)
         inst_pack_RN.pprd           := _pprd
-        inst_pack_RN.prj_raw        := _prj_raw
-        inst_pack_RN.prk_raw        := _prk_raw
         inst_pack_RN.exception      := inst_pack_ID.exception
         inst_pack_RN
     }
