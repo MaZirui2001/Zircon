@@ -17,7 +17,7 @@ object Rat{
     class rat_t extends Bundle{
         val valid = Bool()
         val lr    = UInt(5.W)
-        val busy  = Bool()
+        val free  = Bool()
     }
 }
 

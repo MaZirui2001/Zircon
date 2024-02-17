@@ -286,8 +286,8 @@ class CPU extends Module {
     dp.io.inst_packs                   := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i)))
     dp.io.elem_num                     := VecInit(iq1.io.elem_num, iq2.io.elem_num)
 
-    val prj_ready                     = VecInit.tabulate(2)(i => !(rename.io.prj_busy(i)))
-    val prk_ready                     = VecInit.tabulate(2)(i => !(rename.io.prk_busy(i)))
+    val prj_ready                     = VecInit.tabulate(2)(i => rename.io.prj_ready(i))
+    val prk_ready                     = VecInit.tabulate(2)(i => rename.io.prk_ready(i))
 
     // rob  
     val is_store_dp                 = VecInit.tabulate(2)(i => (dr_reg.io.insts_pack_RN(i).mem_type(4)))

@@ -102,8 +102,8 @@ class SB(n: Int) extends Module {
         val addr_mem        = ld_addr_mem(31, 2) ## (ld_addr_mem(1, 0) + i.U(2.W))(1, 0)
         val ld_hit          = VecInit.tabulate(n)(j => !(sb_order(j).addr(31, 2) ^ addr_mem(31, 2)) && sb_order(j).wstrb(addr_mem(1, 0)))
         val ld_bit_hit      = ld_hit.asUInt.orR && ld_mask(i)
-        val ld_hit_index    = ShiftRegister(PriorityEncoder(ld_hit.asUInt), 1, !io.em_stall)
-        val hit_byte        = sb_order_reg(ld_hit_index).data >> (ShiftRegister(addr_mem(1, 0), 1, !io.em_stall) ## 0.U(3.W))
+        val ld_hit_index    = ShiftRegister(PriorityEncoderOH(ld_hit.asUInt), 1, !io.em_stall)
+        val hit_byte        = Mux1H(ld_hit_index, sb_order_reg.map(_.data)) >> (ShiftRegister(addr_mem(1, 0), 1, !io.em_stall) ## 0.U(3.W))
         ld_hit_data(i)      := Mux(ShiftRegister(ld_bit_hit, 1, !io.em_stall), hit_byte, 0.U)
         io.ld_hit(i)        := ld_hit_mask(i) | ShiftRegister(ld_bit_hit, 1, !io.em_stall)
     }
