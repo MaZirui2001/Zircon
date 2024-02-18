@@ -23,7 +23,7 @@
   - CSR访问指令：`CSRRD`, `CSRWR`, `CSRXCHG`
   - Cache维护指令：`CACOP`
   - TLB维护指令：`TLBSRCH`, `TLBRD`, `TLBWR`, `TLBFILL`, `INVTLB`
-  - 其他杂项指令：`ERTN`
+  - 其他杂项指令：`ERTN`, `IDLE`
 
 计划实现的其他指令有：
 
@@ -31,9 +31,6 @@
 
   - 普通访存指令：`PRELD`
   - 栅障指令：`DBAR`, `IBAR`
-* 特权架构：
-
-  - 其他杂项指令：`IDLE`
 
 ## 构建方式
 
