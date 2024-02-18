@@ -18,10 +18,11 @@ object CPU_Main extends App {
     if(System.getProperties().getProperty("mode") != "sim"){
         firtool_options = firtool_options ++ Array("--vb-to-bv")
     }
+    
     ChiselStage.emitSystemVerilogFile(
         new CPU, 
         Array("-td", "build/"),
-        firtoolOpts = firtool_options
+        firtoolOpts = firtool_options,
     )
 }
 // object Cache_Main extends App {

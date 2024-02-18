@@ -56,15 +56,15 @@ class Prev_Decode extends Module {
     for(i <- 0 until 2){
         switch(jump_type(i)){
             is(YES_JUMP){
-                when(!inst_pack_IF(i).pred_valid){
-                    need_fix(i)                     := inst_pack_IF(i).inst_valid 
-                    inst_pack_pd(i).predict_jump    := true.B
-                    inst_pack_pd(i).pred_npc        := io.npc26_IF(i)
-                }.otherwise{
-                    need_fix(i)                     := inst_pack_IF(i).inst_valid && (!inst_pack_IF(i).predict_jump)
-                    inst_pack_pd(i).predict_jump    := true.B
-                    inst_pack_pd(i).pred_npc        := Mux(inst_pack_IF(i).predict_jump, inst_pack_IF(i).pred_npc, io.npc26_IF(i))
-                }
+                // when(!inst_pack_IF(i).pred_valid){
+                    // need_fix(i)                     := inst_pack_IF(i).inst_valid 
+                    // inst_pack_pd(i).predict_jump    := true.B
+                    // inst_pack_pd(i).pred_npc        := io.npc26_IF(i)
+                // }.otherwise{
+                need_fix(i)                     := inst_pack_IF(i).inst_valid && !(inst_pack_IF(i).predict_jump && !(inst_pack_IF(i).pred_npc ^ io.npc26_IF(i)))
+                inst_pack_pd(i).predict_jump    := true.B
+                inst_pack_pd(i).pred_npc        := io.npc26_IF(i)
+                //}
             }
             is(MAY_JUMP){
                 when(!inst_pack_IF(i).pred_valid){

@@ -10,20 +10,21 @@ class LS_RF_EX_Reg[T <: Bundle](inst_pack_t: T) extends Module {
         val src1_RF         = Input(UInt(32.W))
         val src2_RF         = Input(UInt(32.W))
         val csr_rdata_RF    = Input(UInt(32.W))
-        val uncache_RF      = Input(Bool())
+        val forward_prj_en  = Input(Bool())
+        val forward_prk_en  = Input(Bool())
+        val forward_prj_data= Input(UInt(32.W))
+        val forward_prk_data= Input(UInt(32.W))
 
         val inst_pack_EX    = Output(inst_pack_t)
         val src1_EX         = Output(UInt(32.W))
         val src2_EX         = Output(UInt(32.W))
         val csr_rdata_EX    = Output(UInt(32.W))
-        val uncache_EX      = Output(Bool())
     })
 
     val inst_pack_reg   = RegInit(0.U.asTypeOf(inst_pack_t))
     val src1_reg        = RegInit(0.U(32.W))
     val src2_reg        = RegInit(0.U(32.W))
     val csr_rdata_reg   = RegInit(0.U(32.W))
-    val uncache_reg     = RegInit(false.B)
 
     when(io.flush) {
         inst_pack_reg   := 0.U.asTypeOf(inst_pack_t)
@@ -32,14 +33,19 @@ class LS_RF_EX_Reg[T <: Bundle](inst_pack_t: T) extends Module {
         src1_reg        := io.src1_RF
         src2_reg        := io.src2_RF
         csr_rdata_reg   := io.csr_rdata_RF
-        uncache_reg     := io.uncache_RF
+    }.otherwise{
+        when(io.forward_prj_en){
+            src1_reg    := io.forward_prj_data
+        }
+        when(io.forward_prk_en){
+            src2_reg    := io.forward_prk_data
+        }
     }
 
     io.inst_pack_EX     := inst_pack_reg
     io.src1_EX          := src1_reg
     io.src2_EX          := src2_reg
     io.csr_rdata_EX     := csr_rdata_reg
-    io.uncache_EX       := uncache_reg
 }
 
 

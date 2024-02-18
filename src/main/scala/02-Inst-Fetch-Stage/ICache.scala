@@ -147,7 +147,7 @@ class ICache extends Module{
 
     /* rdata logic */
     val block_offset    = offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(5.W)
-    val cmem_rdata_RM   = (cmem(hit_index_RM).douta >> block_offset)(63, 0)
+    val cmem_rdata_RM   = (Mux1H(hit_RM, cmem.map(_.douta)) >> block_offset)(63, 0)
     val rbuf_rdata_RM   = Mux(uncache_RM, ret_buf(8*OFFSET_DEPTH-1, 8*OFFSET_DEPTH-64), (ret_buf >> block_offset)(63, 0))
     val rdata_RM        = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, cmem_rdata_RM(32*i+31, 32*i), rbuf_rdata_RM(32*i+31, 32*i))))
 
