@@ -673,12 +673,12 @@ class CPU extends Module {
     // rob
     rob.io.inst_valid_wb            := VecInit(ew_reg1.io.inst_pack_WB.inst_valid && !ew_reg1.io.stall, ew_reg2.io.inst_pack_WB.inst_valid && !ew_reg2.io.stall, ew_reg3.io.inst_pack_WB.inst_valid && !ew_reg3.io.stall, ew_reg4.io.inst_pack_WB.inst_valid && !ew_reg4.io.stall)
     rob.io.rob_index_wb             := VecInit(ew_reg1.io.inst_pack_WB.rob_index, ew_reg2.io.inst_pack_WB.rob_index, ew_reg3.io.inst_pack_WB.rob_index, ew_reg4.io.inst_pack_WB.rob_index)
-    rob.io.predict_fail_wb          := VecInit(false.B, ew_reg2.io.predict_fail_WB, false.B, false.B)
-    rob.io.real_jump_wb             := VecInit(false.B, ew_reg2.io.real_jump_WB, false.B, false.B)
+    rob.io.predict_fail_wb          := VecInit(DontCare, ew_reg2.io.predict_fail_WB, DontCare, DontCare)
+    rob.io.real_jump_wb             := VecInit(DontCare, ew_reg2.io.real_jump_WB, DontCare, DontCare)
     rob.io.branch_target_wb         := VecInit(DontCare, ew_reg2.io.branch_target_WB, ew_reg3.io.csr_wdata_WB, ew_reg4.io.vaddr_WB)
     rob.io.rf_wdata_wb              := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg3.io.md_out_WB, ew_reg4.io.mem_rdata_WB)
     rob.io.is_ucread_wb             := VecInit(ew_reg1.io.is_ucread_WB, false.B, false.B, ew_reg4.io.is_ucread_WB)
-    rob.io.exception_wb             := VecInit(0.U, 0.U, 0.U, ew_reg4.io.exception_WB)
+    rob.io.exception_wb             := VecInit(DontCare, DontCare, DontCare, ew_reg4.io.exception_WB)
     rob.io.tlbreentry_global        := csr_rf.io.tlbreentry_global
     rob.io.eentry_global            := csr_rf.io.eentry_global
     rob.io.interrupt_vec            := csr_rf.io.interrupt_vec

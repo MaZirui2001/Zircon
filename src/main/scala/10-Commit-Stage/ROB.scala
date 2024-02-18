@@ -148,6 +148,8 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).is_store        := io.is_store_dp(i)
                 rob(i)(tail).br_type_pred    := io.br_type_pred_dp(i)
                 rob(i)(tail).pred_update_en  := io.pred_update_en_dp(i)
+                rob(i)(tail).predict_fail    := false.B
+                // rob(i)(tail).real_jump       := false.B
                 rob(i)(tail).complete        := false.B
                 rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(9, 1).orR
                 rob(i)(tail).is_priv_ls      := io.priv_vec_dp(i)(12, 10).orR
@@ -191,14 +193,22 @@ class ROB(n: Int) extends Module{
             val col_idx = io.rob_index_wb(i)(FRONT_LOG2-1, 0)
             val row_idx = io.rob_index_wb(i)(log2Ceil(n)-1, FRONT_LOG2)
             rob(col_idx)(row_idx).complete        := true.B
-            rob(col_idx)(row_idx).predict_fail    := io.predict_fail_wb(i)
-            rob(col_idx)(row_idx).branch_target   := Mux(rob(col_idx)(row_idx).exception(7), rob(col_idx)(row_idx).pc - 4.U, io.branch_target_wb(i))
             rob(col_idx)(row_idx).rf_wdata        := io.rf_wdata_wb(i)
-            rob(col_idx)(row_idx).real_jump       := io.real_jump_wb(i)
             rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
+            if(i != 0){
+                if(i == 2){
+                    rob(col_idx)(row_idx).branch_target   := Mux(rob(col_idx)(row_idx).exception(7), rob(col_idx)(row_idx).pc - 4.U, io.branch_target_wb(i))
+                }else{
+                    rob(col_idx)(row_idx).branch_target   := io.branch_target_wb(i)
+                }
+            }
+            if(i == 1){
+                rob(col_idx)(row_idx).predict_fail      := io.predict_fail_wb(i)
+                rob(col_idx)(row_idx).real_jump         := io.real_jump_wb(i)
+            }
             if(i == 3){
                 rob(col_idx)(row_idx).exception         := io.exception_wb(i)
-                rob(col_idx)(row_idx).allow_next_cmt    := Mux(rob(col_idx)(row_idx).allow_next_cmt, !io.exception_wb(i)(7), false.B)
+                rob(col_idx)(row_idx).allow_next_cmt    := !io.exception_wb(i)(7)
             }
         }
     }
@@ -223,7 +233,7 @@ class ROB(n: Int) extends Module{
 
     val predict_fail_cmt        = rob_update_item.predict_fail || rob_update_item.is_priv_wrt || rob_update_item.is_priv_ls || rob_update_item.exception(7) || interrupt
     val branch_target_cmt       = Mux(rob_update_item.exception(7) || interrupt_vec, Mux(rob_update_item.exception(5, 0) === 0x3f.U, tlbreentry_global, eentry_global), 
-                                  Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.real_jump, rob_update_item.branch_target, rob_update_item.pc))
+                                  Mux(rob_update_item.is_priv_wrt && priv_buf.priv_vec(3) || rob_update_item.pred_update_en && rob_update_item.real_jump, rob_update_item.branch_target, rob_update_item.pc))
     val pred_update_en_cmt      = rob_update_item.pred_update_en
     val pred_branch_target_cmt  = rob_update_item.branch_target
     val pred_br_type_cmt        = rob_update_item.br_type_pred
@@ -295,7 +305,7 @@ class ROB(n: Int) extends Module{
         }
         
     }
-    tail := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(!full(1) && !io.stall, Mux(tail + inst_valid_dp === neach.U, 0.U, tail + inst_valid_dp), tail))
+    tail                        := Mux(io.predict_fail_cmt(0) || predict_fail_cmt, 0.U, Mux(!full(1) && !io.stall, Mux(tail + inst_valid_dp === neach.U, 0.U, tail + inst_valid_dp), tail))
 
 
     // stat
@@ -304,7 +314,7 @@ class ROB(n: Int) extends Module{
     val prd_cmt                  = VecInit.tabulate(2)(i => rob_commit_items(i).prd)
     val pprd_cmt                 = VecInit.tabulate(2)(i => rob_commit_items(i).pprd)
     val pc_cmt                   = VecInit.tabulate(2)(i => Mux(rob_commit_items(i).exception(7) || interrupt, Mux(rob_commit_items(i).exception(5, 0) === 0x3f.U, tlbreentry_global, eentry_global), 
-                                                            Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, rob_commit_items(i).pc)))
+                                                            Mux(rob_commit_items(i).is_priv_wrt && priv_buf.priv_vec(3) || rob_commit_items(i).pred_update_en && rob_commit_items(i).real_jump, rob_commit_items(i).branch_target, rob_commit_items(i).pc)))
     val rf_wdata_cmt             = VecInit.tabulate(2)(i => rob_commit_items(i).rf_wdata)
     val is_ucread_cmt            = VecInit.tabulate(2)(i => rob_commit_items(i).is_ucread && cmt_en(i))
     val csr_diff_addr_cmt        = VecInit.fill(2)(priv_buf.csr_addr)
