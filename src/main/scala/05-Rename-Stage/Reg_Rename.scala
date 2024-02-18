@@ -46,19 +46,19 @@ class Reg_Rename(n: Int) extends Module{
     io.prd              := alloc_preg
 
     // RAW
-    io.prj              := prj_temp
+    io.prj               := prj_temp
     val prj_nraw         = VecInit.fill(2)(true.B)
     io.prj_ready         := VecInit.tabulate(2)(i => crat.io.prj_ready(i) && prj_nraw(i))
     when (io.rd_valid(0) & !(io.rd(0) ^ io.rj(1))){
-        io.prj(1)       := alloc_preg(0)
+        io.prj(1)        := alloc_preg(0)
         prj_nraw(1)      := false.B
     }
 
-    io.prk              := prk_temp
+    io.prk               := prk_temp
     val prk_nraw         = VecInit.fill(2)(true.B)
     io.prk_ready         := VecInit.tabulate(2)(i => crat.io.prk_ready(i) && prk_nraw(i))
     when (io.rd_valid(0) & !(io.rd(0) ^ io.rk(1))){
-        io.prk(1)       := alloc_preg(0)
+        io.prk(1)        := alloc_preg(0)
         prk_nraw(1)      := false.B
     }
 
@@ -67,9 +67,9 @@ class Reg_Rename(n: Int) extends Module{
     rd_valid_temp(1)     := io.rd_valid(1)
     rd_valid_temp(0)     := io.rd_valid(0) & ~(!(io.rd(0) ^ io.rd(1)) & io.rd_valid(1))
 
-    io.pprd             := pprd_temp
+    io.pprd              := pprd_temp
     when(io.rd_valid(0) & !(io.rd(0) ^ io.rd(1))){
-        io.pprd(1)      := alloc_preg(0)
+        io.pprd(1)       := alloc_preg(0)
     }
 
     // crat

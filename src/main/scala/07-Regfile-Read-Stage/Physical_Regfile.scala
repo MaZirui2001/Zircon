@@ -20,6 +20,7 @@ class Physical_Regfile(n: Int) extends Module{
     val io = IO(new Physical_Regfile_IO(n))
 
     val rf = RegInit(VecInit.fill(n)(0.U(32.W)))
+    //val rf = Reg(Vec(n, UInt(32.W)))
 
     // read, write first regfile
     import RF_Func._
@@ -37,4 +38,8 @@ class Physical_Regfile(n: Int) extends Module{
             rf(io.prd(i)) := io.wdata(i)
         }
     }
+
+    // when(reset.asBool){
+    //     rf(0) := 0.U
+    // }
 }

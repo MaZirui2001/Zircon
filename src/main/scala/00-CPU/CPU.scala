@@ -7,53 +7,53 @@ import TLB_Struct._
 
 import CPU_Config._
 class CPU_IO extends Bundle{
-    val araddr                     = Output(UInt(32.W))
-    val arburst                    = Output(UInt(2.W))
-    val arid                       = Output(UInt(4.W))
-    val arlen                      = Output(UInt(8.W))  
-    val arready                    = Input(Bool())
-    val arsize                     = Output(UInt(3.W))
-    val arvalid                    = Output(Bool())
-    val awaddr                     = Output(UInt(32.W))
-    val awburst                    = Output(UInt(2.W))
-    val awid                       = Output(UInt(4.W))
-    val awlen                      = Output(UInt(8.W))
-    val awready                    = Input(Bool())
-    val awsize                     = Output(UInt(3.W))
-    val awvalid                    = Output(Bool())
-    val bid                        = Input(UInt(4.W))
-    val bready                     = Output(Bool())
-    val bresp                      = Input(UInt(2.W))
-    val bvalid                     = Input(Bool())
-    val rdata                      = Input(UInt(32.W))
-    val rid                        = Input(UInt(4.W))
-    val rlast                      = Input(Bool())
-    val rready                     = Output(Bool())
-    val rresp                      = Input(UInt(2.W))
-    val rvalid                     = Input(Bool())
-    val wdata                      = Output(UInt(32.W))
-    val wlast                      = Output(Bool())
-    val wready                     = Input(Bool())
-    val wstrb                      = Output(UInt(4.W))
-    val wvalid                     = Output(Bool())
+    val araddr                      = Output(UInt(32.W))
+    val arburst                     = Output(UInt(2.W))
+    val arid                        = Output(UInt(4.W))
+    val arlen                       = Output(UInt(8.W))  
+    val arready                     = Input(Bool())
+    val arsize                      = Output(UInt(3.W))
+    val arvalid                     = Output(Bool())
+    val awaddr                      = Output(UInt(32.W))
+    val awburst                     = Output(UInt(2.W))
+    val awid                        = Output(UInt(4.W))
+    val awlen                       = Output(UInt(8.W))
+    val awready                     = Input(Bool())
+    val awsize                      = Output(UInt(3.W))
+    val awvalid                     = Output(Bool())
+    val bid                         = Input(UInt(4.W))
+    val bready                      = Output(Bool())
+    val bresp                       = Input(UInt(2.W))
+    val bvalid                      = Input(Bool())
+    val rdata                       = Input(UInt(32.W))
+    val rid                         = Input(UInt(4.W))
+    val rlast                       = Input(Bool())
+    val rready                      = Output(Bool())
+    val rresp                       = Input(UInt(2.W))
+    val rvalid                      = Input(Bool())
+    val wdata                       = Output(UInt(32.W))
+    val wlast                       = Output(Bool())
+    val wready                      = Input(Bool())
+    val wstrb                       = Output(UInt(4.W))
+    val wvalid                      = Output(Bool())
 
     // debug
-    val commit_en                  = Output(Vec(2, Bool()))
-    val commit_rd                  = Output(Vec(2, UInt(5.W)))
-    val commit_prd                 = Output(Vec(2, UInt(log2Ceil(PREG_NUM).W)))
-    val commit_rd_valid            = Output(Vec(2, Bool()))
-    val commit_rf_wdata            = Output(Vec(2, UInt(32.W)))
-    val commit_csr_wdata           = Output(Vec(2, UInt(32.W)))
-    val commit_csr_we              = Output(Vec(2, Bool()))
-    val commit_csr_waddr           = Output(Vec(2, UInt(14.W)))
-    val commit_pc                  = Output(Vec(2, UInt(32.W)))
-    val commit_is_ucread           = Output(Vec(2, Bool()))
-    val commit_is_br               = Output(Vec(2, Bool()))
-    val commit_br_type             = Output(Vec(2, UInt(2.W)))
-    val commit_predict_fail        = Output(Vec(2, Bool()))
-    val commit_inst                = Output(Vec(2, UInt(32.W)))
-    val commit_interrupt           = Output(Bool())
-    val commit_interrupt_type      = Output(UInt(13.W))
+    val commit_en                   = Output(Vec(2, Bool()))
+    val commit_rd                   = Output(Vec(2, UInt(5.W)))
+    val commit_prd                  = Output(Vec(2, UInt(log2Ceil(PREG_NUM).W)))
+    val commit_rd_valid             = Output(Vec(2, Bool()))
+    val commit_rf_wdata             = Output(Vec(2, UInt(32.W)))
+    val commit_csr_wdata            = Output(Vec(2, UInt(32.W)))
+    val commit_csr_we               = Output(Vec(2, Bool()))
+    val commit_csr_waddr            = Output(Vec(2, UInt(14.W)))
+    val commit_pc                   = Output(Vec(2, UInt(32.W)))
+    val commit_is_ucread            = Output(Vec(2, Bool()))
+    val commit_is_br                = Output(Vec(2, Bool()))
+    val commit_br_type              = Output(Vec(2, UInt(2.W)))
+    val commit_predict_fail         = Output(Vec(2, Bool()))
+    val commit_inst                 = Output(Vec(2, UInt(32.W)))
+    val commit_interrupt            = Output(Bool())
+    val commit_interrupt_type       = Output(UInt(13.W))
 
     val commit_stall_by_fetch_queue = Output(Bool())
     val commit_stall_by_rename      = Output(Bool())
@@ -74,90 +74,89 @@ class CPU_IO extends Bundle{
 
 }
 class CPU extends Module {
-    val io              = IO(new CPU_IO)
-    val arb             = Module(new AXI_Arbiter)
+    val io                          = IO(new CPU_IO)
+    val arb                         = Module(new AXI_Arbiter)
 
     /* Previous Fetch Stage */
-    val pc              = Module(new PC(RESET_VEC))
-    val predict         = Module(new Predict)
-    val pi_reg          = Module(new PF_IF_Reg)
+    val pc                          = Module(new PC(RESET_VEC))
+    val predict                     = Module(new Predict)
+    val pi_reg                      = Module(new PF_IF_Reg)
 
     /* Inst Fetch Stage */
-    val icache          = Module(new ICache)
-    val ip_reg          = Module(new IF_PD_Reg)
+    val icache                      = Module(new ICache)
+    val ip_reg                      = Module(new IF_PD_Reg)
 
     /* Previous Decode Stage */
-    val pd              = Module(new Prev_Decode)
-    val fq              = Module(new Fetch_Queue)
+    val pd                          = Module(new Prev_Decode)
+    val fq                          = Module(new Fetch_Queue)
 
-    /* Decode Stage */
-    val decode          = VecInit.fill(2)(Module(new Decode).io)
-    val dr_reg          = Module(new ID_RN_Reg)
-    val free_list       = Module(new Free_List(PREG_NUM))
+    /* Decode Stage */          
+    val decode                      = VecInit.fill(2)(Module(new Decode).io)
+    val dr_reg                      = Module(new ID_RN_Reg)
+    val free_list                   = Module(new Free_List(PREG_NUM))
 
-    /* Rename Stage */
-    val rename          = Module(new Reg_Rename(PREG_NUM))
-    // val rp_reg          = Module(new RN_DP_Reg)
+    /* Rename Stage */          
+    val rename                      = Module(new Reg_Rename(PREG_NUM))
 
-    /* Dispatch Stage */
-    val dp              = Module(new Dispatch)
+    /* Dispatch Stage */            
+    val dp                          = Module(new Dispatch)
     
     /* Issue Stage */
-    val iq1             = Module(new Unorder_Issue_Queue(IQ_AP_NUM, new inst_pack_DP_FU1_t))
-    val sel1            = Module(new Unorder_Select(IQ_AP_NUM, new inst_pack_DP_FU1_t))
-    val ir_reg1         = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
+    val iq1                         = Module(new Unorder_Issue_Queue(IQ_AP_NUM, new inst_pack_DP_FU1_t))
+    val sel1                        = Module(new Unorder_Select(IQ_AP_NUM, new inst_pack_DP_FU1_t))
+    val ir_reg1                     = Module(new IS_RF_Reg(new inst_pack_IS_FU1_t))
 
-    val iq2             = Module(new Unorder_Issue_Queue(IQ_AB_NUM, new inst_pack_DP_FU2_t))
-    val sel2            = Module(new Unorder_Select(IQ_AB_NUM, new inst_pack_DP_FU2_t))
-    val ir_reg2         = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
+    val iq2                         = Module(new Unorder_Issue_Queue(IQ_AB_NUM, new inst_pack_DP_FU2_t))
+    val sel2                        = Module(new Unorder_Select(IQ_AB_NUM, new inst_pack_DP_FU2_t))
+    val ir_reg2                     = Module(new IS_RF_Reg(new inst_pack_IS_FU2_t))
 
 
-    val iq3             = Module(new Order_Issue_Queue(IQ_MD_NUM, new inst_pack_DP_MD_t))
-    val sel3            = Module(new Order_Select(IQ_MD_NUM, new inst_pack_DP_MD_t))
-    val ir_reg3         = Module(new IS_RF_Reg(new inst_pack_IS_MD_t))
+    val iq3                         = Module(new Order_Issue_Queue(IQ_MD_NUM, new inst_pack_DP_MD_t))
+    val sel3                        = Module(new Order_Select(IQ_MD_NUM, new inst_pack_DP_MD_t))
+    val ir_reg3                     = Module(new IS_RF_Reg(new inst_pack_IS_MD_t))
 
-    val iq4             = Module(new Order_Issue_Queue(IQ_LS_NUM, new inst_pack_DP_LS_t))
-    val sel4            = Module(new Order_Select(IQ_LS_NUM, new inst_pack_DP_LS_t))
-    val ir_reg4         = Module(new LS_RF_EX_Reg(new inst_pack_IS_LS_t))
+    val iq4                         = Module(new Order_Issue_Queue(IQ_LS_NUM, new inst_pack_DP_LS_t))
+    val sel4                        = Module(new Order_Select(IQ_LS_NUM, new inst_pack_DP_LS_t))
+    val ir_reg4                     = Module(new LS_RF_EX_Reg(new inst_pack_IS_LS_t))
 
     /* Regfile Read Stage */
-    val rf              = Module(new Physical_Regfile(PREG_NUM))
-    val csr_rf          = Module(new CSR_Regfile(32, 30))
-    val stable_cnt      = Module(new Stable_Counter)
+    val rf                          = Module(new Physical_Regfile(PREG_NUM))
+    val csr_rf                      = Module(new CSR_Regfile(32, 30))
+    val stable_cnt                  = Module(new Stable_Counter)
 
-    val re_reg1         = Module(new RF_EX_Reg(new inst_pack_IS_FU1_t))
-    val re_reg2         = Module(new RF_EX_Reg(new inst_pack_IS_FU2_t))
-    val re_reg3         = Module(new RF_EX_Reg(new inst_pack_IS_MD_t))
-    val re_reg4         = Module(new RF_EX_Reg(new inst_pack_IS_LS_t))
+    val re_reg1                     = Module(new RF_EX_Reg(new inst_pack_IS_FU1_t))
+    val re_reg2                     = Module(new RF_EX_Reg(new inst_pack_IS_FU2_t))
+    val re_reg3                     = Module(new RF_EX_Reg(new inst_pack_IS_MD_t))
+    val re_reg4                     = Module(new RF_EX_Reg(new inst_pack_IS_LS_t))
 
     /* Execute Stage */
-    val alu1            = Module(new ALU)
-    val ew_reg1         = Module(new FU1_EX_WB_Reg)
+    val alu1                        = Module(new ALU)
+    val ew_reg1                     = Module(new FU1_EX_WB_Reg)
 
-    val alu2            = Module(new ALU)
-    val br              = Module(new Branch)
-    val ew_reg2         = Module(new FU2_EX_WB_Reg)
+    val alu2                        = Module(new ALU)
+    val br                          = Module(new Branch)
+    val ew_reg2                     = Module(new FU2_EX_WB_Reg)
 
-    val mdu             = Module(new MDU)
-    val md_ex1_ex2_reg  = Module(new MD_EX1_EX2_Reg)
-    val md_ex2_ex3_reg  = Module(new MD_EX1_EX2_Reg)
-    val ew_reg3         = Module(new MD_EX_WB_Reg)
+    val mdu                         = Module(new MDU)
+    val md_ex1_ex2_reg              = Module(new MD_EX1_EX2_Reg)
+    val md_ex2_ex3_reg              = Module(new MD_EX1_EX2_Reg)
+    val ew_reg3                     = Module(new MD_EX_WB_Reg)
 
-    val exception_ls    = Module(new Exception_LS)
-    val mmu             = Module(new MMU)
-    val sb              = Module(new SB(SB_NUM))
-    val dcache          = Module(new DCache)
-    val ls_ex_mem_reg   = Module(new LS_EX_MEM_Reg) 
-    val ew_reg4         = Module(new LS_EX2_WB_Reg)
+    val exception_ls                = Module(new Exception_LS)
+    val mmu                         = Module(new MMU)
+    val sb                          = Module(new SB(SB_NUM))
+    val dcache                      = Module(new DCache)
+    val ls_ex_mem_reg               = Module(new LS_EX_MEM_Reg) 
+    val ew_reg4                     = Module(new LS_EX2_WB_Reg)
 
     /* Write Back Stage */
-    val rob             = Module(new ROB(ROB_NUM))
-    val bypass          = Module(new Bypass_3)
+    val rob                         = Module(new ROB(ROB_NUM))
+    val bypass                      = Module(new Bypass_3)
 
-    /* Commit Stage */
-    val arat            = Module(new Arch_Rat(PREG_NUM))
+    /* Commit Stage */          
+    val arat                        = Module(new Arch_Rat(PREG_NUM))
 
-    val stall_by_iq = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
+    val stall_by_iq                 = iq1.io.full || iq2.io.full || iq3.io.full || iq4.io.full
 
     /* ---------- 1. Previous Fetch Stage ---------- */
     // PC
@@ -218,20 +217,20 @@ class CPU extends Module {
     val NOP_inst                    = 0x001c0000.U
     ip_reg.io.flush                 := rob.io.predict_fail_cmt(1) || (!ip_reg.io.stall && (pd.io.pred_fix || icache.io.cache_miss_RM))
     ip_reg.io.stall                 := fq.io.full
-    ip_reg.io.insts_pack_IF         := VecInit.tabulate(2)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), Mux(pi_reg.io.inst_pack_IF(i).exception(7) || mmu.io.i_exception(7), NOP_inst, icache.io.rdata_RM(i)), mmu.io.i_exception))
+    ip_reg.io.insts_pack_IF         := VecInit.tabulate(2)(i => inst_pack_IF_gen(pi_reg.io.inst_pack_IF(i), icache.io.rdata_RM(i), mmu.io.i_exception))
     ip_reg.io.npc16_IF              := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + Cat(Fill(14, icache.io.rdata_RM(i)(25)), icache.io.rdata_RM(i)(25, 10), 0.U(2.W)))
     ip_reg.io.npc26_IF              := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + Cat(Fill(4, icache.io.rdata_RM(i)(9)), icache.io.rdata_RM(i)(9, 0), icache.io.rdata_RM(i)(25, 10), 0.U(2.W)))
     ip_reg.io.npc4_IF               := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + 4.U)
 
     /* ---------- 3. Previous Decode Stage ---------- */
     // Previous Decoder
-    pd.io.insts_pack_IF             := ip_reg.io.insts_pack_PD  
+    pd.io.insts_pack_IF             := ip_reg.io.insts_pack_PD
     pd.io.npc4_IF                   := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + 4.U)
     pd.io.npc16_IF                  := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + Cat(Fill(14, ip_reg.io.insts_pack_PD(i).inst(25)), ip_reg.io.insts_pack_PD(i).inst(25, 10), 0.U(2.W)))
     pd.io.npc26_IF                  := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + Cat(Fill(4, ip_reg.io.insts_pack_PD(i).inst(9)), ip_reg.io.insts_pack_PD(i).inst(9, 0), ip_reg.io.insts_pack_PD(i).inst(25, 10), 0.U(2.W)))
 
     /* ---------- Fetch Queue ---------- */
-    fq.io.insts_pack                := pd.io.insts_pack_PD
+    fq.io.insts_pack                := VecInit.tabulate(2)(i => inst_pack_IF_gen(pd.io.insts_pack_PD(i), Mux(ip_reg.io.insts_pack_PD(i).exception(7), NOP_inst, ip_reg.io.insts_pack_PD(i).inst), ip_reg.io.insts_pack_PD(i).exception))
     fq.io.next_ready                := !(rob.io.full(2) || stall_by_iq || free_list.io.empty)
     fq.io.flush                     := rob.io.predict_fail_cmt(3)
 
@@ -618,11 +617,11 @@ class CPU extends Module {
     dcache.io.cacop_op              := re_reg4.io.inst_pack_RF.imm(4, 3)
 
     // bypass for 1, 2
-    bypass.io.prd_wb              := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd, ew_reg4.io.inst_pack_WB.prd)
-    bypass.io.prj_ex              := VecInit(re_reg1.io.inst_pack_EX.prj, re_reg2.io.inst_pack_EX.prj, ir_reg4.io.inst_pack_EX.prj)
-    bypass.io.prk_ex              := VecInit(re_reg1.io.inst_pack_EX.prk, re_reg2.io.inst_pack_EX.prk, ir_reg4.io.inst_pack_EX.prk)
-    bypass.io.prf_wdata_wb        := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg4.io.mem_rdata_WB)
-    bypass.io.rd_valid_wb         := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg4.io.inst_pack_WB.rd_valid)
+    bypass.io.prd_wb                := VecInit(ew_reg1.io.inst_pack_WB.prd, ew_reg2.io.inst_pack_WB.prd, ew_reg4.io.inst_pack_WB.prd)
+    bypass.io.prj_ex                := VecInit(re_reg1.io.inst_pack_EX.prj, re_reg2.io.inst_pack_EX.prj, ir_reg4.io.inst_pack_EX.prj)
+    bypass.io.prk_ex                := VecInit(re_reg1.io.inst_pack_EX.prk, re_reg2.io.inst_pack_EX.prk, ir_reg4.io.inst_pack_EX.prk)
+    bypass.io.prf_wdata_wb          := VecInit(ew_reg1.io.alu_out_WB, ew_reg2.io.alu_out_WB, ew_reg4.io.mem_rdata_WB)
+    bypass.io.rd_valid_wb           := VecInit(ew_reg1.io.inst_pack_WB.rd_valid, ew_reg2.io.inst_pack_WB.rd_valid, ew_reg4.io.inst_pack_WB.rd_valid)
 
     val mem_rdata_raw               = VecInit.tabulate(4)(i => Mux(sb.io.ld_hit(i), sb.io.ld_data_mem(i*8+7, i*8), dcache.io.rdata_MEM(i*8+7, i*8))).asUInt 
     val mem_rdata                   = MuxLookup(ls_ex_mem_reg.io.inst_pack_MEM.mem_type(2, 0), 0.U)(Seq(
@@ -755,22 +754,22 @@ class CPU extends Module {
 
     // statitic
     if(System.getProperties().getProperty("mode") == "sim"){
-        io.commit_en           := rob.io.cmt_en
-        io.commit_rd           := rob.io.rd_cmt
-        io.commit_prd          := rob.io.prd_cmt
-        io.commit_rd_valid          := rob.io.rd_valid_cmt
-        io.commit_rf_wdata          := rob.io.rf_wdata_cmt
-        io.commit_csr_wdata         := rob.io.csr_diff_wdata_cmt
-        io.commit_csr_we            := rob.io.csr_diff_we_cmt
-        io.commit_csr_waddr         := rob.io.csr_diff_addr_cmt
-        io.commit_pc                := rob.io.pc_cmt
-        io.commit_is_ucread         := rob.io.is_ucread_cmt
-        io.commit_is_br             := rob.io.is_br_stat
-        io.commit_br_type           := rob.io.br_type_stat
-        io.commit_predict_fail      := rob.io.predict_fail_stat
-        io.commit_inst              := rob.io.inst_cmt
-        io.commit_interrupt         := rob.io.exception_cmt(7) && rob.io.exception_cmt(6, 0) === 0.U
-        io.commit_interrupt_type    := csr_rf.io.estat_13
+        io.commit_en                    := rob.io.cmt_en
+        io.commit_rd                    := rob.io.rd_cmt
+        io.commit_prd                   := rob.io.prd_cmt
+        io.commit_rd_valid              := rob.io.rd_valid_cmt
+        io.commit_rf_wdata              := rob.io.rf_wdata_cmt
+        io.commit_csr_wdata             := rob.io.csr_diff_wdata_cmt
+        io.commit_csr_we                := rob.io.csr_diff_we_cmt
+        io.commit_csr_waddr             := rob.io.csr_diff_addr_cmt
+        io.commit_pc                    := rob.io.pc_cmt
+        io.commit_is_ucread             := rob.io.is_ucread_cmt
+        io.commit_is_br                 := rob.io.is_br_stat
+        io.commit_br_type               := rob.io.br_type_stat
+        io.commit_predict_fail          := rob.io.predict_fail_stat
+        io.commit_inst                  := rob.io.inst_cmt
+        io.commit_interrupt             := rob.io.exception_cmt(7) && rob.io.exception_cmt(6, 0) === 0.U
+        io.commit_interrupt_type        := csr_rf.io.estat_13
 
 
         io.commit_stall_by_fetch_queue  := fq.io.full
@@ -787,27 +786,27 @@ class CPU extends Module {
         io.commit_dcache_visit          := dcache.io.commit_dcache_visit
         io.commit_stall_by_div          := mdu.io.busy
 
-        io.commit_iq_issue             := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, sel3.io.inst_issue_valid, sel4.io.inst_issue_valid, DontCare)
-        io.commit_tlbfill_en           := rob.io.tlbfill_en_cmt
-        io.commit_tlbfill_idx          := stable_cnt.io.value(3, 0)
+        io.commit_iq_issue              := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, sel3.io.inst_issue_valid, sel4.io.inst_issue_valid, DontCare)
+        io.commit_tlbfill_en            := rob.io.tlbfill_en_cmt
+        io.commit_tlbfill_idx           := stable_cnt.io.value(3, 0)
     }
     else {
-        io.commit_en                := DontCare
-        io.commit_rd                := DontCare
-        io.commit_prd               := DontCare
-        io.commit_rd_valid          := DontCare
-        io.commit_rf_wdata          := DontCare
-        io.commit_csr_wdata         := DontCare
-        io.commit_csr_we            := DontCare
-        io.commit_csr_waddr         := DontCare
-        io.commit_pc                := DontCare
-        io.commit_is_ucread         := DontCare
-        io.commit_is_br             := DontCare
-        io.commit_br_type           := DontCare
-        io.commit_predict_fail      := DontCare
-        io.commit_inst              := DontCare
-        io.commit_interrupt         := DontCare
-        io.commit_interrupt_type    := DontCare
+        io.commit_en                    := DontCare
+        io.commit_rd                    := DontCare
+        io.commit_prd                   := DontCare
+        io.commit_rd_valid              := DontCare
+        io.commit_rf_wdata              := DontCare
+        io.commit_csr_wdata             := DontCare
+        io.commit_csr_we                := DontCare
+        io.commit_csr_waddr             := DontCare
+        io.commit_pc                    := DontCare
+        io.commit_is_ucread             := DontCare
+        io.commit_is_br                 := DontCare
+        io.commit_br_type               := DontCare
+        io.commit_predict_fail          := DontCare
+        io.commit_inst                  := DontCare
+        io.commit_interrupt             := DontCare
+        io.commit_interrupt_type        := DontCare
 
 
         io.commit_stall_by_fetch_queue  := DontCare

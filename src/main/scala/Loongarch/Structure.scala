@@ -50,7 +50,8 @@ object RF_Func{
                     !(pr ^ prd(1)) && rf_we(1),
                     !(pr ^ prd(0)) && rf_we(0)
                     )
-        val wf_data = wdata(OHToUInt(wf))
+        // val wf_data = wdata(OHToUInt(wf))
+        val wf_data = Mux1H(wf, wdata)
         Mux(wf.orR, wf_data, rf(pr))
     }
 }
