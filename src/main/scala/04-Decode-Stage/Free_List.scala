@@ -20,8 +20,13 @@ class Free_List(n: Int) extends Module{
     val free_list   = RegInit(VecInit.tabulate(n)(i => (i + 1).asUInt(log2Ceil(n)-1, 0)))
     val tail        = RegInit((n - 1).U(log2Ceil(n).W))
     val head        = RegInit(0.U(log2Ceil(n).W))
+    val head_plus_1 = RegInit(1.U(log2Ceil(n).W))
 
-    io.empty        := VecInit.tabulate(2)(i => Mux(head + i.U >= n.U, head + i.U - n.U, head + i.U) === tail).asUInt.orR
+    val head_empty  = VecInit(head, head_plus_1)
+
+
+    // io.empty        := VecInit.tabulate(2)(i => Mux(head + i.U >= n.U, head + i.U - n.U, head + i.U) === tail).asUInt.orR
+    io.empty        := VecInit.tabulate(2)(i => head_empty(i) === tail).asUInt.orR
 
     // alloc new reg
     val head_idx    = Wire(Vec(2, UInt(log2Ceil(n).W)))
@@ -33,6 +38,7 @@ class Free_List(n: Int) extends Module{
         io.alloc_preg(i)    := free_list(head_idx(i))
     }
     head := head_now
+    head_plus_1 := Mux(head_now === (n-1).U, 0.U, head_now + 1.U)
     
 
     // commit old reg

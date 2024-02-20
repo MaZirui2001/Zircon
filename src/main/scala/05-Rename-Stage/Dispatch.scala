@@ -31,14 +31,11 @@ class Dispatch extends Module{
     io.insts_disp_valid     := VecInit.fill(4)(VecInit.fill(2)(false.B))
     // var alloc_index         = VecInit.fill(4)(0.U(1.W))
     for(i <- 0 until 4){
-        // var next_alloc_index = 0.U(1.W)
         var alloc_index = 0.U(1.W)
         for(j <- 0 until 2){
             io.insts_disp_index(i)(alloc_index) := j.U
             io.insts_disp_valid(i)(alloc_index) := queue_id_hit(j)(i)
-            // next_alloc_index(j) := Mux(queue_id_hit(i)(j), alloc_index(j) + 1.U, alloc_index(j))
             alloc_index = Mux(queue_id_hit(j)(i), 1.U, 0.U)
         }
-        // alloc_index = next_alloc_index
     }
 }

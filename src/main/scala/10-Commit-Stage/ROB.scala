@@ -149,7 +149,6 @@ class ROB(n: Int) extends Module{
                 rob(i)(tail).br_type_pred    := io.br_type_pred_dp(i)
                 rob(i)(tail).pred_update_en  := io.pred_update_en_dp(i)
                 rob(i)(tail).predict_fail    := false.B
-                // rob(i)(tail).real_jump       := false.B
                 rob(i)(tail).complete        := false.B
                 rob(i)(tail).is_priv_wrt     := io.priv_vec_dp(i)(0) && io.priv_vec_dp(i)(9, 1).orR
                 rob(i)(tail).is_priv_ls      := io.priv_vec_dp(i)(12, 10).orR
