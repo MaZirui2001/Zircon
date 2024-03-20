@@ -8,7 +8,7 @@ class MDU_IO extends Bundle {
     val md_op   = Input(UInt(5.W))
     val mul_out = Output(UInt(32.W))
     val div_out = Output(UInt(32.W))
-    val busy    = Output(Bool())
+    val busy    = Output(Vec(32, Bool()))
 }
 
 class MDU extends Module {

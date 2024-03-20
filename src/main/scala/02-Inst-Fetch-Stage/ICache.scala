@@ -169,7 +169,7 @@ class ICache extends Module{
 
     /* return buffer update logic */
     ir.io.inst_raw      := io.i_rdata
-    ir.io.pc            := (tag_RM ## index_RM ## 0.U(OFFSET_WIDTH.W)) + (rd_cnt << 2.U)
+    ir.io.pc            := io.i_araddr + (rd_cnt << 2.U)
     when(io.i_rready){
         ret_buf := ir.io.icache_wdata.inst ## ret_buf(8*OFFSET_DEPTH-1, 32)
         pc_sign_buf := ir.io.icache_wdata.pc_sign ## pc_sign_buf(OFFSET_DEPTH/2-1, 2)

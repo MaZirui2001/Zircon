@@ -8,7 +8,7 @@ class Divide extends Module{
         val src2        = Input(UInt(32.W))
         val op          = Input(UInt(5.W))
         val res         = Output(UInt(32.W))
-        val busy        = Output(Bool())
+        val busy        = Output(Vec(32, Bool()))
     })
 
     val en = io.op(2)
@@ -24,33 +24,40 @@ class Divide extends Module{
 
     // get highest 1 in src1
     val high_rev = PriorityEncoder(Reverse(src1))
-    val cnt = RegInit(0.U(6.W))
+    val cnt = RegInit(VecInit.fill(32)(0.U(6.W)))
 
-    val src1_reg1 = ShiftRegister(src1, 1, !io.busy)
-    val src2_reg1 = ShiftRegister(src2, 1, !io.busy)
-    val op_reg1 = ShiftRegister(io.op, 1, !io.busy)
-    val res_sign_reg1 = ShiftRegister(res_sign, 1, !io.busy)
-    val en_reg1 = ShiftRegister(en, 1, !io.busy)
-    val high_rev_reg1 = ShiftRegister(high_rev, 1, !io.busy)
+    val src1_reg1 = ShiftRegister(src1, 1, !io.busy(0))
+    val src2_reg1 = ShiftRegister(src2, 1, !io.busy(1))
+    val op_reg1 = ShiftRegister(io.op, 1, !io.busy(2))
+    val res_sign_reg1 = ShiftRegister(res_sign, 1, !io.busy(2))
+    val en_reg1 = ShiftRegister(en, 1, !io.busy(2))
+    val high_rev_reg1 = ShiftRegister(high_rev, 1, !io.busy(3))
 
     val src2_reg2 = RegInit(0.U(32.W))
     val op_reg2 = RegInit(0.U(5.W))
     val res_sign_reg2 = RegInit(false.B)
 
-    when(cnt =/= 0.U){
-        cnt := cnt - 1.U
-    }.elsewhen(en_reg1){
-        cnt := 33.U - high_rev_reg1
+    // when(cnt(4) =/= 0.U){
+        
+    // }.elsewhen(en_reg1){
+    //     cnt := 33.U - high_rev_reg1
+    // }
+    for(i <- 0 until 32){
+        when(cnt(i) =/= 0.U){
+            cnt(i) := cnt(i) - 1.U
+        }.elsewhen(en_reg1){
+            cnt(i) := 33.U - high_rev_reg1
+        }
     }
 
-    when(en_reg1 && cnt === 0.U){
+    when(en_reg1 && cnt(4) === 0.U){
         src2_reg2 := src2_reg1
         op_reg2 := op_reg1
         res_sign_reg2 := res_sign_reg1
     }
 
     val quo_rem = RegInit(0.U(65.W))
-    when(cnt =/= 0.U){
+    when(cnt(5) =/= 0.U){
         when(quo_rem(63, 32) >= src2_reg2){
             quo_rem := (quo_rem(63, 32) - src2_reg2) ## quo_rem(31, 0) ## 1.U(1.W)
         }.otherwise{
@@ -60,8 +67,9 @@ class Divide extends Module{
         quo_rem := (0.U(33.W) ## src1_reg1) << high_rev_reg1
     }
 
-    io.busy := cnt =/= 0.U
-
+    // io.busy := cnt =/= 0.U
+    io.busy := cnt.map(_ =/= 0.U)
+    
     io.res := MuxLookup(op_reg2, 0.U(32.W))(Seq(
         ALU_DIV  -> Mux(res_sign_reg2, ~quo_rem(31, 0) + 1.U, quo_rem(31, 0)),
         ALU_DIVU -> quo_rem(31, 0),

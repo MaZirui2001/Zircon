@@ -270,7 +270,7 @@ class CPU extends Module {
     rename.io.arch_rat              := arat.io.arch_rat
     rename.io.alloc_preg            := dr_reg.io.alloc_preg_RN
     rename.io.prd_wake              := VecInit(sel1.io.wake_preg, sel2.io.wake_preg, md_ex2_ex3_reg.io.inst_pack_EX2.prd, re_reg4.io.inst_pack_EX.prd)
-    rename.io.wake_valid            := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, !mdu.io.busy, !dcache.io.cache_miss_MEM(4))
+    rename.io.wake_valid            := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, !mdu.io.busy(16), !dcache.io.cache_miss_MEM(4))
 
     // dispatch
     dp.io.inst_packs                := VecInit.tabulate(2)(i => inst_pack_RN_gen(dr_reg.io.insts_pack_RN(i), rename.io.prj(i), rename.io.prk(i), rename.io.prd(i), rename.io.pprd(i)))
@@ -312,7 +312,7 @@ class CPU extends Module {
     iq1.io.flush                    := rob.io.predict_fail_cmt(6)
     iq1.io.stall                    := stall_by_iq || rob.io.full(5)
     iq1.io.ld_mem_prd               := ls_ex_mem_reg.io.prd_MEM(0)
-    iq1.io.dcache_miss              := dcache.io.cache_miss_iq
+    iq1.io.dcache_miss              := dcache.io.cache_miss_iq(0)
 
     // select   
     sel1.io.insts_issue             := iq1.io.insts_issue
@@ -330,7 +330,7 @@ class CPU extends Module {
     iq2.io.flush                    := rob.io.predict_fail_cmt(6)
     iq2.io.stall                    := stall_by_iq || rob.io.full(5)
     iq2.io.ld_mem_prd               := ls_ex_mem_reg.io.prd_MEM(1)
-    iq2.io.dcache_miss              := dcache.io.cache_miss_iq
+    iq2.io.dcache_miss              := dcache.io.cache_miss_iq(1)
 
     // select   
     sel2.io.insts_issue             := iq2.io.insts_issue
@@ -350,7 +350,7 @@ class CPU extends Module {
     iq3.io.ld_mem_prd               := ls_ex_mem_reg.io.prd_MEM(2)
     iq3.io.is_store_cmt_num         := DontCare
     iq3.io.rob_index_cmt            := DontCare
-    iq3.io.dcache_miss              := dcache.io.cache_miss_iq
+    iq3.io.dcache_miss              := dcache.io.cache_miss_iq(2)
 
     // select   
     sel3.io.insts_issue             := iq3.io.insts_issue
@@ -370,7 +370,7 @@ class CPU extends Module {
     iq4.io.ld_mem_prd               := ls_ex_mem_reg.io.prd_MEM(3)
     iq4.io.is_store_cmt_num         := rob.io.is_store_num_cmt
     iq4.io.rob_index_cmt            := rob.io.rob_index_cmt
-    iq4.io.dcache_miss              := dcache.io.cache_miss_iq 
+    iq4.io.dcache_miss              := dcache.io.cache_miss_iq(3)
 
     // select   
     sel4.io.insts_issue             := iq4.io.insts_issue
@@ -379,12 +379,12 @@ class CPU extends Module {
     // mutual wakeup
     val iq_inline_wake_preg         = VecInit(sel1.io.wake_preg, 
                                               sel2.io.wake_preg, 
-                                              Mux(!mdu.io.busy, md_ex2_ex3_reg.io.inst_pack_EX2.prd, 0.U),
+                                              Mux(!mdu.io.busy(17), md_ex2_ex3_reg.io.inst_pack_EX2.prd, 0.U),
                                               re_reg4.io.inst_pack_EX.prd)
 
     val iq_mutual_wake_preg         = VecInit(ir_reg1.io.inst_pack_RF.prd,
                                               ir_reg2.io.inst_pack_RF.prd,
-                                              Mux(!mdu.io.busy, md_ex2_ex3_reg.io.inst_pack_EX2.prd, 0.U),
+                                              Mux(!mdu.io.busy(18), md_ex2_ex3_reg.io.inst_pack_EX2.prd, 0.U),
                                               Mux(!dcache.io.cache_miss_MEM(4), re_reg4.io.inst_pack_EX.prd, 0.U))
 
     iq1.io.wake_preg                := VecInit(iq_inline_wake_preg(0), iq_inline_wake_preg(1), iq_mutual_wake_preg(2), iq_mutual_wake_preg(3))
@@ -402,7 +402,7 @@ class CPU extends Module {
     ir_reg2.io.inst_pack_IS         := inst_pack_IS_FU2_gen(sel2.io.inst_issue.inst, sel2.io.inst_issue_valid)
 
     ir_reg3.io.flush                := rob.io.predict_fail_cmt(7)
-    ir_reg3.io.stall                := mdu.io.busy
+    ir_reg3.io.stall                := mdu.io.busy(17)
     ir_reg3.io.inst_pack_IS         := inst_pack_IS_MD_gen(sel3.io.inst_issue.inst, sel3.io.inst_issue_valid)
 
 
@@ -461,7 +461,7 @@ class CPU extends Module {
     re_reg2.io.csr_rdata_RF         := DontCare
 
     re_reg3.io.flush                := rob.io.predict_fail_cmt(8)
-    re_reg3.io.stall                := mdu.io.busy
+    re_reg3.io.stall                := mdu.io.busy(18)
     re_reg3.io.inst_pack_RF         := ir_reg3.io.inst_pack_RF
     re_reg3.io.src1_RF              := rf.io.prj_data(2)
     re_reg3.io.src2_RF              := rf.io.prk_data(2)
@@ -532,13 +532,13 @@ class CPU extends Module {
     rob.io.invtlb_vaddr_ex          := re_reg3.io.src2_EX
 
     md_ex1_ex2_reg.io.flush         := rob.io.predict_fail_cmt(6)
-    md_ex1_ex2_reg.io.stall         := mdu.io.busy
+    md_ex1_ex2_reg.io.stall         := mdu.io.busy(19)
     md_ex1_ex2_reg.io.inst_pack_EX1 := re_reg3.io.inst_pack_EX
     md_ex1_ex2_reg.io.csr_wdata_EX1 := csr_wdata
     md_ex1_ex2_reg.io.csr_rdata_EX1 := re_reg3.io.csr_rdata_EX
 
     md_ex2_ex3_reg.io.flush         := rob.io.predict_fail_cmt(6)
-    md_ex2_ex3_reg.io.stall         := mdu.io.busy
+    md_ex2_ex3_reg.io.stall         := mdu.io.busy(20)
     md_ex2_ex3_reg.io.inst_pack_EX1 := md_ex1_ex2_reg.io.inst_pack_EX2
     md_ex2_ex3_reg.io.csr_wdata_EX1 := md_ex1_ex2_reg.io.csr_wdata_EX2
     md_ex2_ex3_reg.io.csr_rdata_EX1 := md_ex1_ex2_reg.io.csr_rdata_EX2
@@ -651,7 +651,7 @@ class CPU extends Module {
     ew_reg2.io.branch_target_EX     := br.io.branch_target
     ew_reg2.io.real_jump_EX         := br.io.real_jump
 
-    ew_reg3.io.flush                := rob.io.predict_fail_cmt(9) || mdu.io.busy
+    ew_reg3.io.flush                := rob.io.predict_fail_cmt(9) || mdu.io.busy(19)
     ew_reg3.io.stall                := false.B
     ew_reg3.io.inst_pack_EX         := md_ex2_ex3_reg.io.inst_pack_EX2
     ew_reg3.io.md_out_EX            := Mux(md_ex2_ex3_reg.io.inst_pack_EX2.priv_vec(0), md_ex2_ex3_reg.io.csr_rdata_EX2, Mux(!md_ex2_ex3_reg.io.inst_pack_EX2.alu_op(2), mdu.io.mul_out, mdu.io.div_out))
@@ -787,7 +787,7 @@ class CPU extends Module {
         io.commit_dcache_miss           := dcache.io.commit_dcache_miss
         io.commit_icache_visit          := icache.io.commit_icache_visit
         io.commit_dcache_visit          := dcache.io.commit_dcache_visit
-        io.commit_stall_by_div          := mdu.io.busy
+        io.commit_stall_by_div          := mdu.io.busy(21)
 
         io.commit_iq_issue              := VecInit(sel1.io.inst_issue_valid, sel2.io.inst_issue_valid, sel3.io.inst_issue_valid, sel4.io.inst_issue_valid, DontCare)
         io.commit_tlbfill_en            := rob.io.tlbfill_en_cmt

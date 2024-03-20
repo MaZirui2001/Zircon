@@ -6,7 +6,7 @@ class Multiply extends Module{
         val src1 = Input(UInt(32.W))
         val src2 = Input(UInt(32.W))
         val op   = Input(UInt(5.W))
-        val busy = Input(Bool())
+        val busy = Input(Vec(32, Bool()))
         val res  = Output(UInt(32.W))
     })
 
@@ -38,7 +38,23 @@ class Multiply extends Module{
             (if(i == 0) src2(1, 0) ## 0.U(1.W) else src2(2*i+1, 2*i-1)), 66
         )
     }
-    val booth_reg = ShiftRegister(booth, 1, !io.busy)
+    val booth_reg1 = ShiftRegister(VecInit(booth.take(5)), 1, !io.busy(6))
+    val booth_reg2 = ShiftRegister(VecInit(booth.drop(5).take(5)), 1, !io.busy(7))
+    val booth_reg3 = ShiftRegister(VecInit(booth.drop(10).take(5)), 1, !io.busy(8))
+    val booth_reg4 = ShiftRegister(VecInit(booth.drop(15).take(5)), 1, !io.busy(9))
+    val booth_reg5 = ShiftRegister(VecInit(booth.drop(20).take(5)), 1, !io.busy(10))
+    val booth_reg6 = ShiftRegister(VecInit(booth.drop(25).take(5)), 1, !io.busy(11))
+    val booth_reg7 = ShiftRegister(VecInit(booth.drop(30).take(3)), 1, !io.busy(12))
+
+    val booth_reg = VecInit.tabulate(33){i => 
+        if(i < 5) booth_reg1(i)
+        else if(i < 10) booth_reg2(i-5)
+        else if(i < 15) booth_reg3(i-10)
+        else if(i < 20) booth_reg4(i-15)
+        else if(i < 25) booth_reg5(i-20)
+        else if(i < 30) booth_reg6(i-25)
+        else booth_reg7(i-30)
+    }
     // wallce tree
     // level1: input 33, output 22
     val level1         = VecInit.tabulate(11){i => CSA(booth_reg(3*i), booth_reg(3*i+1), booth_reg(3*i+2), 66)}
@@ -97,10 +113,10 @@ class Multiply extends Module{
     res8(1)         := level8(0)(131, 66)
 
     // register
-    val adder_src1   = ShiftRegister(res8(0)(63, 0), 1, !io.busy)
-    val adder_src2   = ShiftRegister(res8(1)(63, 0), 1, !io.busy)
-    val op_reg1      = ShiftRegister(io.op, 1, !io.busy)
-    val op_reg2      = ShiftRegister(op_reg1, 1, !io.busy)
+    val adder_src1   = ShiftRegister(res8(0)(63, 0), 1, !io.busy(13))
+    val adder_src2   = ShiftRegister(res8(1)(63, 0), 1, !io.busy(14))
+    val op_reg1      = ShiftRegister(io.op, 1, !io.busy(15))
+    val op_reg2      = ShiftRegister(op_reg1, 1, !io.busy(15))
     val res         = adder_src1 + adder_src2
     io.res          := Mux(op_reg2 === ALU_MUL, res(31, 0), res(63, 32))
 
