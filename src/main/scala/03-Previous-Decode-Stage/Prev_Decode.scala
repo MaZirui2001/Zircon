@@ -56,8 +56,8 @@ class Prev_Decode extends Module {
 
     val pc_in = VecInit.tabulate(2)(i => MuxLookup(io.pc_sign_IF(i), 0.U)(Seq(
         0.U  -> inst_pack_IF(i).pc,
-        1.U  -> Mux(jump_type(i) === YES_JUMP, inst_pack_IF(i).pc_plus_1_28, inst_pack_IF(i).pc_plus_1_18),
-        3.U  -> Mux(jump_type(i) === YES_JUMP, inst_pack_IF(i).pc_minus_1_28, inst_pack_IF(i).pc_minus_1_18)
+        1.U  -> Mux(!(jump_type(i) ^ YES_JUMP), inst_pack_IF(i).pc_plus_1_28, inst_pack_IF(i).pc_plus_1_18),
+        3.U  -> Mux(!(jump_type(i) ^ YES_JUMP), inst_pack_IF(i).pc_minus_1_28, inst_pack_IF(i).pc_minus_1_18)
     )))
     val npc18 = VecInit.tabulate(2)(i => pc_in(i)(31, 18) ## inst_pack_IF(i).inst(25, 10) ## 0.U(2.W))
     val npc28 = VecInit.tabulate(2)(i => pc_in(i)(31, 28) ## inst_pack_IF(i).inst(9, 0) ## inst_pack_IF(i).inst(25, 10) ## 0.U(2.W))
@@ -65,17 +65,11 @@ class Prev_Decode extends Module {
     for(i <- 0 until 2){
         switch(jump_type(i)){
             is(YES_JUMP){
-                // when(!inst_pack_IF(i).pred_valid){
-                    // need_fix(i)                     := inst_pack_IF(i).inst_valid 
-                    // inst_pack_pd(i).predict_jump    := true.B
-                    // inst_pack_pd(i).pred_npc        := io.npc26_IF(i)
-                // }.otherwise{
                 val imm_raw                     = npc28(i) - inst_pack_IF(i).pc
                 need_fix(i)                     := inst_pack_IF(i).inst_valid && !(inst_pack_IF(i).predict_jump && !(inst_pack_IF(i).pred_npc ^ npc28(i)))
                 inst_pack_pd(i).predict_jump    := true.B
                 inst_pack_pd(i).pred_npc        := npc28(i)
                 inst_pack_pd(i).inst            := inst_pack_IF(i).inst(31, 26) ## imm_raw(17, 2) ## imm_raw(27, 18)
-                //}
             }
             is(MAY_JUMP){
                 val imm_raw                     = npc18(i) - inst_pack_IF(i).pc
