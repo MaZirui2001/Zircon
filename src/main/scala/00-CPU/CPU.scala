@@ -196,7 +196,8 @@ class CPU extends Module {
     val pcs_PF                      = VecInit(pc.io.pc_PF(8), pc.io.pc_PF(8) + 4.U)
     pi_reg.io.flush                 := rob.io.predict_fail_cmt(0) || (!fq.io.full && pd.io.pred_fix)
     pi_reg.io.stall                 := fq.io.full || icache.io.cache_miss_RM || icache.io.has_cacop_IF
-    pi_reg.io.inst_pack_PF          := VecInit.tabulate(2)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i), pc.io.exception_PF))
+    pi_reg.io.inst_pack_PF          := VecInit.tabulate(2)(i => inst_pack_PF_gen(pcs_PF(i), pc.io.inst_valid_PF(i), predict.io.predict_jump(i), predict.io.pred_npc, predict.io.pred_valid(i), pc.io.exception_PF,
+                                                            (pcs_PF(i)(31, 28) + 1.U)(3, 0) ## 0.U(28.W), (pcs_PF(i)(31, 28) - 1.U)(3, 0) ## 0.U(28.W), (pcs_PF(i)(31, 18) + 1.U)(13, 0) ## 0.U(18.W), (pcs_PF(i)(31, 18) - 1.U)(13, 0) ## 0.U(18.W)))
 
     /* ---------- 2. Inst Fetch Stage ---------- */
     // icache
@@ -221,16 +222,18 @@ class CPU extends Module {
     ip_reg.io.npc16_IF              := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + Cat(Fill(14, icache.io.rdata_RM(i)(25)), icache.io.rdata_RM(i)(25, 10), 0.U(2.W)))
     ip_reg.io.npc26_IF              := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + Cat(Fill(4, icache.io.rdata_RM(i)(9)), icache.io.rdata_RM(i)(9, 0), icache.io.rdata_RM(i)(25, 10), 0.U(2.W)))
     ip_reg.io.npc4_IF               := VecInit.tabulate(2)(i => pi_reg.io.inst_pack_IF(i).pc + 4.U)
+    ip_reg.io.pc_sign_IF            := icache.io.pc_sign_RM
 
     /* ---------- 3. Previous Decode Stage ---------- */
     // Previous Decoder
     pd.io.insts_pack_IF             := ip_reg.io.insts_pack_PD
-    pd.io.npc4_IF                   := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + 4.U)
+    pd.io.pc_sign_IF                := ip_reg.io.pc_sign_PD
+    pd.io.npc4_IF                   := ip_reg.io.npc4_PD
     pd.io.npc16_IF                  := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + Cat(Fill(14, ip_reg.io.insts_pack_PD(i).inst(25)), ip_reg.io.insts_pack_PD(i).inst(25, 10), 0.U(2.W)))
     pd.io.npc26_IF                  := VecInit.tabulate(2)(i => ip_reg.io.insts_pack_PD(i).pc + Cat(Fill(4, ip_reg.io.insts_pack_PD(i).inst(9)), ip_reg.io.insts_pack_PD(i).inst(9, 0), ip_reg.io.insts_pack_PD(i).inst(25, 10), 0.U(2.W)))
 
     /* ---------- Fetch Queue ---------- */
-    fq.io.insts_pack                := VecInit.tabulate(2)(i => inst_pack_IF_gen(pd.io.insts_pack_PD(i), Mux(ip_reg.io.insts_pack_PD(i).exception(7), NOP_inst, ip_reg.io.insts_pack_PD(i).inst), ip_reg.io.insts_pack_PD(i).exception))
+    fq.io.insts_pack                := VecInit.tabulate(2)(i => inst_pack_IF_gen(pd.io.insts_pack_PD(i), Mux(ip_reg.io.insts_pack_PD(i).exception(7), NOP_inst, pd.io.insts_pack_PD(i).inst), ip_reg.io.insts_pack_PD(i).exception))
     fq.io.next_ready                := !(rob.io.full(2) || stall_by_iq || free_list.io.empty)
     fq.io.flush                     := rob.io.predict_fail_cmt(3)
 

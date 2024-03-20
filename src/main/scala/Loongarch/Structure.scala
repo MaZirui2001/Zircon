@@ -11,6 +11,13 @@ object Predict_Struct{
         val typ         = UInt(2.W)
     }
 }
+/* ICache Item */
+object ICache_Struct{
+    class icache_t extends Bundle{
+        val inst        = UInt(32.W)
+        val pc_sign     = UInt(2.W)
+    }
+}
 
 /* Rename Rat */
 object Rat{

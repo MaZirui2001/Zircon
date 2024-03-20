@@ -6,6 +6,7 @@ import PreDecode_Config._
 
 class Prev_Decode_IO extends Bundle {
     val insts_pack_IF       = Input(Vec(2, new inst_pack_IF_t))
+    val pc_sign_IF          = Input(Vec(2, UInt(2.W)))
 
     val npc16_IF            = Input(Vec(2, UInt(32.W)))
     val npc26_IF            = Input(Vec(2, UInt(32.W)))
@@ -52,6 +53,14 @@ class Prev_Decode extends Module {
     val pred_fix_pc         = VecInit.tabulate(2)(i => inst_pack_IF(i).pc)
     io.pred_fix_is_bl       := pred_fix_is_bl(fix_index)
     io.pred_fix_pc          := pred_fix_pc(fix_index)
+
+    val pc_in = VecInit.tabulate(2)(i => MuxLookup(io.pc_sign_IF(i), 0.U)(Seq(
+        0.U  -> inst_pack_IF(i).pc,
+        1.U  -> Mux(jump_type(i) === YES_JUMP, inst_pack_IF(i).pc_plus_1_28, inst_pack_IF(i).pc_plus_1_18),
+        3.U  -> Mux(jump_type(i) === YES_JUMP, inst_pack_IF(i).pc_minus_1_28, inst_pack_IF(i).pc_minus_1_18)
+    )))
+    val npc18 = VecInit.tabulate(2)(i => pc_in(i)(31, 18) ## inst_pack_IF(i).inst(25, 10) ## 0.U(2.W))
+    val npc28 = VecInit.tabulate(2)(i => pc_in(i)(31, 28) ## inst_pack_IF(i).inst(9, 0) ## inst_pack_IF(i).inst(25, 10) ## 0.U(2.W))
     
     for(i <- 0 until 2){
         switch(jump_type(i)){
@@ -61,16 +70,20 @@ class Prev_Decode extends Module {
                     // inst_pack_pd(i).predict_jump    := true.B
                     // inst_pack_pd(i).pred_npc        := io.npc26_IF(i)
                 // }.otherwise{
-                need_fix(i)                     := inst_pack_IF(i).inst_valid && !(inst_pack_IF(i).predict_jump && !(inst_pack_IF(i).pred_npc ^ io.npc26_IF(i)))
+                val imm_raw                     = npc28(i) - inst_pack_IF(i).pc
+                need_fix(i)                     := inst_pack_IF(i).inst_valid && !(inst_pack_IF(i).predict_jump && !(inst_pack_IF(i).pred_npc ^ npc28(i)))
                 inst_pack_pd(i).predict_jump    := true.B
-                inst_pack_pd(i).pred_npc        := io.npc26_IF(i)
+                inst_pack_pd(i).pred_npc        := npc28(i)
+                inst_pack_pd(i).inst            := inst_pack_IF(i).inst(31, 26) ## imm_raw(17, 2) ## imm_raw(27, 18)
                 //}
             }
             is(MAY_JUMP){
+                val imm_raw                     = npc18(i) - inst_pack_IF(i).pc
+                inst_pack_pd(i).inst            := inst_pack_IF(i).inst(31, 26) ## imm_raw(17, 2) ## inst_pack_IF(i).inst(9, 0)
                 when(!inst_pack_IF(i).pred_valid){
                     need_fix(i)                     := inst(i)(25) && inst_pack_IF(i).inst_valid
                     inst_pack_pd(i).predict_jump    := inst(i)(25)
-                    inst_pack_pd(i).pred_npc        := Mux(inst(i)(25), io.npc16_IF(i), io.npc4_IF(i))
+                    inst_pack_pd(i).pred_npc        := Mux(inst(i)(25), npc18(i), io.npc4_IF(i))
                 }
             }
             is(NOT_BR){

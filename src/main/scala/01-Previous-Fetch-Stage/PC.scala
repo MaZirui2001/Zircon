@@ -22,6 +22,12 @@ class PC_IO extends Bundle {
 
     // csr change
     val has_csr_change  = Input(Bool())
+
+    // pc plus
+    val pc_plus_1_28    = Output(UInt(32.W))
+    val pc_minus_1_28   = Output(UInt(32.W))
+    val pc_plus_1_18    = Output(UInt(32.W))
+    val pc_minus_1_18   = Output(UInt(32.W))
 }
 
 class PC(reset_val: Int) extends Module {
@@ -63,5 +69,10 @@ class PC(reset_val: Int) extends Module {
 
     io.inst_valid_PF := (inst_valid_temp & valid_mask).asBools
     io.exception_PF := Mux(pc(0)(1, 0) === 0.U, 0.U, 0x88.U)
+
+    io.pc_plus_1_28     := (pc(0)(31, 28) + 1.U)(3, 0) ## 0.U(28.W)
+    io.pc_minus_1_28    := (pc(0)(31, 28) - 1.U)(3, 0) ## 0.U(28.W)
+    io.pc_plus_1_18     := (pc(0)(31, 18) + 1.U)(13, 0) ## 0.U(18.W)
+    io.pc_minus_1_18    := (pc(0)(31, 18) - 1.U)(13, 0) ## 0.U(18.W)
 
 }

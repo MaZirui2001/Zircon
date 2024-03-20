@@ -10,8 +10,12 @@ object Inst_Pack{
         val pred_npc        = UInt(32.W)
         val pred_valid      = Bool()
         val exception       = UInt(8.W)
+        val pc_plus_1_28    = UInt(32.W)
+        val pc_minus_1_28   = UInt(32.W)
+        val pc_plus_1_18    = UInt(32.W)
+        val pc_minus_1_18   = UInt(32.W)
     }
-    def inst_pack_PF_gen(_pc: UInt, _inst_valid: Bool, _predict_jump: Bool, _pred_npc: UInt, _pred_valid: Bool, _exception: UInt) : inst_pack_PF_t = {
+    def inst_pack_PF_gen(_pc: UInt, _inst_valid: Bool, _predict_jump: Bool, _pred_npc: UInt, _pred_valid: Bool, _exception: UInt, _pc_plus_1_28: UInt, _pc_minus_1_28: UInt,  _pc_plus_1_18: UInt, _pc_minus_1_18: UInt) : inst_pack_PF_t = {
         val inst_pack_PF = Wire(new inst_pack_PF_t)
         inst_pack_PF.pc             := _pc
         inst_pack_PF.inst_valid     := _inst_valid
@@ -19,6 +23,10 @@ object Inst_Pack{
         inst_pack_PF.pred_npc       := _pred_npc
         inst_pack_PF.pred_valid     := _pred_valid
         inst_pack_PF.exception      := _exception
+        inst_pack_PF.pc_plus_1_28   := _pc_plus_1_28
+        inst_pack_PF.pc_minus_1_28  := _pc_minus_1_28
+        inst_pack_PF.pc_plus_1_18   := _pc_plus_1_18
+        inst_pack_PF.pc_minus_1_18  := _pc_minus_1_18
         inst_pack_PF
     }
     class inst_pack_IF_t extends inst_pack_PF_t{
@@ -33,6 +41,11 @@ object Inst_Pack{
         inst_pack_IF.pred_npc       := _inst_pack_PF.pred_npc
         inst_pack_IF.pred_valid     := _inst_pack_PF.pred_valid
         inst_pack_IF.exception      := Mux(_inst_pack_PF.exception(7), _inst_pack_PF.exception, _exception)
+        inst_pack_IF.pc_plus_1_28   := _inst_pack_PF.pc_plus_1_28
+        inst_pack_IF.pc_minus_1_28  := _inst_pack_PF.pc_minus_1_28
+        inst_pack_IF.pc_plus_1_18   := _inst_pack_PF.pc_plus_1_18
+        inst_pack_IF.pc_minus_1_18  := _inst_pack_PF.pc_minus_1_18
+
         inst_pack_IF
     }
     class inst_pack_PD_t extends Bundle{

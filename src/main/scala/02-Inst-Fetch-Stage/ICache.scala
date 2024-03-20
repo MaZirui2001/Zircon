@@ -13,6 +13,7 @@ class ICache_IO extends Bundle{
     // RM Stage
     val cache_miss_RM   = Output(Bool())
     val rdata_RM        = Output(Vec(2, UInt(32.W)))
+    val pc_sign_RM      = Output(Vec(2, UInt(2.W)))
     val exception_RM    = Input(Bool())
 
     // control
@@ -41,6 +42,7 @@ class ICache_IO extends Bundle{
 import ICache_Config._
 class ICache extends Module{
     val io      = IO(new ICache_IO)
+    val ir      = Module(new Inst_Replace)
     val flush   = io.flush
     val stall   = io.stall
 
@@ -54,6 +56,7 @@ class ICache extends Module{
     val valid_r_RM          = VecInit.tabulate(2)(i => tagv(i).douta(TAG_WIDTH))
 
     val cmem                = VecInit.fill(2)(Module(new xilinx_single_port_ram_read_first(8 * OFFSET_DEPTH, INDEX_DEPTH)).io)
+    val pc_sign_mem         = VecInit.fill(2)(Module(new xilinx_single_port_ram_read_first(OFFSET_DEPTH / 2, INDEX_DEPTH)).io)
     
     val addr_sel            = WireDefault(FROM_PIPE)
 
@@ -71,6 +74,7 @@ class ICache extends Module{
 
     // RM Stage
     val addr_RM             = paddr_reg_IF_RM
+    val vaddr_RM            = addr_reg_IF_RM
     val rvalid_RM           = rvalid_reg_IF_RM
     val cache_miss_RM       = WireDefault(false.B)
     val uncache_RM          = uncache_reg_IF_RM
@@ -97,6 +101,9 @@ class ICache extends Module{
     val lru_hit_upd         = WireDefault(false.B)
 
     val ret_buf             = RegInit(0.U((8*OFFSET_DEPTH).W))
+    val pc_sign_buf         = RegInit(0.U((OFFSET_DEPTH / 2).W))
+    val rd_cnt              = RegInit(0.U(log2Ceil(OFFSET_DEPTH / 4).W))
+    val rd_cnt_reset        = WireDefault(false.B)
 
     // stat
     val icache_miss         = WireDefault(false.B)
@@ -114,6 +121,12 @@ class ICache extends Module{
         cmem(i).dina    := ret_buf
         cmem(i).clka    := clock
         cmem(i).wea     := cmem_we_RM(i)
+    }
+    for(i <- 0 until 2){
+        pc_sign_mem(i).addra   := Mux(addr_sel === FROM_PIPE, index_IF, index_RM)
+        pc_sign_mem(i).dina    := pc_sign_buf
+        pc_sign_mem(i).clka    := clock
+        pc_sign_mem(i).wea     := cmem_we_RM(i)
     }
 
     // cacop
@@ -150,11 +163,23 @@ class ICache extends Module{
     val cmem_rdata_RM   = (Mux1H(hit_RM, cmem.map(_.douta)) >> block_offset)(63, 0)
     val rbuf_rdata_RM   = Mux(uncache_RM, ret_buf(8*OFFSET_DEPTH-1, 8*OFFSET_DEPTH-64), (ret_buf >> block_offset)(63, 0))
     val rdata_RM        = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, cmem_rdata_RM(32*i+31, 32*i), rbuf_rdata_RM(32*i+31, 32*i))))
+    val pc_rsign_RM     = (Mux1H(hit_RM, pc_sign_mem.map(_.douta)) >> (offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(1.W)))(3, 0)
+    val pbuf_rdata_RM   = Mux(uncache_RM, pc_sign_buf(OFFSET_DEPTH/2-1, OFFSET_DEPTH/2-4), pc_sign_buf >> (offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(1.W)))
+    val pc_sign_RM      = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, pc_rsign_RM(2*i+1, 2*i), pbuf_rdata_RM(2*i+1, 2*i))))
 
     /* return buffer update logic */
+    ir.io.inst_raw      := io.i_rdata
+    ir.io.pc            := (tag_RM ## index_RM ## 0.U(OFFSET_WIDTH.W)) + (rd_cnt << 2.U)
     when(io.i_rready){
-        ret_buf := io.i_rdata ## ret_buf(8*OFFSET_DEPTH-1, 32)
+        ret_buf := ir.io.icache_wdata.inst ## ret_buf(8*OFFSET_DEPTH-1, 32)
+        pc_sign_buf := ir.io.icache_wdata.pc_sign ## pc_sign_buf(OFFSET_DEPTH/2-1, 2)
     }
+    when(rd_cnt_reset){
+        rd_cnt := 0.U
+    }.elsewhen(io.i_rready){
+        rd_cnt := rd_cnt + 1.U
+    }
+
     /* lru logic */
     when(lru_hit_upd){
         lru_mem(index_RM) := !hit_index_RM
@@ -167,6 +192,7 @@ class ICache extends Module{
     val state = RegInit(s_idle)
     switch(state){
         is(s_idle){
+            rd_cnt_reset        := true.B
             when(io.exception_RM){
                 state               := s_idle
             }.elsewhen(cacop_en_RM){
@@ -212,6 +238,7 @@ class ICache extends Module{
 
     // output
     io.cache_miss_RM    := cache_miss_RM
+    io.pc_sign_RM       := pc_sign_RM
     io.rdata_RM         := rdata_RM
     io.i_araddr         := Mux(uncache_RM, addr_RM, tag_RM ## index_RM ## 0.U(OFFSET_WIDTH.W))
     io.i_rvalid         := i_rvalid
