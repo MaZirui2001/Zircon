@@ -22,7 +22,7 @@ class DCache_IO extends Bundle{
     val rdata_MEM       = Output(UInt(32.W))
     val exception_MEM   = Input(Bool())
 
-    val cache_miss_iq   = Output(Vec(4, Bool()))
+    val cache_miss_iq   = Output(Vec(5, Bool()))
 
     // uncache cmt
     val rob_index_CMT   = Input(UInt(log2Ceil(ROB_NUM).W))
@@ -112,7 +112,7 @@ class DCache extends Module{
     val wdata_reg_EX_MEM            = ShiftRegister(wdata_reg_RF_EX, 1, TC_MEM_en)
     val uncache_reg_EX_MEM          = ShiftRegister(uncache_EX, 1, TC_MEM_en)
     val rob_index_EX_MEM            = ShiftRegister(io.rob_index_EX, 1, TC_MEM_en)
-    val hit_reg_EX_MEM              = ShiftRegister(VecInit.fill(4)(hit_EX), 1, TC_MEM_en)
+    val hit_reg_EX_MEM              = ShiftRegister(VecInit.fill(5)(hit_EX), 1, TC_MEM_en)
     val valid_reg_EX_MEM            = ShiftRegister(valid_r_EX, 1, TC_MEM_en)
     val tag_reg_EX_MEM              = ShiftRegister(tag_r_EX, 1, TC_MEM_en)
     val cacop_en_reg_EX_MEM         = ShiftRegister(cacop_en_reg_RF_EX, 1, TC_MEM_en)
@@ -197,10 +197,10 @@ class DCache extends Module{
     hit_EX              := VecInit.tabulate(2)(i => valid_r_EX(i) && !(tag_r_EX(i) ^ tag_EX)).asUInt
 
     // MEM Stage
-    val hit_MEM         = VecInit.tabulate(4)(i => VecInit.tabulate(2)(j => hit_reg_EX_MEM(i)(j)).asUInt)
-    val hit_index_MEM   = VecInit.tabulate(4)(i => OHToUInt(hit_MEM(i)))
-    val cache_hit_MEM   = VecInit.tabulate(4)(i => hit_MEM(i).orR)
-    val cacop_way_MEM   = Mux(cacop_op_MEM(1), hit_index_MEM(0), addr_MEM(0))
+    val hit_MEM         = VecInit.tabulate(5)(i => VecInit.tabulate(2)(j => hit_reg_EX_MEM(i)(j)).asUInt)
+    val hit_index_MEM   = VecInit.tabulate(5)(i => OHToUInt(hit_MEM(i)))
+    val cache_hit_MEM   = VecInit.tabulate(5)(i => hit_MEM(i).orR)
+    val cacop_way_MEM   = Mux(cacop_op_MEM(1), hit_index_MEM(1), addr_MEM(0))
     val cacop_exec_MEM  = Mux(cacop_op_MEM(1), cache_hit_MEM(0), true.B)
     
     /* rdata logic */
@@ -214,7 +214,7 @@ class DCache extends Module{
     val rmask           = highest_mask
     val rdata_MEM       = (rmask & rdata_MEM_temp)
 
-    io.cache_miss_iq    := VecInit.tabulate(4)(i => cacop_en_MEM || mem_type_MEM_backup(i)(4, 3).orR && (uncache_MEM || !hit_MEM(i).orR))
+    io.cache_miss_iq    := VecInit.tabulate(5)(i => cacop_en_MEM || mem_type_MEM_backup(i)(4, 3).orR && (uncache_MEM || !hit_MEM(i).orR))
 
     /* write logic */
     val wmask           = Mux(mem_type_MEM(3), 0.U((8*OFFSET_DEPTH).W), ((0.U((8*OFFSET_DEPTH-32).W) ## highest_mask) << block_offset))
@@ -278,17 +278,17 @@ class DCache extends Module{
                     //cache_miss_MEM    := true.B
                     addr_sel            := FROM_SEG
                 }.otherwise{
-                    state                       := Mux(cache_hit_MEM(2), s_idle, s_miss)
+                    state                       := Mux(cache_hit_MEM(0), s_idle, s_miss)
                     //cache_miss_MEM            := !cache_hit_MEM
-                    lru_hit_upd                 := cache_hit_MEM(2)
+                    lru_hit_upd                 := cache_hit_MEM(1)
                     data_sel                    := FROM_CMEM
                     cmem_we_MEM(hit_index_MEM(2))  := Mux(is_store_MEM && cache_hit_MEM(1), wmask_byte, 0.U)
                     dirty_we                    := is_store_MEM
-                    wbuf_we                     := !cache_hit_MEM(0)
-                    wfsm_en                     := !cache_hit_MEM(1)
+                    wbuf_we                     := !cache_hit_MEM(2)
+                    wfsm_en                     := !cache_hit_MEM(3)
                     addr_sel                    := FROM_PIPE
                     dcache_visit                := true.B
-                    dcache_miss                 := !cache_hit_MEM(3)
+                    dcache_miss                 := !cache_hit_MEM(4)
                 }
             }
         }
@@ -337,8 +337,8 @@ class DCache extends Module{
                         state_backup(i)     := s_hold
                         cache_miss_MEM(i)   := true.B
                     }.otherwise{
-                        state_backup(i)     := Mux(cache_hit_MEM(i % 4), s_idle, s_miss)
-                        cache_miss_MEM(i)   := !cache_hit_MEM(i % 4)
+                        state_backup(i)     := Mux(cache_hit_MEM(i), s_idle, s_miss)
+                        cache_miss_MEM(i)   := !cache_hit_MEM(i)
                     }
                 }
             }
