@@ -53,7 +53,8 @@ class TLB extends Module{
     val io = IO(new TLB_IO)
 
     val i_tlb = RegInit(VecInit.fill(TLB_ENTRY_NUM)(0.U.asTypeOf(new tlb_t)))
-    val d_tlb = RegNext(i_tlb)
+    val d_tlb = RegInit(VecInit.fill(TLB_ENTRY_NUM)(0.U.asTypeOf(new tlb_t)))
+    // val d_tlb = RegNext(i_tlb)
     // for tlbsrch
     val csr_tlbehi_vppn   = io.csr_tlbehi
     val tlbsrch_hit       = WireDefault(VecInit.fill(TLB_ENTRY_NUM)(false.B))
@@ -72,8 +73,12 @@ class TLB extends Module{
 
     // for tlbwr and tlbfill
     when(io.tlbwr_en || io.tlbfill_en){
-        val tlb_idx = Mux(io.tlbwr_en, io.csr_tlbidx, io.tlbfill_idx)
-        i_tlb(tlb_idx) := io.tlbwr_entry
+        val tlb_idx             = Mux(io.tlbwr_en, io.csr_tlbidx, io.tlbfill_idx)
+        i_tlb(tlb_idx)          := io.tlbwr_entry
+    }
+    when(RegNext(io.tlbwr_en) || RegNext(io.tlbfill_en)){
+        val tlb_idx             = Mux(RegNext(io.tlbwr_en), RegNext(io.csr_tlbidx), RegNext(io.tlbfill_idx))
+        d_tlb(tlb_idx)          := RegNext(io.tlbwr_entry)
     }
 
     // for invtlb
@@ -86,6 +91,7 @@ class TLB extends Module{
                 is(0.U){
                     // clear all tlb entries
                     i_tlb(i).e := false.B
+
                 }
                 is(1.U){
                     // clear all tlb entries
@@ -119,6 +125,52 @@ class TLB extends Module{
                     // clear all tlb entries with asid = invtlb_asid or g = 1,  and va[31:13] = invtlb_vaddr[31:13]
                     when((!(i_tlb(i).asid ^ invtlb_asid) || i_tlb(i).g) && !(i_tlb(i).vppn ^ invtlb_vaddr(31, 13))){
                         i_tlb(i).e := false.B
+                    }
+                }
+            }
+        }
+    }
+
+    // invtlb for dtlb
+    when(RegNext(io.invtlb_en)){
+        for(i <- 0 until TLB_ENTRY_NUM){
+            switch(RegNext(invtlb_op)){
+                is(0.U){
+                    // clear all tlb entries
+                    d_tlb(i).e := false.B
+                }
+                is(1.U){
+                    // clear all tlb entries
+                    d_tlb(i).e := false.B
+                }
+                is(2.U){
+                    // clear all tlb entries with g = 1
+                    when(d_tlb(i).g){
+                        d_tlb(i).e := false.B
+                    }
+                }
+                is(3.U){
+                    // clear all tlb entries with g = 0
+                    when(!d_tlb(i).g){
+                        d_tlb(i).e := false.B
+                    }
+                }
+                is(4.U){
+                    // clear all tlb entries with asid = invtlb_asid and g = 0
+                    when(!(d_tlb(i).asid ^ RegNext(invtlb_asid)) && !d_tlb(i).g){
+                        d_tlb(i).e := false.B
+                    }
+                }
+                is(5.U){
+                    // clear all tlb entries with asid = invtlb_asid and g = 0 and va[31:13] = invtlb_vaddr[31:13]
+                    when(!(d_tlb(i).asid ^ RegNext(invtlb_asid)) && !d_tlb(i).g && !(d_tlb(i).vppn ^ RegNext(invtlb_vaddr(31, 13)))){
+                        d_tlb(i).e := false.B
+                    }
+                }
+                is(6.U){
+                    // clear all tlb entries with asid = invtlb_asid or g = 1,  and va[31:13] = invtlb_vaddr[31:13]
+                    when((!(d_tlb(i).asid ^ RegNext(invtlb_asid)) || d_tlb(i).g) && !(d_tlb(i).vppn ^ RegNext(invtlb_vaddr(31, 13)))){
+                        d_tlb(i).e := false.B
                     }
                 }
             }

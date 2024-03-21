@@ -369,7 +369,7 @@ class CPU extends Module {
     iq4.io.stall                    := stall_by_iq || rob.io.full(5)
     iq4.io.ld_mem_prd               := ls_ex_mem_reg.io.prd_MEM(3)
     iq4.io.is_store_cmt_num         := rob.io.is_store_num_cmt
-    iq4.io.rob_index_cmt            := rob.io.rob_index_cmt
+    iq4.io.rob_index_cmt            := rob.io.rob_index_cmt(0)
     iq4.io.dcache_miss              := dcache.io.cache_miss_iq(3)
 
     // select   
@@ -458,7 +458,7 @@ class CPU extends Module {
     re_reg2.io.inst_pack_RF         := ir_reg2.io.inst_pack_RF
     re_reg2.io.src1_RF              := rf.io.prj_data(1)
     re_reg2.io.src2_RF              := rf.io.prk_data(1)
-    re_reg2.io.csr_rdata_RF         := DontCare
+    re_reg2.io.csr_rdata_RF         := ir_reg2.io.inst_pack_RF.pc + ir_reg2.io.inst_pack_RF.imm
 
     re_reg3.io.flush                := rob.io.predict_fail_cmt(8)
     re_reg3.io.stall                := mdu.io.busy(18)
@@ -506,6 +506,7 @@ class CPU extends Module {
     br.io.src2                      := Mux(bypass.io.forward_prk_en(1), bypass.io.forward_prk_data(1), re_reg2.io.src2_EX)
     br.io.pc_ex                     := re_reg2.io.inst_pack_EX.pc
     br.io.imm_ex                    := re_reg2.io.inst_pack_EX.imm
+    // br.io.target_in                 := re_reg2.io.csr_rdata_EX
     br.io.predict_jump              := re_reg2.io.inst_pack_EX.predict_jump
     br.io.pred_npc                  := re_reg2.io.inst_pack_EX.pred_npc
 
@@ -613,7 +614,7 @@ class CPU extends Module {
     dcache.io.d_wready              := arb.io.d_wready
     dcache.io.d_bvalid              := arb.io.d_bvalid
     dcache.io.rob_index_EX          := re_reg4.io.inst_pack_EX.rob_index
-    dcache.io.rob_index_CMT         := rob.io.rob_index_cmt
+    dcache.io.rob_index_CMT         := rob.io.rob_index_cmt(1)
     dcache.io.flush                 := rob.io.predict_fail_cmt(6)
     dcache.io.store_cmt_RF          := sb.io.st_cmt_valid
     dcache.io.cacop_en              := Mux(sb.io.st_cmt_valid, false.B, re_reg4.io.inst_pack_RF.priv_vec(0) && re_reg4.io.inst_pack_RF.imm(2, 0) === 1.U)

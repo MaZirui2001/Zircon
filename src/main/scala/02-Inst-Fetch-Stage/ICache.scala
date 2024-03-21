@@ -101,6 +101,7 @@ class ICache extends Module{
     val lru_hit_upd         = WireDefault(false.B)
 
     val ret_buf             = RegInit(0.U((8*OFFSET_DEPTH).W))
+    val inst_temp_buf       = RegInit(0.U(32.W))
     val pc_sign_buf         = RegInit(0.U((OFFSET_DEPTH / 2).W))
     val rd_cnt              = RegInit(0.U(log2Ceil(OFFSET_DEPTH / 4).W))
     val rd_cnt_reset        = WireDefault(false.B)
@@ -168,15 +169,19 @@ class ICache extends Module{
     val pc_sign_RM      = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, pc_rsign_RM(2*i+1, 2*i), pbuf_rdata_RM(2*i+1, 2*i))))
 
     /* return buffer update logic */
-    ir.io.inst_raw      := io.i_rdata
+    ir.io.inst_raw      := inst_temp_buf
     ir.io.pc            := io.i_araddr + (rd_cnt << 2.U)
     when(io.i_rready){
+        inst_temp_buf := io.i_rdata
+    }
+    val i_rready        = ShiftRegister(io.i_rready, 1)
+    when(i_rready){
         ret_buf := ir.io.icache_wdata.inst ## ret_buf(8*OFFSET_DEPTH-1, 32)
         pc_sign_buf := ir.io.icache_wdata.pc_sign ## pc_sign_buf(OFFSET_DEPTH/2-1, 2)
     }
     when(rd_cnt_reset){
         rd_cnt := 0.U
-    }.elsewhen(io.i_rready){
+    }.elsewhen(i_rready){
         rd_cnt := rd_cnt + 1.U
     }
 
@@ -186,6 +191,8 @@ class ICache extends Module{
     }.elsewhen(lru_miss_upd){
         lru_mem(index_RM) := !lru_sel
     }
+
+    val read_finish = ShiftRegister(io.i_rlast && i_rready, 1)
 
     /* FSM for read */
     val s_idle :: s_miss :: s_refill :: s_wait :: Nil = Enum(4)
@@ -217,10 +224,14 @@ class ICache extends Module{
             }
         }
         is(s_miss){
-            i_rvalid            := true.B
+            i_rvalid            := !read_finish
             cache_miss_RM       := true.B
-            state               := Mux(io.i_rready && io.i_rlast, Mux(uncache_RM, s_wait, s_refill), s_miss)
+            state               := Mux(read_finish, Mux(uncache_RM, s_wait, s_refill), s_miss)
         }
+        // is(s_replace){
+        //     cache_miss_RM       := true.B
+        //     state               := Mux(uncache_RM, s_wait, s_refill)
+        // }
         is(s_refill){
             val tag_idx         = Mux(cacop_en_RM, cacop_way_RM, lru_sel)
             state               := s_wait

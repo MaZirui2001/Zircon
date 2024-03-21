@@ -55,7 +55,7 @@ class ROB_IO(n: Int) extends Bundle{
     val csr_we_cmt              = Output(Bool())
 
     // for dcache
-    val rob_index_cmt           = Output(UInt(log2Ceil(n).W))
+    val rob_index_cmt           = Output(Vec(4, UInt(log2Ceil(n).W)))
 
     // for exception
     val eentry_global           = Input(UInt(32.W))
@@ -221,7 +221,7 @@ class ROB(n: Int) extends Module{
     cmt_en(1)                   := rob_commit_items(1).complete && !empty(hsel_idx(1)) && cmt_en(0) && rob_commit_items(0).allow_next_cmt && !interrupt_vec
     
     io.cmt_en                   := ShiftRegister(cmt_en, 1)
-    io.rob_index_cmt            := ShiftRegister(head, 1)
+    io.rob_index_cmt            := ShiftRegister(VecInit.fill(4)(head), 1)
 
     val eentry_global           = ShiftRegister(io.eentry_global, 1);
     val tlbreentry_global       = ShiftRegister(io.tlbreentry_global, 1);
