@@ -31,7 +31,7 @@ object Predict_Config {
 }
 
 object ICache_Config{
-    val INDEX_WIDTH = 6
+    val INDEX_WIDTH = 7
     val INDEX_DEPTH = 1 << INDEX_WIDTH
 
     val OFFSET_WIDTH = 6
@@ -47,10 +47,10 @@ object ICache_Config{
 }
 
 object DCache_Config{
-    val INDEX_WIDTH = 6
+    val INDEX_WIDTH = 5
     val INDEX_DEPTH = 1 << INDEX_WIDTH
 
-    val OFFSET_WIDTH = 6
+    val OFFSET_WIDTH = 5
     val OFFSET_DEPTH = 1 << OFFSET_WIDTH
 
     val TAG_WIDTH = 32 - INDEX_WIDTH - OFFSET_WIDTH

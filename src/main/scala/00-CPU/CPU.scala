@@ -604,7 +604,7 @@ class CPU extends Module {
     dcache.io.addr_RF               := Mux(sb.io.st_cmt_valid, sb.io.st_addr_cmt, re_reg4.io.src1_RF)
     dcache.io.paddr_EX              := mmu.io.d_paddr
     dcache.io.uncache_EX            := mmu.io.d_uncache
-    dcache.io.mem_type_RF           := Mux(sb.io.st_cmt_valid, Mux(sb.io.is_uncache_cmt, 0.U, 4.U(3.W) ## sb.io.st_wlen_cmt(1, 0)), re_reg4.io.inst_pack_RF.mem_type)
+    dcache.io.mem_type_RF           := Mux(sb.io.st_cmt_valid, Mux(sb.io.is_uncache_cmt, 0.U, 4.U(3.W) ## sb.io.st_wlen_cmt(1, 0)), Mux(sb.io.full && re_reg4.io.inst_pack_EX.mem_type(4), 0.U, re_reg4.io.inst_pack_RF.mem_type))
     dcache.io.wdata_RF              := Mux(sb.io.st_cmt_valid, sb.io.st_data_cmt, re_reg4.io.src2_RF)
     dcache.io.stall                 := false.B
     dcache.io.exception_MEM         := ls_ex_mem_reg.io.exception_MEM

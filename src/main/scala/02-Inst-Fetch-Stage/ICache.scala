@@ -161,12 +161,30 @@ class ICache extends Module{
 
     /* rdata logic */
     val block_offset    = offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(5.W)
-    val cmem_rdata_RM   = (Mux1H(hit_RM, cmem.map(_.douta)) >> block_offset)(63, 0)
-    val rbuf_rdata_RM   = Mux(uncache_RM, ret_buf(8*OFFSET_DEPTH-1, 8*OFFSET_DEPTH-64), (ret_buf >> block_offset)(63, 0))
+    // memory of inst
+    val cmem_hit_line   = Mux1H(hit_RM, cmem.map(_.douta))
+    val cmem_hit_group  = VecInit.tabulate(OFFSET_DEPTH/4)(i => if(i == OFFSET_DEPTH/4-1) 0.U(32.W) ## cmem_hit_line(32*i+31, 32*i) else cmem_hit_line(32*i+63, 32*i))
+    val cmem_rdata_RM   = cmem_hit_group(offset_RM(OFFSET_WIDTH-1, 2))
+    
+    // return buffer
+    val rbuf_hit_group  = VecInit.tabulate(OFFSET_DEPTH/4)(i => if(i == OFFSET_DEPTH/4-1) 0.U(32.W) ## ret_buf(32*i+31, 32*i) else ret_buf(32*i+63, 32*i))
+    val rbuf_rdata_RM   = Mux(uncache_RM, ret_buf(8*OFFSET_DEPTH-1, 8*OFFSET_DEPTH-64), rbuf_hit_group(offset_RM(OFFSET_WIDTH-1, 2)))
     val rdata_RM        = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, cmem_rdata_RM(32*i+31, 32*i), rbuf_rdata_RM(32*i+31, 32*i))))
-    val pc_rsign_RM     = (Mux1H(hit_RM, pc_sign_mem.map(_.douta)) >> (offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(1.W)))(3, 0)
-    val pbuf_rdata_RM   = Mux(uncache_RM, pc_sign_buf(OFFSET_DEPTH/2-1, OFFSET_DEPTH/2-4), pc_sign_buf >> (offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(1.W)))
-    val pc_sign_RM      = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, pc_rsign_RM(2*i+1, 2*i), pbuf_rdata_RM(2*i+1, 2*i))))
+    
+    // memory of pc sign
+    val pmem_hit_line   = Mux1H(hit_RM, pc_sign_mem.map(_.douta))
+    val pmem_hit_group  = VecInit.tabulate(OFFSET_DEPTH/4)(i => if(i == OFFSET_DEPTH/4-1) 0.U(2.W) ## pmem_hit_line(2*i+1, 2*i) else pmem_hit_line(2*i+3, 2*i))
+    val pmem_rdata_RM   = pmem_hit_group(offset_RM(OFFSET_WIDTH-1, 2))
+
+    // pc sign buffer
+    val pbuf_hit_group  = VecInit.tabulate(OFFSET_DEPTH/4)(i => if(i == OFFSET_DEPTH/4-1) 0.U(2.W) ## pc_sign_buf(2*i+1, 2*i) else pc_sign_buf(2*i+3, 2*i))
+    val pbuf_rdata_RM   = Mux(uncache_RM, pc_sign_buf(OFFSET_DEPTH/2-1, OFFSET_DEPTH/2-4), pbuf_hit_group(offset_RM(OFFSET_WIDTH-1, 2)))
+    val pc_sign_RM      = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, pmem_rdata_RM(2*i+1, 2*i), pbuf_rdata_RM(2*i+1, 2*i))))
+    
+
+    // val pc_rsign_RM     = (Mux1H(hit_RM, pc_sign_mem.map(_.douta)) >> (offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(1.W)))(3, 0)
+    // val pbuf_rdata_RM   = Mux(uncache_RM, pc_sign_buf(OFFSET_DEPTH/2-1, OFFSET_DEPTH/2-4), pc_sign_buf >> (offset_RM(OFFSET_WIDTH-1, 2) ## 0.U(1.W)))
+    // val pc_sign_RM      = VecInit.tabulate(2)(i => (Mux(data_sel === FROM_CMEM, pc_rsign_RM(2*i+1, 2*i), pbuf_rdata_RM(2*i+1, 2*i))))
 
     /* return buffer update logic */
     ir.io.inst_raw      := inst_temp_buf

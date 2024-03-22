@@ -69,10 +69,10 @@ class Unorder_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends M
             queue_next.inst             := io.insts_dispatch(disp_index(idx))
             queue_next.prj_waked        := io.prj_ready(disp_index(idx))
             queue_next.prk_waked        := io.prk_ready(disp_index(idx))
-            queue_next.prj_wake_by_ld   := false.B
-            queue_next.prk_wake_by_ld   := false.B
-            mem_prd                     := io.ld_mem_prd
-            mem_prd_valid               := ld_mem_prd_valid
+            queue_next.prj_wake_by_ld   := !(io.insts_dispatch(disp_index(idx)).prj ^ io.ld_mem_prd) && ld_mem_prd_valid
+            queue_next.prk_wake_by_ld   := !(io.insts_dispatch(disp_index(idx)).prk ^ io.ld_mem_prd) && ld_mem_prd_valid
+            mem_prd                     := io.wake_preg(3)
+            mem_prd_valid               := ld_wake_prd_valid
         }
         queue(i).inst           := queue_next.inst
         queue(i).prj_waked      := queue_next.prj_waked || Wake_Up(io.wake_preg, queue_next.inst.asInstanceOf[inst_pack_DP_t].prj)
