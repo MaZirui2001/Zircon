@@ -33,7 +33,8 @@ class xilinx_simple_dual_port_1_clock_ram_read_first(RAM_WIDTH: Int, RAM_DEPTH: 
 |   (*ram_style="block"*)
 |     reg [RAM_WIDTH-1:0] BRAM [RAM_DEPTH-1:0];
 |     reg [$clog2(RAM_DEPTH)-1:0] addr_r;
-|       
+|     reg [RAM_WIDTH-1:0] ram_data = {RAM_WIDTH{1'b0}};
+|         
 |   generate
 |       integer ram_index;
 |       initial
@@ -42,11 +43,11 @@ class xilinx_simple_dual_port_1_clock_ram_read_first(RAM_WIDTH: Int, RAM_DEPTH: 
 |   endgenerate
 |
 |   always @(posedge clka) begin
-|       addr_r <= addrb;
+|       ram_data <= BRAM[addrb];
 |       if (wea) BRAM[addra] <= dina;
 |   end
 |
-|   assign doutb = BRAM[addr_r];
+|   assign doutb = ram_data;
 |
 |   endmodule
 """.stripMargin)

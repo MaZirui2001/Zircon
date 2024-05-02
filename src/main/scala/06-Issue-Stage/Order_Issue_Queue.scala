@@ -39,13 +39,27 @@ class Order_Issue_Queue_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends 
 class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Module {
     val io          = IO(new Order_Issue_Queue_IO(n, inst_pack_t))
 
+    def shift_add1(x: UInt): UInt = {
+        val n = x.getWidth
+        x(n-2, 0) ## 1.U(1.W)
+    }
+    def shift_sub1(x: UInt): UInt = {
+        val n = x.getWidth
+        0.U(1.W) ## x(n-1, 1)
+    }
+    def shift_add2(x: UInt): UInt = {
+        val n = x.getWidth
+        x(n-3, 0) ## 3.U(2.W)
+    }
     // queue
     val queue       = RegInit(VecInit.fill(n)(0.U.asTypeOf(new issue_queue_t(inst_pack_t))))
     val tail        = RegInit(0.U((log2Ceil(n)+1).W))
+    val qmask       = RegInit(0.U(n.W))
 
     val insert_num  = PopCount(io.insts_disp_valid)
     val tail_pop    = Wire(UInt((log2Ceil(n)+1).W))
-    val full        = tail > (n-2).U
+    val qmask_pop   = Mux(io.issue_ack, shift_sub1(qmask), qmask)
+    val full        = qmask(n-2)
 
     io.queue_ready  := !full
     io.full         := full
@@ -62,7 +76,7 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
         val queue_next  = Wire(new issue_queue_t(inst_pack_t))
         val mem_prd      = Wire(UInt(PREG_NUM.W))
         val mem_prd_valid = Wire(Bool())
-        when(i.asUInt < tail_pop){
+        when(qmask_pop(i)){
             queue_next := (if(i == n-1) queue(i) else Mux(io.issue_ack, queue(i+1), queue(i)))
             mem_prd                 := io.wake_preg(3)
             mem_prd_valid           := ld_wake_prd_valid
@@ -84,6 +98,11 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
         queue(i).prk_wake_by_ld := (!(queue_next.inst.asInstanceOf[inst_pack_DP_t].prk ^ mem_prd) && mem_prd_valid) || queue_next.prk_wake_by_ld
     }
     tail    := Mux(io.flush, 0.U, Mux(io.stall, tail_pop, tail_pop + Mux(io.queue_ready, insert_num, 0.U)))
+    qmask   := Mux(io.flush, 0.U, Mux(io.stall, qmask_pop, 
+            MuxLookup(insert_num, qmask_pop)(Seq(
+                0.U -> qmask_pop,
+                1.U -> shift_add1(qmask_pop),
+                2.U -> shift_add2(qmask_pop)))))
 
     // store in pipeline
     val store_num = RegInit(0.U)
@@ -99,10 +118,10 @@ class Order_Issue_Queue[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Mod
     // output
     io.insts_issue := queue(0)
     if(inst_pack_t.isInstanceOf[inst_pack_DP_LS_t]){
-        io.issue_req := (tail =/= 0.U && queue(0).prj_waked && queue(0).prk_waked 
+        io.issue_req := (qmask(0) && queue(0).prj_waked && queue(0).prk_waked 
                                       && (!(queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].priv_vec(0) && (store_num =/= 0.U || queue(0).inst.asInstanceOf[inst_pack_DP_LS_t].rob_index =/= io.rob_index_cmt))))
     }else{
-        io.issue_req := (tail =/= 0.U && queue(0).prj_waked && queue(0).prk_waked 
+        io.issue_req := (qmask(0) && queue(0).prj_waked && queue(0).prk_waked 
                                       && (!((queue(0).prj_wake_by_ld && !(queue(0).inst.prj ^ io.ld_mem_prd)
                                           || queue(0).prk_wake_by_ld && !(queue(0).inst.prk ^ io.ld_mem_prd)) && io.dcache_miss)))
     }

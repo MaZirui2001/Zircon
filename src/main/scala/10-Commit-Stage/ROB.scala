@@ -196,7 +196,9 @@ class ROB(n: Int) extends Module{
             rob(col_idx)(row_idx).is_ucread       := io.is_ucread_wb(i)
             if(i != 0){
                 if(i == 2){
-                    rob(col_idx)(row_idx).branch_target   := Mux(rob(col_idx)(row_idx).exception(7), rob(col_idx)(row_idx).pc - 4.U, io.branch_target_wb(i))
+                    rob(col_idx)(row_idx).branch_target   := Mux(rob(col_idx)(row_idx).exception(7), rob(col_idx)(row_idx).pc, io.branch_target_wb(i))
+                }else if(i == 3){
+                    rob(col_idx)(row_idx).branch_target   := io.branch_target_wb(i) + 4.U
                 }else{
                     rob(col_idx)(row_idx).branch_target   := io.branch_target_wb(i)
                 }
@@ -260,7 +262,7 @@ class ROB(n: Int) extends Module{
     val csr_wdata_cmt           = rob_update_item.branch_target
     val csr_we_cmt              = rob_update_item.is_priv_wrt && priv_buf.priv_vec(2, 1).orR
     val is_eret_cmt             = rob_update_item.is_priv_wrt && priv_buf.priv_vec(3)
-    val badv_cmt                = rob_update_item.branch_target
+    val badv_cmt                = rob_update_item.branch_target - 4.U
     val tlbrd_en_cmt            = rob_update_item.is_priv_wrt && priv_buf.priv_vec(4)
     val tlbwr_en_cmt            = rob_update_item.is_priv_wrt && priv_buf.priv_vec(5)
     val tlbfill_en_cmt          = rob_update_item.is_priv_wrt && priv_buf.priv_vec(6)

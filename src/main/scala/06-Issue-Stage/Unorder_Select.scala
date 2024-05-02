@@ -20,18 +20,30 @@ class Unorder_Select_IO[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Bun
 class Unorder_Select[T <: inst_pack_DP_t](n: Int, inst_pack_t: T) extends Module {
     val io                  = IO(new Unorder_Select_IO(n, inst_pack_t))
 
-    val select_index        = PriorityEncoder(io.issue_req)
-    val issue_ack           = UIntToOH(select_index)(n-1, 0)
-    val issue_ack_vec       = VecInit(issue_ack.asBools)
-    io.issue_ack            := Mux(io.issue_req.asUInt.orR && !io.stall, issue_ack_vec, 0.U.asTypeOf(Vec(n, Bool())))
+    // val select_index        = PriorityEncoder(io.issue_req)
+    // val issue_ack           = UIntToOH(select_index)(n-1, 0)
+    // val issue_ack_vec       = VecInit(issue_ack.asBools)
+    // io.issue_ack            := Mux(io.issue_req.asUInt.orR && !io.stall, issue_ack_vec, 0.U.asTypeOf(Vec(n, Bool())))
 
     
-    io.wake_preg            := Mux(io.issue_ack.asUInt.orR, io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
+    // io.wake_preg            := Mux(io.issue_ack.asUInt.orR, io.insts_issue(select_index).inst.asInstanceOf[inst_pack_DP_t].prd, 0.U)
     
-    val inst_issue          = io.insts_issue(select_index)
-    val bubble_inst_issue   = 0.U.asTypeOf(new issue_queue_t(inst_pack_t))
-    io.inst_issue           := Mux(io.issue_ack.asUInt.orR, inst_issue, bubble_inst_issue)
-    io.inst_issue_valid     := io.issue_ack.asUInt.orR
+    // val inst_issue          = io.insts_issue(select_index)
+    // val bubble_inst_issue   = 0.U.asTypeOf(new issue_queue_t(inst_pack_t))
+    // io.inst_issue           := Mux(io.issue_ack.asUInt.orR, inst_issue, bubble_inst_issue)
+    // io.inst_issue_valid     := io.issue_ack.asUInt.orR
+
+    val select_indexOH        = PriorityEncoderOH(io.issue_req)
+    val issue_ack             = select_indexOH
+    val issue_ack_vec         = VecInit(issue_ack)
+    io.issue_ack              := Mux(io.issue_req.asUInt.orR && !io.stall, issue_ack_vec, 0.U.asTypeOf(Vec(n, Bool())))
+
+    io.wake_preg              := Mux(io.issue_ack.asUInt.orR, Mux1H(select_indexOH, io.insts_issue.map(_.inst.asInstanceOf[inst_pack_DP_t].prd)), 0.U)
+
+    val inst_issue            = Mux1H(select_indexOH, io.insts_issue)
+    val bubble_inst_issue     = 0.U.asTypeOf(new issue_queue_t(inst_pack_t))
+    io.inst_issue             := Mux(io.issue_ack.asUInt.orR, inst_issue, bubble_inst_issue)
+    io.inst_issue_valid       := io.issue_ack.asUInt.orR
 
 }
 
