@@ -51,12 +51,12 @@ class ICache extends Module{
     val index_IF    = addr_IF(INDEX_WIDTH+OFFSET_WIDTH-1, OFFSET_WIDTH)
 
     // IF Stage
-    val tagv                = VecInit.fill(2)(Module(new xilinx_single_port_ram_read_first(TAG_WIDTH+1, INDEX_DEPTH)).io)
+    val tagv                = VecInit.fill(2)(Module(new xilinx_single_port_ram_no_change(TAG_WIDTH+1, INDEX_DEPTH)).io)
     val tag_r_RM            = VecInit.tabulate(2)(i => tagv(i).douta(TAG_WIDTH-1, 0))
     val valid_r_RM          = VecInit.tabulate(2)(i => tagv(i).douta(TAG_WIDTH))
 
-    val cmem                = VecInit.fill(2)(Module(new xilinx_single_port_ram_read_first(8 * OFFSET_DEPTH, INDEX_DEPTH)).io)
-    val pc_sign_mem         = VecInit.fill(2)(Module(new xilinx_single_port_ram_read_first(OFFSET_DEPTH / 2, INDEX_DEPTH)).io)
+    val cmem                = VecInit.fill(2)(Module(new xilinx_single_port_ram_no_change(8 * OFFSET_DEPTH, INDEX_DEPTH)).io)
+    val pc_sign_mem         = VecInit.fill(2)(Module(new xilinx_single_port_ram_no_change(OFFSET_DEPTH / 2, INDEX_DEPTH)).io)
     
     val addr_sel            = WireDefault(FROM_PIPE)
 

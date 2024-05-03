@@ -89,7 +89,7 @@ class DCache extends Module{
     val flush_RF_EX                 = ShiftRegister(io.flush, 1, EX_TC_en || io.flush)
 
     // EX Stage
-    val tagv                        = VecInit.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_read_first(TAG_WIDTH+1, INDEX_DEPTH)).io)
+    val tagv                        = VecInit.fill(2)(Module(new xilinx_simple_dual_port_1_clock_ram_no_change(TAG_WIDTH+1, INDEX_DEPTH)).io)
     val cmem                        = VecInit.fill(2)(Module(new xilinx_simple_dual_port_byte_write_1_clock_ram_read_first(OFFSET_DEPTH, 8, INDEX_DEPTH)).io)
     val tag_r_EX                    = VecInit.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH-1, 0))
     val valid_r_EX                  = VecInit.tabulate(2)(i => tagv(i).doutb(TAG_WIDTH))
